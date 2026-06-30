@@ -1,0 +1,99 @@
+# Cron jobs do MSM Site
+#
+# Railway 2.0 não tem cron nativo, então usamos GitHub Actions agendado.
+# Cada job hit um endpoint /api/cron/* com Authorization: Bearer $CRON_SECRET.
+#
+# Configuração necessária nos GitHub Secrets (repo Settings → Secrets and variables → Actions):
+#   - SITE_URL: ex "https://site-msm-production.up.railway.app" (sem barra final)
+#   - CRON_SECRET: mesmo valor da env var no Railway
+#
+# Workflows correm em UTC. Pra ajustar horário local, considere o offset.
+#
+# Manual dispatch: você pode rodar qualquer job manualmente via Actions tab → Run workflow.
+
+name: Cron jobs MSM
+
+on:
+  schedule:
+    # */5 * * * *  → a cada 5 min — processa fila webhook MullerBot
+    - cron: '*/5 * * * *'
+    # 0 */6 * * *  → a cada 6 horas — health monitor MullerBot
+    - cron: '0 */6 * * *'
+    # 0 3 * * *    → todo dia às 03:00 UTC (00:00 BRT) — arquiva audit log antigo
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Qual cron rodar manualmente?'
+        required: true
+        type: choice
+        options:
+          - webhook-queue
+          - health-monitor
+          - audit-archive
+
+jobs:
+  webhook-queue:
+    # Dispara em todo schedule e quando explicitamente escolhido no manual.
+    # Filtra dentro do step por cron expression pra não rodar tudo a cada tick.
+    if: github.event.schedule == '*/5 * * * *' || github.event.inputs.job == 'webhook-queue'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Process MullerBot webhook retry queue
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$SITE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::SITE_URL ou CRON_SECRET ausente nos GitHub Secrets"
+            exit 1
+          fi
+          status=$(curl -sS -o /tmp/resp.json -w "%{http_code}" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$SITE_URL/api/cron/process-webhook-queue")
+          echo "HTTP $status"
+          cat /tmp/resp.json
+          test "$status" -ge 200 -a "$status" -lt 300
+
+  health-monitor:
+    if: github.event.schedule == '0 */6 * * *' || github.event.inputs.job == 'health-monitor'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: MullerBot health monitor
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$SITE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::SITE_URL ou CRON_SECRET ausente nos GitHub Secrets"
+            exit 1
+          fi
+          status=$(curl -sS -o /tmp/resp.json -w "%{http_code}" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$SITE_URL/api/cron/health-monitor")
+          echo "HTTP $status"
+          cat /tmp/resp.json
+          test "$status" -ge 200 -a "$status" -lt 300
+
+  audit-archive:
+    if: github.event.schedule == '0 3 * * *' || github.event.inputs.job == 'audit-archive'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Archive old admin_activity_log entries
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$SITE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::error::SITE_URL ou CRON_SECRET ausente nos GitHub Secrets"
+            exit 1
+          fi
+          status=$(curl -sS -o /tmp/resp.json -w "%{http_code}" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$SITE_URL/api/cron/audit-archive")
+          echo "HTTP $status"
+          cat /tmp/resp.json
+          test "$status" -ge 200 -a "$status" -lt 300

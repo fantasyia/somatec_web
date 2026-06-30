@@ -1,0 +1,43 @@
+version: 2
+updates:
+  # npm — agrupa por ecossistema, abre PRs semanais
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    labels:
+      - "deps"
+      - "automated"
+    groups:
+      # Patches/minor de produção juntos
+      production-minor:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+          - "minor"
+      # Patches/minor de dev juntos
+      dev-minor:
+        dependency-type: "development"
+        update-types:
+          - "patch"
+          - "minor"
+    ignore:
+      # Tipos seguem React/Next — atualiza quando os pacotes principais atualizam
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions — também checa updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "deps"
+      - "ci"

@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+   MSM — Design Tokens (CSS Variables)
+   Tema claro/escuro dedicado, não inversão automática.
+   ============================================================================= */
+
+@layer base {
+  :root {
+    /* Light theme */
+    --bg: 247 245 239;            /* off_white #F7F5EF */
+    --surface: 255 255 255;
+    --surface-elevated: 255 255 255;
+    --border: 229 224 211;        /* border_light */
+    --text: 23 32 42;             /* text_dark */
+    --text-muted: 42 53 72;       /* neutral-700 */
+    --navy: 7 27 51;
+    --deep-navy: 3 17 31;
+    --gold: 201 162 74;
+    --gold-soft: 225 200 120;
+  }
+
+  .dark {
+    --bg: 3 17 31;                /* deep_navy */
+    --surface: 7 27 51;           /* navy */
+    --surface-elevated: 13 41 73; /* navy_700 */
+    --border: 38 52 71;           /* border_dark */
+    --text: 244 241 234;          /* text_light */
+    --text-muted: 168 179 199;
+    --navy: 7 27 51;
+    --deep-navy: 3 17 31;
+    --gold: 201 162 74;
+    --gold-soft: 225 200 120;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: rgb(var(--bg));
+    color: rgb(var(--text));
+    font-feature-settings: 'ss01', 'cv11';
+    transition: background-color 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                color 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Premium focus ring */
+  *:focus-visible {
+    outline: 2px solid #C9A24A;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Reserve scroll-gutter to prevent layout shifts */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  /* Respeitar prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: rgba(201, 162, 74, 0.25);
+    color: rgb(var(--text));
+  }
+}
+
+@layer components {
+  .container-msm {
+    @apply container mx-auto px-6 lg:px-8;
+  }
+
+  .eyebrow {
+    @apply text-eyebrow uppercase font-sans;
+    color: rgb(var(--gold));
+  }
+
+  .divider-gradient {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(var(--border)) 50%,
+      transparent 100%
+    );
+  }
+
+  .divider-vertical-gradient {
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgb(var(--border)) 50%,
+      transparent 100%
+    );
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-btn font-sans font-semibold text-sm
+           text-deep_navy bg-gold-gradient
+           transition-all duration-200 ease-premium
+           hover:-translate-y-px hover:shadow-premium-light
+           focus:outline-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-btn font-sans font-semibold text-sm
+           border border-current
+           transition-all duration-200 ease-premium
+           hover:-translate-y-px;
+  }
+
+  /* Admin-specific button */
+  .admin-btn-primary {
+    @apply inline-flex items-center gap-1.5 rounded-lg bg-gold/90 px-4 py-2 text-sm font-semibold text-navy hover:bg-gold transition-colors disabled:opacity-50;
+  }
+
+  .btn-outline-light {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-btn font-sans font-semibold text-sm
+           border border-white/40 text-white backdrop-blur-sm
+           transition-all duration-200 ease-premium
+           hover:border-white/80 hover:bg-white/5;
+  }
+
+  .link-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 100%;
+    height: 2px;
+    background: rgb(var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-underline:hover::after,
+  .link-underline[data-active='true']::after {
+    transform: scaleX(1);
+  }
+
+  .placeholder-tag {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-sans font-semibold uppercase tracking-widest;
+    color: rgb(var(--gold));
+    border: 1px solid rgb(var(--border));
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* Ken Burns — slow pan/zoom para hero sem vídeo */
+@keyframes ken-burns {
+  0%   { transform: scale(1)    translate(0%, 0%); }
+  33%  { transform: scale(1.06) translate(-1.5%, 0.5%); }
+  66%  { transform: scale(1.1)  translate(0.5%, -1%); }
+  100% { transform: scale(1.06) translate(-0.5%, 1.5%); }
+}
+.animate-ken-burns {
+  animation: ken-burns 24s ease-in-out infinite alternate;
+  will-change: transform;
+}

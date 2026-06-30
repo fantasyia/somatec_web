@@ -1,0 +1,18 @@
+# Pre-commit hook MSM
+# Bloqueia commit se:
+#   - TypeScript errors
+#   - ESLint errors (Next.js config)
+#   - Algum teste falhando
+#
+# Para pular (use com critério): git commit --no-verify
+
+set -e
+
+echo "→ TypeScript check..."
+npm run typecheck --silent
+
+echo "→ ESLint..."
+npm run lint --silent
+
+echo "→ Testes..."
+npm test --silent

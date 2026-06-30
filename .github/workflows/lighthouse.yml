@@ -1,0 +1,76 @@
+name: Lighthouse CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master, main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/dependabot.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: Lighthouse audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Build precisa de URLs válidas; runtime usa guards para fallback
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: ''
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ''
+          SUPABASE_SERVICE_ROLE_KEY: ''
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const manifest = JSON.parse(fs.readFileSync('.lighthouseci/manifest.json', 'utf8'));
+              const lines = ['### 🚀 Lighthouse Report', ''];
+              for (const run of manifest) {
+                lines.push(`**${run.url}**`);
+                lines.push(`- Performance: ${(run.summary.performance * 100).toFixed(0)}`);
+                lines.push(`- Accessibility: ${(run.summary.accessibility * 100).toFixed(0)}`);
+                lines.push(`- Best Practices: ${(run.summary['best-practices'] * 100).toFixed(0)}`);
+                lines.push(`- SEO: ${(run.summary.seo * 100).toFixed(0)}`);
+                lines.push('');
+              }
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: lines.join('\n'),
+              });
+            } catch (e) {
+              console.log('No manifest found or parse error:', e.message);
+            }

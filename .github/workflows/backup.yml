@@ -1,0 +1,69 @@
+name: Database Backup
+
+on:
+  schedule:
+    # Diariamente às 03:00 UTC (00:00 BRT)
+    - cron: '0 3 * * *'
+  workflow_dispatch: # permite trigger manual
+
+jobs:
+  backup:
+    name: pg_dump → artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Verify secret exists
+        run: |
+          if [ -z "${{ secrets.DATABASE_URL_BACKUP }}" ]; then
+            echo "::error::Secret DATABASE_URL_BACKUP não está configurado no repositório."
+            echo "Pegue a connection string em Supabase → Project Settings → Database → Connection string (URI, direta — porta 5432)."
+            echo "Adicione em: GitHub repo → Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+
+      - name: Create timestamped dump
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_BACKUP }}
+        run: |
+          set -euo pipefail
+          TIMESTAMP=$(date -u +'%Y-%m-%dT%H-%M-%SZ')
+          FILENAME="msm-backup-${TIMESTAMP}.sql.gz"
+          echo "FILENAME=$FILENAME" >> "$GITHUB_ENV"
+
+          # pg_dump 17 via Docker — imune ao client do runner (que traz só o 16) e a
+          # disputas de PATH. postgres:17 casa com a major do servidor Supabase (17.x).
+          # -e DATABASE_URL + sh -c '...': a senha fica na env do container, não no argv.
+          # --no-owner --no-acl: portável entre projetos Supabase.
+          # --schema=public: ignora schemas internos do Supabase (auth, storage, etc).
+          # extensions / RLS policies precisam ser recriadas separadamente em restore.
+          docker run --rm -e DATABASE_URL postgres:17 \
+            sh -c 'pg_dump --no-owner --no-acl --schema=public --format=plain "$DATABASE_URL"' \
+            | gzip -9 > "$FILENAME"
+
+          SIZE=$(du -h "$FILENAME" | cut -f1)
+          echo "Backup gerado: $FILENAME ($SIZE)"
+          ls -lh "$FILENAME"
+
+      - name: Upload backup as artifact (30 dias)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FILENAME }}
+          path: ${{ env.FILENAME }}
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Summary
+        run: |
+          {
+            echo "## ✅ Backup concluído"
+            echo ""
+            echo "- **Arquivo:** \`${{ env.FILENAME }}\`"
+            echo "- **Retenção:** 30 dias"
+            echo "- **Download:** aba **Artifacts** desta run"
+            echo ""
+            echo "### Restore"
+            echo "\`\`\`bash"
+            echo "gunzip -c ${{ env.FILENAME }} | psql \$DATABASE_URL"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"

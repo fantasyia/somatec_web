@@ -1,0 +1,57 @@
+﻿'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+import { AdminField } from '@/components/admin/AdminField';
+import { DeleteButton } from '@/components/admin/DeleteButton';
+import type { FooterLink, FooterColumn } from '@/types/database';
+
+type Props = { item?: FooterLink; columns: Pick<FooterColumn, 'id' | 'title'>[] };
+
+export function FooterLinkForm({ item, columns }: Props) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const colOptions = [{ value: '', label: '— selecione a coluna —' }, ...columns.map((c) => ({ value: c.id, label: c.title }))];
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault(); setLoading(true);
+    const fd = new FormData(e.currentTarget);
+    const body = { id: item?.id, label: fd.get('label'), href: fd.get('href'), column_id: fd.get('column_id'), display_order: Number(fd.get('display_order')) || 0, active: fd.get('active') === 'on', is_external: fd.get('is_external') === 'on', open_in_new_tab: fd.get('open_in_new_tab') === 'on' };
+    const res = await fetch('/api/admin/footer/links', { method: item ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await res.json() as { ok: boolean; message?: string };
+    if (data.ok) { router.push('/admin/footer'); router.refresh(); } else { setError(data.message ?? 'Erro.'); setLoading(false); }
+  }
+
+  async function onDelete() {
+    await fetch(`/api/admin/footer/links?id=${item!.id}`, { method: 'DELETE' });
+    router.push('/admin/footer');
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="p-6 lg:p-8 max-w-xl space-y-5">
+      <div className="grid grid-cols-2 gap-4">
+        <AdminField label="Label" name="label" required defaultValue={item?.label} />
+        <AdminField label="URL (href)" name="href" required defaultValue={item?.href} />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <AdminField as="select" label="Coluna" name="column_id" options={colOptions} required defaultValue={item?.column_id ?? ''} />
+        <AdminField label="Ordem" name="display_order" type="number" defaultValue={String(item?.display_order ?? 0)} />
+      </div>
+      <div className="flex gap-5">
+        {['active', 'is_external', 'open_in_new_tab'].map((name) => (
+          <label key={name} className="flex items-center gap-2 text-sm text-white/70 cursor-pointer">
+            <input type="checkbox" name={name} defaultChecked={item ? (item as Record<string, unknown>)[name] as boolean : name === 'active'} className="rounded border-white/20 bg-[rgb(var(--surface-elevated))] text-gold focus:ring-gold/40" />
+            {name === 'active' ? 'Ativo' : name === 'is_external' ? 'Externo' : 'Nova aba'}
+          </label>
+        ))}
+      </div>
+      {error && <p className="text-sm text-red-400">{error}</p>}
+      <div className="flex items-center gap-4 pt-2">
+        <button type="submit" disabled={loading} className="admin-btn-primary">{loading && <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />}{item ? 'Salvar' : 'Criar link'}</button>
+        {item && <DeleteButton onDelete={onDelete} />}
+      </div>
+    </form>
+  );
+}
