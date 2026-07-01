@@ -24,7 +24,7 @@ export default function QuemSomosPage() {
         eyebrow="A Somatec Blocking"
         title="Quem somos"
         description="Uma empresa nacional construída sobre excelência técnica, comprovação científica e parcerias de longo prazo com quem mantém a indústria funcionando."
-        breadcrumbs={[{ label: 'A Somatec', href: '/a-msm' }, { label: 'Quem somos' }]}
+        breadcrumbs={[{ label: 'A Somatec', href: '/a-somatec' }, { label: 'Quem somos' }]}
       />
 
       <section className="container-msm py-10 md:py-14 space-y-20 md:space-y-28">

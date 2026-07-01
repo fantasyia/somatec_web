@@ -45,7 +45,7 @@ export default function ComprovacaoNormasPage() {
         eyebrow="A Somatec Blocking"
         title="Comprovação, normas e segurança"
         description="Somos técnicos e científicos: comprovamos a eficácia por laudos e medições, atuamos dentro das normas e mantemos um histórico de zero acidentes."
-        breadcrumbs={[{ label: 'A Somatec', href: '/a-msm' }, { label: 'Comprovação e normas' }]}
+        breadcrumbs={[{ label: 'A Somatec', href: '/a-somatec' }, { label: 'Comprovação e normas' }]}
       />
 
       <section className="container-msm py-10 md:py-14 space-y-20 md:space-y-28">

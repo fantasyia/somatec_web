@@ -45,7 +45,7 @@ export default function TecnologiaFabricacaoPage() {
         eyebrow="A Somatec Blocking"
         title="Tecnologia e fabricação"
         description="O Sistema Master Block IoT combina hardware, software e serviço — não é um produto instalado e esquecido, mas uma engenharia que protege e comprova a proteção em dados."
-        breadcrumbs={[{ label: 'A Somatec', href: '/a-msm' }, { label: 'Tecnologia e fabricação' }]}
+        breadcrumbs={[{ label: 'A Somatec', href: '/a-somatec' }, { label: 'Tecnologia e fabricação' }]}
       />
 
       <section className="container-msm py-10 md:py-14 space-y-20 md:space-y-28">

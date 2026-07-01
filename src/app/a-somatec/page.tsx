@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 const sections = [
   {
-    href: '/a-msm/quem-somos',
+    href: '/a-somatec/quem-somos',
     icon: Users,
     eyebrow: 'Institucional',
     title: 'Quem somos',
@@ -28,7 +28,7 @@ const sections = [
       'O filtro híbrido que atua em 100 kHz, o software de gestão on-line de qualidade de energia e as inspeções periódicas — proteção que se comprova em dados.',
   },
   {
-    href: '/a-msm/qualidade-e-seguranca',
+    href: '/a-somatec/comprovacao-e-normas',
     icon: Award,
     eyebrow: 'Resultados',
     title: 'Comprovação e garantia',

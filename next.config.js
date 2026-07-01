@@ -72,6 +72,22 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // Rename institucional /a-msm -> /a-somatec (slugs limpos).
+      { source: '/a-msm', destination: '/a-somatec', permanent: true },
+      { source: '/a-msm/quem-somos', destination: '/a-somatec/quem-somos', permanent: true },
+      { source: '/a-msm/estrutura-industrial', destination: '/a-somatec/tecnologia-e-fabricacao', permanent: true },
+      { source: '/a-msm/qualidade-e-seguranca', destination: '/a-somatec/comprovacao-e-normas', permanent: true },
+      // Slugs antigos (food) de /solucoes -> novas soluções Somatec.
+      { source: '/solucoes/food-service', destination: '/solucoes/protecao-contra-surtos', permanent: true },
+      { source: '/solucoes/b2b', destination: '/solucoes/qualidade-de-energia', permanent: true },
+      { source: '/solucoes/distribuicao', destination: '/solucoes/banco-de-capacitores', permanent: true },
+      { source: '/solucoes/terceirizacao-de-producao', destination: '/solucoes/medicao-e-laudos', permanent: true },
+      { source: '/solucoes/envase', destination: '/solucoes/manutencao-cabine-primaria', permanent: true },
+      { source: '/solucoes/marcas-proprias', destination: '/solucoes', permanent: true },
+    ];
+  },
 };
 
 module.exports = nextConfig;
