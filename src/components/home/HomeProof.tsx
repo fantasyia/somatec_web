@@ -41,11 +41,11 @@ const CASES: readonly Case[] = [
   },
   {
     metric: '4 dias',
-    unit: 'de produção salvos',
+    unit: 'de produção salvos por mês',
     company: 'Grow Up',
     sector: 'Têxtil · Cascavel-PR',
     description:
-      'Eliminação das queimas frequentes de equipamentos que chegavam a parar até 4 dias de produção.',
+      'Eliminação das queimas frequentes de equipamentos, que chegavam a parar até 4 dias por mês — mais de 13% da produção mensal.',
   },
 ];
 
