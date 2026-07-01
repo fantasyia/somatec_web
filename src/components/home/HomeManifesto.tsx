@@ -19,9 +19,11 @@ export function HomeManifesto() {
             <span className="text-gold">o surto não vence</span>.
           </h2>
           <p className="text-base md:text-lg leading-relaxed text-[rgb(var(--text-muted))] text-pretty max-w-2xl mx-auto">
-            O MasterBlock atua em 100 kHz — a frequência onde o transiente realmente
-            queima CLP, servo e inversor. Proteção em cascata e aterramento dedicado,
-            conforme a NBR 5410. A mesma engenharia que protege as maiores indústrias
+            Os VTCD — variações de tensão de curta duração, abaixo de 1 segundo — queimam
+            placas, CLP e inversores e param a produção. O Master Block atua em 100 kHz, a
+            frequência onde os DPS comuns não chegam, e o software de gestão on-line comprova
+            a eficiência em dados. Segundo a CNI, 67% da indústria nacional sofre prejuízos
+            com má qualidade de energia. A nossa engenharia já protege as maiores indústrias
             do Brasil.
           </p>
         </div>

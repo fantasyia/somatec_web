@@ -1,11 +1,13 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ChevronRight, Building2, FlaskConical, ShieldCheck, Users } from 'lucide-react';
+import { ChevronRight, Cpu, Award, ShieldCheck, Users } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 
 export const metadata: Metadata = {
-  title: 'A MSM — Indústria alimentícia B2B',
-  robots: { index: true, follow: true },
+  title: 'A Somatec Blocking — Autoridade em qualidade de energia',
+  description:
+    'A Somatec Blocking é uma empresa nacional de eficiência energética e qualidade de energia, fundada em 1999. Criamos o Master Block e projetos de proteção elétrica para a indústria.',
+  robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 
 const sections = [
@@ -15,42 +17,42 @@ const sections = [
     eyebrow: 'Institucional',
     title: 'Quem somos',
     description:
-      'Conheça a história, o propósito e os valores que orientam a atuação da MSM como parceira estratégica da indústria alimentícia.',
+      'Nossa história desde 1999, o propósito e os valores que fazem da Somatec Blocking autoridade em eficiência e qualidade de energia.',
   },
   {
-    href: '/a-msm/estrutura-industrial',
-    icon: Building2,
-    eyebrow: 'Capacidade',
-    title: 'Estrutura industrial',
+    href: '/produtos',
+    icon: Cpu,
+    eyebrow: 'Tecnologia',
+    title: 'Sistema Master Block IoT',
     description:
-      'Infraestrutura produtiva dimensionada para atender volumes B2B com consistência, flexibilidade e rastreabilidade de ponta a ponta.',
+      'O filtro híbrido que atua em 100 kHz, o software de gestão on-line de qualidade de energia e as inspeções periódicas — proteção que se comprova em dados.',
   },
   {
     href: '/a-msm/qualidade-e-seguranca',
-    icon: ShieldCheck,
-    eyebrow: 'Conformidade',
-    title: 'Qualidade e segurança',
+    icon: Award,
+    eyebrow: 'Resultados',
+    title: 'Comprovação e garantia',
     description:
-      'Processos de controle de qualidade e segurança alimentar implementados em cada etapa da cadeia produtiva.',
+      'Laudos, medições e um modelo de investimento sem risco: o cliente só investe quando o resultado é comprovado na própria planta.',
   },
   {
     href: '/solucoes',
-    icon: FlaskConical,
-    eyebrow: 'Comercial',
-    title: 'Nossas soluções',
+    icon: ShieldCheck,
+    eyebrow: 'Portfólio',
+    title: 'Produtos e serviços',
     description:
-      'Food service, B2B, terceirização, envase, marcas próprias e distribuição — descubra como a MSM pode atender o seu negócio.',
+      'Master Block, Retentor Eletromagnético e Banco de Capacitores, além de medições, laudos e manutenção de cabine primária.',
   },
 ];
 
-export default function AMsmPage() {
+export default function ASomatecPage() {
   return (
     <>
       <PageHero
-        eyebrow="A MSM"
-        title="Indústria, qualidade e parceria"
-        description="A MSM é uma indústria alimentícia voltada ao mercado B2B, com atuação integrada em produção, envase, marcas próprias e soluções comerciais para todo o Brasil."
-        breadcrumbs={[{ label: 'A MSM' }]}
+        eyebrow="A Somatec Blocking"
+        title="Autoridade em qualidade de energia desde 1999"
+        description="Somos uma empresa nacional de eficiência energética. Desenvolvemos produtos e projetos que melhoram a qualidade da energia elétrica de indústrias e empresas — protegendo ativos, evitando paradas e reduzindo custos."
+        breadcrumbs={[{ label: 'A Somatec' }]}
       />
 
       <section className="container-msm py-10 md:py-14">

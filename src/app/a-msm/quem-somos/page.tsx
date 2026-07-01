@@ -1,50 +1,79 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 
 export const metadata: Metadata = {
-  title: 'Quem somos — A MSM',
-  robots: { index: true, follow: true },
+  title: 'Quem somos — Somatec Blocking',
+  description:
+    'Fundada em 1999 em Dracena-SP, a Somatec Blocking é especialista em eficiência energética e qualidade de energia. 26 anos de atuação técnica, sem nenhum acidente.',
+  robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 
 const values = [
-  { title: 'Qualidade', description: 'Rigor técnico em cada etapa do processo produtivo, do ingrediente ao produto final.' },
-  { title: 'Parceria', description: 'Relação próxima e transparente com clientes, fornecedores e colaboradores.' },
-  { title: 'Consistência', description: 'Entrega padronizada e confiável em escala, seja para pequenas ou grandes operações.' },
-  { title: 'Inovação', description: 'Investimento contínuo em tecnologia, processos e desenvolvimento de novas soluções.' },
+  { title: 'Ética', description: 'Estabelecemos uma conversa sincera desde a prospecção até a comprovação de resultados.' },
+  { title: 'Inovação', description: 'Acompanhamos a evolução do setor e trazemos tecnologia no desenvolvimento de soluções em eficiência energética.' },
+  { title: 'Compromisso', description: 'Estamos comprometidos com a entrega final e a resolução das dores dos nossos clientes.' },
+  { title: 'Sustentabilidade', description: 'Ao promover economia e segurança elétrica, reduzimos o descarte de lixo eletrônico e o desperdício de recursos.' },
 ];
 
 export default function QuemSomosPage() {
   return (
     <>
       <PageHero
-        eyebrow="A MSM"
+        eyebrow="A Somatec Blocking"
         title="Quem somos"
-        description="Uma indústria alimentícia construída sobre rigor técnico, parcerias de longo prazo e compromisso com a qualidade em cada etapa da produção."
-        breadcrumbs={[{ label: 'A MSM', href: '/a-msm' }, { label: 'Quem somos' }]}
+        description="Uma empresa nacional construída sobre excelência técnica, comprovação científica e parcerias de longo prazo com quem mantém a indústria funcionando."
+        breadcrumbs={[{ label: 'A Somatec', href: '/a-msm' }, { label: 'Quem somos' }]}
       />
 
       <section className="container-msm py-10 md:py-14 space-y-20 md:space-y-28">
 
-        {/* Missão e visão */}
+        {/* História */}
+        <div className="max-w-3xl mx-auto space-y-5">
+          <span className="eyebrow">Desde 1999</span>
+          <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
+            Autoridade é entender a planta antes de propor a solução
+          </h2>
+          <p className="text-[rgb(var(--text-muted))] leading-relaxed">
+            Fundada em 1999 em Dracena, interior de São Paulo, a Somatec Blocking nasceu voltada
+            à criação de produtos inovadores de alta performance e a serviços prestados com
+            excelência técnica. Ao longo dos anos, nos tornamos especialistas em projetos de
+            gestão da eficiência energética, trabalhando na melhoria da qualidade de energia das
+            empresas — com benefícios que superam os custos das soluções.
+          </p>
+          <p className="text-[rgb(var(--text-muted))] leading-relaxed">
+            Cada projeto é criado de forma única, considerando as necessidades da planta elétrica
+            de cada cliente. Não abordamos pelos problemas — abordamos pelas necessidades reais de
+            cada operação, comprovando nossa eficácia por meio de laudos e confirmações
+            laboratoriais. Em <strong className="text-[rgb(var(--text))]">26 anos de atuação, não
+            registramos nenhum acidente</strong>: nossas instalações são feitas com a rede
+            desligada e nossos produtos atuam de forma passiva, em paralelo ao circuito.
+          </p>
+        </div>
+
+        {/* Missão / Posicionamento */}
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 md:gap-16">
           <div className="space-y-4">
-            <span className="eyebrow">Missão</span>
-            <h2 className="font-serif text-h3-m md:text-h3-d font-semibold text-balance">
-              Gerar valor para o ecossistema alimentício
-            </h2>
+            <span className="eyebrow">O que fazemos</span>
+            <h3 className="font-serif text-h3-m md:text-h3-d font-semibold text-balance">
+              Melhorar a qualidade da energia da indústria
+            </h3>
             <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-              A MSM atua como elo estratégico entre a produção industrial de alimentos e as demandas do mercado B2B nacional, oferecendo soluções integradas que vão da fabricação ao desenvolvimento de marcas próprias.
+              Desenvolvemos produtos e serviços em eficiência energética para melhorar a qualidade
+              da energia elétrica em empresas e indústrias, por meio de soluções personalizadas para
+              cada necessidade de negócio.
             </p>
           </div>
           <div className="space-y-4">
-            <span className="eyebrow">Visão</span>
-            <h2 className="font-serif text-h3-m md:text-h3-d font-semibold text-balance">
-              Referência em soluções industriais para alimentos
-            </h2>
+            <span className="eyebrow">Por que fazemos</span>
+            <h3 className="font-serif text-h3-m md:text-h3-d font-semibold text-balance">
+              Transformar o setor e o país
+            </h3>
             <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-              Ser reconhecida como a parceira mais confiável para empresas que precisam de capacidade industrial, qualidade consistente e flexibilidade para crescer com segurança.
+              Para gerar transformação no segmento de eficiência energética e contribuir com o
+              desenvolvimento sustentável — reduzindo perdas, queimas de equipamentos, paradas de
+              produção e a geração de lixo eletrônico.
             </p>
           </div>
         </div>
@@ -77,18 +106,20 @@ export default function QuemSomosPage() {
         {/* CTA */}
         <div className="max-w-3xl mx-auto text-center space-y-5">
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Pronto para conhecer nossas soluções?
+            Pronto para proteger a sua operação?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Fale com nossa equipe comercial e descubra como a MSM pode ser a parceira ideal para o seu negócio.
+            Fale com a engenharia da Somatec Blocking e descubra como o Sistema Master Block IoT
+            pode reduzir paradas e danos elétricos na sua planta.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <CommercialCta
-              label="Falar com a equipe"
-              fallbackPath="/contato#b2b"
+              label="Falar com a engenharia"
+              context="Página Quem somos"
+              fallbackPath="/contato"
             />
-            <Link href="/solucoes" className="btn-secondary text-[rgb(var(--text))]">
-              Ver soluções
+            <Link href="/produtos" className="btn-secondary text-[rgb(var(--text))]">
+              Conheça o Master Block
             </Link>
           </div>
         </div>
