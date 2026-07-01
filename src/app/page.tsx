@@ -5,26 +5,21 @@ import {
   getSliderItems,
   getIndicators,
   getCtaCards,
-  getFeaturedBrands,
   getFeaturedProducts,
-  getFeaturedRecipes,
 } from '@/lib/data/home';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import {
   BRANDS_FALLBACK,
   PRODUCTS_FALLBACK,
-  RECIPES_FALLBACK,
 } from '@/lib/constants/home-fallback';
-import type { Brand, Product, Recipe } from '@/types/database';
+import type { Product } from '@/types/database';
 import { HomeHero } from '@/components/home/HomeHero';
 import { HomeCarousel } from '@/components/home/HomeCarousel';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
 import { HomeManifesto } from '@/components/home/HomeManifesto';
 import { HomeProof } from '@/components/home/HomeProof';
 import { HomeNoRisk } from '@/components/home/HomeNoRisk';
-import { HomeBrands } from '@/components/home/HomeBrands';
 import { HomeProducts } from '@/components/home/HomeProducts';
-import { HomeRecipes } from '@/components/home/HomeRecipes';
 import { HomeBlogTeaser } from '@/components/home/HomeBlogTeaser';
 import { HomeCta } from '@/components/home/HomeCta';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -57,20 +52,16 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   // Fetch paralelo de todos os blocos.
-  const [hero, sliderItems, indicators, ctaCards, brands, products, recipes] =
+  const [hero, sliderItems, indicators, ctaCards, products] =
     await Promise.all([
       getHomeHero(),
       getSliderItems(),
       getIndicators(),
       getCtaCards(),
-      getFeaturedBrands(),
       getFeaturedProducts(),
-      getFeaturedRecipes(),
     ]);
 
-  const displayBrands = brands.length > 0 ? brands : (BRANDS_FALLBACK as unknown as Brand[]);
   const displayProducts = products.length > 0 ? products : (PRODUCTS_FALLBACK as unknown as Product[]);
-  const displayRecipes = recipes.length > 0 ? recipes : (RECIPES_FALLBACK as unknown as Recipe[]);
 
   // Map de brand_id → name para uso nos cards de produtos
   let brandNames: Record<string, string> = {};

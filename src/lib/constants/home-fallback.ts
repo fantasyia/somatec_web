@@ -4,14 +4,6 @@
  * Tom profissional, B2B, institucional.
  */
 
-import {
-  Zap,
-  Gauge,
-  ClipboardCheck,
-  Wrench,
-  ShieldCheck,
-  BatteryCharging,
-} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export const HERO_FALLBACK = {
@@ -69,60 +61,6 @@ export const INDICATORS_FALLBACK = [
   { label: 'Food Service', description: 'Operações profissionais' },
   { label: 'B2B', description: 'Indústrias, redes e atacadistas' },
   { label: 'Atendimento Nacional', description: 'Entregas para todo o Brasil' },
-] as const;
-
-// Soluções (6 fixas conforme v1.0 §12.4)
-type SolutionFallback = {
-  slug: string;
-  href: string;
-  title: string;
-  description: string;
-  Icon: LucideIcon;
-};
-
-export const SOLUTIONS_FALLBACK: readonly SolutionFallback[] = [
-  {
-    slug: 'food-service',
-    href: '/solucoes/food-service',
-    title: 'Proteção contra surtos',
-    description: 'MasterBlock — supressor com filtro passivo atuante em 100 kHz.',
-    Icon: Zap,
-  },
-  {
-    slug: 'b2b',
-    href: '/solucoes/b2b',
-    title: 'Qualidade de energia',
-    description: 'Diagnóstico e correção da qualidade de energia elétrica da planta.',
-    Icon: Gauge,
-  },
-  {
-    slug: 'terceirizacao',
-    href: '/solucoes/terceirizacao-de-producao',
-    title: 'Medições e laudos',
-    description: 'Ensaios estáticos e dinâmicos e laudos técnicos conforme as normas.',
-    Icon: ClipboardCheck,
-  },
-  {
-    slug: 'envase',
-    href: '/solucoes/envase',
-    title: 'Manutenção elétrica',
-    description: 'Manutenção elétrica industrial especializada para alta criticidade.',
-    Icon: Wrench,
-  },
-  {
-    slug: 'marcas-proprias',
-    href: '/solucoes/marcas-proprias',
-    title: 'Aterramento dedicado',
-    description: 'Aterramento e equipotencialização conforme a NBR 5410.',
-    Icon: ShieldCheck,
-  },
-  {
-    slug: 'distribuicao',
-    href: '/solucoes/distribuicao',
-    title: 'Banco de capacitores',
-    description: 'Correção de fator de potência e eficiência energética.',
-    Icon: BatteryCharging,
-  },
 ] as const;
 
 // CTAs "Fale Conosco" segmentados
@@ -211,10 +149,4 @@ export const PRODUCTS_FALLBACK = [
   { id: 'p4', slug: 'ketchup-gourmet', name: 'Ketchup Gourmet', main_image_url: 'https://picsum.photos/seed/msm-prod-4/600/750', brand_id: 'b1', packaging_summary: 'Sachês e frascos 1kg, 3kg' },
   { id: 'p5', slug: 'maionese-profissional', name: 'Maionese Profissional', main_image_url: 'https://picsum.photos/seed/msm-prod-5/600/750', brand_id: 'b4', packaging_summary: 'Baldes de 3,5kg e 20kg' },
   { id: 'p6', slug: 'tempero-churrasco', name: 'Tempero para Churrasco', main_image_url: 'https://picsum.photos/seed/msm-prod-6/600/750', brand_id: 'b5', packaging_summary: 'Sachês 500g e potes 1kg' },
-];
-
-export const RECIPES_FALLBACK = [
-  { id: 'r1', slug: 'risoto-cogumelos-trufa', title: 'Risoto de Cogumelos com Trufa', image_url: 'https://picsum.photos/seed/msm-rec-1/800/600', total_time: '40 min' },
-  { id: 'r2', slug: 'frango-grelhado-ervas', title: 'Frango Grelhado com Ervas', image_url: 'https://picsum.photos/seed/msm-rec-2/800/600', total_time: '30 min' },
-  { id: 'r3', slug: 'massa-molho-pomodoro', title: 'Massa ao Molho Pomodoro', image_url: 'https://picsum.photos/seed/msm-rec-3/800/600', total_time: '25 min' },
 ];

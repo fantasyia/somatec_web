@@ -11,9 +11,9 @@ export const HEADER_NAV: NavItem[] = [
     href: '/a-msm',
     children: [
       { label: 'Quem somos', href: '/a-msm/quem-somos' },
-      { label: 'Estrutura industrial', href: '/a-msm/estrutura-industrial' },
+      { label: 'Tecnologia e fabricação', href: '/a-msm/estrutura-industrial' },
       {
-        label: 'Qualidade e normas',
+        label: 'Comprovação e normas',
         href: '/a-msm/qualidade-e-seguranca',
       },
     ],
@@ -64,8 +64,8 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
     title: 'A Somatec',
     links: [
       { label: 'Quem somos', href: '/a-msm/quem-somos' },
-      { label: 'Estrutura industrial', href: '/a-msm/estrutura-industrial' },
-      { label: 'Qualidade e normas', href: '/a-msm/qualidade-e-seguranca' },
+      { label: 'Tecnologia e fabricação', href: '/a-msm/estrutura-industrial' },
+      { label: 'Comprovação e normas', href: '/a-msm/qualidade-e-seguranca' },
     ],
   },
   {

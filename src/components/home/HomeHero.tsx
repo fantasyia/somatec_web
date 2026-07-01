@@ -50,19 +50,19 @@ export function HomeHero({ data }: Props) {
   }, []);
 
   const title = data?.title ?? HERO_FALLBACK.title;
-  // Destaca o termo-chave em laranja (cor do Master Block) dentro do título.
-  const renderTitle = (t: string) => {
-    const term = '100 kHz';
-    const idx = t.indexOf(term);
-    if (idx === -1) return t;
-    return (
-      <>
-        {t.slice(0, idx)}
-        <span className="text-gold">{term}</span>
-        {t.slice(idx + term.length)}
-      </>
-    );
-  };
+  // Realça o contraste de frequência: "100 kHz" (onde o Master Block atua) em
+  // laranja, e "10 kHz" (limite do DPS comum) riscado/atenuado.
+  const renderRich = (t: string) =>
+    t.split(/(100 kHz|10 kHz)/g).map((p, i) => {
+      if (p === '100 kHz') return <span key={i} className="text-gold">100 kHz</span>;
+      if (p === '10 kHz')
+        return (
+          <span key={i} className="line-through decoration-2 decoration-gold/50 opacity-70">
+            10 kHz
+          </span>
+        );
+      return p;
+    });
   const subtitle = data?.description ?? data?.subtitle ?? HERO_FALLBACK.subtitle;
   const primary = {
     label: data?.primary_cta_label ?? HERO_FALLBACK.primary.label,
@@ -135,10 +135,10 @@ export function HomeHero({ data }: Props) {
         <div className="max-w-[600px] space-y-6">
           <span className="eyebrow inline-block">{data?.subtitle ?? HERO_FALLBACK.eyebrow}</span>
           <h1 className="font-serif text-h1-m font-semibold text-balance md:text-h1-d dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
-            {renderTitle(title)}
+            {renderRich(title)}
           </h1>
           <p className="max-w-[480px] text-base leading-relaxed text-deep_navy/80 text-pretty md:text-lg dark:text-white/85">
-            {subtitle}
+            {renderRich(subtitle)}
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link href={primary.href} className="btn-primary group">
