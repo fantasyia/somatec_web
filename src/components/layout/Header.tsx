@@ -7,12 +7,11 @@ import {
   ChevronRight,
   Menu,
   X,
-  ChefHat,
-  Building2,
-  Factory,
-  Package,
-  Tag,
-  Truck,
+  Zap,
+  Gauge,
+  BatteryCharging,
+  ClipboardCheck,
+  Wrench,
   type LucideIcon,
 } from 'lucide-react';
 import { HEADER_NAV, HEADER_CTAS } from '@/lib/constants/navigation';
@@ -21,12 +20,11 @@ import { cn } from '@/lib/utils';
 
 // Ícone por solução (mapeado por href — mantém navigation.ts como dados puros).
 const SOLUTION_ICON: Record<string, LucideIcon> = {
-  '/solucoes/food-service': ChefHat,
-  '/solucoes/b2b': Building2,
-  '/solucoes/terceirizacao-de-producao': Factory,
-  '/solucoes/envase': Package,
-  '/solucoes/marcas-proprias': Tag,
-  '/solucoes/distribuicao': Truck,
+  '/solucoes/protecao-contra-surtos': Zap,
+  '/solucoes/qualidade-de-energia': Gauge,
+  '/solucoes/banco-de-capacitores': BatteryCharging,
+  '/solucoes/medicao-e-laudos': ClipboardCheck,
+  '/solucoes/manutencao-cabine-primaria': Wrench,
 };
 
 export function Header() {

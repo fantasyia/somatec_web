@@ -25,23 +25,28 @@ export const HEADER_NAV: NavItem[] = [
     children: [
       {
         label: 'Proteção contra surtos',
-        href: '/solucoes',
-        description: 'MasterBlock — supressor com atuação em 100 kHz.',
+        href: '/solucoes/protecao-contra-surtos',
+        description: 'Master Block — supressor com atuação em 100 kHz.',
       },
       {
         label: 'Qualidade de energia',
-        href: '/solucoes',
-        description: 'Diagnóstico e correção da qualidade de energia da planta.',
+        href: '/solucoes/qualidade-de-energia',
+        description: 'Software on-line que comprova a proteção em tempo real.',
       },
       {
-        label: 'Medições e laudos',
-        href: '/solucoes',
-        description: 'Ensaios e laudos técnicos conforme as normas.',
+        label: 'Banco de capacitores',
+        href: '/solucoes/banco-de-capacitores',
+        description: 'Correção do fator de potência e fim das multas por reativo.',
       },
       {
-        label: 'Manutenção',
-        href: '/solucoes',
-        description: 'Manutenção elétrica industrial especializada.',
+        label: 'Medição e laudos',
+        href: '/solucoes/medicao-e-laudos',
+        description: 'Diagnóstico técnico da qualidade da sua energia.',
+      },
+      {
+        label: 'Manutenção de cabine',
+        href: '/solucoes/manutencao-cabine-primaria',
+        description: 'Confiabilidade elétrica sem paradas não programadas.',
       },
     ],
   },
@@ -73,10 +78,11 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
   {
     title: 'Soluções',
     links: [
-      { label: 'Proteção contra surtos', href: '/solucoes' },
-      { label: 'Qualidade de energia', href: '/solucoes' },
-      { label: 'Medições e laudos', href: '/solucoes' },
-      { label: 'Manutenção', href: '/solucoes' },
+      { label: 'Proteção contra surtos', href: '/solucoes/protecao-contra-surtos' },
+      { label: 'Qualidade de energia', href: '/solucoes/qualidade-de-energia' },
+      { label: 'Banco de capacitores', href: '/solucoes/banco-de-capacitores' },
+      { label: 'Medição e laudos', href: '/solucoes/medicao-e-laudos' },
+      { label: 'Manutenção de cabine', href: '/solucoes/manutencao-cabine-primaria' },
     ],
   },
   {
