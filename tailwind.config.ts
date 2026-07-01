@@ -19,27 +19,35 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // Azul institucional oficial (Pantone 2955 C — brandbook Somatec)
         navy: {
-          DEFAULT: '#071B33',
-          700: '#0D2949',
-          900: '#050B12',
+          DEFAULT: '#00416E',
+          700: '#013457',
+          900: '#00253F',
         },
-        deep_navy: '#03111F',
+        deep_navy: '#002B47',
+        // Ciano institucional (Process Cyan — brandbook Somatec)
+        cyan: {
+          DEFAULT: '#008CC8',
+          soft: '#33A6D6',
+        },
+        // Acento/CTA — laranja oficial do Master Block (#F39200). Mantém a
+        // chave "gold" por compatibilidade com os componentes existentes.
         gold: {
-          DEFAULT: '#F7941D',
-          soft: '#FBB04F',
+          DEFAULT: '#F39200',
+          soft: '#F7B24D',
         },
-        off_white: '#F7F5EF',
+        off_white: '#F5F8FB',
         neutral: {
-          200: '#E8E4D6',
-          700: '#2A3548',
+          200: '#E1E8EF',
+          700: '#33475C',
         },
-        border_light: '#E5E0D3',
-        border_dark: '#263447',
-        text_dark: '#17202A',
-        text_light: '#F4F1EA',
-        text_muted_light: '#2A3548',
-        text_muted_dark: '#A8B3C7',
+        border_light: '#DCE4EC',
+        border_dark: '#123B57',
+        text_dark: '#0E2233',
+        text_light: '#EAF2F8',
+        text_muted_light: '#33475C',
+        text_muted_dark: '#9DB2C4',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
@@ -66,15 +74,15 @@ const config: Config = {
         'btn': '6px',
       },
       boxShadow: {
-        'premium-light': '0 4px 24px rgba(7, 27, 51, 0.06)',
-        'premium-light-hover': '0 12px 32px rgba(7, 27, 51, 0.08)',
+        'premium-light': '0 4px 24px rgba(0, 65, 110, 0.07)',
+        'premium-light-hover': '0 12px 32px rgba(0, 65, 110, 0.10)',
         'premium-dark': '0 4px 24px rgba(0, 0, 0, 0.25)',
         'premium-dark-hover': '0 12px 32px rgba(0, 0, 0, 0.35)',
       },
       backgroundImage: {
-        'gold-gradient': 'linear-gradient(135deg, #F7941D 0%, #FBB04F 100%)',
+        'gold-gradient': 'linear-gradient(135deg, #F39200 0%, #F7B24D 100%)',
         'hero-overlay':
-          'linear-gradient(180deg, rgba(3,17,31,0.2) 0%, rgba(3,17,31,0.7) 100%)',
+          'linear-gradient(180deg, rgba(0,43,71,0.2) 0%, rgba(0,43,71,0.72) 100%)',
       },
       transitionTimingFunction: {
         'premium': 'cubic-bezier(0.22, 1, 0.36, 1)',

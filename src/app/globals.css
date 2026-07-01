@@ -9,30 +9,33 @@
 
 @layer base {
   :root {
-    /* Light theme */
-    --bg: 247 245 239;            /* off_white #F7F5EF */
+    /* Light theme — Somatec (ciano + navy + branco frio) */
+    --bg: 245 248 251;            /* off_white #F5F8FB (branco frio) */
     --surface: 255 255 255;
     --surface-elevated: 255 255 255;
-    --border: 229 224 211;        /* border_light */
-    --text: 23 32 42;             /* text_dark */
-    --text-muted: 42 53 72;       /* neutral-700 */
-    --navy: 7 27 51;
-    --deep-navy: 3 17 31;
-    --gold: 201 162 74;
-    --gold-soft: 225 200 120;
+    --border: 220 228 236;        /* border_light #DCE4EC */
+    --text: 14 34 51;             /* text_dark #0E2233 */
+    --text-muted: 51 71 92;       /* neutral-700 #33475C */
+    --navy: 0 65 110;             /* #00416E */
+    --deep-navy: 0 43 71;         /* #002B47 */
+    /* --gold = acento institucional = CIANO #008CC8 (eyebrows, links, focus).
+       Botões/CTA usam a chave tailwind `gold` (laranja). Nome mantido por
+       compatibilidade com os componentes. */
+    --gold: 0 140 200;
+    --gold-soft: 51 166 214;
   }
 
   .dark {
-    --bg: 3 17 31;                /* deep_navy */
-    --surface: 7 27 51;           /* navy */
-    --surface-elevated: 13 41 73; /* navy_700 */
-    --border: 38 52 71;           /* border_dark */
-    --text: 244 241 234;          /* text_light */
-    --text-muted: 168 179 199;
-    --navy: 7 27 51;
-    --deep-navy: 3 17 31;
-    --gold: 201 162 74;
-    --gold-soft: 225 200 120;
+    --bg: 0 43 71;               /* deep_navy #002B47 */
+    --surface: 0 65 110;         /* navy #00416E */
+    --surface-elevated: 1 82 130;
+    --border: 18 59 87;          /* border_dark #123B57 */
+    --text: 234 242 248;         /* text_light #EAF2F8 */
+    --text-muted: 157 178 196;
+    --navy: 0 65 110;
+    --deep-navy: 0 43 71;
+    --gold: 0 140 200;           /* ciano */
+    --gold-soft: 51 166 214;
   }
 
   html {
@@ -51,7 +54,7 @@
 
   /* Premium focus ring */
   *:focus-visible {
-    outline: 2px solid #C9A24A;
+    outline: 2px solid #008CC8;
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -75,7 +78,7 @@
 
   /* Selection */
   ::selection {
-    background-color: rgba(201, 162, 74, 0.25);
+    background-color: rgba(0, 140, 200, 0.22);
     color: rgb(var(--text));
   }
 }

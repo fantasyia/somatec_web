@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Inter, Fraunces } from 'next/font/google';
+import { Source_Sans_3, Montserrat } from 'next/font/google';
 import { unstable_cache } from 'next/cache';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
@@ -15,24 +15,28 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getWhatsAppButtonConfig, buildWhatsAppUrl } from '@/lib/whatsapp-button';
 import { getSeoSettings, getSocials, getCertifications } from '@/lib/data/site-settings';
 
-const inter = Inter({
+// Texto corrido — Source Sans Pro (brandbook Somatec). Var mantém o nome
+// legado --font-inter para não tocar o tailwind/html.
+const inter = Source_Sans_3({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '600', '700'],
   display: 'swap',
   variable: '--font-inter',
 });
 
-const fraunces = Fraunces({
+// Títulos — Montserrat (grotesca geométrica aproximando o Brandon Grotesque
+// do brandbook, que é fonte paga). Var mantém o nome legado --font-fraunces.
+const fraunces = Montserrat({
   subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
   display: 'swap',
   variable: '--font-fraunces',
-  axes: ['opsz'],
 });
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F7F5EF' },
-    { media: '(prefers-color-scheme: dark)', color: '#03111F' },
+    { media: '(prefers-color-scheme: light)', color: '#F5F8FB' },
+    { media: '(prefers-color-scheme: dark)', color: '#002B47' },
   ],
   width: 'device-width',
   initialScale: 1,
