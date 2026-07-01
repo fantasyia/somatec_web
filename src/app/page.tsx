@@ -20,6 +20,8 @@ import { HomeHero } from '@/components/home/HomeHero';
 import { HomeCarousel } from '@/components/home/HomeCarousel';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
 import { HomeManifesto } from '@/components/home/HomeManifesto';
+import { HomeProof } from '@/components/home/HomeProof';
+import { HomeNoRisk } from '@/components/home/HomeNoRisk';
 import { HomeBrands } from '@/components/home/HomeBrands';
 import { HomeProducts } from '@/components/home/HomeProducts';
 import { HomeRecipes } from '@/components/home/HomeRecipes';
@@ -100,6 +102,8 @@ export default async function HomePage() {
       <HomeCarousel items={sliderItems} />
       <Reveal><HomeManifesto /></Reveal>
       <HomeIndicators indicators={indicators} />
+      <HomeProof />
+      <HomeNoRisk />
       <Reveal><HomeProducts products={displayProducts} brandNames={brandNames} /></Reveal>
       <Reveal><HomeBlogTeaser /></Reveal>
       <Reveal><HomeCta cards={ctaCards} /></Reveal>
