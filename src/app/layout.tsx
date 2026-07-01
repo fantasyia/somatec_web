@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Source_Sans_3, Montserrat } from 'next/font/google';
+import { Source_Sans_3, Poppins } from 'next/font/google';
 import { unstable_cache } from 'next/cache';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
@@ -24,9 +24,10 @@ const inter = Source_Sans_3({
   variable: '--font-inter',
 });
 
-// Títulos — Montserrat (grotesca geométrica aproximando o Brandon Grotesque
-// do brandbook, que é fonte paga). Var mantém o nome legado --font-fraunces.
-const fraunces = Montserrat({
+// Títulos — Poppins (grotesca geométrica arredondada e encorpada, x-height
+// baixo — o substituto grátis mais próximo do Brandon Grotesque do brandbook,
+// que é fonte paga). Var mantém o nome legado --font-fraunces.
+const fraunces = Poppins({
   subsets: ['latin'],
   weight: ['500', '600', '700', '800'],
   display: 'swap',
