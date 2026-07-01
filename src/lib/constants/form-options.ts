@@ -28,14 +28,11 @@ export const BR_STATES = [
   { value: 'TO', label: 'Tocantins' },
 ] as const;
 
+// Valores mantidos iguais aos literais validados em schemas.ts / mullerbot;
+// apenas os rótulos foram adaptados ao contexto Somatec (proteção/energia).
 export const INTEREST_TYPE_OPTIONS = [
-  { value: 'food_service', label: 'Food Service' },
-  { value: 'b2b', label: 'B2B (Indústrias, redes e atacadistas)' },
-  { value: 'terceirizacao', label: 'Terceirização de Produção' },
-  { value: 'envase', label: 'Envase' },
-  { value: 'marcas_proprias', label: 'Marcas Próprias' },
-  { value: 'distribuicao', label: 'Distribuição' },
-  { value: 'representante', label: 'Representante' },
+  { value: 'b2b', label: 'Diagnóstico para a minha indústria' },
+  { value: 'representante', label: 'Quero ser representante / parceiro' },
 ] as const;
 
 export const OPERATION_TYPE_OPTIONS = [

@@ -1,14 +1,41 @@
-﻿import type { Metadata } from 'next';
-import { Mail } from 'lucide-react';
+import type { Metadata } from 'next';
+import { Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
 import { ContactForm } from '@/components/forms/ContactForm';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Contato',
+  title: 'Contato — Somatec Blocking',
   description:
-    'Fale com o time comercial da MSM. Atendimento especializado para Food Service, B2B, Terceirização, Envase e Marcas Próprias.',
-  robots: { index: true, follow: true },
+    'Fale com a engenharia da Somatec Blocking. Diagnóstico de qualidade de energia e proteção contra surtos (Master Block) para a indústria. Dracena-SP.',
+  robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
+
+const CONTACTS = [
+  {
+    Icon: MessageCircle,
+    label: 'WhatsApp',
+    value: '(18) 98138-5088',
+    href: 'https://wa.me/5518981385088',
+  },
+  {
+    Icon: Phone,
+    label: 'Telefone',
+    value: '(11) 91764-4757',
+    href: 'tel:+5511917644757',
+  },
+  {
+    Icon: Mail,
+    label: 'E-mail',
+    value: 'somatec@somatecblocking.com.br',
+    href: 'mailto:somatec@somatecblocking.com.br',
+  },
+  {
+    Icon: MapPin,
+    label: 'Endereço',
+    value: 'Rua XV de Novembro, 743 — Centro, Dracena-SP',
+    href: 'https://maps.google.com/?q=Rua+XV+de+Novembro,+743,+Centro,+Dracena-SP',
+  },
+] as const;
 
 export default function ContatoPage() {
   return (
@@ -25,45 +52,70 @@ export default function ContatoPage() {
         />
         <div className="container-msm">
           <div className="max-w-3xl space-y-4 animate-fade-up">
-            <span className="eyebrow inline-block">Comercial</span>
+            <span className="eyebrow inline-block">Fale com a engenharia</span>
             <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">
-              Fale com a MSM
+              Vamos diagnosticar a sua planta
             </h1>
             <p className="text-base md:text-lg leading-relaxed text-white/80 max-w-xl text-pretty">
-              Selecione o tipo de interesse e nossa equipe entrará em contato pelo WhatsApp.
+              Conte o que acontece na sua operação — paradas, queimas, travamentos — e nossa
+              equipe retorna com o próximo passo. O diagnóstico inicial é sem custo.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Formulário único */}
+      {/* Formulário + contatos */}
       <section className="container-msm py-10 md:py-14" aria-label="Formulário de contato">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {/* Sidebar */}
-          <div className="lg:col-span-4 lg:sticky lg:top-32 lg:self-start space-y-6">
-            <Mail className="h-8 w-8 text-gold" strokeWidth={1.5} aria-hidden="true" />
+          <div className="lg:col-span-4 lg:sticky lg:top-32 lg:self-start space-y-8">
             <div className="space-y-3">
               <h2 className="font-serif font-semibold text-h2-m md:text-h2-d text-balance leading-tight">
                 Como podemos ajudar?
               </h2>
               <p className="text-base leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
-                Preencha o formulário e nossa equipe entrará em contato pelo WhatsApp em breve.
+                Preencha o formulário ou fale direto pelos nossos canais. Atendemos indústrias em
+                todo o Brasil.
               </p>
             </div>
-            <div className="space-y-2 text-sm text-[rgb(var(--text-muted))]">
-              <p>
-                Quer ser representante?{' '}
-                <Link href="/representantes" className="text-gold hover:underline font-semibold">
-                  Cadastre-se aqui
-                </Link>
-                .
-              </p>
-            </div>
+
+            <ul className="space-y-4">
+              {CONTACTS.map(({ Icon, label, value, href }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    className="group flex items-start gap-3.5 text-sm"
+                    target={href.startsWith('http') ? '_blank' : undefined}
+                    rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  >
+                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-btn bg-gold/10 text-gold">
+                      <Icon className="h-4.5 w-4.5" strokeWidth={1.75} aria-hidden="true" />
+                    </span>
+                    <span className="pt-0.5">
+                      <span className="block text-[11px] uppercase tracking-wide font-semibold text-[rgb(var(--text-muted))]">
+                        {label}
+                      </span>
+                      <span className="block font-semibold text-[rgb(var(--text))] group-hover:text-gold transition-colors">
+                        {value}
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <p className="text-sm text-[rgb(var(--text-muted))]">
+              Ainda com dúvidas técnicas?{' '}
+              <Link href="/faq" className="text-gold hover:underline font-semibold">
+                Veja as perguntas frequentes
+              </Link>
+              .
+            </p>
           </div>
 
           {/* Formulário */}
           <div className="lg:col-span-8 p-6 md:p-10 rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))]">
-            <ContactForm variant="contato_geral" sourcePage="/contato" />
+            <ContactForm variant="contato_geral" defaultInterestType="b2b" sourcePage="/contato" />
           </div>
         </div>
       </section>
