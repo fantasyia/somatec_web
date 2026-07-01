@@ -9,7 +9,7 @@ export default function Icon() {
     (
       <div
         style={{
-          background: '#03111F',
+          background: '#00416E',
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -20,14 +20,14 @@ export default function Icon() {
       >
         <span
           style={{
-            color: '#C9A24A',
+            color: '#008CC8',
             fontSize: 22,
             fontWeight: 700,
             letterSpacing: '-1px',
-            fontFamily: 'serif',
+            fontFamily: 'sans-serif',
           }}
         >
-          M
+          S
         </span>
       </div>
     ),
