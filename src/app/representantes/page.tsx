@@ -5,8 +5,8 @@ import { RepresentanteForm } from '@/components/forms/RepresentanteForm';
 export const metadata: Metadata = {
   title: 'Seja um representante',
   description:
-    'Cadastre-se para receber informações sobre representação comercial da MSM.',
-  robots: { index: true, follow: true },
+    'Cadastre-se para representar ou indicar as soluções da Somatec Blocking — proteção contra surtos e qualidade de energia para a indústria.',
+  robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 
 export default function RepresentantesPage() {
@@ -24,12 +24,12 @@ export default function RepresentantesPage() {
         />
         <div className="container-msm">
           <div className="max-w-3xl space-y-4 animate-fade-up">
-            <span className="eyebrow inline-block">Trabalhe com a MSM</span>
+            <span className="eyebrow inline-block">Trabalhe com a Somatec Blocking</span>
             <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">
               Seja um representante
             </h1>
             <p className="text-base md:text-lg leading-relaxed text-white/80 max-w-2xl text-pretty">
-              Cadastre-se para receber informações sobre representação comercial da MSM.
+              Cadastre-se para representar ou indicar as soluções da Somatec Blocking.
               Nossa equipe entrará em contato pelo WhatsApp.
             </p>
           </div>
@@ -45,21 +45,22 @@ export default function RepresentantesPage() {
               Atuação comercial em todo o Brasil
             </h2>
             <p className="text-base leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
-              Buscamos representantes com experiência em Food Service, B2B e distribuição que
-              compartilhem os valores de qualidade, parceria e crescimento mútuo da MSM.
+              Buscamos representantes e multiplicadores com trânsito no mercado industrial e
+              elétrico — engenheiros, projetistas e profissionais de manutenção — que compartilhem
+              os valores de excelência técnica e parceria da Somatec Blocking.
             </p>
             <ul className="space-y-2 pt-2 text-sm text-[rgb(var(--text-muted))]">
               <li className="flex gap-2">
                 <span className="text-gold mt-1">·</span>
-                <span>Portfólio completo de marcas e produtos.</span>
+                <span>Portfólio completo: Master Block, Retentor e Banco de Capacitores.</span>
               </li>
               <li className="flex gap-2">
                 <span className="text-gold mt-1">·</span>
-                <span>Suporte comercial e materiais de venda.</span>
+                <span>Suporte técnico-comercial e materiais de venda.</span>
               </li>
               <li className="flex gap-2">
                 <span className="text-gold mt-1">·</span>
-                <span>Atendimento estruturado para Food Service e B2B.</span>
+                <span>Modelo de negócio sem risco para apresentar ao cliente.</span>
               </li>
             </ul>
           </div>

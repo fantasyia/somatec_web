@@ -86,6 +86,11 @@ const nextConfig = {
       { source: '/solucoes/terceirizacao-de-producao', destination: '/solucoes/medicao-e-laudos', permanent: true },
       { source: '/solucoes/envase', destination: '/solucoes/manutencao-cabine-primaria', permanent: true },
       { source: '/solucoes/marcas-proprias', destination: '/solucoes', permanent: true },
+      // Seções food removidas (não existem no negócio Somatec).
+      { source: '/marcas', destination: '/produtos', permanent: true },
+      { source: '/marcas/:slug', destination: '/produtos', permanent: true },
+      { source: '/receitas', destination: '/', permanent: true },
+      { source: '/receitas/:path*', destination: '/', permanent: true },
     ];
   },
 };

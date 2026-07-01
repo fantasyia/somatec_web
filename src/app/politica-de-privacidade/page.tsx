@@ -5,15 +5,15 @@ import { PageHero } from '@/components/layout/PageHero';
 export const metadata: Metadata = {
   title: 'Política de Privacidade',
   description:
-    'Política de Privacidade da MSM Indústria — como tratamos os dados informados nos formulários de contato, em conformidade com a LGPD.',
+    'Política de Privacidade da Somatec Blocking — como tratamos os dados informados nos formulários de contato, em conformidade com a LGPD.',
   alternates: { canonical: '/politica-de-privacidade' },
-  robots: { index: true, follow: true },
+  robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 
 const sections = [
   {
     title: 'Quem somos',
-    body: 'A MSM Alimentos é uma empresa do setor alimentício que atua como indústria fornecedora para o mercado food service e B2B. Este site tem caráter exclusivamente institucional e comercial.',
+    body: 'A Somatec Blocking (Somatecblocking UF Eletroeletrônicos LTDA, CNPJ 16.774.052/0001-55) é uma empresa nacional do setor eletroeletrônico, especializada em eficiência energética e proteção elétrica para a indústria. Este site tem caráter exclusivamente institucional e comercial.',
   },
   {
     title: 'Dados coletados',
@@ -21,7 +21,7 @@ const sections = [
   },
   {
     title: 'Finalidade do tratamento',
-    body: 'Os dados coletados são utilizados exclusivamente para responder às suas solicitações comerciais e de contato, encaminhar propostas e informações sobre produtos e serviços MSM, e cumprir obrigações legais quando aplicável.',
+    body: 'Os dados coletados são utilizados exclusivamente para responder às suas solicitações comerciais e de contato, encaminhar propostas e informações sobre produtos e serviços da Somatec Blocking, e cumprir obrigações legais quando aplicável.',
   },
   {
     title: 'Base legal',

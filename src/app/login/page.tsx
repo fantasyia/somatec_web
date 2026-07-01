@@ -26,8 +26,8 @@ export default function LoginPage() {
           Área do Representante
         </h1>
         <p className="text-[rgb(var(--text-muted))] leading-relaxed text-pretty">
-          O portal de representantes da MSM será disponibilizado em breve em um
-          aplicativo dedicado. Em caso de dúvidas, fale com o comercial.
+          O portal de representantes da Somatec Blocking será disponibilizado em breve
+          em um aplicativo dedicado. Em caso de dúvidas, fale com o comercial.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <Link href="/contato" className="btn-primary">

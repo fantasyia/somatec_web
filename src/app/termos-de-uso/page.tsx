@@ -5,9 +5,9 @@ import { PageHero } from '@/components/layout/PageHero';
 export const metadata: Metadata = {
   title: 'Termos de Uso',
   description:
-    'Termos de Uso do site institucional da MSM Indústria — condições de acesso e utilização do conteúdo, destinado a profissionais do mercado alimentício (food service e B2B).',
+    'Termos de Uso do site institucional da Somatec Blocking — condições de acesso e utilização do conteúdo, destinado a profissionais do mercado industrial e de engenharia elétrica.',
   alternates: { canonical: '/termos-de-uso' },
-  robots: { index: true, follow: true },
+  robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 
 const sections = [
@@ -17,11 +17,11 @@ const sections = [
   },
   {
     title: 'Natureza do site',
-    body: 'Este site tem caráter exclusivamente institucional e informativo. As informações apresentadas sobre produtos, marcas e serviços são destinadas a profissionais do mercado alimentício (food service e B2B). O site não realiza vendas diretas ao consumidor final.',
+    body: 'Este site tem caráter exclusivamente institucional e informativo. As informações apresentadas sobre produtos e serviços são destinadas a profissionais do mercado industrial e de engenharia elétrica. O site não realiza vendas diretas ao consumidor final.',
   },
   {
     title: 'Propriedade intelectual',
-    body: 'Todo o conteúdo deste site — incluindo textos, imagens, logotipos, marcas e layout — é de propriedade da MSM Alimentos ou de seus licenciantes, e está protegido pela legislação brasileira de direitos autorais e propriedade intelectual. É vedada a reprodução sem autorização expressa.',
+    body: 'Todo o conteúdo deste site — incluindo textos, imagens, logotipos, marcas e layout — é de propriedade da Somatec Blocking ou de seus licenciantes, e está protegido pela legislação brasileira de direitos autorais e propriedade intelectual. É vedada a reprodução sem autorização expressa.',
   },
   {
     title: 'Uso permitido',
@@ -29,11 +29,11 @@ const sections = [
   },
   {
     title: 'Limitação de responsabilidade',
-    body: 'As informações deste site são fornecidas "no estado em que se encontram", sem garantias de completude ou adequação a fins específicos. A MSM Alimentos não se responsabiliza por decisões tomadas com base exclusivamente no conteúdo deste site. Para informações comerciais detalhadas, utilize os canais de contato.',
+    body: 'As informações deste site são fornecidas "no estado em que se encontram", sem garantias de completude ou adequação a fins específicos. A Somatec Blocking não se responsabiliza por decisões tomadas com base exclusivamente no conteúdo deste site. Para informações comerciais detalhadas, utilize os canais de contato.',
   },
   {
     title: 'Links externos',
-    body: 'Este site pode conter links para sites de terceiros. A MSM Alimentos não controla e não se responsabiliza pelo conteúdo, práticas de privacidade ou disponibilidade desses sites externos.',
+    body: 'Este site pode conter links para sites de terceiros. A Somatec Blocking não controla e não se responsabiliza pelo conteúdo, práticas de privacidade ou disponibilidade desses sites externos.',
   },
   {
     title: 'Alterações',
@@ -41,7 +41,7 @@ const sections = [
   },
   {
     title: 'Lei aplicável',
-    body: 'Estes termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca da sede da MSM Alimentos para dirimir eventuais controvérsias.',
+    body: 'Estes termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca da sede da Somatec Blocking para dirimir eventuais controvérsias.',
   },
 ];
 
@@ -51,7 +51,7 @@ export default function TermosPage() {
       <PageHero
         eyebrow="Legal"
         title="Termos de Uso"
-        description="Condições de uso do site institucional da MSM Alimentos."
+        description="Condições de uso do site institucional da Somatec Blocking."
         breadcrumbs={[{ label: 'Termos de Uso' }]}
       />
 

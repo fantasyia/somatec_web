@@ -1,15 +1,15 @@
 import { PlaceholderPage } from '@/components/layout/PlaceholderPage';
 
-export const metadata = { title: 'Blog', robots: { index: false, follow: true } };
+export const metadata = { title: 'Conteúdo técnico', robots: { index: false, follow: true } };
 
 export default function BlogPage() {
   return (
     <PlaceholderPage
-      eyebrow="Blog MSM"
+      eyebrow="Conteúdo Somatec"
       title="Em breve"
-      description="Conteúdos sobre indústria, food service, produtos, receitas, soluções B2B, terceirização, envase e novidades das nossas marcas."
-      breadcrumbs={[{ label: 'Blog' }]}
-      comingSoonNote="O blog institucional MSM será lançado em breve. Acompanhe novidades, tendências e análises de mercado pelos nossos canais."
+      description="Artigos técnicos sobre qualidade de energia, VTCD, proteção contra surtos e cases reais da indústria."
+      breadcrumbs={[{ label: 'Conteúdo' }]}
+      comingSoonNote="Estamos preparando o nosso espaço de conteúdo técnico e cases. Acompanhe novidades pelo LinkedIn e YouTube da Somatec Blocking."
     />
   );
 }

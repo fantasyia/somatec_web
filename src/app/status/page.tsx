@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: 'Status do sistema — MSM',
-  description: 'Estado operacional do site MSM em tempo real.',
+  title: 'Status do sistema — Somatec Blocking',
+  description: 'Estado operacional do site da Somatec Blocking em tempo real.',
   robots: { index: false, follow: false },
 };
 
@@ -110,7 +110,7 @@ export default async function StatusPage() {
       <PageHero
         eyebrow="Operações"
         title="Status do sistema"
-        description="Estado dos serviços do site MSM em tempo real."
+        description="Estado dos serviços do site da Somatec Blocking em tempo real."
         breadcrumbs={[{ label: 'Status' }]}
       />
 

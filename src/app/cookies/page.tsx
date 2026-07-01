@@ -5,9 +5,9 @@ import { PageHero } from '@/components/layout/PageHero';
 export const metadata: Metadata = {
   title: 'Política de Cookies',
   description:
-    'Política de Cookies da MSM Indústria — utilizamos apenas cookies técnicos e essenciais ao funcionamento do site, sem rastreamento ou publicidade de terceiros.',
+    'Política de Cookies da Somatec Blocking — utilizamos apenas cookies técnicos e essenciais ao funcionamento do site, sem rastreamento ou publicidade de terceiros.',
   alternates: { canonical: '/cookies' },
-  robots: { index: true, follow: true },
+  robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 
 const sections = [
@@ -39,7 +39,7 @@ export default function CookiesPage() {
       <PageHero
         eyebrow="Legal"
         title="Política de Cookies"
-        description="Como o site MSM utiliza cookies e tecnologias de armazenamento local."
+        description="Como o site da Somatec Blocking utiliza cookies e tecnologias de armazenamento local."
         breadcrumbs={[{ label: 'Cookies' }]}
       />
 
