@@ -50,6 +50,19 @@ export function HomeHero({ data }: Props) {
   }, []);
 
   const title = data?.title ?? HERO_FALLBACK.title;
+  // Destaca o termo-chave em laranja (cor do Master Block) dentro do título.
+  const renderTitle = (t: string) => {
+    const term = '100 kHz';
+    const idx = t.indexOf(term);
+    if (idx === -1) return t;
+    return (
+      <>
+        {t.slice(0, idx)}
+        <span className="text-gold">{term}</span>
+        {t.slice(idx + term.length)}
+      </>
+    );
+  };
   const subtitle = data?.description ?? data?.subtitle ?? HERO_FALLBACK.subtitle;
   const primary = {
     label: data?.primary_cta_label ?? HERO_FALLBACK.primary.label,
@@ -122,7 +135,7 @@ export function HomeHero({ data }: Props) {
         <div className="max-w-[600px] space-y-6">
           <span className="eyebrow inline-block">{data?.subtitle ?? HERO_FALLBACK.eyebrow}</span>
           <h1 className="font-serif text-h1-m font-semibold text-balance md:text-h1-d dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
-            {title}
+            {renderTitle(title)}
           </h1>
           <p className="max-w-[480px] text-base leading-relaxed text-deep_navy/80 text-pretty md:text-lg dark:text-white/85">
             {subtitle}
