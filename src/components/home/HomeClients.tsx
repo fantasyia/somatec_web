@@ -36,9 +36,9 @@ export function HomeClients() {
       className="border-y border-white/10 bg-navy"
       aria-label="Indústrias que confiam na Somatec Blocking"
     >
-      <div className="py-10 md:py-12">
-        <Reveal className="space-y-8">
-          <p className="text-center text-[11px] md:text-xs font-sans font-semibold uppercase tracking-[0.16em] text-white/55">
+      <div className="py-6 md:py-7">
+        <Reveal className="space-y-5">
+          <p className="text-center text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-white/55">
             Indústrias que confiam na Somatec Blocking
           </p>
 
@@ -56,7 +56,7 @@ export function HomeClients() {
                 <li
                   key={`${c.name}-${i}`}
                   aria-hidden={i >= CLIENTS.length}
-                  className="flex w-[130px] shrink-0 items-center justify-center px-2 md:w-[170px]"
+                  className="flex w-[104px] shrink-0 items-center justify-center px-2 md:w-[128px]"
                 >
                   <Image
                     src={c.src}
@@ -64,7 +64,7 @@ export function HomeClients() {
                     title={c.name}
                     width={500}
                     height={260}
-                    className="h-12 w-auto max-w-[120px] object-contain opacity-80 transition duration-300 hover:opacity-100 md:h-14 md:max-w-[150px]"
+                    className="h-8 w-auto max-w-[92px] object-contain opacity-80 transition duration-300 hover:opacity-100 md:h-9 md:max-w-[112px]"
                   />
                 </li>
               ))}

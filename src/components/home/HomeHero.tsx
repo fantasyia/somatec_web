@@ -83,7 +83,7 @@ export function HomeHero({ data }: Props) {
 
   return (
     <section
-      className="relative isolate flex min-h-[80vh] items-center overflow-hidden bg-off_white pt-20 text-deep_navy dark:bg-deep_navy dark:text-white"
+      className="relative isolate flex min-h-[76vh] items-center overflow-hidden bg-off_white pt-20 text-deep_navy dark:bg-deep_navy dark:text-white"
       aria-label="Hero institucional"
     >
       {/* Fundo: vídeo / imagem / gradiente */}
