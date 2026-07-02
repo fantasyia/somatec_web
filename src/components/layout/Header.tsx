@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -101,12 +102,24 @@ export function Header() {
         <Link
           href="/"
           aria-label="Somatec Blocking — Página inicial"
-          className={cn(
-            'font-serif text-2xl font-bold tracking-[-0.04em] hover:text-gold transition-colors',
-            'text-[rgb(var(--text))] dark:text-white',
-          )}
+          className="flex items-center transition-opacity hover:opacity-80"
         >
-          Somatec
+          <Image
+            src="/logo-somatec.png"
+            alt="Somatec Blocking"
+            width={1576}
+            height={494}
+            priority
+            className="h-9 w-auto dark:hidden"
+          />
+          <Image
+            src="/logo-somatec-white.png"
+            alt="Somatec Blocking"
+            width={792}
+            height={248}
+            priority
+            className="hidden h-9 w-auto dark:block"
+          />
         </Link>
 
         {/* Desktop nav */}
@@ -284,7 +297,20 @@ export function Header() {
           />
           <div className="absolute right-0 top-0 h-full w-[88%] max-w-sm bg-[rgb(var(--bg))] border-l border-[rgb(var(--border))] shadow-premium-light dark:shadow-premium-dark overflow-y-auto">
             <div className="flex h-20 items-center justify-between px-6 border-b border-[rgb(var(--border))]">
-              <span className="font-serif text-2xl font-bold tracking-[-0.04em]">Somatec</span>
+              <Image
+                src="/logo-somatec.png"
+                alt="Somatec Blocking"
+                width={1576}
+                height={494}
+                className="h-8 w-auto dark:hidden"
+              />
+              <Image
+                src="/logo-somatec-white.png"
+                alt="Somatec Blocking"
+                width={792}
+                height={248}
+                className="hidden h-8 w-auto dark:block"
+              />
               <button
                 type="button"
                 aria-label="Fechar menu"
