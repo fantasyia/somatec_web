@@ -1,8 +1,8 @@
 /**
- * Mural "indústrias que confiam" — prova social logo abaixo da hero.
- * Logos oficiais dos clientes reais (cases comprovados), obtidos do próprio
- * site da Somatec Blocking. Faixa branca para os logos (fundo branco)
- * blendarem; grayscale por padrão, cor no hover.
+ * Marquee "indústrias que confiam" — carrossel infinito e contínuo dos
+ * logos oficiais dos clientes reais (obtidos do site da Somatec). A lista é
+ * duplicada e o trilho anda -50% em loop: emenda perfeita, sem saltos.
+ * Pausa no hover; respeita prefers-reduced-motion.
  */
 import Image from 'next/image';
 import { Reveal } from '@/components/ui/Reveal';
@@ -27,31 +27,49 @@ const CLIENTS = [
   { src: '/clientes/moura.jpg', name: 'Moura' },
 ] as const;
 
+// Lista duplicada para o loop contínuo (-50%).
+const TRACK = [...CLIENTS, ...CLIENTS];
+
 export function HomeClients() {
   return (
     <section
       className="border-b border-black/5 bg-white"
       aria-label="Indústrias que confiam na Somatec Blocking"
     >
-      <div className="container-msm py-10 md:py-12">
+      <div className="py-10 md:py-12">
         <Reveal className="space-y-8">
           <p className="text-center text-[11px] md:text-xs font-sans font-semibold uppercase tracking-[0.16em] text-neutral-500">
             Indústrias que confiam na Somatec Blocking
           </p>
-          <ul className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 items-center justify-items-center gap-x-6 gap-y-6">
-            {CLIENTS.map((c) => (
-              <li key={c.name}>
-                <Image
-                  src={c.src}
-                  alt={c.name}
-                  title={c.name}
-                  width={500}
-                  height={500}
-                  className="h-16 w-16 md:h-20 md:w-20 object-contain opacity-60 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0"
-                />
-              </li>
-            ))}
-          </ul>
+
+          <div
+            className="group relative overflow-hidden"
+            style={{
+              maskImage:
+                'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
+              WebkitMaskImage:
+                'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
+            }}
+          >
+            <ul className="flex w-max items-center animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none">
+              {TRACK.map((c, i) => (
+                <li
+                  key={`${c.name}-${i}`}
+                  aria-hidden={i >= CLIENTS.length}
+                  className="flex w-[130px] shrink-0 items-center justify-center px-2 md:w-[170px]"
+                >
+                  <Image
+                    src={c.src}
+                    alt={c.name}
+                    title={c.name}
+                    width={500}
+                    height={500}
+                    className="h-16 w-auto max-w-[120px] object-contain opacity-60 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 md:h-20 md:max-w-[150px]"
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
         </Reveal>
       </div>
     </section>

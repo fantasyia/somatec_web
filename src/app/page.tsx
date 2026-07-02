@@ -5,14 +5,7 @@ import {
   getSliderItems,
   getIndicators,
   getCtaCards,
-  getFeaturedProducts,
 } from '@/lib/data/home';
-import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import {
-  BRANDS_FALLBACK,
-  PRODUCTS_FALLBACK,
-} from '@/lib/constants/home-fallback';
-import type { Product } from '@/types/database';
 import { HomeHero } from '@/components/home/HomeHero';
 import { HomeCarousel } from '@/components/home/HomeCarousel';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
@@ -20,7 +13,6 @@ import { HomeManifesto } from '@/components/home/HomeManifesto';
 import { HomeClients } from '@/components/home/HomeClients';
 import { HomeProof } from '@/components/home/HomeProof';
 import { HomeNoRisk } from '@/components/home/HomeNoRisk';
-import { HomeProducts } from '@/components/home/HomeProducts';
 import { HomeBlogTeaser } from '@/components/home/HomeBlogTeaser';
 import { HomeCta } from '@/components/home/HomeCta';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -53,34 +45,12 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   // Fetch paralelo de todos os blocos.
-  const [hero, sliderItems, indicators, ctaCards, products] =
-    await Promise.all([
-      getHomeHero(),
-      getSliderItems(),
-      getIndicators(),
-      getCtaCards(),
-      getFeaturedProducts(),
-    ]);
-
-  const displayProducts = products.length > 0 ? products : (PRODUCTS_FALLBACK as unknown as Product[]);
-
-  // Map de brand_id → name para uso nos cards de produtos
-  let brandNames: Record<string, string> = {};
-  if (products.length > 0) {
-    const ids = Array.from(new Set(products.map((p) => p.brand_id).filter(Boolean) as string[]));
-    if (ids.length > 0) {
-      try {
-        const supabase = getSupabaseAdminClient();
-        const { data } = await supabase.from('brands').select('id, name').in('id', ids);
-        const rows = (data ?? []) as { id: string; name: string }[];
-        brandNames = Object.fromEntries(rows.map((b) => [b.id, b.name]));
-      } catch {
-        // ignore
-      }
-    }
-  } else {
-    brandNames = Object.fromEntries(BRANDS_FALLBACK.map((b) => [b.id, b.name]));
-  }
+  const [hero, sliderItems, indicators, ctaCards] = await Promise.all([
+    getHomeHero(),
+    getSliderItems(),
+    getIndicators(),
+    getCtaCards(),
+  ]);
 
   return (
     <>
@@ -97,7 +67,6 @@ export default async function HomePage() {
       <HomeIndicators indicators={indicators} />
       <HomeProof />
       <HomeNoRisk />
-      <Reveal><HomeProducts products={displayProducts} brandNames={brandNames} /></Reveal>
       <Reveal><HomeBlogTeaser /></Reveal>
       <Reveal><HomeCta cards={ctaCards} /></Reveal>
     </>

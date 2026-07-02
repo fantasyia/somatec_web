@@ -83,7 +83,7 @@ export function HomeHero({ data }: Props) {
 
   return (
     <section
-      className="relative isolate flex min-h-[84vh] items-center overflow-hidden bg-off_white pt-20 text-deep_navy dark:bg-deep_navy dark:text-white"
+      className="relative isolate flex min-h-[80vh] items-center overflow-hidden bg-off_white pt-20 text-deep_navy dark:bg-deep_navy dark:text-white"
       aria-label="Hero institucional"
     >
       {/* Fundo: vídeo / imagem / gradiente */}
@@ -132,11 +132,11 @@ export function HomeHero({ data }: Props) {
       />
 
       {/* Conteúdo */}
-      <div className="container-msm relative z-10 py-14 md:py-16">
+      <div className="container-msm relative z-10 py-10 md:py-12">
         <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-6">
-        <div className="max-w-[600px] space-y-6 lg:col-span-7">
+        <div className="max-w-[600px] space-y-5 lg:col-span-7">
           <span className="eyebrow inline-block">{data?.subtitle ?? HERO_FALLBACK.eyebrow}</span>
-          <h1 className="font-serif text-h1-m font-semibold text-balance md:text-h1-d dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
+          <h1 className="font-serif text-[2.15rem] leading-[1.07] sm:text-[2.6rem] lg:text-[3.35rem] font-semibold text-balance dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
             {renderRich(title)}
           </h1>
           <p className="max-w-[480px] text-base leading-relaxed text-deep_navy/80 text-pretty md:text-lg dark:text-white/85">
