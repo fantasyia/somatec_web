@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight, Pause, Play } from 'lucide-react';
 import { HERO_FALLBACK } from '@/lib/constants/home-fallback';
+import { MasterBlockRender } from '@/components/graphics/MasterBlockRender';
 import type { HomeHero as HeroData } from '@/types/database';
 
 type Props = { data: HeroData | null };
@@ -164,14 +165,7 @@ export function HomeHero({ data }: Props) {
             aria-hidden="true"
             className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_60%_45%,rgba(0,140,200,0.28)_0%,transparent_65%)]"
           />
-          <Image
-            src="/masterblock.png"
-            alt="MasterBlock — supressor de surtos que atua em 100 kHz"
-            width={825}
-            height={517}
-            priority
-            className="mx-auto h-auto w-full max-w-[380px] drop-shadow-2xl lg:max-w-none"
-          />
+          <MasterBlockRender className="mx-auto w-full max-w-[400px] lg:max-w-[540px]" />
         </div>
         </div>
       </div>
