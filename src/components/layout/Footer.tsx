@@ -37,9 +37,13 @@ export function Footer({ columns = FOOTER_COLUMNS, socials, certifications }: Pr
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
           {/* Brand column */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="font-serif text-3xl font-bold tracking-[-0.04em] text-text_light">
-              Somatec
-            </div>
+            <Image
+              src="/logo-somatec-white.png"
+              alt="Somatec Blocking"
+              width={792}
+              height={248}
+              className="h-10 w-auto"
+            />
             <p className="text-sm leading-relaxed text-white/70 max-w-sm">
               {SITE.description}
             </p>
