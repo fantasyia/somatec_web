@@ -5,7 +5,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { BannersListClient } from './BannersListClient';
 
-export const metadata: Metadata = { title: 'Banners — Admin MSM' };
+export const metadata: Metadata = { title: 'Banners — Admin Somatec' };
 
 type BannerRow = {
   id: string;

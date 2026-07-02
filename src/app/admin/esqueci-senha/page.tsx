@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { EsqueciSenhaForm } from './EsqueciSenhaForm';
 
 export const metadata: Metadata = {
-  title: 'Esqueci minha senha — Admin MSM',
+  title: 'Esqueci minha senha — Admin Somatec',
   robots: { index: false, follow: false },
 };
 
@@ -15,7 +15,7 @@ export default function EsqueciSenhaPage() {
       <div className="w-full max-w-sm">
         {/* Logo / brand */}
         <div className="mb-10 text-center">
-          <span className="font-serif text-2xl font-semibold text-[rgb(var(--text))] tracking-wide">MSM</span>
+          <span className="font-serif text-2xl font-semibold text-[rgb(var(--text))] tracking-wide">Somatec</span>
           <p className="mt-1 text-xs font-sans uppercase tracking-[0.12em] text-gold">
             Painel Administrativo
           </p>

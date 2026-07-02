@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/admin/PageHeader';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 
-export const metadata: Metadata = { title: 'Redirects — Admin MSM' };
+export const metadata: Metadata = { title: 'Redirects — Admin Somatec' };
 
 export default async function RedirectsPage() {
   await requireAdmin();

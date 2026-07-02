@@ -4,7 +4,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { AdminTable } from '@/components/admin/AdminTable';
 
-export const metadata: Metadata = { title: 'Log de Auditoria — Admin MSM' };
+export const metadata: Metadata = { title: 'Log de Auditoria — Admin Somatec' };
 
 export default async function AuditPage() {
   await requireAdmin();

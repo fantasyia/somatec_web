@@ -9,7 +9,7 @@ import {
 } from '@/lib/whatsapp-button';
 import { WhatsAppForm } from './WhatsAppForm';
 
-export const metadata: Metadata = { title: 'WhatsApp — Admin MSM' };
+export const metadata: Metadata = { title: 'WhatsApp — Admin Somatec' };
 export const dynamic = 'force-dynamic';
 
 export default async function WhatsAppAdminPage() {

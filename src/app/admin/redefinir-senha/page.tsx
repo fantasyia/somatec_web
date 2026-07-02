@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { RedefinirSenhaForm } from './RedefinirSenhaForm';
 
 export const metadata: Metadata = {
-  title: 'Redefinir senha — Admin MSM',
+  title: 'Redefinir senha — Admin Somatec',
   robots: { index: false, follow: false },
 };
 
@@ -14,7 +14,7 @@ export default function RedefinirSenhaPage() {
     <div className="min-h-screen bg-[rgb(var(--bg))] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-10 text-center">
-          <span className="font-serif text-2xl font-semibold text-[rgb(var(--text))] tracking-wide">MSM</span>
+          <span className="font-serif text-2xl font-semibold text-[rgb(var(--text))] tracking-wide">Somatec</span>
           <p className="mt-1 text-xs font-sans uppercase tracking-[0.12em] text-gold">
             Painel Administrativo
           </p>

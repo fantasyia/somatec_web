@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/admin/PageHeader';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 
-export const metadata: Metadata = { title: 'Integração — Admin MSM' };
+export const metadata: Metadata = { title: 'Integração — Admin Somatec' };
 
 export default async function IntegracaoPage() {
   await requireAdmin();

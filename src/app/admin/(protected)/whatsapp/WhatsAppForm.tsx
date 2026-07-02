@@ -106,7 +106,7 @@ export function WhatsAppForm({ initial, updatedAt }: Props) {
           rows={3}
           value={message}
           onChange={(e) => setMessage(e.target.value.slice(0, 500))}
-          placeholder="Olá! Vim pelo site da MSM..."
+          placeholder="Olá! Vim pelo site da Somatec Blocking..."
           className="w-full px-3 py-2 rounded-btn bg-[rgb(var(--bg))] border border-[rgb(var(--border))] text-[rgb(var(--text))] text-sm focus:outline-none focus:border-gold transition-colors resize-y"
         />
         <div className="flex justify-between text-xs text-[rgb(var(--text-muted))]/80 mt-1.5">

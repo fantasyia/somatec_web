@@ -4,7 +4,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { HomeAdminTabs } from './HomeAdminTabs';
 
-export const metadata: Metadata = { title: 'Home — Admin MSM' };
+export const metadata: Metadata = { title: 'Home — Admin Somatec' };
 
 export default async function HomeAdminPage() {
   await requireAdmin();

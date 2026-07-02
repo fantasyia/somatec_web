@@ -4,7 +4,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { ConfiguracoesForm } from './ConfiguracoesForm';
 
-export const metadata: Metadata = { title: 'Configurações — Admin MSM' };
+export const metadata: Metadata = { title: 'Configurações — Admin Somatec' };
 
 const KEYS = ['company_info', 'socials', 'lgpd_consent_text', 'cookie_banner_text', 'certifications'] as const;
 

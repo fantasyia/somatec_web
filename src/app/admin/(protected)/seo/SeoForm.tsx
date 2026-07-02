@@ -88,13 +88,13 @@ export function SeoForm({ initial }: Props) {
           label="Título padrão do site"
           name="seo_global_title"
           defaultValue={initial.seo_global_title ?? ''}
-          hint='Ex: "MSM Alimentos — Indústria, marcas e soluções"'
+          hint='Ex: "Somatec Blocking — Proteção contra surtos e qualidade de energia"'
         />
         <AdminField
           label="Template do título"
           name="seo_global_title_template"
-          defaultValue={initial.seo_global_title_template ?? '%s · MSM Alimentos'}
-          hint='Use %s onde entrará o título da página. Ex: "%s · MSM Alimentos"'
+          defaultValue={initial.seo_global_title_template ?? '%s · Somatec Blocking'}
+          hint='Use %s onde entrará o título da página. Ex: "%s · Somatec Blocking"'
         />
         <AdminField
           as="textarea"

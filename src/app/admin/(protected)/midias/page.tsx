@@ -4,7 +4,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { MidiasClient } from './MidiasClient';
 
-export const metadata: Metadata = { title: 'Mídias — Admin MSM' };
+export const metadata: Metadata = { title: 'Mídias — Admin Somatec' };
 
 export default async function MidiasPage() {
   await requireAdmin();

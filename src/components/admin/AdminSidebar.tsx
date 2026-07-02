@@ -7,13 +7,6 @@ import {
   Home,
   Megaphone,
   FileText,
-  Layers,
-  Tag,
-  Package,
-  FolderOpen,
-  Zap,
-  ChefHat,
-  FolderKanban,
   Image,
   Globe,
   Navigation,
@@ -41,13 +34,6 @@ const NAV: NavItem[] = [
   { label: 'Home', href: '/admin/home', icon: Home, group: 'Conteúdo' },
   { label: 'Banners', href: '/admin/banners', icon: Megaphone, group: 'Conteúdo' },
   { label: 'Páginas', href: '/admin/paginas', icon: FileText, group: 'Conteúdo' },
-  { label: 'Soluções', href: '/admin/solucoes', icon: Layers, group: 'Conteúdo' },
-  { label: 'Marcas', href: '/admin/marcas', icon: Tag, group: 'Conteúdo' },
-  { label: 'Produtos', href: '/admin/produtos', icon: Package, group: 'Conteúdo' },
-  { label: 'Categorias', href: '/admin/categorias', icon: FolderOpen, group: 'Conteúdo' },
-  { label: 'Aplicações', href: '/admin/aplicacoes', icon: Zap, group: 'Conteúdo' },
-  { label: 'Receitas', href: '/admin/receitas', icon: ChefHat, group: 'Conteúdo' },
-  { label: 'Cat. Receitas', href: '/admin/categorias-receitas', icon: FolderKanban, group: 'Conteúdo' },
   { label: 'Mídias', href: '/admin/midias', icon: Image, group: 'Conteúdo' },
 
   { label: 'SEO Global', href: '/admin/seo', icon: Globe, group: 'Configuração' },
@@ -89,7 +75,7 @@ export function AdminSidebar({ onClose, mobile }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-5 border-b border-[rgb(var(--border))]">
         <div>
-          <span className="font-serif text-lg font-semibold text-[rgb(var(--text))]">MSM</span>
+          <span className="font-serif text-lg font-semibold text-[rgb(var(--text))]">Somatec</span>
           <span className="ml-2 text-[10px] font-sans uppercase tracking-[0.1em] text-gold/80">Admin</span>
         </div>
         {mobile && (

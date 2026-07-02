@@ -8,7 +8,7 @@ import { AdminTable } from '@/components/admin/AdminTable';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { FooterLinksListClient } from './FooterLinksListClient';
 
-export const metadata: Metadata = { title: 'Footer — Admin MSM' };
+export const metadata: Metadata = { title: 'Footer — Admin Somatec' };
 
 type FooterColumn = { id: string; title: string; display_order: number; active: boolean };
 type FooterLink = { id: string; label: string; href: string; column_id: string; display_order: number; active: boolean };

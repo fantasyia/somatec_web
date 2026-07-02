@@ -5,7 +5,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { NavegacaoListClient } from './NavegacaoListClient';
 
-export const metadata: Metadata = { title: 'Navegação — Admin MSM' };
+export const metadata: Metadata = { title: 'Navegação — Admin Somatec' };
 
 type NavRow = {
   id: string;

@@ -4,7 +4,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { SeoForm } from './SeoForm';
 
-export const metadata: Metadata = { title: 'SEO Global — Admin MSM' };
+export const metadata: Metadata = { title: 'SEO Global — Admin Somatec' };
 
 const KEYS = [
   'seo_global_title',

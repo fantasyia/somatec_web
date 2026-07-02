@@ -2,7 +2,7 @@
 import { AdminLoginForm } from './AdminLoginForm';
 
 export const metadata: Metadata = {
-  title: 'Admin — MSM',
+  title: 'Admin — Somatec',
   robots: { index: false, follow: false },
 };
 
@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
         {/* Logo / brand */}
         <div className="mb-10 text-center">
           <span className="font-serif text-2xl font-semibold text-[rgb(var(--text))] tracking-wide">
-            MSM
+            Somatec
           </span>
           <p className="mt-1 text-xs font-sans uppercase tracking-[0.12em] text-gold">
             Painel Administrativo
