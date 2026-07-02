@@ -82,7 +82,7 @@ export function HomeHero({ data }: Props) {
 
   return (
     <section
-      className="relative isolate flex min-h-[90vh] items-center overflow-hidden bg-off_white pt-20 text-deep_navy md:min-h-screen dark:bg-deep_navy dark:text-white"
+      className="relative isolate flex min-h-[84vh] items-center overflow-hidden bg-off_white pt-20 text-deep_navy dark:bg-deep_navy dark:text-white"
       aria-label="Hero institucional"
     >
       {/* Fundo: vídeo / imagem / gradiente */}
@@ -131,8 +131,9 @@ export function HomeHero({ data }: Props) {
       />
 
       {/* Conteúdo */}
-      <div className="container-msm relative z-10 py-24">
-        <div className="max-w-[600px] space-y-6">
+      <div className="container-msm relative z-10 py-14 md:py-16">
+        <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-6">
+        <div className="max-w-[600px] space-y-6 lg:col-span-7">
           <span className="eyebrow inline-block">{data?.subtitle ?? HERO_FALLBACK.eyebrow}</span>
           <h1 className="font-serif text-h1-m font-semibold text-balance md:text-h1-d dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
             {renderRich(title)}
@@ -155,6 +156,23 @@ export function HomeHero({ data }: Props) {
               {secondary.label}
             </Link>
           </div>
+        </div>
+
+        {/* Foto do produto MasterBlock */}
+        <div className="relative mt-2 lg:col-span-5 lg:mt-0">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_60%_45%,rgba(0,140,200,0.28)_0%,transparent_65%)]"
+          />
+          <Image
+            src="/masterblock.png"
+            alt="MasterBlock — supressor de surtos que atua em 100 kHz"
+            width={825}
+            height={517}
+            priority
+            className="mx-auto h-auto w-full max-w-[380px] drop-shadow-2xl lg:max-w-none"
+          />
+        </div>
         </div>
       </div>
 

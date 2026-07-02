@@ -17,6 +17,7 @@ import { HomeHero } from '@/components/home/HomeHero';
 import { HomeCarousel } from '@/components/home/HomeCarousel';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
 import { HomeManifesto } from '@/components/home/HomeManifesto';
+import { HomeClients } from '@/components/home/HomeClients';
 import { HomeProof } from '@/components/home/HomeProof';
 import { HomeNoRisk } from '@/components/home/HomeNoRisk';
 import { HomeProducts } from '@/components/home/HomeProducts';
@@ -90,6 +91,7 @@ export default async function HomePage() {
           entram com fade-up ao scroll (§20.14). HomeIndicators tem stagger
           interno próprio entre os indicadores. */}
       <HomeHero data={hero} />
+      <HomeClients />
       <HomeCarousel items={sliderItems} />
       <Reveal><HomeManifesto /></Reveal>
       <HomeIndicators indicators={indicators} />
