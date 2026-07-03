@@ -133,7 +133,7 @@ export type QueueHealth = {
 export async function getQueueHealth(): Promise<QueueHealth> {
   const supabase = getSupabaseAdminClient();
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const configured = Boolean(process.env.MULLERBOT_WEBHOOK_URL && process.env.MULLERBOT_API_KEY);
+  const configured = Boolean(process.env.BETINNA_LEADS_URL && process.env.BETINNA_API_KEY);
 
   // count exato via head:true — retorna o total real sem trafegar linhas. Antes os
   // totais vinham de data.length, que o PostgREST capa em 1000 linhas, saturando os

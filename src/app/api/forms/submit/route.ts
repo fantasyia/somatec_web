@@ -11,7 +11,7 @@ import { getClientIp as clientIpFromHeaders } from '@/lib/http/client-ip';
 
 const ROUTE = '/api/forms/submit';
 import { buildMullerBotPayload } from '@/lib/mullerbot/payload';
-import { sendToMullerBot } from '@/lib/mullerbot/client';
+import { sendToBetinna } from '@/lib/betinna/client';
 import {
   enqueueSubmission,
   markSent,
@@ -172,8 +172,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Tentativa síncrona imediata
-  const sendResult = await sendToMullerBot(payload, idempotencyKey);
+  // Tentativa síncrona imediata (encaminha o lead ao Betinna.ai)
+  const sendResult = await sendToBetinna(payload);
 
   if (sendResult.result === 'sent') {
     await markSent(idempotencyKey, sendResult.status, sendResult.externalId ?? null);

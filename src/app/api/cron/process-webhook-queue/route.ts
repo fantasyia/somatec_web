@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { sendToMullerBot } from '@/lib/mullerbot/client';
+import { sendToBetinna } from '@/lib/betinna/client';
 import {
   fetchDuePending,
   markAttempt,
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   for (const row of due) {
     if (Date.now() - startedAt > BUDGET_MS) break;
     processed++;
-    const outcome = await sendToMullerBot(row.payload, row.idempotency_key);
+    const outcome = await sendToBetinna(row.payload);
     byOutcome[outcome.result] = (byOutcome[outcome.result] ?? 0) + 1;
     incrementCounter('msm_queue_processed_total', { outcome: outcome.result });
 
