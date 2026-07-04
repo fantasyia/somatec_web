@@ -189,9 +189,10 @@ export function HomeCarousel({ items }: Props) {
                 {slide.eyebrow && (
                   <span className="eyebrow inline-block">{slide.eyebrow}</span>
                 )}
-                <h3 className="font-serif font-semibold text-h2-m md:text-h2-d text-balance">
+                {/* h2: seção de topo da home (após o h1 do Hero) — não pular nível */}
+                <h2 className="font-serif font-semibold text-h2-m md:text-h2-d text-balance">
                   {slide.title}
-                </h3>
+                </h2>
                 {slide.description && (
                   <p className="text-base md:text-lg leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
                     {slide.description}
