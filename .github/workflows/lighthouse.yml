@@ -35,11 +35,12 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Build precisa de URLs válidas; runtime usa guards para fallback
+          # Placeholders NÃO-VAZIOS: vazio dispara o guard "ausentes" das factories
+          # Supabase e quebra o build. createClient com URL placeholder não conecta.
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
-          NEXT_PUBLIC_SUPABASE_URL: ''
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ''
-          SUPABASE_SERVICE_ROLE_KEY: ''
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
