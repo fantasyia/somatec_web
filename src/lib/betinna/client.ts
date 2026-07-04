@@ -33,12 +33,21 @@ function buildBody(p: MullerBotPayload) {
     [p.message ?? '', ctx.length ? `— ${ctx.join(' · ')}` : ''].filter(Boolean).join('\n\n') ||
     undefined;
 
+  // Roteamento por funil: formulário de representante → "Prospecção Reps";
+  // qualquer outro lead (cliente/b2b, ads, redes, contato) → "Clientes".
+  // IDs vêm de env; se ausentes, o Betinna usa o funil padrão dele.
+  const isRep = p.interest_type === 'representante';
+  const funilId = isRep
+    ? process.env.BETINNA_FUNIL_REPS
+    : process.env.BETINNA_FUNIL_CLIENTES;
+
   return {
     nome: p.name,
     telefone: p.whatsapp || undefined,
     email: p.email || undefined,
     mensagem,
     origem: 'site-institucional',
+    ...(funilId ? { funilId } : {}),
   };
 }
 
