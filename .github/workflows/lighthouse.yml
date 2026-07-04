@@ -58,7 +58,7 @@ jobs:
         # Comentário é informativo: se o token não puder comentar (org restringe
         # o GITHUB_TOKEN), NÃO derruba o check — a auditoria já rodou no passo acima.
         continue-on-error: true
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
