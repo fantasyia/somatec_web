@@ -18,14 +18,23 @@ describe('lighthouserc.json', () => {
     expect(conf.ci.assert).toBeDefined();
   });
 
-  it('tem assertions críticas como error (não warn)', () => {
+  it('mantém accessibility como error (gate crítico não pode ser rebaixado)', () => {
     const conf = JSON.parse(raw) as {
       ci: { assert: { assertions: Record<string, unknown> } };
     };
     const a11y = conf.ci.assert.assertions['categories:accessibility'];
-    const seo = conf.ci.assert.assertions['categories:seo'];
     expect(Array.isArray(a11y) && a11y[0]).toBe('error');
-    expect(Array.isArray(seo) && seo[0]).toBe('error');
+  });
+
+  it('SEO fica em warn ENQUANTO o site é noindex por decisão de negócio', () => {
+    // O site está noindex de propósito (pré-lançamento, SITE_NOINDEX=true) →
+    // is-crawlable derruba o SEO e não é regressão de qualidade. Quando liberar
+    // a indexação no Google, reverter categories:seo para 'error' (e este teste).
+    const conf = JSON.parse(raw) as {
+      ci: { assert: { assertions: Record<string, unknown> } };
+    };
+    const seo = conf.ci.assert.assertions['categories:seo'];
+    expect(Array.isArray(seo) && seo[0]).toBe('warn');
   });
 });
 

@@ -71,6 +71,8 @@ export default async function SolucaoPage({
 
           {/* Destaques */}
           <div className="lg:col-span-5 space-y-4">
+            {/* h2 só pra leitor de tela: mantém a ordem h1→h2→h3 (cards) sem mudar o visual */}
+            <h2 className="sr-only">Destaques da solução</h2>
             {s.highlights.map((h) => (
               <div
                 key={h.title}

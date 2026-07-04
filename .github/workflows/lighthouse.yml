@@ -13,6 +13,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write # necessário pro passo "Comment PR with results"
+
 jobs:
   lighthouse:
     name: Lighthouse audit
@@ -51,6 +55,9 @@ jobs:
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
+        # Comentário é informativo: se o token não puder comentar (org restringe
+        # o GITHUB_TOKEN), NÃO derruba o check — a auditoria já rodou no passo acima.
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
@@ -66,12 +73,12 @@ jobs:
                 lines.push(`- SEO: ${(run.summary.seo * 100).toFixed(0)}`);
                 lines.push('');
               }
-              github.rest.issues.createComment({
+              await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: lines.join('\n'),
               });
             } catch (e) {
-              console.log('No manifest found or parse error:', e.message);
+              console.log('Não foi possível comentar o resultado (não bloqueia):', e.message);
             }
