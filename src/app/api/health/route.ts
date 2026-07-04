@@ -71,11 +71,11 @@ function checkSentry(): Check {
     : { status: 'skipped', message: 'SENTRY_DSN não configurado (errors não vão pro Sentry)' };
 }
 
-function checkMullerbot(): Check {
-  const ok = Boolean(process.env.MULLERBOT_WEBHOOK_URL && process.env.MULLERBOT_API_KEY);
+function checkBetinna(): Check {
+  const ok = Boolean(process.env.BETINNA_LEADS_URL && process.env.BETINNA_API_KEY);
   return ok
-    ? { status: 'ok', message: 'webhook configurado' }
-    : { status: 'degraded', message: 'MULLERBOT_* ausente — forms ficam empilhados em pending' };
+    ? { status: 'ok', message: 'webhook de leads (Betinna) configurado' }
+    : { status: 'degraded', message: 'BETINNA_* ausente — forms ficam empilhados em pending' };
 }
 
 async function getQueueStats(): Promise<QueueStats | null> {
@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
   const start = Date.now();
   const env = checkEnv();
   const sentry = checkSentry();
-  const mullerbot = checkMullerbot();
+  const betinna = checkBetinna();
   const [supabase, redis, queueStats] = await Promise.all([
     checkSupabase(),
     checkRedis(),
@@ -144,7 +144,7 @@ export async function GET(req: NextRequest) {
   const critical: Check[] = [env, supabase];
   const overall: CheckStatus = critical.some((c) => c.status === 'down')
     ? 'down'
-    : [redis, queue, mullerbot].some((c) => c.status === 'down' || c.status === 'degraded')
+    : [redis, queue, betinna].some((c) => c.status === 'down' || c.status === 'degraded')
       ? 'degraded'
       : 'ok';
 
@@ -156,7 +156,7 @@ export async function GET(req: NextRequest) {
       status: overall,
       total_ms: Date.now() - start,
       timestamp: new Date().toISOString(),
-      checks: { env, supabase, redis, mullerbot, queue, sentry },
+      checks: { env, supabase, redis, betinna, queue, sentry },
       queue_stats: queueStats,
     },
     { status, headers: publicResponseHeaders(origin) },
