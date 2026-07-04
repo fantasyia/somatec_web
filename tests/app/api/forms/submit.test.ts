@@ -83,8 +83,9 @@ describe('POST /api/forms/submit', () => {
     // sem TURNSTILE_SECRET → modo dev pula validação
     vi.stubEnv('TURNSTILE_SECRET_KEY', '');
     vi.stubEnv('NODE_ENV', 'development');
-    vi.stubEnv('MULLERBOT_WEBHOOK_URL', 'https://hook.test/wh');
-    vi.stubEnv('MULLERBOT_API_KEY', 'k');
+    // O submit encaminha o lead pro Betinna (sendToBetinna) — env do Betinna, não MullerBot
+    vi.stubEnv('BETINNA_LEADS_URL', 'https://hook.test/wh');
+    vi.stubEnv('BETINNA_API_KEY', 'k');
   });
 
   afterEach(() => {
@@ -105,7 +106,7 @@ describe('POST /api/forms/submit', () => {
     expect(insertedRow.status).toBe('pending');
     expect(insertedRow.source_ip).toBe('10.0.0.1');
 
-    // mullerbot enviou
+    // betinna recebeu o lead
     expect(fetchSpy).toHaveBeenCalled();
     const mbCall = fetchSpy.mock.calls.find(([url]) => String(url).includes('hook.test'));
     expect(mbCall).toBeDefined();
@@ -171,7 +172,7 @@ describe('POST /api/forms/submit', () => {
   it('turnstile infra failure (prod): fail-open — aceita o lead mesmo sem verificar', async () => {
     vi.stubEnv('NODE_ENV', 'production');
     vi.stubEnv('TURNSTILE_SECRET_KEY', 'test-secret');
-    // siteverify da Cloudflare falha (infra); MullerBot responde ok.
+    // siteverify da Cloudflare falha (infra); Betinna responde ok.
     fetchSpy.mockImplementation((url: unknown) => {
       if (String(url).includes('challenges.cloudflare.com')) {
         return Promise.reject(new Error('cloudflare down'));
@@ -189,7 +190,7 @@ describe('POST /api/forms/submit', () => {
     expect(res.status).toBe(500);
   });
 
-  it('mesmo se mullerbot falhar (server_error), submit é sucesso pro user', async () => {
+  it('mesmo se o Betinna falhar (server_error), submit é sucesso pro user', async () => {
     fetchSpy.mockResolvedValue(new Response('boom', { status: 500 }));
     const res = await POST(makeRequest(validBody));
     expect(res.status).toBe(200);

@@ -6,7 +6,7 @@ import { __resetForTests, renderPrometheus } from '@/lib/metrics/registry';
 const fetchDuePendingMock = vi.fn();
 const markSentMock = vi.fn();
 const markAttemptMock = vi.fn();
-const sendToMullerBotMock = vi.fn();
+const sendToBetinnaMock = vi.fn();
 
 vi.mock('@/lib/webhook-queue', () => ({
   fetchDuePending: (...args: unknown[]) => fetchDuePendingMock(...args),
@@ -14,8 +14,8 @@ vi.mock('@/lib/webhook-queue', () => ({
   markAttempt: (...args: unknown[]) => markAttemptMock(...args),
 }));
 
-vi.mock('@/lib/mullerbot/client', () => ({
-  sendToMullerBot: (...args: unknown[]) => sendToMullerBotMock(...args),
+vi.mock('@/lib/betinna/client', () => ({
+  sendToBetinna: (...args: unknown[]) => sendToBetinnaMock(...args),
 }));
 
 const { GET } = await import('@/app/api/cron/process-webhook-queue/route');
@@ -31,7 +31,7 @@ beforeEach(() => {
   fetchDuePendingMock.mockReset();
   markSentMock.mockReset().mockResolvedValue(undefined);
   markAttemptMock.mockReset().mockResolvedValue(undefined);
-  sendToMullerBotMock.mockReset();
+  sendToBetinnaMock.mockReset();
   vi.unstubAllEnvs();
 });
 
@@ -50,7 +50,7 @@ describe('GET /api/cron/process-webhook-queue — métricas', () => {
     fetchDuePendingMock.mockResolvedValue([
       { idempotency_key: 'k1', payload: {}, attempts: 0, max_attempts: 5 },
     ]);
-    sendToMullerBotMock.mockResolvedValue({ result: 'sent', status: 200, externalId: 'ext-1' });
+    sendToBetinnaMock.mockResolvedValue({ result: 'sent', status: 200, externalId: 'ext-1' });
 
     const res = await GET(makeRequest());
     const json = await res.json();
@@ -65,7 +65,7 @@ describe('GET /api/cron/process-webhook-queue — métricas', () => {
     fetchDuePendingMock.mockResolvedValue([
       { idempotency_key: 'k1', payload: {}, attempts: 0, max_attempts: 5 },
     ]);
-    sendToMullerBotMock.mockResolvedValue({ result: 'server_error', status: 500, body: 'down' });
+    sendToBetinnaMock.mockResolvedValue({ result: 'server_error', status: 500, body: 'down' });
 
     await GET(makeRequest());
     expect(markAttemptMock).toHaveBeenCalledOnce();
@@ -80,7 +80,7 @@ describe('GET /api/cron/process-webhook-queue — métricas', () => {
       { idempotency_key: 'k3', payload: {}, attempts: 2, max_attempts: 5 },
       { idempotency_key: 'k4', payload: {}, attempts: 3, max_attempts: 5 },
     ]);
-    sendToMullerBotMock
+    sendToBetinnaMock
       .mockResolvedValueOnce({ result: 'sent', status: 200 })
       .mockResolvedValueOnce({ result: 'sent', status: 200 })
       .mockResolvedValueOnce({ result: 'client_error', status: 400, body: 'bad' })
@@ -103,7 +103,7 @@ describe('GET /api/cron/process-webhook-queue — métricas', () => {
     fetchDuePendingMock.mockResolvedValue([
       { idempotency_key: 'k1', payload: {}, attempts: 0, max_attempts: 5 },
     ]);
-    sendToMullerBotMock.mockResolvedValue({ result: 'not_configured' });
+    sendToBetinnaMock.mockResolvedValue({ result: 'not_configured' });
 
     await GET(makeRequest());
     expect(renderPrometheus({})).toContain('msm_queue_processed_total{outcome="not_configured"} 1');
