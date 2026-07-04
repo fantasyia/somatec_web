@@ -14,24 +14,37 @@ import type { SendOutcome } from '@/lib/mullerbot/client';
 
 const TIMEOUT_MS = 8000;
 
-/** Mapeia o payload interno (rico) para o formato enxuto do Betinna.
- *  Campos sem correspondência (interesse, empresa, local, segmento…) vão
- *  para `mensagem` como observações, para não perder nada no CRM. */
+/** Trunca respeitando o `max` do Zod do Betinna (valor acima do limite = 400). */
+function cut(v: string | null | undefined, max: number): string | undefined {
+  const s = v?.trim();
+  return s ? s.slice(0, max) : undefined;
+}
+
+/** Mapeia o payload interno para o contrato ESTRUTURADO do Betinna
+ *  (POST /public/leads): empresa, cidade/uf, segmento, região/experiência,
+ *  paginaOrigem, consentimentoLgpd e metadados viram CAMPOS — aparecem na
+ *  seção "Dados da captura" do lead no CRM. Só o que não tem campo
+ *  correspondente (volume estimado, CNPJ de amostra…) vai para `mensagem`. */
 function buildBody(p: MullerBotPayload) {
+  // Campos estruturados por tipo de formulário (region/experience = representante,
+  // segment = b2b). O restante dos extra_fields fica como contexto na mensagem.
+  const { region, experience, segment, ...outrosExtras } = p.extra_fields;
+
   const ctx: string[] = [];
   if (p.interest_type) ctx.push(`Interesse: ${p.interest_type}`);
-  if (p.company) ctx.push(`Empresa: ${p.company}`);
-  const local = [p.city, p.state].filter(Boolean).join('/');
-  if (local) ctx.push(`Local: ${local}`);
-  for (const [k, v] of Object.entries(p.extra_fields)) {
+  ctx.push(`Formulário: ${p.form_type}`);
+  for (const [k, v] of Object.entries(outrosExtras)) {
     if (v) ctx.push(`${k}: ${v}`);
   }
-  ctx.push(`Página: ${p.source_page}`);
-  if (p.captcha_unverified) ctx.push('captcha não verificado');
+  if (p.captcha_unverified) ctx.push('⚠ captcha não verificado');
 
-  const mensagem =
-    [p.message ?? '', ctx.length ? `— ${ctx.join(' · ')}` : ''].filter(Boolean).join('\n\n') ||
-    undefined;
+  const mensagem = cut(
+    [p.message ?? '', ctx.length ? `— ${ctx.join(' · ')}` : ''].filter(Boolean).join('\n\n'),
+    2000,
+  );
+
+  // uf: o Betinna exige exatamente 2 letras — fora disso, omite (evita 400).
+  const uf = p.state && /^[A-Za-z]{2}$/.test(p.state) ? p.state.toUpperCase() : undefined;
 
   // Roteamento por funil: formulário de representante → "Prospecção Reps";
   // qualquer outro lead (cliente/b2b, ads, redes, contato) → "Clientes".
@@ -42,11 +55,28 @@ function buildBody(p: MullerBotPayload) {
     : process.env.BETINNA_FUNIL_CLIENTES;
 
   return {
-    nome: p.name,
-    telefone: p.whatsapp || undefined,
-    email: p.email || undefined,
+    nome: cut(p.name, 200),
+    telefone: cut(p.whatsapp, 30),
+    email: cut(p.email, 200),
+    empresa: cut(p.company, 200),
+    cidade: cut(p.city, 100),
+    ...(uf ? { uf } : {}),
+    segmento: cut(segment, 60),
+    regiao: cut(region, 150),
+    experiencia: cut(experience, 1000),
     mensagem,
     origem: 'site-institucional',
+    paginaOrigem: cut(p.source_page, 300),
+    consentimentoLgpd: {
+      aceito: p.lgpd_consent.accepted,
+      timestamp: cut(p.lgpd_consent.timestamp, 60),
+      versaoTexto: cut(p.lgpd_consent.text_version, 60),
+      hashTexto: cut(p.lgpd_consent.text_hash, 200),
+    },
+    metadados: {
+      userAgent: cut(p.site_metadata.user_agent, 500),
+      referer: cut(p.site_metadata.referer, 500),
+    },
     ...(funilId ? { funilId } : {}),
   };
 }
@@ -67,7 +97,8 @@ export async function sendToBetinna(payload: MullerBotPayload): Promise<SendOutc
       const res = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          // charset explícito: garante UTF-8 na ponta (acentos íntegros no CRM)
+          'Content-Type': 'application/json; charset=utf-8',
           'x-api-key': apiKey,
         },
         body,
