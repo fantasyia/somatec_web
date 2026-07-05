@@ -10,8 +10,9 @@ describe('ratelimit fallback mode (sem Upstash)', () => {
 
   beforeEach(() => {
     warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.stubEnv('UPSTASH_REDIS_REST_URL', '');
-    vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', '');
+    // getRedis lê REDIS_URL e memoiza no globalThis — resetar p/ isolar cada teste.
+    vi.stubEnv('REDIS_URL', '');
+    (globalThis as { __somatecRedis?: unknown }).__somatecRedis = undefined;
   });
 
   afterEach(() => {
@@ -58,7 +59,7 @@ describe('ratelimit fallback mode (sem Upstash)', () => {
     // logger usa pretty print em test (NODE_ENV !== 'production'), passa string + objeto
     const calls = warnSpy.mock.calls;
     const messages = calls.map((c: unknown[]) => String(c[0]));
-    const fallbackWarns = messages.filter((m: string) => m.includes('UPSTASH_REDIS_REST_URL'));
+    const fallbackWarns = messages.filter((m: string) => m.includes('REDIS_URL ausente'));
     expect(fallbackWarns.length).toBe(1);
   });
 });

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { publicResponseHeaders, corsHeaders } from '@/lib/http/headers';
+import { getRedis } from '@/lib/redis';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -37,17 +38,13 @@ async function checkSupabase(): Promise<Check> {
 }
 
 async function checkRedis(): Promise<Check> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return { status: 'skipped', message: 'UPSTASH_REDIS_* não configurado' };
+  const redis = getRedis();
+  if (!redis) return { status: 'skipped', message: 'REDIS_URL não configurado' };
   const start = Date.now();
   try {
-    const res = await fetch(`${url}/ping`, {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(3000),
-    });
+    const pong = await redis.ping();
     const latency_ms = Date.now() - start;
-    if (!res.ok) return { status: 'down', latency_ms, message: `HTTP ${res.status}` };
+    if (pong !== 'PONG') return { status: 'down', latency_ms, message: `resposta inesperada: ${pong}` };
     return { status: 'ok', latency_ms };
   } catch (e) {
     return { status: 'down', latency_ms: Date.now() - start, message: e instanceof Error ? e.message : 'unknown' };

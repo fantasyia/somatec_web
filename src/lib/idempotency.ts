@@ -1,5 +1,5 @@
 import 'server-only';
-import { Redis } from '@upstash/redis';
+import { getRedis } from '@/lib/redis';
 import { createLogger } from '@/lib/logger';
 
 const log = createLogger('idempotency');
@@ -9,18 +9,9 @@ const TTL_SECONDS = 24 * 60 * 60;
 // TTL da sentinela in-flight: curto, para liberar a chave se o handler morrer
 // antes de gravar a resposta (evita travar retries legítimos por 24h).
 const INFLIGHT_TTL_SECONDS = 60;
-const KEY_PREFIX = 'msm:idem';
+const KEY_PREFIX = 'somatec:idem';
 
-let client: Redis | null = null;
-
-function getClient(): Redis | null {
-  if (client) return client;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return null;
-  client = new Redis({ url, token });
-  return client;
-}
+const SENTINEL = '__inflight__';
 
 type CachedResponse = {
   status: number;
@@ -28,11 +19,8 @@ type CachedResponse = {
   contentType: string;
 };
 
-type Sentinel = { __inflight: true };
-const SENTINEL: Sentinel = { __inflight: true };
-
 export type IdempotencyResult =
-  | { mode: 'skipped' } // Upstash não configurado
+  | { mode: 'skipped' } // Redis não configurado / erro → fail-open
   | { mode: 'first' } // primeira vez (reservou a chave), prossegue
   | { mode: 'in_flight' } // outra requisição com a mesma chave ainda processando
   | { mode: 'replay'; response: CachedResponse }; // já concluída, retorna cache
@@ -41,39 +29,39 @@ export type IdempotencyResult =
  * Olha se a chave foi usada antes. Se sim, devolve a resposta cacheada.
  * Se não, marca a chave como "in-flight" (caller deve chamar storeResponse).
  *
- * Headers HTTP padrão para isso: `Idempotency-Key` (RFC draft, em uso por Stripe/Square/etc).
+ * Header HTTP: `Idempotency-Key` (RFC draft, em uso por Stripe/Square/etc).
  */
 export async function checkIdempotency(key: string): Promise<IdempotencyResult> {
-  const redis = getClient();
+  const redis = getRedis();
   if (!redis) return { mode: 'skipped' };
   const k = `${KEY_PREFIX}:${key}`;
 
   try {
-    // Reserva ATÔMICA: SET NX só grava se a chave não existir. Sem isso, duas
-    // requisições concorrentes com a mesma chave viam ambas 'first' e processavam
-    // em duplicidade (dois leads). 'OK' => fomos o primeiro a reservar.
-    const reserved = await redis.set(k, SENTINEL, { nx: true, ex: INFLIGHT_TTL_SECONDS });
+    // Reserva ATÔMICA: SET NX só grava se a chave não existir. Evita que duas
+    // requisições concorrentes com a mesma chave processem em duplicidade.
+    const reserved = await redis.set(k, SENTINEL, 'EX', INFLIGHT_TTL_SECONDS, 'NX');
     if (reserved === 'OK') return { mode: 'first' };
-    // Já existe: ou está in-flight (sentinela) ou já tem resposta cacheada.
-    const existing = await redis.get<CachedResponse | Sentinel>(k);
-    if (existing && (existing as Sentinel).__inflight === true) return { mode: 'in_flight' };
-    if (existing) return { mode: 'replay', response: existing as CachedResponse };
-    // Expirou entre o SET e o GET (raro) — trata como primeiro.
-    return { mode: 'first' };
+
+    const existing = await redis.get(k);
+    if (!existing) return { mode: 'first' }; // expirou entre SET e GET (raro)
+    if (existing === SENTINEL) return { mode: 'in_flight' };
+    try {
+      return { mode: 'replay', response: JSON.parse(existing) as CachedResponse };
+    } catch {
+      return { mode: 'first' };
+    }
   } catch (err) {
     log.warn('checkIdempotency error (fallback: prosseguir)', { key }, err);
     return { mode: 'skipped' };
   }
 }
 
-/**
- * Armazena a resposta para responder o mesmo se a chave for repetida.
- */
+/** Armazena a resposta para responder o mesmo se a chave for repetida. */
 export async function storeResponse(key: string, response: CachedResponse): Promise<void> {
-  const redis = getClient();
+  const redis = getRedis();
   if (!redis) return;
   try {
-    await redis.set(`${KEY_PREFIX}:${key}`, response, { ex: TTL_SECONDS });
+    await redis.set(`${KEY_PREFIX}:${key}`, JSON.stringify(response), 'EX', TTL_SECONDS);
   } catch (err) {
     log.warn('storeResponse error', { key }, err);
   }
@@ -81,7 +69,6 @@ export async function storeResponse(key: string, response: CachedResponse): Prom
 
 /**
  * Valida formato da chave: UUID ou identificador ASCII safe entre 8 e 128 chars.
- * Rejeita chaves muito curtas (poderiam colidir) ou com caracteres estranhos.
  */
 export function isValidIdempotencyKey(key: string): boolean {
   if (typeof key !== 'string') return false;
