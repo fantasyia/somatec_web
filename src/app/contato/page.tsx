@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Contato — Somatec Blocking',
   description:
     'Fale com a engenharia da Somatec Blocking. Diagnóstico de qualidade de energia e proteção contra surtos (Master Block) para a indústria. Dracena-SP.',
+  alternates: { canonical: '/contato' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 

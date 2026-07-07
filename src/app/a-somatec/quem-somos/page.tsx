@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Quem somos — Somatec Blocking',
   description:
     'Fundada em 1999 em Dracena-SP, a Somatec Blocking é especialista em eficiência energética e qualidade de energia. 26 anos de atuação técnica, sem nenhum acidente.',
+  alternates: { canonical: '/a-somatec/quem-somos' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 

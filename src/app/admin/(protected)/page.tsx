@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
-  Home, Megaphone, FileText, Image,
-  Globe, Navigation, AlignEndHorizontal as AlignBottom, Settings,
+  Home, Image,
+  Globe, AlignEndHorizontal as AlignBottom, Settings,
   ArrowLeftRight, ClipboardList, HeartPulse, MessageCircle,
 } from 'lucide-react';
 import { requireAdmin } from '@/lib/admin/auth';
@@ -12,11 +12,8 @@ export const metadata: Metadata = { title: 'Dashboard — Admin Somatec' };
 
 const MODULES = [
   { label: 'Home', href: '/admin/home', icon: Home, desc: 'Hero, carrossel, indicadores, CTA' },
-  { label: 'Banners', href: '/admin/banners', icon: Megaphone, desc: 'Banners promocionais' },
-  { label: 'Páginas', href: '/admin/paginas', icon: FileText, desc: 'Páginas institucionais' },
   { label: 'Mídias', href: '/admin/midias', icon: Image, desc: 'Upload e gestão de arquivos' },
   { label: 'SEO Global', href: '/admin/seo', icon: Globe, desc: 'Metadados e configurações SEO' },
-  { label: 'Navegação', href: '/admin/navegacao', icon: Navigation, desc: 'Itens do menu' },
   { label: 'Footer', href: '/admin/footer', icon: AlignBottom, desc: 'Colunas e links do rodapé' },
   { label: 'WhatsApp', href: '/admin/whatsapp', icon: MessageCircle, desc: 'Botão e mensagens de WhatsApp' },
   { label: 'Configurações', href: '/admin/configuracoes', icon: Settings, desc: 'Parâmetros do site' },

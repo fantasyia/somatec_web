@@ -5,11 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Home,
-  Megaphone,
-  FileText,
   Image,
   Globe,
-  Navigation,
   AlignEndHorizontal as AlignBottom,
   Settings,
   MessageCircle,
@@ -31,13 +28,12 @@ type NavItem = {
 const NAV: NavItem[] = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
 
+  // Banners/Páginas/Navegação: painéis ocultos — editam tabelas sem consumidor
+  // público no site Somatec (header vem de constants; sem renderer de páginas CMS).
   { label: 'Home', href: '/admin/home', icon: Home, group: 'Conteúdo' },
-  { label: 'Banners', href: '/admin/banners', icon: Megaphone, group: 'Conteúdo' },
-  { label: 'Páginas', href: '/admin/paginas', icon: FileText, group: 'Conteúdo' },
   { label: 'Mídias', href: '/admin/midias', icon: Image, group: 'Conteúdo' },
 
   { label: 'SEO Global', href: '/admin/seo', icon: Globe, group: 'Configuração' },
-  { label: 'Navegação', href: '/admin/navegacao', icon: Navigation, group: 'Configuração' },
   { label: 'Footer', href: '/admin/footer', icon: AlignBottom, group: 'Configuração' },
   { label: 'Configurações', href: '/admin/configuracoes', icon: Settings, group: 'Configuração' },
   { label: 'WhatsApp', href: '/admin/whatsapp', icon: MessageCircle, group: 'Configuração' },

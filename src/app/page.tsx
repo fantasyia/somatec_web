@@ -22,6 +22,7 @@ import { organizationSchema, masterBlockProductSchema, faqSchema } from '@/lib/s
 export const metadata: Metadata = {
   title: SITE.fullName,
   description: SITE.description,
+  alternates: { canonical: '/' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
   openGraph: {
     title: `${SITE.fullName} — ${SITE.description}`,

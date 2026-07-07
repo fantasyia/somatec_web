@@ -11,7 +11,7 @@ const HTML = `<!DOCTYPE html>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>MSM API Docs</title>
+  <title>Somatec API Docs</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_VERSION}/swagger-ui.css" />
   <style>
     html, body { margin: 0; background: #fafafa; font-family: system-ui, -apple-system, sans-serif; }
@@ -24,7 +24,7 @@ const HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="msm-header">
-    <h1>MSM Alimentos — API Docs <span class="badge">OpenAPI 3.1</span></h1>
+    <h1>Somatec Blocking — API Docs <span class="badge">OpenAPI 3.1</span></h1>
   </div>
   <div id="swagger-ui"></div>
   <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_VERSION}/swagger-ui-bundle.js" crossorigin="anonymous"></script>
