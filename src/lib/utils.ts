@@ -6,6 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function absoluteUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://msm.com.br';
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://somatecblocking.com.br';
   return new URL(path, base).toString();
 }

@@ -2,7 +2,10 @@ import type { MetadataRoute } from 'next';
 import { SITE } from '@/lib/constants/site';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 
-export const revalidate = 3600;
+// Sempre fresco: o cache de build persistente do Railway (.next/cache) já
+// serviu sitemap com dados velhos do banco (URLs /a-msm removidas). Sitemap é
+// baixo tráfego — vale gerar sob demanda direto do banco.
+export const dynamic = 'force-dynamic';
 
 type PathRow = { route_path: string; updated_at: string };
 type RedirectRow = { to_path: string; status_code: number; updated_at: string };
