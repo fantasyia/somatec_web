@@ -5,8 +5,8 @@ import {
   ShieldCheck,
   GaugeCircle,
   Layers,
-  Gauge,
 } from 'lucide-react';
+import { CascadeDiagram } from '@/components/graphics/CascadeDiagram';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { Reveal } from '@/components/ui/Reveal';
@@ -250,25 +250,8 @@ export default function ProdutosPage() {
               </p>
             </Reveal>
 
-            <Reveal className="space-y-4">
-              {[
-                { Icon: Layers, t: 'Entrada da instalação', d: 'Primeiro estágio: absorve os maiores surtos vindos da rede.' },
-                { Icon: Gauge, t: 'Quadro de distribuição', d: 'Segundo estágio: atenua o residual antes das cargas.' },
-                { Icon: ShieldCheck, t: 'Junto ao equipamento sensível', d: 'Proteção fina, agora dentro da capacidade de escoamento.' },
-              ].map(({ Icon, t, d }) => (
-                <div
-                  key={t}
-                  className="flex gap-4 rounded-card border border-white/10 bg-white/[0.03] p-5"
-                >
-                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-btn bg-gold/15 text-gold">
-                    <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-                  </span>
-                  <div>
-                    <h3 className="font-sans font-semibold text-base">{t}</h3>
-                    <p className="text-sm text-white/70 leading-relaxed mt-1">{d}</p>
-                  </div>
-                </div>
-              ))}
+            <Reveal>
+              <CascadeDiagram />
             </Reveal>
           </div>
         </div>

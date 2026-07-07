@@ -1,5 +1,6 @@
 import { INDICATORS_FALLBACK, CERTIFICATIONS } from '@/lib/constants/home-fallback';
 import { Reveal } from '@/components/ui/Reveal';
+import { CountUp } from '@/components/ui/CountUp';
 import type { HomeIndicator } from '@/types/database';
 
 type Props = { indicators: HomeIndicator[] };
@@ -42,7 +43,7 @@ export function HomeIndicators({ indicators }: Props) {
               />
             )}
             <div className="font-serif font-semibold text-indicator-m md:text-indicator-d leading-none text-[rgb(var(--text))]">
-              {useReal ? item.main : <span className="text-gold">{item.main}</span>}
+              {useReal ? <CountUp value={item.main} /> : <span className="text-gold">{item.main}</span>}
             </div>
             {item.label && (
               <div className="mt-3 text-xs md:text-sm uppercase tracking-widest font-sans font-semibold text-[rgb(var(--text-muted))]">

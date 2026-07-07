@@ -5,6 +5,7 @@
  */
 import { Award, ShieldCheck } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
+import { CaseChart } from '@/components/home/CaseChart';
 
 type Case = {
   metric: string;
@@ -65,6 +66,11 @@ export function HomeProof() {
           Schneider — só resolveram as paradas e queimas com a Somatec Blocking. Cada resultado
           é comprovado por medição antes e depois da instalação.
         </p>
+      </Reveal>
+
+      {/* Prova técnica em figura: antes/depois do case Cinpal */}
+      <Reveal className="mb-10">
+        <CaseChart />
       </Reveal>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
