@@ -586,6 +586,42 @@ const CLUSTERS = [
     {id:'sol04',title:'O&M de usina solar: proteção elétrica que reduz troca de inversor',f:'meio',kw:'O&M usina solar proteção elétrica troca inversor manutenção fotovoltaico',lk:['p0','a46','sol02'],n:true},
     {id:'sol05',title:'Integradora solar: como oferecer proteção contra surto e aumentar o ticket',f:'fundo',kw:'integradora solar oferecer proteção surto ticket venda fotovoltaico',lk:['p0','bi02','a18'],n:true},
   ]},
+
+  { id:'c38', name:'🔋 Carros Elétricos & Híbridos Plug-in (não industrial)', color:'#1aa0a0', n:true, articles:[
+    {id:'ev01',title:'Carro elétrico e híbrido plug-in: por que a qualidade de energia da sua casa afeta a recarga',f:'topo',kw:'carro elétrico híbrido plug-in qualidade energia casa recarga surto',lk:['p0','a01','c02'],n:true},
+    {id:'ev02',title:'Wallbox e carregador residencial: o equipamento caro que um surto pode danificar',f:'setor',kw:'wallbox carregador residencial veículo elétrico surto queima proteção',lk:['p0','a01','a21','c04'],n:true},
+    {id:'ev03',title:'VTCD e surtos na recarga: o que acontece com o carregador quando a rede oscila',f:'meio',kw:'VTCD surto recarga carro elétrico carregador oscilação rede',lk:['p0','a01','ev02'],n:true},
+    {id:'ev04',title:'Eletroposto e estação de recarga comercial: proteção elétrica para operação contínua',f:'setor',kw:'eletroposto estação recarga comercial proteção elétrica surto operação',lk:['p0','a01','a09','a19'],n:true},
+    {id:'ev05',title:'Recarga de veículos elétricos em condomínio: proteção da infraestrutura de carregadores',f:'setor',kw:'recarga veículo elétrico condomínio infraestrutura carregador proteção elétrica',lk:['p0','cnd04','ev02','a09'],n:true},
+    {id:'ev06',title:'Casa de alto padrão com carro elétrico: proteção em cascata da entrada à garagem',f:'resid',kw:'casa alto padrão carro elétrico proteção cascata garagem wallbox surto',lk:['p0','c01','c06','ev02'],n:true},
+    {id:'ev07',title:'Inversor solar + recarga de EV: dois ativos caros na mesma rede vulnerável',f:'setor',kw:'inversor solar recarga carro elétrico rede vulnerável surto proteção residencial',lk:['p0','c04','sol02','ev02'],n:true},
+    {id:'ev08',title:'Bateria e eletrônica embarcada do EV: até onde vai a proteção da rede (e o que o BMS já cobre)',f:'topo',kw:'bateria carro elétrico eletrônica embarcada BMS proteção rede surto',lk:['p0','a01','ev03'],n:true},
+    {id:'ev09',title:'5 riscos elétricos que donos de carro elétrico e híbrido plug-in não conhecem',f:'lista',kw:'riscos elétricos carro elétrico híbrido plug-in surto recarga lista',lk:['p0','a01','ev02','ev03'],n:true},
+    {id:'ev10',title:'Vale proteger a instalação de recarga? O custo de um wallbox/carregador queimado',f:'fundo',kw:'vale proteger instalação recarga custo wallbox carregador queimado ROI',lk:['p0','a19','a23','ev02'],n:true},
+  ]},
+
+  { id:'c39', name:'💎 Alto Padrão — Equipamentos Premium (residencial, com marcas)', color:'#a06a20', n:true, articles:[
+    {id:'pv01',title:'Elevador residencial (OTIS, Schindler, Kone, Atlas): proteja a eletrônica do seu ativo mais caro contra surtos',f:'resid',kw:'elevador residencial OTIS Schindler Kone proteção elétrica surto placa',lk:['p0','a01','c06','cnd03'],n:true},
+    {id:'pv02',title:'Ar-condicionado de alto padrão (Daikin, Carrier, Fujitsu, LG): por que a placa da condensadora queima e como proteger',f:'resid',kw:'ar-condicionado alto padrão Daikin Carrier Fujitsu placa condensadora queima proteção',lk:['p0','a01','c05','a21'],n:true},
+    {id:'pv03',title:'Bomba e motor de piscina (Jacuzzi, Sodramar, Dancor, WEG): proteção elétrica contra queima por surto',f:'resid',kw:'bomba motor piscina Jacuzzi Sodramar Dancor WEG queima surto proteção elétrica',lk:['p0','a01','c05','cnd06'],n:true},
+    {id:'pv04',title:'Aquecedor e trocador de calor de piscina: proteja o sistema de climatização da água contra oscilação',f:'resid',kw:'aquecedor trocador calor piscina climatização água oscilação surto proteção',lk:['p0','a01','pv03'],n:true},
+    {id:'pv05',title:'Eletrodomésticos premium (Gorenje, Elettromec, Miele, Sub-Zero): a eletrônica cara que um surto destrói',f:'resid',kw:'eletrodoméstico premium Gorenje Elettromec Miele Sub-Zero surto queima proteção',lk:['p0','a01','c05','a21'],n:true},
+    {id:'pv06',title:'Adega climatizada e cave de vinhos: proteção elétrica para não perder a coleção por uma queda de tensão',f:'resid',kw:'adega climatizada cave vinhos proteção elétrica queda tensão surto coleção',lk:['p0','a01','c05'],n:true},
+    {id:'pv07',title:'Home theater e áudio de alta fidelidade (Denon, Marantz, Bowers & Wilkins): proteção contra surtos',f:'resid',kw:'home theater áudio alta fidelidade Denon Marantz proteção surto elétrico premium',lk:['p0','a01','c03'],n:true},
+    {id:'pv08',title:'Automação residencial de luxo (KNX, Control4, Crestron, Savant): por que a qualidade de energia derruba a casa inteligente',f:'resid',kw:'automação residencial luxo KNX Control4 Crestron qualidade energia casa inteligente',lk:['p0','a01','c02'],n:true},
+    {id:'pv09',title:'Climatização central, piso térmico e cortina de ar: proteja os sistemas prediais da residência de alto padrão',f:'resid',kw:'climatização central piso térmico cortina ar residência alto padrão proteção surto',lk:['p0','a01','c06'],n:true},
+    {id:'pv10',title:'7 equipamentos de alto padrão que mais sofrem com surto — e quanto custa repor cada um',f:'lista',kw:'equipamentos alto padrão surto elétrico custo reposição lista residência luxo',lk:['p0','a21','pv01','pv05'],n:true},
+    {id:'pv11',title:'Proteção em cascata para casas de alto padrão: da entrada de energia aos equipamentos premium',f:'resid',kw:'proteção cascata casa alto padrão entrada energia equipamentos premium mansão',lk:['p0','a13','c06','c01'],n:true},
+  ]},
+
+  { id:'c40', name:'🛠️ Pequenos Fabricantes & Comércio (não industrial)', color:'#7a5a2a', n:true, articles:[
+    {id:'pf01',title:'Marcenaria e fábrica de móveis: seccionadora de MDF, coladeira de borda e CNC — proteção da eletrônica',f:'setor',kw:'marcenaria fábrica móveis seccionadora MDF coladeira borda CNC proteção elétrica surto',lk:['p0','a01','a06','a21'],n:true},
+    {id:'pf02',title:'Fábrica de salgados e panificação: forno, masseira e câmara fria — proteção elétrica contra surto',f:'setor',kw:'fábrica salgados panificação forno masseira câmara fria proteção surto elétrico',lk:['p0','a25','fr06','a01'],n:true},
+    {id:'pf03',title:'Gráfica rápida e comunicação visual: plotter, impressora de grande formato e router — proteção contra queima',f:'setor',kw:'gráfica rápida comunicação visual plotter impressora grande formato router proteção surto',lk:['p0','a72','a01','a21'],n:true},
+    {id:'pf04',title:'Serralheria e esquadrias de alumínio: solda inverter e policorte queimando por oscilação elétrica',f:'setor',kw:'serralheria esquadrias alumínio solda inverter policorte queima oscilação elétrica',lk:['p0','met02','a01','a21'],n:true},
+    {id:'pf05',title:'Marmoraria e beneficiamento de pedra: CNC, politriz e ponte rolante — proteção elétrica',f:'setor',kw:'marmoraria beneficiamento pedra CNC politriz ponte rolante proteção elétrica surto',lk:['p0','a01','a06','a21'],n:true},
+    {id:'pf06',title:'5 pequenos negócios que perdem faturamento quando a máquina queima — e como evitar',f:'lista',kw:'pequeno negócio máquina queima faturamento proteção elétrica surto lista',lk:['p0','a19','a21','pf01'],n:true},
+  ]},
 ];
 
 const PILAR = {id:'p0',title:'Qualidade de energia elétrica: guia completo para indústrias, comércios e residências',cluster:'Pilar Central',f:'pilar',kw:'qualidade de energia elétrica indústria comércio residências',lk:[]};
