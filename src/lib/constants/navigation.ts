@@ -51,6 +51,7 @@ export const HEADER_NAV: NavItem[] = [
     ],
   },
   { label: 'Resultados', href: '/blog' },
+  { label: 'Diagnóstico', href: '/ferramentas/custo-de-parada' },
   { label: 'Contato', href: '/contato' },
 ];
 
@@ -89,6 +90,7 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
     title: 'Contato',
     links: [
       { label: 'Fale com o comercial', href: '/contato' },
+      { label: 'Diagnóstico de VTCD', href: '/ferramentas/custo-de-parada' },
       { label: 'Perguntas frequentes', href: '/faq' },
       { label: 'Política de privacidade', href: '/politica-de-privacidade' },
       { label: 'Termos de uso', href: '/termos-de-uso' },

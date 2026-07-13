@@ -39,6 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/a-somatec/quem-somos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${base}/a-somatec/tecnologia-e-fabricacao`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${base}/a-somatec/comprovacao-e-normas`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${base}/ferramentas/custo-de-parada`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/faq`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/contato`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/representantes`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },

@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import {
   Zap,
   Activity,
   ShieldCheck,
   GaugeCircle,
   Layers,
+  ChevronRight,
 } from 'lucide-react';
 import { CascadeDiagram } from '@/components/graphics/CascadeDiagram';
 import { PageHero } from '@/components/layout/PageHero';
@@ -265,16 +267,26 @@ export default function ProdutosPage() {
             Qual MasterBlock a sua planta precisa?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            O dimensionamento correto depende da carga, da criticidade e da topologia da
-            sua instalação. Fale com a engenharia da Somatec e receba um projeto de
-            mitigação de surtos e transientes sob medida.
+            Comece calculando quanto as paradas e queimas custam por ano na sua operação — em
+            2 minutos. Ou fale direto com a engenharia da Somatec para um projeto de mitigação
+            de surtos e transientes sob medida.
           </p>
-          <CommercialCta
-            label="Solicitar diagnóstico"
-            context="Linha MasterBlock (MB-01 a MB-12)"
-            fallbackPath="/contato"
-            className="inline-flex mt-2"
-          />
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link href="/ferramentas/custo-de-parada" className="btn-primary group">
+              Calcular meu prejuízo
+              <ChevronRight
+                className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
+                strokeWidth={2}
+              />
+            </Link>
+            <CommercialCta
+              label="Falar com a engenharia"
+              context="Linha MasterBlock (MB-01 a MB-12)"
+              fallbackPath="/contato"
+              variant="secondary"
+              className="inline-flex"
+            />
+          </div>
         </div>
       </section>
     </>
