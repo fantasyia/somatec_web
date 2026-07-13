@@ -215,7 +215,7 @@ const CLUSTERS = [
     {id:'a68',title:'Como incluir proteção elétrica no orçamento anual de manutenção',f:'fundo',kw:'orçamento manutenção proteção elétrica planejamento',lk:['p0','a23','a47'],n:true},
     {id:'a69',title:'Seguros industriais e qualidade de energia: o que as apólices cobrem',f:'meio',kw:'seguro industrial qualidade energia elétrica apólice',lk:['p0','a19','a23'],n:true},
   ]},
-  { id:'c4', name:'Série Setorial — Indústria', color:'#7a30b0', articles:[
+  { id:'c4', name:'Setorial — Hub por Indústria (visão geral → silo)', color:'#7a30b0', articles:[
     {id:'a25',title:'Proteção elétrica na indústria alimentícia: empacotadeiras e CLPs',f:'setor',kw:'proteção elétrica indústria alimentícia',lk:['p0','a01','a09']},
     {id:'a26',title:'Proteção elétrica em farmácias e distribuidoras farmacêuticas',f:'setor',kw:'proteção elétrica farmácia distribuidora pharma',lk:['p0','a01','a09']},
     {id:'a27',title:'Proteção elétrica em metalúrgicas e siderúrgicas',f:'setor',kw:'proteção elétrica metalúrgica siderúrgica',lk:['p0','a01','a13']},
@@ -230,6 +230,9 @@ const CLUSTERS = [
     {id:'a71',title:'Proteção elétrica na indústria de plásticos: injetoras e extrusoras',f:'setor',kw:'proteção elétrica plásticos borracha injetora extrusora',lk:['p0','a01','a09'],n:true},
     {id:'a72',title:'Proteção elétrica em gráficas e indústria de embalagens',f:'setor',kw:'proteção elétrica gráfica embalagens impressão',lk:['p0','a01','a09'],n:true},
     {id:'a73',title:'Proteção elétrica em lavanderias industriais e tinturarias',f:'setor',kw:'proteção elétrica lavanderia industrial tinturaria',lk:['p0','a01','a09'],n:true},
+    {id:'a97',title:'Proteção elétrica na indústria de papel e celulose: processo contínuo e alto custo de parada',f:'setor',kw:'proteção elétrica papel celulose máquina contínua parada indústria',lk:['p0','a01','a09','a19'],n:true},
+    {id:'a98',title:'Proteção elétrica em siderúrgicas: fornos a arco, laminação e o custo da queda de tensão',f:'setor',kw:'proteção elétrica siderúrgica forno arco laminação queda tensão',lk:['p0','a27','a13','g03'],n:true},
+    {id:'a99',title:'Proteção elétrica na mineração: britadores, correias e automação de operação contínua',f:'setor',kw:'proteção elétrica mineração britador correia automação operação contínua',lk:['p0','a34','a36','a19'],n:true},
   ]},
   { id:'c13', name:'Comércio, Varejo e Serviços', color:'#b06000', n:true, articles:[
     {id:'b01',title:'Proteção elétrica para restaurantes e cozinhas industriais',f:'setor',kw:'proteção elétrica restaurante cozinha industrial surtos',lk:['p0','a01','a09'],n:true},
@@ -269,6 +272,11 @@ const CLUSTERS = [
     {id:'a75',title:'IIoT e qualidade de energia: como sensores conectados são vulneráveis a surtos',f:'meio',kw:'IIoT Industrial IoT surtos elétricos proteção',lk:['p0','a35','a36'],n:true},
     {id:'a76',title:'Como proteger servidores OT e redes industriais de transitórios elétricos',f:'meio',kw:'servidor OT rede industrial proteção surtos',lk:['p0','a36','a30'],n:true},
     {id:'a77',title:'Gêmeos digitais e monitoramento de qualidade de energia em tempo real',f:'topo',kw:'gêmeo digital qualidade energia monitoramento',lk:['p0','a35','a39'],n:true},
+    {id:'srv01',title:'Servo motor e drive: por que queimam por VTCD e param a linha inteira',f:'meio',kw:'servo motor drive queima VTCD surto linha parada proteção elétrica',lk:['p0','a38','a36','a21'],n:true},
+    {id:'srv02',title:'Servo em injetora de plástico: o eixo que trava a produção quando a tensão oscila',f:'setor',kw:'servo injetora plástico eixo trava oscilação tensão surto',lk:['p0','a71','pla01','a38'],n:true},
+    {id:'srv03',title:'Servo em bordadeira e tear eletrônico: precisão têxtil perdida por oscilação elétrica',f:'setor',kw:'servo bordadeira tear têxtil precisão oscilação elétrica VTCD',lk:['p0','a29','tex01','a38'],n:true},
+    {id:'srv04',title:'Servo em envase, rotulagem e empacotamento: o sincronismo que o surto destrói',f:'setor',kw:'servo envase rotulagem empacotamento sincronismo surto alimentício',lk:['p0','a25','ali03','a38'],n:true},
+    {id:'srv05',title:'Servo em CNC, robô e paletizadora: reposição cara, importada e demorada',f:'setor',kw:'servo CNC robô paletizadora reposição cara importada lead time servo',lk:['p0','a28','met07','obs02'],n:true},
   ]},
   { id:'c6', name:'Cases e Prova Social', color:'#b02040', articles:[
     {id:'a40',title:'Case Cinpal: como eliminar R$ 120 mil/mês de prejuízo elétrico',f:'case',kw:'case proteção elétrica industria R$ 120 mil mês',lk:['p0','a01','a09','a19']},
@@ -419,6 +427,11 @@ const CLUSTERS = [
     {id:'tex04',title:'Injetora de solado e costuradeira industrial: falhas elétricas no setor calçadista',f:'setor',kw:'injetora solado costuradeira industrial falha elétrica calçados surto',lk:['p0','a29','g09'],n:true},
     {id:'tex05',title:'5 acertos de quem nunca teve queima na linha têxtil',f:'lista',kw:'proteção elétrica têxtil queima acertos boas práticas',lk:['p0','a29','a07','g06'],n:true},
     {id:'tex06',title:'Estampadora e termofixadora de tecido: inversores queimando por VTCD',f:'setor',kw:'estampadora termofixadora tecido inversor queimando VTCD',lk:['p0','a29','a07','a01'],n:true},
+    {id:'tex07',title:'Tinturaria têxtil: máquina de milhões e a peça que só o técnico estrangeiro troca',f:'setor',kw:'tinturaria têxtil máquina milhões peça técnico estrangeiro importada surto',lk:['p0','a29','obs03','a21'],n:true},
+    {id:'tex08',title:'Fiação: por que um surto elétrico para um investimento de milhões em segundos',f:'setor',kw:'fiação têxtil surto elétrico investimento milhões parada máquina proteção',lk:['p0','a29','a19','a01'],n:true},
+    {id:'tex09',title:'Tear circular vs. tear plano: proteção elétrica para dois modelos de operação têxtil',f:'setor',kw:'tear circular tear plano proteção elétrica têxtil diferença operação surto',lk:['p0','a29','tex01','a01'],n:true},
+    {id:'tex10',title:'Tear circular mono e duplo: eletrônica sensível e o custo de uma placa queimada',f:'setor',kw:'tear circular mono duplo placa eletrônica queima custo têxtil VTCD',lk:['p0','a29','tex01','a21'],n:true},
+    {id:'tex11',title:'Malharia e tecelagem: onde o VTCD ataca o parque de teares',f:'setor',kw:'malharia tecelagem VTCD tear parque têxtil proteção elétrica surto',lk:['p0','a29','tex05','a01'],n:true},
   ]},
   { id:'c22', name:'Setorial — Farmacêutico e Químico', color:'#206090', n:true, articles:[
     {id:'far01',title:'Câmara de estabilidade climática: o que um surto faz com sua amostra de 6 meses de análise',f:'setor',kw:'câmara estabilidade climática surto elétrico amostra farmacêutico perda',lk:['p0','a26','g07'],n:true},
@@ -519,6 +532,59 @@ const CLUSTERS = [
     {id:'ex11',title:'Engenheiro Elétrico: como especificar proteção contra VTCD conforme NBR 5410 e NR-10',f:'fundo',kw:'engenheiro especificar proteção VTCD NBR 5410 NR-10 conformidade',lk:['p0','dc02','a69','a11'],n:true},
     {id:'ex12',title:'Engenheiro Elétrico: curva de supressão a 100kHz — o que essa especificação técnica significa na prática',f:'fundo',kw:'engenheiro curva supressão 100kHz especificação técnica Master Block',lk:['p0','dc02','a10','a11'],n:true},
     {id:'ex13',title:'Engenheiro Elétrico: Master Block e SPDA — compatibilidade, aterramento e instalação conjunta',f:'fundo',kw:'engenheiro Master Block SPDA aterramento instalação compatibilidade',lk:['p0','dc02','a09','a13'],n:true},
+  ]},
+
+  { id:'c32', name:'🔩 Peça Impossível — Equipamento Antigo, Importado & Obsolescência', color:'#7a4a10', n:true, articles:[
+    {id:'obs01',title:'Quando queima a peça que não existe mais: o pesadelo do equipamento obsoleto',f:'topo',kw:'peça reposição equipamento obsoleto descontinuado queima surto elétrico',lk:['p0','a21','a07','a90'],n:true},
+    {id:'obs02',title:'Servo motor queimado no setor automotivo: por que repor um servo antigo para a linha por semanas',f:'setor',kw:'servo motor queimado reposição automotivo lead time linha parada surto',lk:['p0','a28','met05','a21'],n:true},
+    {id:'obs03',title:'Máquina importada e o técnico que só vem da Europa: o custo escondido de um reparo especializado',f:'setor',kw:'máquina importada técnico estrangeiro reparo Alemanha peça têxtil tinturaria',lk:['p0','tex01','a19','a21'],n:true},
+    {id:'obs04',title:'Equipamento de 15 anos: por que a reposição pode custar mais que o faturamento do mês',f:'meio',kw:'equipamento antigo 15 anos reposição custo alto faturamento depreciação',lk:['p0','a67','a21','a19'],n:true},
+    {id:'obs05',title:'Lead time de peça eletrônica importada: como o VTCD transforma dias de parada em meses',f:'meio',kw:'lead time peça eletrônica importada parada meses VTCD importação atraso',lk:['p0','a19','a07','a21'],n:true},
+    {id:'obs06',title:'CLP e inversor descontinuados: o que fazer quando o fabricante não vende mais a placa',f:'meio',kw:'CLP inversor descontinuado placa fabricante não vende obsolescência reposição',lk:['p0','a06','a38','a36'],n:true},
+    {id:'obs07',title:'7 equipamentos cuja peça de reposição é um pesadelo — e como evitar a queima',f:'lista',kw:'equipamentos peça reposição difícil pesadelo lista proteção elétrica',lk:['p0','a81','a21','a90'],n:true},
+    {id:'obs08',title:'Proteger o ativo antigo sai muito mais barato que repô-lo: a conta que o financeiro precisa ver',f:'fundo',kw:'proteger ativo antigo mais barato repor ROI proteção elétrica financeiro',lk:['p0','a23','a24','a58'],n:true},
+    {id:'obs09',title:'Máquina crítica insubstituível: proteção elétrica como seguro de continuidade para ativos sem reposição',f:'fundo',kw:'máquina crítica insubstituível backup proteção elétrica continuidade ativo',lk:['p0','cv03','a19','a58'],n:true},
+  ]},
+
+  { id:'c33', name:'🌾 Agronegócio & Agroindústria', color:'#4a7a10', n:true, articles:[
+    {id:'agr01',title:'Rede rural e qualidade de energia: por que o campo tem a pior energia do Brasil',f:'topo',kw:'rede rural qualidade energia elétrica campo VTCD agronegócio',lk:['p0','a01','a05'],n:true},
+    {id:'agr02',title:'Irrigação de pivô central: motor e painel queimando por surto e VTCD',f:'setor',kw:'irrigação pivô central motor painel queima surto VTCD agro',lk:['p0','a01','a21','a07'],n:true},
+    {id:'agr03',title:'Silo e secador de grãos: parada elétrica na safra é prejuízo que não volta',f:'setor',kw:'silo secador grãos parada elétrica safra prejuízo agro surto',lk:['p0','a01','a19','a07'],n:true},
+    {id:'agr04',title:'Laticínio e resfriamento de leite: compressor e a cadeia fria que o surto quebra',f:'setor',kw:'laticínio resfriamento leite compressor cadeia fria surto elétrico',lk:['p0','fr07','a25','a01'],n:true},
+    {id:'agr05',title:'Avicultura e suinocultura: automação de granja e o risco de queda de energia',f:'setor',kw:'avicultura suinocultura granja automação queda energia climatização',lk:['p0','a01','a07'],n:true},
+    {id:'agr06',title:'5 equipamentos do agro que mais queimam por problema elétrico',f:'lista',kw:'equipamentos agronegócio queima problema elétrico lista proteção',lk:['p0','a81','a21','agr02'],n:true},
+  ]},
+
+  { id:'c34', name:'🏥 Saúde — Hospitais e Clínicas', color:'#b02060', n:true, articles:[
+    {id:'sau01',title:'Equipamento hospitalar crítico e VTCD: quando um surto para um CTI',f:'topo',kw:'equipamento hospitalar crítico VTCD surto CTI UTI proteção elétrica',lk:['p0','a01','a09'],n:true},
+    {id:'sau02',title:'Ressonância, tomógrafo e raio-X: proteger o ativo de milhões contra transientes',f:'setor',kw:'ressonância tomógrafo raio-x proteção elétrica transiente surto hospitalar',lk:['p0','a02','a21'],n:true},
+    {id:'sau03',title:'Autoclave e central de esterilização: falha elétrica que compromete o procedimento',f:'setor',kw:'autoclave esterilização hospital falha elétrica surto CLP',lk:['p0','far04','a06'],n:true},
+    {id:'sau04',title:'Laboratório de análises clínicas: o surto que destrói amostras e equipamentos',f:'setor',kw:'laboratório análises clínicas surto amostras equipamentos proteção',lk:['p0','fr05','a21'],n:true},
+    {id:'sau05',title:'Continuidade assistencial: proteção elétrica como gestão de risco em saúde',f:'fundo',kw:'continuidade assistencial hospital gestão risco proteção elétrica',lk:['p0','cv03','a19'],n:true},
+  ]},
+
+  { id:'c35', name:'💧 Saneamento & Utilities (água/esgoto)', color:'#106080', n:true, articles:[
+    {id:'san01',title:'Estação de tratamento de água e esgoto: bombas e CLPs que param a cidade',f:'setor',kw:'estação tratamento água esgoto ETA ETE bomba CLP surto proteção',lk:['p0','a01','a06','a07'],n:true},
+    {id:'san02',title:'Bomba de recalque e conjunto motor: queima por surto no saneamento',f:'setor',kw:'bomba recalque conjunto motor queima surto saneamento elétrico',lk:['p0','cnd06','a21','a01'],n:true},
+    {id:'san03',title:'Automação de ETA/ETE: proteção elétrica para operação 24/7',f:'setor',kw:'automação ETA ETE saneamento proteção elétrica operação contínua',lk:['p0','a36','a01'],n:true},
+    {id:'san04',title:'Licitação de proteção elétrica em saneamento: como especificar corretamente',f:'meio',kw:'licitação proteção elétrica saneamento especificação técnica edital',lk:['p0','dc06','a16'],n:true},
+    {id:'san05',title:'Quando falta água vira multa e crise: o custo de uma parada elétrica no saneamento',f:'fundo',kw:'falta água multa parada elétrica saneamento custo continuidade',lk:['p0','a19','san01'],n:true},
+  ]},
+
+  { id:'c36', name:'🖥️ Data Center, ISP & Telecom', color:'#205080', n:true, articles:[
+    {id:'dtc01',title:'Data center e qualidade de energia: o transiente que derruba o SLA',f:'topo',kw:'data center qualidade energia transiente SLA uptime proteção',lk:['p0','a30','a02'],n:true},
+    {id:'dtc02',title:'Provedor de internet regional (ISP): rack, OLT e a queima que tira a cidade do ar',f:'setor',kw:'provedor internet ISP rack OLT queima surto proteção elétrica',lk:['p0','d07','a21'],n:true},
+    {id:'dtc03',title:'Torre de telecom e sites remotos: proteção elétrica em local sem manutenção',f:'setor',kw:'torre telecom site remoto proteção elétrica surto manutenção',lk:['p0','a05','a09'],n:true},
+    {id:'dtc04',title:'No-break não basta no data center: por que o VTCD passa pela proteção',f:'meio',kw:'no-break data center VTCD passa proteção insuficiente surto',lk:['p0','a15','a01'],n:true},
+    {id:'dtc05',title:'Uptime e proteção elétrica: o cálculo de continuidade para TI',f:'fundo',kw:'uptime proteção elétrica continuidade TI data center ROI',lk:['p0','a19','a23'],n:true},
+  ]},
+
+  { id:'c37', name:'☀️ Energia Solar em Escala (usinas/integradoras)', color:'#c08010', n:true, articles:[
+    {id:'sol01',title:'Usina solar e qualidade de energia: gerar não é o mesmo que ter energia limpa na rede',f:'topo',kw:'usina solar qualidade energia geração fotovoltaica rede limpa VTCD',lk:['p0','a18','a50'],n:true},
+    {id:'sol02',title:'Inversor solar queimando por surto: o ativo caro que a integradora não protegeu',f:'setor',kw:'inversor solar queima surto integradora proteção elétrica fotovoltaico',lk:['p0','c04','a18','a21'],n:true},
+    {id:'sol03',title:'String, inversor e transformador: onde o VTCD ataca a usina fotovoltaica',f:'setor',kw:'string inversor transformador usina fotovoltaica VTCD ataque proteção',lk:['p0','a18','a01'],n:true},
+    {id:'sol04',title:'O&M de usina solar: proteção elétrica que reduz troca de inversor',f:'meio',kw:'O&M usina solar proteção elétrica troca inversor manutenção fotovoltaico',lk:['p0','a46','sol02'],n:true},
+    {id:'sol05',title:'Integradora solar: como oferecer proteção contra surto e aumentar o ticket',f:'fundo',kw:'integradora solar oferecer proteção surto ticket venda fotovoltaico',lk:['p0','bi02','a18'],n:true},
   ]},
 ];
 
