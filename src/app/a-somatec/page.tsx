@@ -42,7 +42,7 @@ const sections = [
     eyebrow: 'Portfólio',
     title: 'Produtos e serviços',
     description:
-      'Master Block, Retentor Eletromagnético e Banco de Capacitores, além de medições, laudos e manutenção de cabine primária.',
+      'Sistema Master Block — supressor com software de gestão de energia on-line — e Banco de Capacitores, além de medições, laudos e manutenção de cabine primária.',
   },
 ];
 

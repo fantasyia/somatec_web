@@ -128,7 +128,7 @@ export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePa
         name="experience"
         rows={3}
         maxLength={500}
-        placeholder="Conte brevemente sua experiência com food service, B2B ou distribuição."
+        placeholder="Conte brevemente sua experiência com manutenção elétrica industrial, automação, proteção de equipamentos ou venda técnica."
       />
 
       <TextareaField

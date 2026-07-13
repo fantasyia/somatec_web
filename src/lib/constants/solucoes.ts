@@ -2,9 +2,10 @@ import { Zap, Gauge, BatteryCharging, ClipboardCheck, Wrench } from 'lucide-reac
 import type { LucideIcon } from 'lucide-react';
 
 /**
- * Portfólio oficial da Somatec Blocking (brandbook + playbook): 3 produtos
- * e 2 serviços. O Retentor Eletromagnético e o Master Block são o mesmo
- * filtro híbrido (renomeado) — por isso aparecem como uma única solução.
+ * Portfólio da Somatec Blocking: o Sistema Master Block (supressor de surtos +
+ * software de gestão de energia on-line) e o Banco de Capacitores, mais 2
+ * serviços. O antigo Retentor Eletromagnético foi DESCONTINUADO — o Master
+ * Block é o filtro híbrido atual.
  */
 export type Solucao = {
   slug: string;

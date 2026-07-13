@@ -53,7 +53,7 @@ export default function RepresentantesPage() {
             <ul className="space-y-2 pt-2 text-sm text-[rgb(var(--text-muted))]">
               <li className="flex gap-2">
                 <span className="text-gold mt-1">·</span>
-                <span>Portfólio completo: Master Block, Retentor e Banco de Capacitores.</span>
+                <span>Sistema Master Block (supressor + software de gestão on-line) e Banco de Capacitores.</span>
               </li>
               <li className="flex gap-2">
                 <span className="text-gold mt-1">·</span>
