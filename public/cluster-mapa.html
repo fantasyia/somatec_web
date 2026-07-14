@@ -37,6 +37,32 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 .pilar-badge{background:var(--orange);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;}
 .pilar-connector{width:2px;height:16px;background:var(--border);margin:0 auto;}
 .clusters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:0 32px;}
+.view-bar{display:flex;gap:8px;padding:12px 32px 0;}
+.view-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:6px 16px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:700;}
+.view-btn.active{background:var(--orange);color:#111;border-color:var(--orange);}
+#mapview{display:none;padding:0 16px 48px;position:relative;}
+#mapsvg{width:100%;max-width:920px;height:auto;display:block;margin:0 auto;}
+.map-hint{text-align:center;color:var(--muted);font-size:12px;margin:6px 0 0;}
+.map-spoke{stroke:var(--border);stroke-width:1;}
+.map-chord{fill:none;stroke:var(--muted);stroke-width:1;opacity:.12;transition:opacity .12s;}
+.map-chord.hot{stroke:var(--orange);opacity:.9;stroke-width:1.6;}
+.map-chord.dim{opacity:.03;}
+.map-pilar{fill:var(--orange);cursor:pointer;}
+.map-pilar-t{fill:#111;font-size:15px;font-weight:800;pointer-events:none;}
+.map-pilar-t2{fill:#111;font-size:11px;font-weight:700;pointer-events:none;}
+.map-cnode{cursor:pointer;}
+.map-cnode circle{stroke:var(--bg);stroke-width:2;}
+.map-cnode:hover circle{stroke:#fff;stroke-width:2.5;}
+.map-clabel{fill:var(--text);font-size:10px;font-weight:600;pointer-events:none;}
+#mappanel{position:absolute;top:24px;right:24px;width:330px;max-height:78%;overflow:auto;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;display:none;box-shadow:0 12px 40px rgba(0,0,0,.45);}
+#mappanel.open{display:block;}
+.mp-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:var(--text);margin-bottom:8px;}
+.mp-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.mp-count{background:var(--surface);border-radius:10px;padding:1px 8px;font-size:11px;color:var(--muted);}
+.mp-x{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;}
+.mp-row{display:flex;gap:8px;padding:7px 4px;border-top:1px solid var(--border);font-size:12px;color:var(--text);cursor:pointer;line-height:1.35;}
+.mp-row:hover{color:var(--orange);}
+.mp-num{color:var(--muted);font-variant-numeric:tabular-nums;flex-shrink:0;}
 .cluster{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .15s;}
 .cluster:hover{border-color:rgba(255,255,255,0.14);}
 .cluster.hidden{display:none;}
@@ -120,6 +146,11 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
   </div>
 </div>
 
+<div class="view-bar">
+  <button class="view-btn active" id="btn-lista" onclick="setView('lista')">📋 Lista</button>
+  <button class="view-btn" id="btn-mapa" onclick="setView('mapa')">🌐 Mapa</button>
+</div>
+
 <div class="stats-row">
   <div class="stat-item"><div class="stat-dot todo"></div><span class="stat-label">Não iniciado</span><span class="stat-count" id="c-todo">—</span></div>
   <div class="stat-item"><div class="stat-dot wip"></div><span class="stat-label">Em produção</span><span class="stat-count" id="c-wip">—</span></div>
@@ -140,6 +171,11 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 </div>
 
 <div class="clusters-grid" id="grid"></div>
+<div id="mapview">
+  <div class="map-hint">Centro = pilar VTCD · cada nó = um cluster (tamanho = nº de artigos) · passe o mouse pra ver as conexões entre clusters · clique num cluster pra listar os artigos</div>
+  <svg id="mapsvg" viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="mappanel"></div>
+</div>
 
 <div class="overlay" id="overlay" onclick="bgClose(event)">
   <div class="modal">
@@ -733,5 +769,38 @@ function filterBy(type,btn){
   });
 }
 
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let mapBuilt=false;
+function setView(v){
+  const m=(v==='mapa');
+  document.getElementById('grid').style.display=m?'none':'';
+  document.querySelector('.pilar-wrap').style.display=m?'none':'';
+  document.querySelector('.stats-row').style.display=m?'none':'';
+  document.querySelector('.header-controls').style.display=m?'none':'';
+  document.getElementById('mapview').style.display=m?'block':'none';
+  document.getElementById('btn-lista').classList.toggle('active',!m);
+  document.getElementById('btn-mapa').classList.toggle('active',m);
+  if(m&&!mapBuilt){buildMap();mapBuilt=true;}
+}
+function buildMap(){
+  const cx=600,cy=600,R=330,N=CLUSTERS.length,pos={};
+  CLUSTERS.forEach((c,i)=>{const ang=(i/N)*2*Math.PI-Math.PI/2;pos[c.id]={x:cx+R*Math.cos(ang),y:cy+R*Math.sin(ang),ang};});
+  const artCluster={};CLUSTERS.forEach(c=>c.articles.forEach(a=>artCluster[a.id]=c.id));
+  const pairs={};
+  CLUSTERS.forEach(c=>c.articles.forEach(a=>(a.lk||[]).forEach(t=>{if(t==='p0')return;const tc=artCluster[t];if(tc&&tc!==c.id){pairs[[c.id,tc].sort().join('|')]=1;}})));
+  const s=[];
+  Object.keys(pairs).forEach(k=>{const p=k.split('|'),pa=pos[p[0]],pb=pos[p[1]];if(!pa||!pb)return;const mx=(pa.x+pb.x)/2,my=(pa.y+pb.y)/2,qx=cx+(mx-cx)*0.25,qy=cy+(my-cy)*0.25;s.push('<path class="map-chord" data-a="'+p[0]+'" data-b="'+p[1]+'" d="M'+pa.x.toFixed(0)+','+pa.y.toFixed(0)+' Q'+qx.toFixed(0)+','+qy.toFixed(0)+' '+pb.x.toFixed(0)+','+pb.y.toFixed(0)+'"/>');});
+  CLUSTERS.forEach(c=>{const p=pos[c.id];s.push('<line class="map-spoke" x1="'+cx+'" y1="'+cy+'" x2="'+p.x.toFixed(0)+'" y2="'+p.y.toFixed(0)+'"/>');});
+  s.push('<circle class="map-pilar" cx="'+cx+'" cy="'+cy+'" r="46" onclick="open_(\'p0\')"/><text class="map-pilar-t" x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle">PILAR</text><text class="map-pilar-t2" x="'+cx+'" y="'+(cy+14)+'" text-anchor="middle">VTCD</text>');
+  CLUSTERS.forEach(c=>{const p=pos[c.id],r=8+Math.min(13,c.articles.length),left=Math.cos(p.ang)<0,deg=p.ang*180/Math.PI,lx=cx+(R+14)*Math.cos(p.ang),ly=cy+(R+14)*Math.sin(p.ang),rot=(left?deg+180:deg).toFixed(0),anc=left?'end':'start';
+    s.push('<g class="map-cnode" onclick="mapClickCluster(\''+c.id+'\')" onmouseover="mapHover(\''+c.id+'\',1)" onmouseout="mapHover(\''+c.id+'\',0)"><circle cx="'+p.x.toFixed(0)+'" cy="'+p.y.toFixed(0)+'" r="'+r+'" fill="'+c.color+'"/><text class="map-clabel" x="'+lx.toFixed(0)+'" y="'+ly.toFixed(0)+'" transform="rotate('+rot+' '+lx.toFixed(0)+' '+ly.toFixed(0)+')" text-anchor="'+anc+'">'+esc(c.name)+' ('+c.articles.length+')</text></g>');
+  });
+  document.getElementById('mapsvg').innerHTML=s.join('');
+}
+function mapHover(cid,on){document.querySelectorAll('.map-chord').forEach(ch=>{const rel=ch.dataset.a===cid||ch.dataset.b===cid;ch.classList.toggle('hot',!!on&&rel);ch.classList.toggle('dim',!!on&&!rel);});}
+function mapClickCluster(cid){const c=CLUSTERS.find(x=>x.id===cid);if(!c)return;const el=document.getElementById('mappanel');el.innerHTML='<div class="mp-head"><span class="mp-dot" style="background:'+c.color+'"></span><span style="flex:1">'+esc(c.name)+'</span><span class="mp-count">'+c.articles.length+'</span><button class="mp-x" onclick="closePanel()">✕</button></div>'+c.articles.map((a,i)=>'<div class="mp-row" onclick="open_(\''+a.id+'\')"><span class="mp-num">'+String(i+1).padStart(2,'0')+'</span>'+esc(a.title)+'</div>').join('');el.classList.add('open');}
+function closePanel(){document.getElementById('mappanel').classList.remove('open');}
+
 buildGrid();
+setView('lista');
 </script>
