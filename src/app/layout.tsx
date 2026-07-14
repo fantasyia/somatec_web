@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CookieBanner, type CookieBannerText } from '@/components/layout/CookieBanner';
 import { WhatsAppButton } from '@/components/layout/WhatsAppButton';
+import { StickyCta } from '@/components/layout/StickyCta';
 import { PublicOnly } from '@/components/layout/PublicOnly';
 import { SITE } from '@/lib/constants/site';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
@@ -186,6 +187,7 @@ export default async function RootLayout({
             <Footer columns={footerColumns} socials={socials} certifications={certifications} />
             <CookieBanner text={cookieBannerText} />
             {whatsAppUrl && <WhatsAppButton href={whatsAppUrl} />}
+            <StickyCta />
           </PublicOnly>
         </ThemeProvider>
 

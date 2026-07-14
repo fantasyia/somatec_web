@@ -188,3 +188,21 @@
   animation: ken-burns 24s ease-in-out infinite alternate;
   will-change: transform;
 }
+
+/* Pulso de LED / brilho (usado no gráfico 10 kHz vs 100 kHz) */
+@keyframes led-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+.animate-led-pulse {
+  animation: led-pulse 2.2s ease-in-out infinite;
+}
+/* Desenho progressivo de curvas SVG (seção 10 kHz vs 100 kHz) */
+.draw-path {
+  stroke-dasharray: var(--path-length, 1200);
+  stroke-dashoffset: var(--path-length, 1200);
+  transition: stroke-dashoffset 1.6s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.draw-path.is-drawn {
+  stroke-dashoffset: 0;
+}

@@ -10,6 +10,7 @@ import { HomeHero } from '@/components/home/HomeHero';
 import { HomeCarousel } from '@/components/home/HomeCarousel';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
 import { HomeManifesto } from '@/components/home/HomeManifesto';
+import { HomeFrequency } from '@/components/home/HomeFrequency';
 import { HomeClients } from '@/components/home/HomeClients';
 import { HomeProof } from '@/components/home/HomeProof';
 import { HomeNoRisk } from '@/components/home/HomeNoRisk';
@@ -65,6 +66,7 @@ export default async function HomePage() {
       <HomeClients />
       <HomeCarousel items={sliderItems} />
       <Reveal><HomeManifesto /></Reveal>
+      <HomeFrequency />
       <HomeIndicators indicators={indicators} />
       <HomeProof />
       <HomeNoRisk />

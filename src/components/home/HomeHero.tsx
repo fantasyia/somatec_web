@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight, Pause, Play } from 'lucide-react';
 import { HERO_FALLBACK } from '@/lib/constants/home-fallback';
-import { MasterBlockRender } from '@/components/graphics/MasterBlockRender';
 import type { HomeHero as HeroData } from '@/types/database';
 
 type Props = { data: HeroData | null };
@@ -159,13 +158,27 @@ export function HomeHero({ data }: Props) {
           </div>
         </div>
 
-        {/* Foto do produto MasterBlock */}
+        {/* Foto real do produto MasterBlock instalado */}
         <div className="relative mt-2 lg:col-span-5 lg:mt-0">
           <div
             aria-hidden="true"
             className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_60%_45%,rgba(0,140,200,0.28)_0%,transparent_65%)]"
           />
-          <MasterBlockRender className="mx-auto w-full max-w-[400px] lg:max-w-[540px]" />
+          <div className="relative mx-auto w-full max-w-[400px] overflow-hidden rounded-card-lg shadow-premium-dark lg:max-w-[540px]">
+            <Image
+              src="/masterblock-hero.jpg"
+              alt="Master Block instalado em painel elétrico industrial"
+              width={1080}
+              height={1440}
+              priority
+              sizes="(min-width: 1024px) 540px, 400px"
+              className="h-auto w-full"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-card-lg ring-1 ring-inset ring-white/10 [background:radial-gradient(ellipse_at_center,transparent_55%,rgba(0,19,31,0.35)_100%)]"
+            />
+          </div>
         </div>
         </div>
       </div>
