@@ -15,6 +15,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { masterBlockProductSchema } from '@/lib/seo/structured-data';
+import { MASTER_BLOCK_MODELS, MB_TENSAO } from '@/lib/constants/masterblock';
 
 export const metadata: Metadata = {
   title: 'MasterBlock — Linha de supressores (MB-01 a MB-12) | Somatec Blocking',
@@ -67,35 +68,11 @@ const COMMON_SPECS = [
   { label: 'Classificação', value: 'DPS Classe III' },
   { label: 'Normas aplicáveis', value: 'ABNT NBR IEC 61643-1 · ABNT NBR 5410' },
   { label: 'Aplicação', value: 'Rede trifásica 3F + N (3P)' },
-  { label: 'Tensões nominais (Un)', value: '220 / 380 / 440 / 575 / 690 V AC' },
+  { label: 'Faixa de tensão', value: MB_TENSAO },
   { label: 'Tipo de corrente', value: 'Corrente alternada (CA) · 60 Hz' },
   { label: 'Sistema de aterramento', value: 'TN-S / TT' },
   { label: 'Temperatura de operação', value: '−40 °C a 60 °C' },
   { label: 'Grau de proteção', value: 'IP-65 (gabinete injetado sob alta pressão)' },
-] as const;
-
-// ── Modelos MB-01 a MB-12 (datasheet, p.5 e p.14) ─────────────────
-type ModelRow = {
-  model: string;
-  surge: string; // Máxima corrente de surto 8/20 µs (= Imax)
-  nominal: string; // In — corrente nominal de descarga
-  dim: string; // C x L x A (mm)
-  weight: string; // kg
-};
-
-const MODELS: readonly ModelRow[] = [
-  { model: 'MB-01', surge: '8 kA', nominal: '3 kA', dim: '150 × 100 × 60', weight: '1,4' },
-  { model: 'MB-02', surge: '16 kA', nominal: '6 kA', dim: '150 × 100 × 60', weight: '1,6' },
-  { model: 'MB-03', surge: '24 kA', nominal: '9 kA', dim: '200 × 100 × 70', weight: '1,8' },
-  { model: 'MB-04', surge: '32 kA', nominal: '12 kA', dim: '200 × 100 × 70', weight: '2,0' },
-  { model: 'MB-05', surge: '40 kA', nominal: '15 kA', dim: '200 × 150 × 90', weight: '3,4' },
-  { model: 'MB-06', surge: '48 kA', nominal: '18 kA', dim: '200 × 150 × 90', weight: '3,7' },
-  { model: 'MB-07', surge: '56 kA', nominal: '21 kA', dim: '250 × 200 × 100', weight: '5,2' },
-  { model: 'MB-08', surge: '64 kA', nominal: '24 kA', dim: '250 × 200 × 100', weight: '5,5' },
-  { model: 'MB-09', surge: '72 kA', nominal: '27 kA', dim: '280 × 220 × 100', weight: '8,2' },
-  { model: 'MB-10', surge: '80 kA', nominal: '30 kA', dim: '280 × 220 × 100', weight: '8,5' },
-  { model: 'MB-11', surge: '88 kA', nominal: '33 kA', dim: '350 × 260 × 120', weight: '13,5' },
-  { model: 'MB-12', surge: '100 kA', nominal: '37 kA', dim: '350 × 260 × 120', weight: '14,0' },
 ] as const;
 
 export default function ProdutosPage() {
@@ -180,9 +157,10 @@ export default function ProdutosPage() {
             Do pequeno comércio à indústria pesada
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Cada aplicação exige uma capacidade de escoamento. Selecione o modelo pela
-            máxima corrente de surto (8/20&nbsp;µs) — ou fale com a engenharia para o
-            dimensionamento do seu projeto de proteção em cascata.
+            O modelo é selecionado pela corrente de carga do circuito (A) — toda a linha
+            opera de 110&nbsp;V a 1100&nbsp;V. Cada aplicação também exige uma capacidade de
+            escoamento de surto. Fale com a engenharia para o dimensionamento do seu
+            projeto de proteção em cascata.
           </p>
         </Reveal>
 
@@ -191,6 +169,9 @@ export default function ProdutosPage() {
             <thead>
               <tr className="bg-deep_navy text-white text-left">
                 <th scope="col" className="px-4 py-3 font-sans font-semibold">Modelo</th>
+                <th scope="col" className="px-4 py-3 font-sans font-semibold">
+                  Corrente de carga <span className="text-white/60 font-normal">(A)</span>
+                </th>
                 <th scope="col" className="px-4 py-3 font-sans font-semibold">
                   Máx. corrente de surto <span className="text-white/60 font-normal">(8/20 µs)</span>
                 </th>
@@ -204,7 +185,7 @@ export default function ProdutosPage() {
               </tr>
             </thead>
             <tbody>
-              {MODELS.map((m, i) => (
+              {MASTER_BLOCK_MODELS.map((m, i) => (
                 <tr
                   key={m.model}
                   className={i % 2 === 0 ? 'bg-[rgb(var(--bg))]' : 'bg-[rgb(var(--surface))]'}
@@ -212,6 +193,7 @@ export default function ProdutosPage() {
                   <th scope="row" className="px-4 py-3 font-sans font-bold text-gold whitespace-nowrap">
                     {m.model}
                   </th>
+                  <td className="px-4 py-3 font-semibold text-[rgb(var(--text))] whitespace-nowrap">{m.loadLabel}</td>
                   <td className="px-4 py-3 font-semibold text-[rgb(var(--text))]">{m.surge}</td>
                   <td className="px-4 py-3 text-[rgb(var(--text-muted))]">{m.nominal}</td>
                   <td className="px-4 py-3 text-[rgb(var(--text-muted))] whitespace-nowrap">{m.dim}</td>
@@ -224,8 +206,8 @@ export default function ProdutosPage() {
 
         <p className="mt-4 text-xs text-[rgb(var(--text-muted))]">
           Fabricante: Somatecblocking UF Eletroeletrônicos LTDA · CNPJ 16.774.052/0001-55.
-          Valores conforme a folha de dados MasterBlock. Especificações sujeitas a
-          revisão técnica.
+          Corrente de carga conforme a Tabela de Potências Master Block 2026; demais valores
+          conforme a folha de dados. Especificações sujeitas a revisão técnica.
         </p>
       </section>
 
@@ -267,17 +249,23 @@ export default function ProdutosPage() {
             Qual MasterBlock a sua planta precisa?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Comece calculando quanto as paradas e queimas custam por ano na sua operação — em
-            2 minutos. Ou fale direto com a engenharia da Somatec para um projeto de mitigação
-            de surtos e transientes sob medida.
+            Descubra o modelo pela corrente do seu circuito, ou calcule quanto as paradas e queimas
+            custam por ano na sua operação — cada um em 2 minutos. Ou fale direto com a engenharia da
+            Somatec para um projeto de mitigação de surtos e transientes sob medida.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link href="/ferramentas/custo-de-parada" className="btn-primary group">
-              Calcular meu prejuízo
+            <Link href="/ferramentas/qual-master-block" className="btn-primary group">
+              Descobrir meu modelo
               <ChevronRight
                 className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
                 strokeWidth={2}
               />
+            </Link>
+            <Link
+              href="/ferramentas/custo-de-parada"
+              className="inline-flex items-center rounded-btn border border-[rgb(var(--border))] px-5 py-2.5 font-sans text-sm font-medium text-[rgb(var(--text))] transition-colors hover:border-gold hover:text-gold"
+            >
+              Calcular meu prejuízo
             </Link>
             <CommercialCta
               label="Falar com a engenharia"
