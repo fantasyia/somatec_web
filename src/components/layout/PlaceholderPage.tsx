@@ -77,7 +77,7 @@ export function PlaceholderPage({
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed mb-6 text-pretty">
             {comingSoonNote ??
-              'Esta seção será atualizada com informações completas sobre a estrutura, linhas de produtos, marcas e soluções comerciais da MSM.'}
+              'Esta seção será atualizada em breve com o conteúdo completo.'}
           </p>
           <Link
             href="/"

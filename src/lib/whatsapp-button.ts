@@ -26,7 +26,7 @@ export type WhatsAppButtonConfig = z.infer<typeof whatsAppButtonSchema>;
 export const WHATSAPP_BUTTON_DEFAULT: WhatsAppButtonConfig = {
   enabled: false,
   number: '',
-  message: 'Olá! Vim pelo site da MSM e gostaria de saber mais.',
+  message: 'Olá! Vim pelo site da Somatec Blocking e gostaria de saber mais.',
 };
 
 function hasValidSupabaseConfig(): boolean {
