@@ -1,49 +1,51 @@
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
+import { BlogCard } from '@/components/blog/BlogCard';
+import { getTeaserPosts } from '@/lib/constants/blog';
 
+/**
+ * Bloco 11 da home — teaser do blog. Válvula de escape de quem ainda NÃO está
+ * pronto pro diagnóstico: por isso fica depois de todas as tentativas de conversão.
+ * Data-driven (getTeaserPosts). Renderizado só quando BLOG_TEASER_ENABLED (page.tsx).
+ * Disciplina de marca: zero laranja aqui — laranja é exclusivo de MB/CTA de diagnóstico.
+ */
 export function HomeBlogTeaser() {
-  return (
-    <section className="container-msm py-8 md:py-12" aria-label="Blog Somatec">
-      <div
-        className="relative overflow-hidden rounded-card-lg border border-[rgb(var(--border))]"
-        style={{
-          background:
-            'linear-gradient(135deg, rgb(13,41,73) 0%, rgb(7,27,51) 60%, rgb(3,17,31) 100%)',
-        }}
-      >
-        {/* Pattern sutil */}
-        <div
-          className="absolute inset-0 opacity-[0.05]"
-          aria-hidden="true"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(45deg, rgba(255,255,255,0.6) 0, rgba(255,255,255,0.6) 1px, transparent 1px, transparent 16px)',
-          }}
-        />
+  const posts = getTeaserPosts();
+  if (posts.length < 3) return null;
+  const [featured, ...rest] = posts;
 
-        <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 p-8 md:p-12 lg:p-14 items-center">
-          <div className="lg:col-span-8 space-y-4">
-            <span className="eyebrow inline-block">Conteúdo técnico</span>
-            <h2 className="font-serif font-semibold text-h2-m md:text-h2-d text-text_light text-balance leading-tight">
-              Proteção contra surtos, qualidade de energia e NBR 5410.
-            </h2>
-            <p className="text-base md:text-lg leading-relaxed text-white/75 max-w-2xl text-pretty">
-              Estamos preparando artigos técnicos sobre proteção contra surtos, transientes de alta frequência, aterramento e casos reais de equipamentos protegidos pelo MasterBlock.
-            </p>
-          </div>
-          <div className="lg:col-span-4 flex lg:justify-end">
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-sans font-semibold text-gold hover:text-gold-soft transition-colors group whitespace-nowrap"
-            >
-              Saiba mais
-              <ChevronRight
-                className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-1"
-                strokeWidth={2}
-              />
-            </Link>
-          </div>
+  return (
+    <section className="container-msm py-16 md:py-24" aria-label="Conteúdo técnico do blog">
+      <div className="mb-8 max-w-3xl md:mb-10">
+        <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance leading-tight">
+          Conteúdo técnico pra quem cuida da planta
+        </h2>
+        <p className="mt-3 text-base leading-relaxed text-[rgb(var(--text-muted))] md:text-lg text-pretty">
+          Artigos diretos sobre proteção elétrica, VTCD e o custo real das paradas — sem
+          enrolação, pra quem decide na fábrica.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <BlogCard post={featured} variant="featured" />
+        <div className="flex flex-col gap-6">
+          {rest.map((post) => (
+            <BlogCard key={post.slug} post={post} />
+          ))}
         </div>
+      </div>
+
+      <div className="mt-8 flex justify-center md:justify-start">
+        <Link
+          href="/blog"
+          className="group inline-flex items-center gap-1.5 rounded-btn border border-cyan px-5 py-2.5 font-sans text-sm font-semibold text-cyan transition-colors hover:bg-cyan/10"
+        >
+          Ver todos os artigos
+          <ChevronRight
+            className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
+            strokeWidth={2}
+          />
+        </Link>
       </div>
     </section>
   );

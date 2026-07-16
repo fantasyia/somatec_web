@@ -16,6 +16,7 @@ import { HomeProof } from '@/components/home/HomeProof';
 import { HomeNoRisk } from '@/components/home/HomeNoRisk';
 import { HomeBlogTeaser } from '@/components/home/HomeBlogTeaser';
 import { HomeCta } from '@/components/home/HomeCta';
+import { BLOG_TEASER_ENABLED } from '@/lib/constants/flags';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Reveal } from '@/components/ui/Reveal';
 import { organizationSchema, masterBlockProductSchema, faqSchema } from '@/lib/seo/structured-data';
@@ -70,7 +71,9 @@ export default async function HomePage() {
       <HomeIndicators indicators={indicators} />
       <HomeProof />
       <HomeNoRisk />
-      <Reveal><HomeBlogTeaser /></Reveal>
+      {BLOG_TEASER_ENABLED && (
+        <Reveal><HomeBlogTeaser /></Reveal>
+      )}
       <Reveal><HomeCta cards={ctaCards} /></Reveal>
     </>
   );
