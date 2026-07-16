@@ -43,7 +43,6 @@ export default function TecnologiaFabricacaoPage() {
   return (
     <>
       <PageHero
-        eyebrow="A Somatec Blocking"
         title="Tecnologia e fabricação"
         description="O Sistema Master Block IoT combina hardware, software e serviço — não é um produto instalado e esquecido, mas uma engenharia que protege e comprova a proteção em dados."
         breadcrumbs={[{ label: 'A Somatec', href: '/a-somatec' }, { label: 'Tecnologia e fabricação' }]}
@@ -53,7 +52,6 @@ export default function TecnologiaFabricacaoPage() {
 
         {/* Intro editorial */}
         <div className="max-w-3xl mx-auto space-y-6">
-          <span className="eyebrow">Como funciona</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Engenharia contra os VTCD
           </h2>
@@ -76,7 +74,6 @@ export default function TecnologiaFabricacaoPage() {
         {/* Capabilities grid */}
         <div className="max-w-4xl mx-auto">
           <div className="mb-10">
-            <span className="eyebrow">Componentes do sistema</span>
             <h2 className="mt-3 font-serif text-h2-m md:text-h2-d font-semibold text-balance">
               O que estrutura o Sistema Master Block IoT
             </h2>

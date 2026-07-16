@@ -25,7 +25,6 @@ export function HomeProducts({ products, brandNames }: Props) {
   return (
     <section className="container-msm py-12 md:py-16" aria-label="Produtos em destaque">
       <SectionHeading
-        eyebrow="Linha MasterBlock"
         title="Do pequeno comércio à indústria pesada"
         description="Modelos MB-01 a MB-12, dimensionados pela máxima corrente de surto da sua planta."
         viewAllHref="/produtos"

@@ -37,7 +37,6 @@ export default function CookiesPage() {
   return (
     <>
       <PageHero
-        eyebrow="Legal"
         title="Política de Cookies"
         description="Como o site da Somatec Blocking utiliza cookies e tecnologias de armazenamento local."
         breadcrumbs={[{ label: 'Cookies' }]}

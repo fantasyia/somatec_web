@@ -52,7 +52,6 @@ export default async function IndustriaPage({
   return (
     <>
       <PageHero
-        eyebrow={ind.eyebrow}
         title={ind.heroTitle}
         description={ind.intro}
         breadcrumbs={[
@@ -65,7 +64,6 @@ export default async function IndustriaPage({
       {/* Sintomas do setor */}
       <section className="container-msm py-14 md:py-20" aria-label="Sintomas na sua planta">
         <Reveal className="mb-8 max-w-3xl space-y-3">
-          <span className="eyebrow">O que você reconhece</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Os sinais na operação de {ind.nome.toLowerCase()}
           </h2>
@@ -121,7 +119,6 @@ export default async function IndustriaPage({
         <Reveal className="mx-auto max-w-2xl space-y-4">
           <span className="inline-flex items-center gap-2 text-cyan">
             <ShieldCheck className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-            <span className="eyebrow">Investimento sem risco</span>
           </span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Prove na sua planta de {ind.nome.toLowerCase()}, sem custo

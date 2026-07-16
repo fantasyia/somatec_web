@@ -12,7 +12,6 @@ export default function NotFound() {
   return (
     <ErrorScreen
       code="404"
-      eyebrow="Erro 404"
       title="Página não encontrada"
       description="A página que você procura pode ter sido movida, removida ou nunca existiu. Verifique o endereço ou siga por um dos caminhos abaixo."
       illustration={<CompassIllustration />}

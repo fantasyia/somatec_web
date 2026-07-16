@@ -87,11 +87,18 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
     ],
   },
   {
+    title: 'Conteúdo',
+    links: [
+      { label: 'Blog', href: '/blog' },
+      { label: 'Resultados e cases', href: '/resultados' },
+      { label: 'Diagnóstico de VTCD', href: '/ferramentas/custo-de-parada' },
+      { label: 'Seletor de modelo', href: '/ferramentas/qual-master-block' },
+    ],
+  },
+  {
     title: 'Contato',
     links: [
       { label: 'Fale com o comercial', href: '/contato' },
-      { label: 'Diagnóstico de VTCD', href: '/ferramentas/custo-de-parada' },
-      { label: 'Qual Master Block é o meu?', href: '/ferramentas/qual-master-block' },
       { label: 'Orçamento (comércio/residência)', href: '/ferramentas/orcamento' },
       { label: 'Perguntas frequentes', href: '/faq' },
       { label: 'Política de privacidade', href: '/politica-de-privacidade' },

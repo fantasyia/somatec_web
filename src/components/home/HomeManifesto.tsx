@@ -13,7 +13,6 @@ export function HomeManifesto() {
     >
       <div className="container-msm py-20 md:py-32">
         <div className="max-w-3xl mx-auto text-center space-y-8">
-          <span className="eyebrow inline-block">Qualidade de energia · desde 1999</span>
           <h2 className="font-serif font-semibold text-h2-m md:text-h2-d text-balance leading-[1.15] text-[rgb(var(--text))]">
             Não é um DPS comum. É a proteção que{' '}
             <span className="text-gold">o surto não vence</span>.

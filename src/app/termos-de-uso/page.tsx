@@ -49,7 +49,6 @@ export default function TermosPage() {
   return (
     <>
       <PageHero
-        eyebrow="Legal"
         title="Termos de Uso"
         description="Condições de uso do site institucional da Somatec Blocking."
         breadcrumbs={[{ label: 'Termos de Uso' }]}

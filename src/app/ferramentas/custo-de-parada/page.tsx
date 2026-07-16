@@ -24,7 +24,6 @@ export default function CustoDeParadaPage() {
   return (
     <>
       <PageHero
-        eyebrow="Ferramenta · Diagnóstico"
         title="Quanto a energia suja custa por ano na sua operação?"
         description="Responda 6 perguntas sobre os sintomas da sua planta e coloque 2 números na calculadora — em 2 minutos você sabe o tamanho do prejuízo e se ele tem cara de VTCD."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Custo de parada' }]}
@@ -32,7 +31,6 @@ export default function CustoDeParadaPage() {
 
       <section className="container-msm py-16 md:py-20" aria-label="Auto-diagnóstico de VTCD">
         <Reveal className="mb-8 max-w-3xl space-y-3">
-          <span className="eyebrow">Passo 1 · Auto-diagnóstico</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold">
             Sua planta tem os sintomas de VTCD?
           </h2>
@@ -48,7 +46,6 @@ export default function CustoDeParadaPage() {
 
       <section className="container-msm pb-16 md:pb-24" aria-label="Calculadora de custo de parada">
         <Reveal className="mb-8 max-w-3xl space-y-3">
-          <span className="eyebrow">Passo 2 · Calculadora</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold">
             O custo real, nos seus números
           </h2>

@@ -4,7 +4,6 @@ import { ChevronRight, ArrowLeft } from 'lucide-react';
 type Breadcrumb = { label: string; href?: string };
 
 type PlaceholderPageProps = {
-  eyebrow?: string;
   title: string;
   description?: string;
   breadcrumbs?: Breadcrumb[];
@@ -12,7 +11,6 @@ type PlaceholderPageProps = {
 };
 
 export function PlaceholderPage({
-  eyebrow,
   title,
   description,
   breadcrumbs,
@@ -59,7 +57,6 @@ export function PlaceholderPage({
           )}
 
           <div className="max-w-3xl space-y-5">
-            {eyebrow && <span className="eyebrow inline-block">{eyebrow}</span>}
             <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">
               {title}
             </h1>

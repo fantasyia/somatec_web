@@ -186,9 +186,6 @@ export function HomeCarousel({ items }: Props) {
                     : 'absolute inset-0 opacity-0 translate-x-5 pointer-events-none'
                 } transition-all duration-[600ms] ease-premium space-y-5`}
               >
-                {slide.eyebrow && (
-                  <span className="eyebrow inline-block">{slide.eyebrow}</span>
-                )}
                 {/* h2: seção de topo da home (após o h1 do Hero) — não pular nível */}
                 <h2 className="font-serif font-semibold text-h2-m md:text-h2-d text-balance">
                   {slide.title}

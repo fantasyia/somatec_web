@@ -184,9 +184,6 @@ export function Header() {
                       onMouseEnter={() => openMenu(item.href)}
                       onMouseLeave={scheduleCloseMenu}
                     >
-                      <div className="mb-6">
-                        <span className="eyebrow">Nossas soluções</span>
-                      </div>
                       <div className="grid grid-cols-3 gap-4">
                         {item.children!.map((child) => {
                           const Icon = SOLUTION_ICON[child.href];

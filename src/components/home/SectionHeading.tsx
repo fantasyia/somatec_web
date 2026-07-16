@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
 type SectionHeadingProps = {
-  eyebrow?: string;
   title: string;
   description?: string;
   viewAllHref?: string;
@@ -11,7 +10,6 @@ type SectionHeadingProps = {
 };
 
 export function SectionHeading({
-  eyebrow,
   title,
   description,
   viewAllHref,
@@ -25,7 +23,6 @@ export function SectionHeading({
       }`}
     >
       <div className={`max-w-2xl space-y-3 ${align === 'center' ? 'mx-auto' : ''}`}>
-        {eyebrow && <span className="eyebrow inline-block">{eyebrow}</span>}
         <h2 className="font-serif font-semibold text-h2-m md:text-h2-d text-balance leading-tight">
           {title}
         </h2>

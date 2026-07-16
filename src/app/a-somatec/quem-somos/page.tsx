@@ -22,7 +22,6 @@ export default function QuemSomosPage() {
   return (
     <>
       <PageHero
-        eyebrow="A Somatec Blocking"
         title="Quem somos"
         description="Uma empresa nacional construída sobre excelência técnica, comprovação científica e parcerias de longo prazo com quem mantém a indústria funcionando."
         breadcrumbs={[{ label: 'A Somatec', href: '/a-somatec' }, { label: 'Quem somos' }]}
@@ -32,7 +31,6 @@ export default function QuemSomosPage() {
 
         {/* História */}
         <div className="max-w-3xl mx-auto space-y-5">
-          <span className="eyebrow">Desde 1999</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Autoridade é entender a planta antes de propor a solução
           </h2>
@@ -56,7 +54,6 @@ export default function QuemSomosPage() {
         {/* Missão / Posicionamento */}
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 md:gap-16">
           <div className="space-y-4">
-            <span className="eyebrow">O que fazemos</span>
             <h3 className="font-serif text-h3-m md:text-h3-d font-semibold text-balance">
               Melhorar a qualidade da energia da indústria
             </h3>
@@ -67,7 +64,6 @@ export default function QuemSomosPage() {
             </p>
           </div>
           <div className="space-y-4">
-            <span className="eyebrow">Por que fazemos</span>
             <h3 className="font-serif text-h3-m md:text-h3-d font-semibold text-balance">
               Transformar o setor e o país
             </h3>
@@ -84,7 +80,6 @@ export default function QuemSomosPage() {
         {/* Valores */}
         <div className="max-w-4xl mx-auto">
           <div className="mb-10">
-            <span className="eyebrow">Nossos valores</span>
             <h2 className="mt-3 font-serif text-h2-m md:text-h2-d font-semibold text-balance">
               O que guia cada decisão
             </h2>

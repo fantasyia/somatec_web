@@ -43,7 +43,6 @@ export default function ComprovacaoNormasPage() {
   return (
     <>
       <PageHero
-        eyebrow="A Somatec Blocking"
         title="Comprovação, normas e segurança"
         description="Somos técnicos e científicos: comprovamos a eficácia por laudos e medições, atuamos dentro das normas e mantemos um histórico de zero acidentes."
         breadcrumbs={[{ label: 'A Somatec', href: '/a-somatec' }, { label: 'Comprovação e normas' }]}
@@ -53,7 +52,6 @@ export default function ComprovacaoNormasPage() {
 
         {/* Intro */}
         <div className="max-w-3xl mx-auto space-y-6">
-          <span className="eyebrow">Nossa abordagem</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Prova antes da palavra
           </h2>
@@ -75,7 +73,6 @@ export default function ComprovacaoNormasPage() {
         {/* Pillars */}
         <div className="max-w-4xl mx-auto">
           <div className="mb-10">
-            <span className="eyebrow">O que nos sustenta</span>
             <h2 className="mt-3 font-serif text-h2-m md:text-h2-d font-semibold text-balance">
               Comprovação, conformidade e segurança
             </h2>

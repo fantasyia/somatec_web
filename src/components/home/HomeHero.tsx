@@ -134,7 +134,6 @@ export function HomeHero({ data }: Props) {
       <div className="container-msm relative z-10 py-10 md:py-12">
         <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-6">
         <div className="max-w-[600px] space-y-5 lg:col-span-7">
-          <span className="eyebrow inline-block">{data?.subtitle ?? HERO_FALLBACK.eyebrow}</span>
           <h1 className="font-serif text-[2.15rem] leading-[1.07] sm:text-[2.6rem] lg:text-[3.35rem] font-semibold text-balance dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
             {renderRich(title)}
           </h1>

@@ -57,7 +57,6 @@ export function HomeProof() {
       aria-label="Cases e prova social"
     >
       <Reveal className="max-w-3xl mb-12 space-y-4">
-        <span className="eyebrow">Resultados comprovados</span>
         <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
           Números reais, medidos na planta do cliente
         </h2>

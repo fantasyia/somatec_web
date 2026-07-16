@@ -76,7 +76,6 @@ export default function FaqPage() {
       <JsonLd data={faqJsonLd} />
 
       <PageHero
-        eyebrow="Perguntas frequentes"
         title="Dúvidas sobre proteção e qualidade de energia"
         description="Reunimos as perguntas mais comuns de engenheiros e gestores de manutenção sobre o Master Block, os VTCD e o nosso modelo de investimento sem risco."
         breadcrumbs={[{ label: 'FAQ' }]}

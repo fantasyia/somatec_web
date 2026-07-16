@@ -49,7 +49,6 @@ export default async function SolucaoPage({
   return (
     <>
       <PageHero
-        eyebrow={s.eyebrow}
         title={s.title}
         description={s.tagline}
         breadcrumbs={[{ label: 'Soluções', href: '/solucoes' }, { label: s.title }]}

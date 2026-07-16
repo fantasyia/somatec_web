@@ -25,7 +25,6 @@ export default function QualMasterBlockPage() {
   return (
     <>
       <PageHero
-        eyebrow="Ferramenta · Dimensionamento"
         title="Qual Master Block a sua instalação precisa?"
         description="A linha tem 12 modelos, todos de 110 V a 1100 V, que mudam pela corrente de carga do circuito. Informe a sua corrente e veja o modelo indicado — o dimensionamento final é validado pela engenharia em proteção em cascata."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Qual Master Block é o meu?' }]}
@@ -33,7 +32,6 @@ export default function QualMasterBlockPage() {
 
       <section className="container-msm py-16 md:py-20" aria-label="Seletor de modelo Master Block">
         <Reveal className="mb-8 max-w-3xl space-y-3">
-          <span className="eyebrow">Seletor por corrente de carga</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold">
             Da corrente do circuito ao modelo, em segundos
           </h2>

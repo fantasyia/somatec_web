@@ -10,7 +10,6 @@ import type { ReactNode } from 'react';
 type Props = {
   /** Código exibido como watermark gigante (ex: "404", "500"). */
   code: string;
-  eyebrow: string;
   title: string;
   description: string;
   /** Ilustração SVG linear (stroke currentColor). */
@@ -19,7 +18,7 @@ type Props = {
   actions: ReactNode;
 };
 
-export function ErrorScreen({ code, eyebrow, title, description, illustration, actions }: Props) {
+export function ErrorScreen({ code, title, description, illustration, actions }: Props) {
   return (
     <section className="relative min-h-[82vh] flex items-center justify-center overflow-hidden bg-deep_navy text-white px-6">
       {/* Pattern diagonal sutil (igual PageHero) */}
@@ -45,7 +44,6 @@ export function ErrorScreen({ code, eyebrow, title, description, illustration, a
         <div className="text-gold" aria-hidden="true">
           {illustration}
         </div>
-        <span className="eyebrow inline-block">{eyebrow}</span>
         <h1 className="font-serif text-h1-m md:text-h1-d font-semibold text-balance">{title}</h1>
         <p className="text-white/75 leading-relaxed text-pretty max-w-md">{description}</p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">{actions}</div>

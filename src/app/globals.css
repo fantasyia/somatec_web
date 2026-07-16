@@ -88,11 +88,6 @@
     @apply container mx-auto px-6 lg:px-8;
   }
 
-  .eyebrow {
-    @apply text-eyebrow uppercase font-sans;
-    color: rgb(var(--gold));
-  }
-
   .divider-gradient {
     height: 1px;
     background: linear-gradient(

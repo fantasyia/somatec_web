@@ -28,7 +28,6 @@ export default function SolucoesPage() {
   return (
     <>
       <PageHero
-        eyebrow="Soluções"
         title="Eficiência e qualidade de energia, de ponta a ponta"
         description="Do diagnóstico da rede à proteção contra surtos e à correção do fator de potência — soluções personalizadas para cada necessidade da sua planta."
         breadcrumbs={[{ label: 'Soluções' }]}
@@ -48,7 +47,6 @@ export default function SolucoesPage() {
                 aria-hidden="true"
               />
               <div className="space-y-2">
-                <span className="eyebrow text-[11px]">{eyebrow}</span>
                 <h2 className="font-sans font-semibold text-lg md:text-xl text-[rgb(var(--text))]">
                   {title}
                 </h2>

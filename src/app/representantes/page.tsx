@@ -25,7 +25,6 @@ export default function RepresentantesPage() {
         />
         <div className="container-msm">
           <div className="max-w-3xl space-y-4 animate-fade-up">
-            <span className="eyebrow inline-block">Trabalhe com a Somatec Blocking</span>
             <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">
               Seja um representante
             </h1>
@@ -41,7 +40,6 @@ export default function RepresentantesPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           <div className="lg:col-span-5 lg:sticky lg:top-32 lg:self-start space-y-5">
             <Users className="h-8 w-8 text-gold" strokeWidth={1.5} aria-hidden="true" />
-            <span className="eyebrow inline-block">Para representantes</span>
             <h2 className="font-serif font-semibold text-h2-m md:text-h2-d text-balance leading-tight">
               Atuação comercial em todo o Brasil
             </h2>

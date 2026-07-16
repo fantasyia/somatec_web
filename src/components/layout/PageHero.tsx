@@ -5,14 +5,13 @@ import { Reveal } from '@/components/ui/Reveal';
 type Breadcrumb = { label: string; href?: string };
 
 type PageHeroProps = {
-  eyebrow?: string;
   title: string;
   description?: string;
   breadcrumbs?: Breadcrumb[];
   children?: React.ReactNode;
 };
 
-export function PageHero({ eyebrow, title, description, breadcrumbs, children }: PageHeroProps) {
+export function PageHero({ title, description, breadcrumbs, children }: PageHeroProps) {
   return (
     <section
       className="relative pt-28 pb-10 md:pt-32 md:pb-14 bg-deep_navy text-white overflow-hidden"
@@ -52,7 +51,6 @@ export function PageHero({ eyebrow, title, description, breadcrumbs, children }:
         )}
 
         <Reveal className="max-w-3xl space-y-5">
-          {eyebrow && <span className="eyebrow inline-block">{eyebrow}</span>}
           <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">
             {title}
           </h1>

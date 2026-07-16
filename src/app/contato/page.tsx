@@ -53,7 +53,6 @@ export default function ContatoPage() {
         />
         <div className="container-msm">
           <div className="max-w-3xl space-y-4 animate-fade-up">
-            <span className="eyebrow inline-block">Fale com a engenharia</span>
             <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">
               Vamos diagnosticar a sua planta
             </h1>

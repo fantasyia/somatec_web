@@ -108,7 +108,6 @@ export default async function StatusPage() {
   return (
     <>
       <PageHero
-        eyebrow="Operações"
         title="Status do sistema"
         description="Estado dos serviços do site da Somatec Blocking em tempo real."
         breadcrumbs={[{ label: 'Status' }]}

@@ -20,7 +20,6 @@ export function HomeNoRisk() {
     <section className="bg-deep_navy text-white" aria-label="Investimento sem risco">
       <div className="container-msm py-16 md:py-24">
         <div className="max-w-3xl space-y-4">
-          <span className="eyebrow">Investimento sem risco</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Você só paga quando o resultado é comprovado
           </h2>

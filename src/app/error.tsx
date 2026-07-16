@@ -19,7 +19,6 @@ export default function GlobalError({
   return (
     <ErrorScreen
       code="500"
-      eyebrow="Erro inesperado"
       title="Algo deu errado"
       description="Ocorreu um erro inesperado de nossa parte. Tente recarregar a página ou siga por um dos caminhos abaixo."
       illustration={<BrokenGearIllustration />}

@@ -53,7 +53,6 @@ export default function PoliticaPage() {
   return (
     <>
       <PageHero
-        eyebrow="Legal"
         title="Política de Privacidade"
         description="Como tratamos seus dados pessoais em conformidade com a Lei Geral de Proteção de Dados (LGPD)."
         breadcrumbs={[{ label: 'Política de Privacidade' }]}

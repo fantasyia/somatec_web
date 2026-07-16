@@ -5,7 +5,6 @@ import {
   Activity,
   ShieldCheck,
   GaugeCircle,
-  Layers,
   ChevronRight,
 } from 'lucide-react';
 import { CascadeDiagram } from '@/components/graphics/CascadeDiagram';
@@ -81,7 +80,6 @@ export default function ProdutosPage() {
       <JsonLd data={masterBlockProductSchema()} />
 
       <PageHero
-        eyebrow="Linha MasterBlock"
         title="Não é um DPS comum. É o supressor que atua em 100 kHz."
         description="O DPS de mercado atua abaixo de 10 kHz. O MasterBlock é um supressor e protetor contra surtos elétricos com filtro passivo e circuitos atuantes em 100 kHz — a frequência em que os transientes destroem seus equipamentos. Uma linha de 12 modelos, de 8 kA a 100 kA."
         breadcrumbs={[{ label: 'Produtos' }]}
@@ -90,7 +88,6 @@ export default function ProdutosPage() {
       {/* ── Funcionalidades ──────────────────────────────────────── */}
       <section className="container-msm py-12 md:py-16">
         <Reveal className="max-w-3xl space-y-4 mb-10">
-          <span className="eyebrow">O que o MasterBlock faz</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Quatro funções em um único dispositivo
           </h2>
@@ -123,7 +120,6 @@ export default function ProdutosPage() {
       <section className="bg-[rgb(var(--surface))] border-y border-[rgb(var(--border))]">
         <div className="container-msm py-12 md:py-16">
           <Reveal className="max-w-3xl space-y-4 mb-8">
-            <span className="eyebrow">Especificações da linha</span>
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
               Comuns a todos os modelos
             </h2>
@@ -149,10 +145,6 @@ export default function ProdutosPage() {
       {/* ── Tabela de modelos MB-01 a MB-12 ──────────────────────── */}
       <section className="container-msm py-12 md:py-16">
         <Reveal className="max-w-3xl space-y-4 mb-8">
-          <span className="eyebrow">
-            <Layers className="inline h-3.5 w-3.5 mr-1 -mt-0.5" aria-hidden="true" />
-            Modelos
-          </span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Do pequeno comércio à indústria pesada
           </h2>
@@ -216,7 +208,6 @@ export default function ProdutosPage() {
         <div className="container-msm py-14 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <Reveal className="space-y-5">
-              <span className="eyebrow">Como se protege de verdade</span>
               <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
                 Proteção em cascata + aterramento dedicado
               </h2>
@@ -244,7 +235,6 @@ export default function ProdutosPage() {
       {/* ── CTA ──────────────────────────────────────────────────── */}
       <section className="container-msm py-14 md:py-20">
         <div className="max-w-2xl mx-auto text-center space-y-6">
-          <span className="eyebrow">Diagnóstico de risco</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Qual MasterBlock a sua planta precisa?
           </h2>

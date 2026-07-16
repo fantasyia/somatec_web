@@ -158,8 +158,7 @@ export function SampleRequestModal({ productId, productName, productSku }: Props
           >
             <div className="sticky top-0 flex items-start justify-between gap-4 px-6 pt-6 pb-4 bg-[rgb(var(--surface))] border-b border-[rgb(var(--border))]">
               <div>
-                <span className="eyebrow">Amostra</span>
-                <h2 id="sample-modal-title" className="mt-1 font-serif text-xl md:text-2xl font-semibold text-[rgb(var(--text))]">
+                <h2 id="sample-modal-title" className="font-serif text-xl md:text-2xl font-semibold text-[rgb(var(--text))]">
                   Solicitar amostra
                 </h2>
                 <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">{productName}</p>

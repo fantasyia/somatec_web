@@ -50,7 +50,6 @@ export default function ASomatecPage() {
   return (
     <>
       <PageHero
-        eyebrow="A Somatec Blocking"
         title="Autoridade em qualidade de energia desde 1999"
         description="Somos uma empresa nacional de eficiência energética. Desenvolvemos produtos e projetos que melhoram a qualidade da energia elétrica de indústrias e empresas — protegendo ativos, evitando paradas e reduzindo custos."
         breadcrumbs={[{ label: 'A Somatec' }]}
@@ -70,7 +69,6 @@ export default function ASomatecPage() {
                 aria-hidden="true"
               />
               <div className="space-y-1.5">
-                <span className="eyebrow text-[11px]">{eyebrow}</span>
                 <h2 className="font-serif text-h3-m font-semibold text-[rgb(var(--text))]">
                   {title}
                 </h2>

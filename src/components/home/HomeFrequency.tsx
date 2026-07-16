@@ -14,7 +14,6 @@ export function HomeFrequency() {
     >
       <div className="grid items-center gap-10 lg:grid-cols-12">
         <Reveal className="space-y-4 lg:col-span-5">
-          <span className="eyebrow">Por que não é um DPS comum</span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Onde todo DPS para, o Master Block continua atuando
           </h2>

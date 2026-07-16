@@ -54,7 +54,6 @@ export default function OrcamentoPage() {
   return (
     <>
       <PageHero
-        eyebrow="Ferramentas · Calculadora"
         title="Seu orçamento Master Block em minutos"
         description="Sem reunião e sem espera: informe o perfil do seu estabelecimento e receba o equipamento certo, com preço e pedido online."
         breadcrumbs={[
