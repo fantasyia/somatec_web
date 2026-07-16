@@ -38,19 +38,33 @@ type BlogCardProps = {
   post: BlogPost;
   /** 'featured' = card grande (hero maior, excerpt visível, CTA interno). */
   variant?: 'featured' | 'default';
+  /** 'horizontal' = hero à esquerda + texto à direita (destaque largo da /blog). */
+  orientation?: 'vertical' | 'horizontal';
   /** Prioriza o carregamento da imagem (hero acima da dobra). */
   priority?: boolean;
 };
 
-export function BlogCard({ post, variant = 'default', priority = false }: BlogCardProps) {
+export function BlogCard({
+  post,
+  variant = 'default',
+  orientation = 'vertical',
+  priority = false,
+}: BlogCardProps) {
   const featured = variant === 'featured';
+  const horizontal = orientation === 'horizontal';
 
   return (
     <article
-      className="group relative flex h-full flex-col overflow-hidden rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-lg"
+      className={`group relative flex h-full overflow-hidden rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-lg ${
+        horizontal ? 'flex-col md:flex-row' : 'flex-col'
+      }`}
     >
       {/* Hero 16:9 */}
-      <div className="relative aspect-video w-full overflow-hidden">
+      <div
+        className={`relative aspect-video w-full overflow-hidden ${
+          horizontal ? 'md:aspect-auto md:w-1/2 md:min-h-[300px] md:self-stretch' : ''
+        }`}
+      >
         {post.heroUrl ? (
           <Image
             src={post.heroUrl}
@@ -66,7 +80,11 @@ export function BlogCard({ post, variant = 'default', priority = false }: BlogCa
       </div>
 
       {/* Corpo */}
-      <div className={`flex flex-1 flex-col ${featured ? 'gap-3 p-6 md:p-7' : 'gap-2.5 p-5'}`}>
+      <div
+        className={`flex flex-1 flex-col ${featured ? 'gap-3 p-6 md:p-7' : 'gap-2.5 p-5'} ${
+          horizontal ? 'md:w-1/2 md:justify-center' : ''
+        }`}
+      >
         <div>
           <ClusterPill cluster={post.cluster} />
         </div>
