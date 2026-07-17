@@ -10,6 +10,7 @@ import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormS
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import {
   selecionarMasterBlock,
+  formatBRL,
   MB_TENSAO,
   MB_LOAD_MAX,
 } from '@/lib/constants/masterblock';
@@ -41,7 +42,17 @@ function parseAmp(s: string): number {
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
-export function MasterBlockSelector() {
+type Props = {
+  /** source_page enviado no lead (distingue seletor vs orçamento no Betinna). */
+  sourcePage?: string;
+  /** Texto do botão de envio (orçamento usa um CTA de venda). */
+  ctaLabel?: string;
+};
+
+export function MasterBlockSelector({
+  sourcePage = '/ferramentas/qual-master-block',
+  ctaLabel = 'Receber o dimensionamento',
+}: Props = {}) {
   const [corrente, setCorrente] = useState('');
   const [segment, setSegment] = useState('');
 
@@ -61,7 +72,7 @@ export function MasterBlockSelector() {
 
     const fd = new FormData(e.currentTarget);
     const selecao = model
-      ? `modelo recomendado ${model.model} (${model.loadLabel}, surto ${model.surge})`
+      ? `modelo recomendado ${model.model} (${model.loadLabel}, surto ${model.surge}) — preço de venda ${formatBRL(model.preco)}`
       : `acima da linha padrão (> ${MB_LOAD_MAX} A) — requer solução dedicada`;
     const resumo =
       `[Seletor Master Block] Corrente de carga informada: ${amp} A → ${selecao}. ` +
@@ -81,7 +92,7 @@ export function MasterBlockSelector() {
           segment,
           message: resumo,
           lgpd_consent: fd.get('lgpd_consent') === 'on',
-          source_page: '/ferramentas/qual-master-block',
+          source_page: sourcePage,
           website: fd.get('website') ?? '',
           captcha_token: captchaToken,
         }),
@@ -151,11 +162,15 @@ export function MasterBlockSelector() {
                 <span>Máx. surto (8/20 µs): {model.surge}</span>
                 <span>Tensão: {MB_TENSAO}</span>
               </div>
+              <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-t border-white/10 pt-4">
+                <span className="text-sm text-white/60">Preço de venda do equipamento</span>
+                <span className="font-serif text-3xl font-bold text-gold">{formatBRL(model.preco)}</span>
+              </div>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/80">
                 Indicação pela corrente de carga. O projeto final é dimensionado pela engenharia
                 em <span className="font-semibold text-white">proteção em cascata</span> (entrada,
-                quadro e equipamento crítico) + aterramento dedicado. Deixe seus dados e receba o
-                dimensionamento — a medição na sua planta é sem custo.
+                quadro e equipamento crítico) + aterramento dedicado. Deixe seus dados que a Somatec
+                confirma o modelo e fecha a compra com você.
               </p>
             </>
           ) : (
@@ -241,7 +256,7 @@ export function MasterBlockSelector() {
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : (
               <>
-                Receber o dimensionamento
+                {ctaLabel}
                 <ChevronRight
                   className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
                   strokeWidth={2}

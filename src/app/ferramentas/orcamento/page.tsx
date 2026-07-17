@@ -1,18 +1,19 @@
 import type { Metadata } from 'next';
-import { Building2, Gauge, Cpu, FileCheck2 } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
-import { CommercialCta } from '@/components/ui/CommercialCta';
 import { Reveal } from '@/components/ui/Reveal';
+import { MasterBlockSelector } from '@/components/tools/MasterBlockSelector';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
-  title: 'Calculadora de orçamento — Somatec Blocking',
+  title: 'Orçamento Master Block — preço de venda por modelo | Somatec Blocking',
   description:
-    'Dimensione o Master Block ideal para o seu comércio ou residência de alto padrão e receba o orçamento na hora.',
+    'Informe a corrente de carga do seu circuito e veja na hora o modelo Master Block indicado e o preço de venda. Linha de 12 modelos, 110 V a 1100 V.',
   alternates: { canonical: '/ferramentas/orcamento' },
   openGraph: {
-    title: 'Calculadora de orçamento Master Block',
-    description: 'Responda poucas perguntas e receba modelo, quantidade e preço.',
+    title: 'Orçamento Master Block — modelo indicado + preço',
+    description: 'Da corrente do circuito ao modelo e ao preço de venda, em segundos.',
     url: '/ferramentas/orcamento',
     type: 'website',
     images: [...DEFAULT_OG_IMAGES],
@@ -20,83 +21,45 @@ export const metadata: Metadata = {
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 
-// ============================================================================
-// PLACEHOLDER — a calculadora real depende da tabela de modelos/SKUs, regras
-// de dimensionamento e pricing (a definir com o Leandro). Esta página fixa o
-// fluxo em 4 passos e a navegação; a lógica entra quando a spec chegar.
-// Spec: leo-Skills-master/clients/somatec/reports/site/ferramentas-interativas-spec.md §1
-// ============================================================================
-
-const STEPS = [
-  {
-    Icon: Building2,
-    title: 'Seu estabelecimento',
-    description: 'Comércio, residência de alto padrão ou pequena operação.',
-  },
-  {
-    Icon: Gauge,
-    title: 'Porte da instalação',
-    description: 'Entrada de energia, número de quadros e carga instalada.',
-  },
-  {
-    Icon: Cpu,
-    title: 'O que proteger',
-    description: 'Eletrônicos, automação, refrigeração e equipamentos sensíveis.',
-  },
-  {
-    Icon: FileCheck2,
-    title: 'Seu orçamento',
-    description: 'Modelo Master Block recomendado, quantidade, preço e pedido online.',
-  },
-] as const;
-
 export default function OrcamentoPage() {
   return (
     <>
       <PageHero
         title="Seu orçamento Master Block em minutos"
-        description="Sem reunião e sem espera: informe o perfil do seu estabelecimento e receba o equipamento certo, com preço e pedido online."
-        breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Calculadora de orçamento' },
-        ]}
+        description="Informe a corrente de carga do circuito e veja na hora o modelo indicado e o preço de venda. Sem reunião, sem espera — deixe seus dados e a Somatec fecha a compra com você."
+        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Orçamento' }]}
       />
 
-      <section className="container-msm py-16 md:py-20" aria-label="Como funciona a calculadora">
-        <Reveal className="mb-10">
-          <span className="placeholder-tag">Em breve — em desenvolvimento</span>
+      <section className="container-msm py-16 md:py-20" aria-label="Calculadora de orçamento Master Block">
+        <Reveal className="mb-8 max-w-3xl space-y-3">
+          <h2 className="font-serif text-h2-m md:text-h2-d font-semibold">
+            Da corrente do circuito ao preço, na hora
+          </h2>
+          <p className="text-[rgb(var(--text-muted))] leading-relaxed">
+            O modelo é escolhido pela corrente nominal do circuito a proteger. Você vê o modelo
+            indicado e o preço de venda do equipamento — o dimensionamento final é sempre confirmado
+            pela engenharia da Somatec.
+          </p>
+        </Reveal>
+        <Reveal>
+          <MasterBlockSelector sourcePage="/ferramentas/orcamento" ctaLabel="Pedir meu orçamento" />
         </Reveal>
 
-        <div className="grid gap-4 md:grid-cols-4">
-          {STEPS.map(({ Icon, title, description }, i) => (
-            <Reveal
-              key={title}
-              delay={i * 80}
-              className="relative rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-6"
-            >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-btn bg-cyan/10 text-cyan">
-                <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-              </span>
-              <div className="mt-4 text-[11px] font-sans font-bold uppercase tracking-widest text-cyan">
-                Passo {i + 1}
-              </div>
-              <h2 className="mt-1 font-sans text-base font-semibold">{title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-[rgb(var(--text-muted))]">{description}</p>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal className="mt-12 rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-8 text-center md:p-12">
-          <h2 className="font-serif text-h3-m md:text-h3-d font-semibold">
-            Enquanto a calculadora não fica pronta, a engenharia dimensiona pra você
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[rgb(var(--text-muted))]">
-            Fale com a equipe pelo WhatsApp com os dados do seu estabelecimento e receba a
-            recomendação de modelo e o orçamento do mesmo jeito — sem custo.
-          </p>
-          <div className="mt-6 flex justify-center">
-            <CommercialCta label="Pedir meu orçamento" context="Calculadora de orçamento (site)" />
-          </div>
+        <Reveal className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+          <Link
+            href="/produtos"
+            className="inline-flex items-center gap-1 font-sans font-semibold text-cyan transition-colors hover:text-cyan/80"
+          >
+            Ver a tabela completa dos 12 modelos
+            <ChevronRight className="h-4 w-4" strokeWidth={2} />
+          </Link>
+          <Link
+            href="/ferramentas/custo-de-parada"
+            className="inline-flex items-center gap-1 font-sans font-semibold text-[rgb(var(--text-muted))] transition-colors hover:text-cyan"
+          >
+            Calcular o custo das paradas
+            <ChevronRight className="h-4 w-4" strokeWidth={2} />
+          </Link>
         </Reveal>
       </section>
     </>
