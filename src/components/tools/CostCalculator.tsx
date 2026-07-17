@@ -154,7 +154,7 @@ export function CostCalculator() {
           role="status"
           aria-live="polite"
         >
-          <div className="text-[11px] font-sans font-bold uppercase tracking-widest text-white/60">
+          <div className="text-[11px] font-sans font-bold text-white/60">
             Prejuízo anual estimado da sua operação
           </div>
           <div className="mt-2 font-serif text-4xl font-bold text-gold md:text-5xl">
@@ -194,7 +194,7 @@ export function CostCalculator() {
           <div className="space-y-1.5">
             <label
               htmlFor="calc-segment"
-              className="block text-xs uppercase tracking-widest font-sans font-semibold text-[rgb(var(--text-muted))]"
+              className="block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
             >
               Segmento
             </label>

@@ -92,7 +92,7 @@ export default function ContatoPage() {
                       <Icon className="h-4.5 w-4.5" strokeWidth={1.75} aria-hidden="true" />
                     </span>
                     <span className="pt-0.5">
-                      <span className="block text-[11px] uppercase tracking-wide font-semibold text-[rgb(var(--text-muted))]">
+                      <span className="block text-[11px] font-semibold text-[rgb(var(--text-muted))]">
                         {label}
                       </span>
                       <span className="block font-semibold text-[rgb(var(--text))] group-hover:text-gold transition-colors">

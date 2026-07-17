@@ -168,7 +168,7 @@ export async function HomeCta({ cards }: Props) {
                     strokeWidth={1.5}
                     aria-hidden="true"
                   />
-                  <span className="text-[11px] uppercase tracking-widest font-sans font-semibold text-gold/80">
+                  <span className="text-[11px] font-sans font-semibold text-gold/80">
                     {eyebrow}
                   </span>
                 </div>
@@ -178,7 +178,7 @@ export async function HomeCta({ cards }: Props) {
                 <p className="text-sm leading-relaxed text-white/55 text-pretty flex-1">
                   {description}
                 </p>
-                <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-widest font-sans font-semibold text-gold/60 group-hover:text-gold group-hover:gap-2 transition-all duration-200">
+                <span className="inline-flex items-center gap-1 text-[11px] font-sans font-semibold text-gold/60 group-hover:text-gold group-hover:gap-2 transition-all duration-200">
                   Saiba mais
                   <ChevronRight className="h-3 w-3" strokeWidth={2} />
                 </span>

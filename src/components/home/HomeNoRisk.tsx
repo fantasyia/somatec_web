@@ -42,7 +42,7 @@ export function HomeNoRisk() {
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-btn bg-cyan/15 text-cyan mb-3">
                 <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
               </span>
-              <div className="text-[11px] font-sans font-bold uppercase tracking-wide text-cyan/90">
+              <div className="text-[11px] font-sans font-bold text-cyan/90">
                 Passo {i + 1} · sem custo
               </div>
               <div className="mt-1 font-sans font-semibold text-sm text-white">{label}</div>

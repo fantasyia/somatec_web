@@ -100,7 +100,7 @@ export default async function IndustriaPage({
                 <div className="mt-2 font-serif text-5xl font-bold leading-none text-gold md:text-6xl">
                   <CountUp value={ind.case.metric} />
                 </div>
-                <div className="mt-1.5 text-xs font-sans font-semibold uppercase tracking-wide text-white/60">
+                <div className="mt-1.5 text-xs font-sans font-semibold text-white/60">
                   {ind.case.unit}
                 </div>
                 <div className="mt-4 text-sm">

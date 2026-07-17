@@ -54,12 +54,12 @@ export default function ResultadosPage() {
                 <div className="font-serif text-indicator-m font-bold leading-none text-gold">
                   <CountUp value={c.metric} />
                 </div>
-                <div className="mt-1.5 text-xs font-sans font-semibold uppercase tracking-wide text-[rgb(var(--text-muted))]">
+                <div className="mt-1.5 text-xs font-sans font-semibold text-[rgb(var(--text-muted))]">
                   {c.unit}
                 </div>
                 <div className="mt-4">
                   <div className="font-sans text-base font-bold text-[rgb(var(--text))]">{c.company}</div>
-                  <div className="text-[11px] uppercase tracking-wide text-[rgb(var(--text-muted))]">
+                  <div className="text-[11px] text-[rgb(var(--text-muted))]">
                     {c.sector} · {c.city}
                   </div>
                 </div>
@@ -78,7 +78,7 @@ export default function ResultadosPage() {
                       <ChevronRight className="h-4 w-4" strokeWidth={2} />
                     </Link>
                   )}
-                  <span className="inline-flex items-center gap-1.5 rounded text-[11px] font-sans font-semibold uppercase tracking-widest text-[rgb(var(--text-muted))] opacity-70">
+                  <span className="inline-flex items-center gap-1.5 rounded text-[11px] font-sans font-semibold text-[rgb(var(--text-muted))] opacity-70">
                     <FileText className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
                     Laudo em PDF · em breve
                   </span>

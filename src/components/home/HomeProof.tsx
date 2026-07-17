@@ -81,12 +81,12 @@ export function HomeProof() {
             <div className="font-serif font-bold text-indicator-m leading-none text-gold">
               {c.metric}
             </div>
-            <div className="mt-1.5 text-xs font-sans font-semibold uppercase tracking-wide text-[rgb(var(--text-muted))]">
+            <div className="mt-1.5 text-xs font-sans font-semibold text-[rgb(var(--text-muted))]">
               {c.unit}
             </div>
             <div className="mt-5 pt-4 border-t border-[rgb(var(--border))]">
               <div className="font-sans font-bold text-base text-[rgb(var(--text))]">{c.company}</div>
-              <div className="text-[11px] uppercase tracking-wide text-[rgb(var(--text-muted))] mb-2">
+              <div className="text-[11px] text-[rgb(var(--text-muted))] mb-2">
                 {c.sector}
               </div>
               <p className="text-sm leading-relaxed text-[rgb(var(--text-muted))]">{c.description}</p>

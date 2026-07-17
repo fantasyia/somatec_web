@@ -67,7 +67,7 @@ export function HomeProducts({ products, brandNames }: Props) {
 
               <div className="space-y-1.5 px-1">
                 {product.brand_id && brandNames[product.brand_id] && (
-                  <span className="text-[11px] uppercase tracking-widest font-semibold text-gold">
+                  <span className="text-[11px] font-semibold text-gold">
                     {brandNames[product.brand_id]}
                   </span>
                 )}

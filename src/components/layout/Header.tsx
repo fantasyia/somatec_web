@@ -209,7 +209,7 @@ export function Header() {
                                     {child.description}
                                   </p>
                                 )}
-                                <span className="mt-2.5 inline-flex items-center gap-1 text-xs uppercase tracking-widest font-semibold text-gold opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-gold opacity-0 group-hover:opacity-100 transition-opacity">
                                   Saiba mais
                                   <ChevronRight className="h-3 w-3" strokeWidth={2} />
                                 </span>

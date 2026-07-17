@@ -47,7 +47,7 @@ export function HomeIndicators({ indicators }: Props) {
               {useReal ? <CountUp value={item.main} /> : <span className="text-gold">{item.main}</span>}
             </div>
             {item.label && (
-              <div className="mt-3 text-xs md:text-sm uppercase tracking-widest font-sans font-semibold text-[rgb(var(--text-muted))]">
+              <div className="mt-3 text-xs md:text-sm font-sans font-semibold text-[rgb(var(--text-muted))]">
                 {item.label}
               </div>
             )}

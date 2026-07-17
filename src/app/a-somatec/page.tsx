@@ -76,7 +76,7 @@ export default function ASomatecPage() {
                   {description}
                 </p>
               </div>
-              <span className="mt-auto inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-sans font-semibold text-gold">
+              <span className="mt-auto inline-flex items-center gap-1.5 text-xs font-sans font-semibold text-gold">
                 Saiba mais
                 <ChevronRight
                   className="h-3.5 w-3.5 transition-transform duration-200 ease-premium group-hover:translate-x-1"

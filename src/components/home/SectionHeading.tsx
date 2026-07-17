@@ -35,7 +35,7 @@ export function SectionHeading({
       {viewAllHref && align !== 'center' && (
         <Link
           href={viewAllHref}
-          className="group inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-sans font-semibold text-gold hover:text-gold-soft transition-colors whitespace-nowrap"
+          className="group inline-flex items-center gap-1.5 text-xs font-sans font-semibold text-gold hover:text-gold-soft transition-colors whitespace-nowrap"
         >
           {viewAllLabel}
           <ChevronRight

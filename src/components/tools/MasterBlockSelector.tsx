@@ -146,7 +146,7 @@ export function MasterBlockSelector({
         >
           {model ? (
             <>
-              <div className="text-[11px] font-sans font-bold uppercase tracking-widest text-white/60">
+              <div className="text-[11px] font-sans font-bold text-white/60">
                 Modelo indicado para {amp} A
               </div>
               <div className="mt-2 flex items-center gap-3">
@@ -175,7 +175,7 @@ export function MasterBlockSelector({
             </>
           ) : (
             <>
-              <div className="text-[11px] font-sans font-bold uppercase tracking-widest text-white/60">
+              <div className="text-[11px] font-sans font-bold text-white/60">
                 Acima da linha padrão
               </div>
               <div className="mt-2 flex items-center gap-3">
@@ -216,7 +216,7 @@ export function MasterBlockSelector({
           <div className="space-y-1.5">
             <label
               htmlFor="sel-segment"
-              className="block text-xs uppercase tracking-widest font-sans font-semibold text-[rgb(var(--text-muted))]"
+              className="block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
             >
               Segmento
             </label>

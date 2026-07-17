@@ -21,7 +21,7 @@ export const TextareaField = forwardRef<HTMLTextAreaElement, Props>(function Tex
     <div className="space-y-1.5">
       <label
         htmlFor={inputId}
-        className="block text-xs uppercase tracking-widest font-sans font-semibold text-[rgb(var(--text-muted))]"
+        className="block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
       >
         {label}
         {required && <span className="text-gold ml-1">*</span>}

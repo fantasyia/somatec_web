@@ -129,7 +129,7 @@ export default function ProdutosPage() {
             <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[rgb(var(--border))] rounded-card overflow-hidden border border-[rgb(var(--border))]">
               {COMMON_SPECS.map((spec) => (
                 <div key={spec.label} className="bg-[rgb(var(--bg))] p-5">
-                  <dt className="text-xs font-sans font-semibold uppercase tracking-wide text-[rgb(var(--text-muted))]">
+                  <dt className="text-xs font-sans font-semibold text-[rgb(var(--text-muted))]">
                     {spec.label}
                   </dt>
                   <dd className="mt-1.5 font-sans font-semibold text-sm text-[rgb(var(--text))]">

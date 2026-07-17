@@ -70,7 +70,7 @@ export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
           <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8">
             {columns.map((col) => (
               <div key={col.title}>
-                <h3 className="text-eyebrow uppercase tracking-widest font-semibold text-gold mb-4">
+                <h3 className="text-sm font-semibold text-gold mb-4">
                   {col.title}
                 </h3>
                 <ul className="space-y-2.5">

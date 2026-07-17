@@ -71,7 +71,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             {product.short_description}
           </p>
         )}
-        <span className="mt-auto inline-flex items-center gap-1 text-xs uppercase tracking-widest font-semibold text-gold pt-1">
+        <span className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-gold pt-1">
           Ver produto
           <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
         </span>
