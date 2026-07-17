@@ -32,7 +32,7 @@ export default async function SeoPage() {
     <div>
       <PageHeader
         title="SEO Global"
-        description="Valores padrão de SEO/OG. Páginas específicas (Produtos, Receitas, Soluções, Páginas) sobrescrevem esses defaults."
+        description="Valores padrão de SEO/OG. Páginas específicas (Produtos, Soluções, Páginas) sobrescrevem esses defaults."
         breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'SEO' }]}
       />
       <div className="p-6 lg:p-8 max-w-3xl">

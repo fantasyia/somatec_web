@@ -35,22 +35,6 @@ export type SolutionBenefit = {
   description: string;
 };
 
-export type RecipeIngredient = {
-  id: string;
-  name: string;
-  quantity: string;
-  unit: string;
-  notes: string | null;
-  product_id: string | null;
-};
-
-export type RecipeInstruction = {
-  step: number;
-  text: string;
-  image_url: string | null;
-  tip: string | null;
-};
-
 // SEO compartilhado
 type SeoColumns = {
   seo_title: string | null;
@@ -214,22 +198,6 @@ export type Solution = Timestamps & SeoColumns & {
   display_order: number;
 };
 
-export type Brand = Timestamps & SeoColumns & {
-  id: string;
-  name: string;
-  slug: string;
-  short_description: string | null;
-  full_description: string | null;
-  logo_url: string | null;
-  cover_image_url: string | null;
-  positioning: string | null;
-  target_audience: string | null;
-  categories: string[];
-  featured: boolean;
-  display_order: number;
-  status: Status;
-};
-
 export type ProductCategory = Timestamps & SeoColumns & {
   id: string;
   name: string;
@@ -294,42 +262,6 @@ export type ProductPackagingOption = Timestamps & {
 export type ProductApplicationLink = {
   product_id: string;
   application_id: string;
-};
-
-export type RecipeCategory = Timestamps & SeoColumns & {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  image_url: string | null;
-  display_order: number;
-  status: Status;
-};
-
-export type Recipe = Timestamps & SeoColumns & {
-  id: string;
-  title: string;
-  slug: string;
-  category_id: string | null;
-  short_description: string | null;
-  introduction: string | null;
-  image_url: string | null;
-  prep_time: string | null;
-  cook_time: string | null;
-  total_time: string | null;
-  yield_text: string | null;
-  ingredients: RecipeIngredient[];
-  instructions: RecipeInstruction[];
-  chef_notes: string | null;
-  application_context: string | null;
-  featured: boolean;
-  display_order: number;
-  status: Status;
-};
-
-export type RecipeProduct = {
-  recipe_id: string;
-  product_id: string;
 };
 
 export type FooterColumn = Timestamps & {
@@ -436,16 +368,12 @@ export interface Database {
       home_cta_cards: TableRow<HomeCtaCard>;
       banners: TableRow<Banner>;
       solutions: TableRow<Solution>;
-      brands: TableRow<Brand>;
       product_categories: TableRow<ProductCategory>;
       product_applications: TableRow<ProductApplication>;
       products: TableRow<Product>;
       product_images: TableRow<ProductImage>;
       product_packaging_options: TableRow<ProductPackagingOption>;
       product_application_links: JunctionRow<ProductApplicationLink>;
-      recipe_categories: TableRow<RecipeCategory>;
-      recipes: TableRow<Recipe>;
-      recipe_products: JunctionRow<RecipeProduct>;
       footer_columns: TableRow<FooterColumn>;
       footer_links: TableRow<FooterLink>;
       webhook_retry_queue: TableRow<WebhookRetryQueue>;

@@ -61,22 +61,6 @@ export const solutionSchema = z.object({
   ...seoFields,
 });
 
-export const brandSchema = z.object({
-  name: z.string().min(1).max(160).optional(),
-  slug: slug.optional(),
-  short_description: optionalString(500),
-  full_description: optionalText(),
-  logo_url: url.optional(),
-  cover_image_url: url.optional(),
-  positioning: optionalString(500),
-  target_audience: optionalString(500),
-  categories: z.array(z.string().max(100)).optional(),
-  featured: boolean.optional(),
-  display_order: displayOrder.optional(),
-  status: status.optional(),
-  ...seoFields,
-});
-
 export const productCategorySchema = z.object({
   name: z.string().min(1).max(160).optional(),
   slug: slug.optional(),
@@ -109,49 +93,6 @@ export const productSchema = z.object({
   technical_sheet_url: url.optional(),
   packaging_summary: optionalString(500),
   commercial_notes: optionalText(2000),
-  featured: boolean.optional(),
-  display_order: displayOrder.optional(),
-  status: status.optional(),
-  ...seoFields,
-});
-
-export const recipeCategorySchema = z.object({
-  name: z.string().min(1).max(160).optional(),
-  slug: slug.optional(),
-  description: optionalText(),
-  image_url: url.optional(),
-  display_order: displayOrder.optional(),
-  status: status.optional(),
-  ...seoFields,
-});
-
-export const recipeSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
-  slug: slug.optional(),
-  category_id: z.string().uuid().nullable().optional(),
-  short_description: optionalString(500),
-  introduction: optionalText(),
-  image_url: url.optional(),
-  prep_time: optionalString(40),
-  cook_time: optionalString(40),
-  total_time: optionalString(40),
-  yield_text: optionalString(80),
-  ingredients: z.array(z.object({
-    id: z.string(),
-    name: z.string().max(200),
-    quantity: z.string().max(40),
-    unit: z.string().max(40),
-    notes: z.string().nullable(),
-    product_id: z.string().uuid().nullable(),
-  })).optional(),
-  instructions: z.array(z.object({
-    step: z.number().int().min(1),
-    text: z.string().max(2000),
-    image_url: z.string().nullable(),
-    tip: z.string().nullable(),
-  })).optional(),
-  chef_notes: optionalText(2000),
-  application_context: optionalString(500),
   featured: boolean.optional(),
   display_order: displayOrder.optional(),
   status: status.optional(),
@@ -264,12 +205,9 @@ export const homeCtaCardSchema = z.object({
 
 export const SCHEMA_BY_TABLE: Record<string, z.ZodType> = {
   solutions: solutionSchema,
-  brands: brandSchema,
   products: productSchema,
   product_categories: productCategorySchema,
   product_applications: productApplicationSchema,
-  recipes: recipeSchema,
-  recipe_categories: recipeCategorySchema,
   banners: bannerSchema,
   footer_columns: footerColumnSchema,
   footer_links: footerLinkSchema,

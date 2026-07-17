@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  brandSchema,
   productSchema,
   redirectSchema,
   bannerSchema,
@@ -11,8 +10,8 @@ import {
 describe('SCHEMA_BY_TABLE', () => {
   it('contém todas as tabelas CRUD esperadas', () => {
     const expected = [
-      'solutions', 'brands', 'products', 'product_categories', 'product_applications',
-      'recipes', 'recipe_categories', 'banners', 'footer_columns', 'footer_links',
+      'solutions', 'products', 'product_categories', 'product_applications',
+      'banners', 'footer_columns', 'footer_links',
       'navigation_items', 'pages', 'redirects',
       'home_slider_items', 'home_indicators', 'home_cta_cards',
     ];
@@ -22,45 +21,6 @@ describe('SCHEMA_BY_TABLE', () => {
   });
 });
 
-describe('brandSchema', () => {
-  it('aceita body parcial (PUT patch)', () => {
-    const result = brandSchema.safeParse({ name: 'Nova Marca' });
-    expect(result.success).toBe(true);
-  });
-
-  it('rejeita slug com caracteres inválidos', () => {
-    const result = brandSchema.safeParse({ slug: 'Marca Com Espaço' });
-    expect(result.success).toBe(false);
-  });
-
-  it('aceita slug válido kebab-case', () => {
-    const result = brandSchema.safeParse({ slug: 'marca-premium-2024' });
-    expect(result.success).toBe(true);
-  });
-
-  it('remove campos extras silenciosamente (strip default)', () => {
-    const result = brandSchema.safeParse({
-      name: 'Marca',
-      created_at: '2030-01-01',
-      malicious_field: 'inject',
-    });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect((result.data as Record<string, unknown>).created_at).toBeUndefined();
-      expect((result.data as Record<string, unknown>).malicious_field).toBeUndefined();
-    }
-  });
-
-  it('rejeita status fora do enum', () => {
-    const result = brandSchema.safeParse({ status: 'archived' });
-    expect(result.success).toBe(false);
-  });
-
-  it('aceita status published', () => {
-    const result = brandSchema.safeParse({ status: 'published' });
-    expect(result.success).toBe(true);
-  });
-});
 
 describe('productSchema', () => {
   it('aceita brand_id e category_id como uuid válido', () => {

@@ -78,12 +78,9 @@ const TABLE_TAGS: Record<string, string[]> = {
 
 const TABLE_PATHS: Record<string, string> = {
   solutions: '/solucoes',
-  brands: '/marcas',
   products: '/produtos',
   product_categories: '/produtos',
   product_applications: '/produtos',
-  recipes: '/receitas',
-  recipe_categories: '/receitas',
   banners: '/',
   pages: '/',
 };

@@ -9,9 +9,7 @@ import type {
   HomeIndicator,
   HomeCtaCard,
   Solution,
-  Brand,
   Product,
-  Recipe,
 } from '@/types/database';
 
 /**
@@ -102,20 +100,6 @@ export async function getFeaturedSolutions(): Promise<Solution[]> {
   return data ?? [];
 }
 
-export async function getFeaturedBrands(): Promise<Brand[]> {
-  const supabase = getSupabaseAdminClient();
-  const data = await safeQuery<Brand[]>(() =>
-    supabase
-      .from('brands')
-      .select('*')
-      .eq('status', 'published')
-      .eq('featured', true)
-      .order('display_order', { ascending: true })
-      .limit(6)
-  );
-  return data ?? [];
-}
-
 export async function getFeaturedProducts(): Promise<Product[]> {
   const supabase = getSupabaseAdminClient();
   const data = await safeQuery<Product[]>(() =>
@@ -126,20 +110,6 @@ export async function getFeaturedProducts(): Promise<Product[]> {
       .eq('featured', true)
       .order('display_order', { ascending: true })
       .limit(8)
-  );
-  return data ?? [];
-}
-
-export async function getFeaturedRecipes(): Promise<Recipe[]> {
-  const supabase = getSupabaseAdminClient();
-  const data = await safeQuery<Recipe[]>(() =>
-    supabase
-      .from('recipes')
-      .select('*')
-      .eq('status', 'published')
-      .eq('featured', true)
-      .order('display_order', { ascending: true })
-      .limit(3)
   );
   return data ?? [];
 }

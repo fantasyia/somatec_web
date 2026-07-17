@@ -131,22 +131,3 @@ export const CERTIFICATIONS = [
   { name: 'ISO 9001', placeholder: true },
   { name: 'Halal', placeholder: true },
 ] as const;
-
-// Fallbacks visuais para validação de layout (substituídos pelo admin após deploy)
-export const BRANDS_FALLBACK = [
-  { id: 'b1', slug: 'marca-premium', name: 'Marca Premium', logo_url: 'https://placehold.co/240x80/C9A24A/03111F?text=Marca+Premium' },
-  { id: 'b2', slug: 'marca-gourmet', name: 'Marca Gourmet', logo_url: 'https://placehold.co/240x80/C9A24A/03111F?text=Marca+Gourmet' },
-  { id: 'b3', slug: 'marca-chef', name: 'Chef Line', logo_url: 'https://placehold.co/240x80/C9A24A/03111F?text=Chef+Line' },
-  { id: 'b4', slug: 'marca-natural', name: 'Natural Select', logo_url: 'https://placehold.co/240x80/C9A24A/03111F?text=Natural+Select' },
-  { id: 'b5', slug: 'marca-classic', name: 'Classic', logo_url: 'https://placehold.co/240x80/C9A24A/03111F?text=Classic' },
-  { id: 'b6', slug: 'marca-pro', name: 'Pro Series', logo_url: 'https://placehold.co/240x80/C9A24A/03111F?text=Pro+Series' },
-];
-
-export const PRODUCTS_FALLBACK = [
-  { id: 'p1', slug: 'molho-tomate-especial', name: 'Molho de Tomate Especial', main_image_url: 'https://picsum.photos/seed/msm-prod-1/600/750', brand_id: 'b1', packaging_summary: 'Embalagens de 340g, 1,7kg e 5kg' },
-  { id: 'p2', slug: 'azeite-extravirgem', name: 'Azeite Extra Virgem', main_image_url: 'https://picsum.photos/seed/msm-prod-2/600/750', brand_id: 'b2', packaging_summary: 'Garrafas de 250ml, 500ml e 1L' },
-  { id: 'p3', slug: 'creme-leite-culinario', name: 'Creme de Leite Culinário', main_image_url: 'https://picsum.photos/seed/msm-prod-3/600/750', brand_id: 'b3', packaging_summary: 'Caixinhas de 200g e 1kg' },
-  { id: 'p4', slug: 'ketchup-gourmet', name: 'Ketchup Gourmet', main_image_url: 'https://picsum.photos/seed/msm-prod-4/600/750', brand_id: 'b1', packaging_summary: 'Sachês e frascos 1kg, 3kg' },
-  { id: 'p5', slug: 'maionese-profissional', name: 'Maionese Profissional', main_image_url: 'https://picsum.photos/seed/msm-prod-5/600/750', brand_id: 'b4', packaging_summary: 'Baldes de 3,5kg e 20kg' },
-  { id: 'p6', slug: 'tempero-churrasco', name: 'Tempero para Churrasco', main_image_url: 'https://picsum.photos/seed/msm-prod-6/600/750', brand_id: 'b5', packaging_summary: 'Sachês 500g e potes 1kg' },
-];
