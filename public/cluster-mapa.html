@@ -623,18 +623,6 @@ const CLUSTERS = [
     {id:'sol05',title:'Integradora solar: como oferecer proteção contra surto e aumentar o ticket',f:'fundo',kw:'integradora solar oferecer proteção surto ticket venda fotovoltaico',lk:['p0','bi02','a18'],n:true},
   ]},
 
-  { id:'c38', name:'🔋 Carros Elétricos & Híbridos Plug-in (não industrial)', color:'#1aa0a0', n:true, articles:[
-    {id:'ev01',title:'Carro elétrico e híbrido plug-in: por que a qualidade de energia da sua casa afeta a recarga',f:'topo',kw:'carro elétrico híbrido plug-in qualidade energia casa recarga surto',lk:['p0','a01','c02'],n:true},
-    {id:'ev02',title:'Wallbox e carregador residencial: o equipamento caro que um surto pode danificar',f:'setor',kw:'wallbox carregador residencial veículo elétrico surto queima proteção',lk:['p0','a01','a21','c04'],n:true},
-    {id:'ev03',title:'VTCD e surtos na recarga: o que acontece com o carregador quando a rede oscila',f:'meio',kw:'VTCD surto recarga carro elétrico carregador oscilação rede',lk:['p0','a01','ev02'],n:true},
-    {id:'ev04',title:'Eletroposto e estação de recarga comercial: proteção elétrica para operação contínua',f:'setor',kw:'eletroposto estação recarga comercial proteção elétrica surto operação',lk:['p0','a01','a09','a19'],n:true},
-    {id:'ev05',title:'Recarga de veículos elétricos em condomínio: proteção da infraestrutura de carregadores',f:'setor',kw:'recarga veículo elétrico condomínio infraestrutura carregador proteção elétrica',lk:['p0','cnd04','ev02','a09'],n:true},
-    {id:'ev06',title:'Casa de alto padrão com carro elétrico: proteção em cascata da entrada à garagem',f:'resid',kw:'casa alto padrão carro elétrico proteção cascata garagem wallbox surto',lk:['p0','c01','c06','ev02'],n:true},
-    {id:'ev07',title:'Inversor solar + recarga de EV: dois ativos caros na mesma rede vulnerável',f:'setor',kw:'inversor solar recarga carro elétrico rede vulnerável surto proteção residencial',lk:['p0','c04','sol02','ev02'],n:true},
-    {id:'ev08',title:'Bateria e eletrônica embarcada do EV: até onde vai a proteção da rede (e o que o BMS já cobre)',f:'topo',kw:'bateria carro elétrico eletrônica embarcada BMS proteção rede surto',lk:['p0','a01','ev03'],n:true},
-    {id:'ev09',title:'5 riscos elétricos que donos de carro elétrico e híbrido plug-in não conhecem',f:'lista',kw:'riscos elétricos carro elétrico híbrido plug-in surto recarga lista',lk:['p0','a01','ev02','ev03'],n:true},
-    {id:'ev10',title:'Vale proteger a instalação de recarga? O custo de um wallbox/carregador queimado',f:'fundo',kw:'vale proteger instalação recarga custo wallbox carregador queimado ROI',lk:['p0','a19','a23','ev02'],n:true},
-  ]},
 
   { id:'c39', name:'💎 Alto Padrão — Equipamentos Premium (residencial, com marcas)', color:'#a06a20', n:true, articles:[
     {id:'pv01',title:'Elevador residencial (OTIS, Schindler, Kone, Atlas): proteja a eletrônica do seu ativo mais caro contra surtos',f:'resid',kw:'elevador residencial OTIS Schindler Kone proteção elétrica surto placa',lk:['p0','a01','c06','cnd03'],n:true},
@@ -669,6 +657,30 @@ const CLUSTERS = [
     {id:'ind07',title:'Soft-starter e relé de proteção (WEG, Siemens): o que o surto faz e como blindar',f:'setor',kw:'soft-starter relé proteção WEG Siemens surto blindar proteção elétrica',lk:['p0','a09','a38','a01'],n:true},
     {id:'ind08',title:'Fontes chaveadas e módulos de I/O da automação queimando: proteja a eletrônica sensível',f:'setor',kw:'fonte chaveada módulo I/O automação queima proteção eletrônica surto industrial',lk:['p0','a36','a21','a02'],n:true},
     {id:'ind09',title:'As marcas de equipamento industrial mais sensíveis a VTCD — e o que protege cada uma',f:'lista',kw:'marcas equipamento industrial sensível VTCD surto lista proteção CLP inversor servo',lk:['p0','a81','ind01','ind02'],n:true},
+  ]},
+
+  { id:'c38', name:'⚡🔋 Veículos Elétricos e Híbridos Plug-in — Não Industrial', color:'#00a060', n:true, articles:[
+    {id:'ev01',title:'Proteção elétrica para carregador de carro elétrico (wallbox): o que a NBR 17019 exige e por que o DPS comum não basta',f:'topo',kw:'proteção elétrica wallbox carregador carro elétrico NBR 17019 DPS',lk:['p0','a09','a01','ev05'],n:true},
+    {id:'ev02',title:'Surto elétrico pode danificar a bateria do meu carro elétrico? O que acontece na prática',f:'topo',kw:'surto elétrico danifica bateria carro elétrico VTCD wallbox risco',lk:['p0','a01','ev01','ev06'],n:true},
+    {id:'ev03',title:'Híbrido plug-in: por que o módulo de carregamento é ainda mais sensível a oscilação de tensão',f:'topo',kw:'híbrido plug-in módulo carregamento sensível oscilação tensão VTCD',lk:['p0','a01','ev01','ev04'],n:true},
+    {id:'ev04',title:'BMS (Battery Management System): o componente de R$ 15 a 40 mil que um surto pode destruir em segundos',f:'meio',kw:'BMS battery management system custo surto elétrico dano carro elétrico',lk:['p0','ev02','ev03','hp01'],n:true},
+    {id:'ev05',title:'NBR 17019 explicada: os requisitos obrigatórios para instalar um carregador veicular em casa ou empresa',f:'topo',kw:'NBR 17019 requisitos instalação carregador veicular wallbox obrigatório',lk:['p0','ev01','ev09','a69'],n:true},
+    {id:'ev06',title:'Quanto custa trocar o módulo de carga ou o inversor de bordo de um carro elétrico após um surto',f:'meio',kw:'custo trocar módulo carga inversor bordo carro elétrico surto reparo',lk:['p0','ev02','ev04','hp01'],n:true},
+    {id:'ev07',title:'Wallbox instalada por eletricista comum x instalação com proteção certificada: o que muda no risco',f:'meio',kw:'wallbox instalação eletricista comum proteção certificada risco diferença',lk:['p0','ev01','ev05','a09'],n:true},
+    {id:'ev08',title:'Carro elétrico em condomínio: quem responde se um surto da rede predial queimar o carregador ou o veículo',f:'cond',kw:'carro elétrico condomínio surto rede predial responsabilidade carregador queimado',lk:['p0','ev01','cnd09','a69'],n:true},
+    {id:'ev09',title:'Instalar carregador de carro elétrico em casa de alto padrão: checklist de proteção elétrica completo',f:'resid',kw:'instalar carregador carro elétrico casa alto padrão checklist proteção elétrica',lk:['p0','ev01','ev05','c01'],n:true},
+    {id:'ev10',title:'Concessionárias e frotas de veículos elétricos: proteção elétrica para múltiplos pontos de recarga simultâneos',f:'setor',kw:'concessionária frota veículos elétricos múltiplos pontos recarga proteção elétrica',lk:['p0','ev01','ev11','hp02'],n:true},
+    {id:'ev11',title:'Estação de recarga pública e semipública: por que a proteção elétrica aqui é ainda mais crítica',f:'setor',kw:'estação recarga pública semipública proteção elétrica crítica surto',lk:['p0','ev01','ev10','a01'],n:true},
+    {id:'ev12',title:'Seguro do carro elétrico cobre dano por surto elétrico no carregamento? O que a apólice realmente diz',f:'meio',kw:'seguro carro elétrico cobre surto elétrico carregamento apólice cobertura',lk:['p0','hp09','ev06','a69'],n:true},
+    {id:'ev13',title:'5 sinais de que o carregador do seu carro elétrico está vulnerável a surtos elétricos',f:'lista',kw:'sinais carregador carro elétrico vulnerável surtos elétricos diagnóstico',lk:['p0','ad01','ev01','ev02'],n:true},
+    {id:'ev14',title:'Carro elétrico e híbrido plug-in: os 3 erros mais comuns na instalação do ponto de recarga residencial',f:'lista',kw:'erros comuns instalação ponto recarga residencial carro elétrico híbrido',lk:['p0','ev01','ev07','ev05'],n:true},
+    {id:'ev15',title:'Master Block para carregador veicular: como funciona a proteção em 100 kHz aplicada a wallbox',f:'meio',kw:'Master Block carregador veicular proteção 100 kHz wallbox como funciona',lk:['p0','a54','a55','ev01'],n:true},
+    {id:'ev16',title:'Vale a pena proteger o carregador de carro elétrico com o mesmo nível de indústria? Sim — entenda por quê',f:'fundo',kw:'proteger carregador carro elétrico nível industrial vale a pena',lk:['p0','ev15','ev04','cv06'],n:true},
+    {id:'ev17',title:'Antes de comprar um carro elétrico ou híbrido plug-in: o que verificar na instalação elétrica da sua casa',f:'topo',kw:'antes comprar carro elétrico híbrido plug-in verificar instalação elétrica casa',lk:['p0','ev05','ev09','ad02'],n:true},
+    {id:'ev18',title:'Carregador rápido (DC) x carregador residencial (AC): diferenças no risco elétrico e na proteção necessária',f:'meio',kw:'carregador rápido DC residencial AC diferença risco elétrico proteção',lk:['p0','ev01','ev10','ev11'],n:true},
+    {id:'ev19',title:'Postos de combustível migrando para eletropostos: o que muda na proteção elétrica do ponto de vista do dono',f:'setor',kw:'posto combustível eletroposto migração proteção elétrica dono negócio',lk:['p0','ev10','ev11','hp01'],n:true},
+    {id:'ev20',title:'Motorista de aplicativo com carro elétrico: como um surto no carregador pode custar um dia de trabalho',f:'fundo',kw:'motorista aplicativo carro elétrico surto carregador custo dia trabalho',lk:['p0','ev02','ev06','hp03'],n:true},
+    {id:'ev21',title:'Inversor solar + recarga de carro elétrico: dois ativos caros na mesma rede vulnerável',f:'setor',kw:'inversor solar recarga carro elétrico rede vulnerável surto proteção residencial',lk:['p0','sol02','ev01','ev04'],n:true},
   ]},
 ];
 
