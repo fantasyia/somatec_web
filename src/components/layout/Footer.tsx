@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { Instagram, Linkedin, Youtube } from 'lucide-react';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
 import { SITE, SOCIALS as ENV_SOCIALS } from '@/lib/constants/site';
-import { CERTIFICATIONS_FALLBACK, type Socials, type Certification } from '@/lib/data/site-settings';
+import { type Socials, type Certification } from '@/lib/data/site-settings';
+import { ProofBadges } from '@/components/ui/ProofBadges';
 
 type FooterLink = { label: string; href: string };
 type FooterColumnData = { title: string; links: FooterLink[] };
@@ -16,8 +17,7 @@ type Props = {
   certifications?: Certification[];
 };
 
-export function Footer({ columns = FOOTER_COLUMNS, socials, certifications }: Props) {
-  const certs = certifications && certifications.length > 0 ? certifications : CERTIFICATIONS_FALLBACK;
+export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
   const year = new Date().getFullYear();
 
   // Prioridade: prop (site_settings) → env var → vazio
@@ -90,29 +90,9 @@ export function Footer({ columns = FOOTER_COLUMNS, socials, certifications }: Pr
           </div>
         </div>
 
-        {/* Certifications — grid monocromático (§20.13) */}
-        <div className="mt-16">
-          <div className="text-eyebrow uppercase tracking-widest font-semibold text-white/50 mb-5">
-            Certificações
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-6 max-w-2xl">
-            {certs.map((cert) => (
-              <div key={cert.label} className="group flex flex-col items-center gap-2.5">
-                <div className="relative h-20 w-20">
-                  <Image
-                    src={cert.src}
-                    alt={`Certificação ${cert.label}`}
-                    fill
-                    sizes="80px"
-                    className="object-contain [filter:grayscale(1)_brightness(0)_invert(1)_opacity(0.5)] group-hover:[filter:grayscale(0)_brightness(1)_invert(0)_opacity(1)] group-hover:scale-[1.03] transition-all duration-300 ease-premium"
-                  />
-                </div>
-                <span className="text-[11px] uppercase tracking-widest text-white/60">
-                  {cert.label}
-                </span>
-              </div>
-            ))}
-          </div>
+        {/* Provas reais da Somatec (substitui os shields placeholder) */}
+        <div className="mt-16 max-w-3xl">
+          <ProofBadges variant="dark" />
         </div>
 
         {/* Divider */}

@@ -124,10 +124,3 @@ export const CTA_CARDS_FALLBACK: readonly CtaFallback[] = [
     Icon: Box,
   },
 ] as const;
-
-export const CERTIFICATIONS = [
-  { name: 'FSSC 22000', placeholder: true },
-  { name: 'BRCGS', placeholder: true },
-  { name: 'ISO 9001', placeholder: true },
-  { name: 'Halal', placeholder: true },
-] as const;

@@ -1,6 +1,7 @@
-import { INDICATORS_FALLBACK, CERTIFICATIONS } from '@/lib/constants/home-fallback';
+import { INDICATORS_FALLBACK } from '@/lib/constants/home-fallback';
 import { Reveal } from '@/components/ui/Reveal';
 import { CountUp } from '@/components/ui/CountUp';
+import { ProofBadges } from '@/components/ui/ProofBadges';
 import type { HomeIndicator } from '@/types/database';
 
 type Props = { indicators: HomeIndicator[] };
@@ -54,25 +55,10 @@ export function HomeIndicators({ indicators }: Props) {
         ))}
       </div>
 
-      {/* Certificações em pills */}
-      <div className="mt-10 pt-8 border-t border-[rgb(var(--border))]">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-          <span className="text-[11px] uppercase tracking-widest font-semibold text-[rgb(var(--text-muted))] whitespace-nowrap">
-            Certificações
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {CERTIFICATIONS.map((cert) => (
-              <span
-                key={cert.name}
-                className="inline-flex items-center px-3 py-1 rounded-full border border-[rgb(var(--border))] text-xs font-sans font-semibold text-[rgb(var(--text-muted))] hover:border-gold hover:text-gold transition-colors cursor-default"
-                title={cert.placeholder ? `Selo ${cert.name} — placeholder` : cert.name}
-              >
-                {cert.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Provas reais da Somatec (substitui as certificações de alimentos legadas) */}
+      <Reveal className="mt-12 border-t border-[rgb(var(--border))] pt-10">
+        <ProofBadges variant="light" />
+      </Reveal>
     </section>
   );
 }
