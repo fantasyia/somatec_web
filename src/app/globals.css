@@ -140,23 +140,6 @@
   /* Separação entre seções por SOMBRA (planos sobrepostos), não por linha. Uma
      sombra suave que "cai" da seção de cima na de baixo — marca a fronteira por
      profundidade. Não ocupa espaço no fluxo (::before absoluto sobre a costura). */
-  .section-shadow {
-    position: relative;
-    height: 0;
-    pointer-events: none;
-  }
-  .section-shadow::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 14px;
-    background: linear-gradient(to bottom, rgba(0, 20, 40, 0.035), transparent);
-  }
-  .dark .section-shadow::before {
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.13), transparent);
-  }
 
   /* ── 2.4 Profundidade & ritmo ─────────────────────────────────────
      Premium industrial = contenção + contraste + respiro.
@@ -282,6 +265,21 @@
         transparent 22px
       ),
       radial-gradient(60rem 28rem at 88% -15%, rgba(0, 140, 200, 0.14), transparent 62%);
+  }
+
+  /* ── Ritmo de tom (TESTE) ─────────────────────────────────────────
+     Separação entre seções por TOM de fundo, não por device. Passo sutil
+     branco↔off-white theme-aware (a mesma textura diagonal por cima); o navy
+     forte fica reservado às âncoras (hero + footer). Nunca dois vizinhos
+     iguais. --surface = branco (claro)/navy (escuro); --bg = off-white
+     (claro)/deep_navy (escuro).                                          */
+  .tone-surface {
+    background-color: rgb(var(--surface));
+    background-image: var(--texture);
+  }
+  .tone-base {
+    background-color: rgb(var(--bg));
+    background-image: var(--texture);
   }
 
   .btn-primary {

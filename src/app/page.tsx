@@ -19,7 +19,6 @@ import { HomeCta } from '@/components/home/HomeCta';
 import { BLOG_TEASER_ENABLED } from '@/lib/constants/flags';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Reveal } from '@/components/ui/Reveal';
-import { SectionDivider } from '@/components/ui/SectionDivider';
 import { organizationSchema, masterBlockProductSchema, faqSchema } from '@/lib/seo/structured-data';
 
 export const metadata: Metadata = {
@@ -64,33 +63,41 @@ export default async function HomePage() {
       {/* Hero e carrossel: render imediato (acima da dobra). Demais seções
           entram com fade-up ao scroll (§20.14). HomeIndicators tem stagger
           interno próprio entre os indicadores. */}
+      {/* Ritmo de tom (TESTE): navy só nas âncoras (hero + footer); o miolo
+          alterna branco (.tone-surface) ↔ off-white (.tone-base), theme-aware,
+          nunca dois vizinhos iguais. Separação por TOM, sem device de sombra.
+          Exceção: a faixa de logos segue navy (assets são logos brancos) e
+          forma, junto do hero, a âncora de topo. */}
       <HomeHero data={hero} />
-      <SectionDivider />
       <HomeClients />
-      <SectionDivider />
-      <HomeCarousel items={sliderItems} />
-      <SectionDivider />
+      <div className="tone-base">
+        <HomeCarousel items={sliderItems} />
+      </div>
       {/* Escalada: afirma (manifesto) → quantifica (indicadores) → demonstra
           (gráfico 10 vs 100 kHz) → prova (cases). O "100 kHz" da fileira planta
-          o número que o gráfico logo abaixo demonstra. */}
-      <Reveal><HomeManifesto /></Reveal>
-      {/* Sem sombra aqui: manifesto e indicadores compartilham o mesmo fundo
-          (body), então a fronteira não separa planos — a sombra só borraria. */}
-      <HomeIndicators indicators={indicators} />
-      <SectionDivider />
-      <HomeFrequency />
-      <SectionDivider />
-      <HomeProof />
-      <SectionDivider />
-      <HomeNoRisk />
-      <SectionDivider />
+          o número que o gráfico logo abaixo demonstra. Manifesto+indicadores =
+          um único passo branco. */}
+      <div className="tone-surface">
+        <Reveal><HomeManifesto /></Reveal>
+        <HomeIndicators indicators={indicators} />
+      </div>
+      <div className="tone-base">
+        <HomeFrequency />
+      </div>
+      <div className="tone-surface">
+        <HomeProof />
+      </div>
+      <div className="tone-base">
+        <HomeNoRisk />
+      </div>
       {BLOG_TEASER_ENABLED && (
-        <>
+        <div className="tone-surface">
           <Reveal><HomeBlogTeaser /></Reveal>
-          <SectionDivider />
-        </>
+        </div>
       )}
-      <Reveal><HomeCta cards={ctaCards} /></Reveal>
+      <div className="tone-base">
+        <Reveal><HomeCta cards={ctaCards} /></Reveal>
+      </div>
     </>
   );
 }

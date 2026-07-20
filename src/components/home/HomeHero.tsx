@@ -82,7 +82,7 @@ export function HomeHero({ data }: Props) {
 
   return (
     <section
-      className="relative isolate flex min-h-[76vh] items-center overflow-hidden bg-off_white pt-20 text-deep_navy dark:bg-deep_navy dark:text-white"
+      className="relative isolate flex min-h-[76vh] items-center overflow-hidden bg-deep_navy pt-20 text-white"
       aria-label="Hero institucional"
     >
       {/* Fundo: vídeo / imagem / gradiente */}
@@ -91,7 +91,7 @@ export function HomeHero({ data }: Props) {
           <Image src={fallbackImage} alt="" fill className="object-cover" priority sizes="100vw" />
         ) : (
           <>
-            <div className="h-full w-full bg-[radial-gradient(ellipse_at_30%_40%,rgba(232,228,214,0.95)_0%,rgba(247,245,239,1)_60%,rgba(247,245,239,1)_100%)] dark:bg-[radial-gradient(ellipse_at_30%_40%,rgba(13,41,73,0.95)_0%,rgba(3,17,31,1)_60%,rgba(3,17,31,1)_100%)]" />
+            <div className="h-full w-full bg-[radial-gradient(ellipse_at_30%_40%,rgba(13,41,73,0.95)_0%,rgba(3,17,31,1)_60%,rgba(3,17,31,1)_100%)]" />
             {/* Única superfície com movimento no site: drift lento da textura
                 (26s, ~20px). Respeita prefers-reduced-motion. */}
             <div
@@ -122,13 +122,9 @@ export function HomeHero({ data }: Props) {
         )}
       </div>
 
-      {/* Overlay para legibilidade — claro no light, escuro no dark */}
+      {/* Overlay para legibilidade — âncora navy fixa (escuro nos dois temas) */}
       <div
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-off_white/40 to-off_white/75 dark:hidden"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-0 -z-10 hidden dark:block"
+        className="absolute inset-0 -z-10 block"
         aria-hidden="true"
         style={{
           background: `linear-gradient(180deg, rgba(3,17,31,${overlayOpacity * 0.45}) 0%, rgba(3,17,31,${overlayOpacity}) 100%)`,
@@ -139,10 +135,10 @@ export function HomeHero({ data }: Props) {
       <div className="container-msm relative z-10 py-10 md:py-12">
         <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-6">
         <div className="max-w-[600px] space-y-5 lg:col-span-7">
-          <h1 className="font-serif text-[2.15rem] leading-[1.07] sm:text-[2.6rem] lg:text-[3.35rem] font-semibold text-balance dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
+          <h1 className="font-serif text-[2.15rem] leading-[1.07] sm:text-[2.6rem] lg:text-[3.35rem] font-semibold text-balance [text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">
             {renderRich(title)}
           </h1>
-          <p className="max-w-[480px] text-base leading-relaxed text-deep_navy/80 text-pretty md:text-lg dark:text-white/85">
+          <p className="max-w-[480px] text-base leading-relaxed text-white/85 text-pretty md:text-lg">
             {renderRich(subtitle)}
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -155,7 +151,7 @@ export function HomeHero({ data }: Props) {
             </Link>
             <Link
               href={secondary.href}
-              className="inline-flex items-center rounded-btn border border-deep_navy/30 px-5 py-2.5 font-sans text-sm font-medium text-deep_navy transition-colors hover:border-gold hover:text-gold dark:border-white/40 dark:text-white dark:hover:border-gold dark:hover:text-gold"
+              className="inline-flex items-center rounded-btn border border-white/40 px-5 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:border-gold hover:text-gold"
             >
               {secondary.label}
             </Link>
