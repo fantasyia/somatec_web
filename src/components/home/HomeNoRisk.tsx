@@ -57,7 +57,9 @@ export function HomeNoRisk() {
             fallbackPath="/contato"
           />
           <p className="text-sm text-[rgb(var(--text-muted))] max-w-md leading-relaxed">
-            O saving costuma superar em 30% o valor da parcela — em alguns casos, várias vezes mais.
+            O saving costuma superar em{' '}
+            <span className="font-bold text-gold">30% o valor da parcela</span> — em alguns casos,
+            várias vezes mais.
           </p>
         </div>
       </div>

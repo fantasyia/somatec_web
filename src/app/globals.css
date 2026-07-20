@@ -27,16 +27,6 @@
        compatibilidade com os componentes. */
     --gold: 0 140 200;
     --gold-soft: 51 166 214;
-    /* Textura diagonal — UMA camada, no fundo da página (body). Sussurro visível.
-       Linhas a cada 22px, ângulo único 45°. Light = linha navy sobre off-white:
-       dark-on-light some fácil, então precisa de mais opacidade que o dark (~5%). */
-    --texture: repeating-linear-gradient(
-      45deg,
-      rgba(0, 65, 110, 0.05) 0,
-      rgba(0, 65, 110, 0.05) 1px,
-      transparent 1px,
-      transparent 22px
-    );
   }
 
   .dark {
@@ -51,14 +41,6 @@
     --navy-end: 0 23 42;
     --gold: 0 140 200;           /* ciano */
     --gold-soft: 51 166 214;
-    /* Dark = linha branca (mesma sutileza). */
-    --texture: repeating-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.038) 0,
-      rgba(255, 255, 255, 0.038) 1px,
-      transparent 1px,
-      transparent 22px
-    );
   }
 
   html {
@@ -69,11 +51,6 @@
 
   body {
     background-color: rgb(var(--bg));
-    /* Textura diagonal — UMA camada única, edge-to-edge, atrás de TODO o
-       conteúdo. Elementos opacos (fotos, cards, bandas navy) ficam por cima e
-       cobrem a textura naturalmente. background-attachment padrão (scroll) →
-       acompanha a rolagem, sem parallax/jank. */
-    background-image: var(--texture);
     color: rgb(var(--text));
     font-feature-settings: 'ss01', 'cv11';
     transition: background-color 300ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -203,83 +180,34 @@
     }
   }
 
-  /* Camada de textura reutilizável (mesmo token do body). Usada SÓ no hero,
-     que é opaco e cobre a textura do body — aqui ela reaparece com movimento.
-     Var-based → adapta a cor da linha ao tema (escura no claro, branca no escuro). */
-  .texture-layer {
-    background-image: var(--texture);
-  }
-
-  /* Textura para superfícies ESCURAS/navy (sempre navy nos 2 temas → linha
-     SEMPRE branca). Mesmos parâmetros do body (2% · 22px · 45°) — só muda a cor.
-     Não é doubling: a superfície opaca cobre a do body e põe a sua por cima →
-     uma textura por ponto. */
-  .texture-dark {
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.038) 0,
-      rgba(255, 255, 255, 0.038) 1px,
-      transparent 1px,
-      transparent 22px
-    );
-  }
-  /* Movimento: EXCLUSIVO da banda do hero. Muito lento e translação mínima —
-     o passo (31.1px ≈ 22px·√2) fecha o loop sem costura. */
-  .texture-drift {
-    animation: texture-drift 26s linear infinite;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .texture-drift {
-      animation: none;
-    }
-  }
-
-  /* Superfície nível 3 — banda de destaque navy: textura branca (a banda é opaca
-     e cobre a camada do body, então põe a sua própria) + gradiente em camadas
-     (radial suave + linear vertical). Nunca cor chapada. Mesmos 2%·22px·45°. */
+  /* Superfície nível 3 — banda de destaque navy: gradiente em camadas
+     (glow radial suave + linear vertical) pra profundidade. Nunca cor chapada. */
   .band-navy {
     background-color: rgb(var(--deep-navy));
     background-image:
-      repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.038) 0,
-        rgba(255, 255, 255, 0.038) 1px,
-        transparent 1px,
-        transparent 22px
-      ),
       radial-gradient(60rem 28rem at 88% -15%, rgba(0, 140, 200, 0.2), transparent 62%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
   }
 
   /* Bookend: banda final + rodapé num navy MAIS escuro (--navy-end) que as
-     bandas do meio — ancora o "fim do site", como o hero ancora o topo. Mesma
-     textura branca por cima. */
+     bandas do meio — ancora o "fim do site", como o hero ancora o topo. */
   .band-navy-end {
     background-color: rgb(var(--navy-end));
     background-image:
-      repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.038) 0,
-        rgba(255, 255, 255, 0.038) 1px,
-        transparent 1px,
-        transparent 22px
-      ),
       radial-gradient(60rem 28rem at 88% -15%, rgba(0, 140, 200, 0.14), transparent 62%);
   }
 
   /* ── Ritmo de tom (TESTE) ─────────────────────────────────────────
-     Separação entre seções por TOM de fundo, não por device. Passo sutil
-     branco↔off-white theme-aware (a mesma textura diagonal por cima); o navy
+     Separação entre seções por TOM de fundo, não por device (sem textura,
+     sem sombra entre blocos). Passo sutil branco↔off-white theme-aware; o navy
      forte fica reservado às âncoras (hero + footer). Nunca dois vizinhos
      iguais. --surface = branco (claro)/navy (escuro); --bg = off-white
      (claro)/deep_navy (escuro).                                          */
   .tone-surface {
     background-color: rgb(var(--surface));
-    background-image: var(--texture);
   }
   .tone-base {
     background-color: rgb(var(--bg));
-    background-image: var(--texture);
   }
 
   .btn-primary {
@@ -373,14 +301,4 @@
 }
 .draw-path.is-drawn {
   stroke-dashoffset: 0;
-}
-
-/* Drift da textura diagonal — só na banda do hero (ver .texture-drift). */
-@keyframes texture-drift {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 31.1px 31.1px;
-  }
 }

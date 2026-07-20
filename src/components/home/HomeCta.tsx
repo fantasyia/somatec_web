@@ -164,7 +164,7 @@ export async function HomeCta({ cards }: Props) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.08] rounded-card overflow-hidden border border-white/[0.08]">
           {items.map(({ id, title, description, href, external }) => {
-            const cardClass = 'group flex flex-col overflow-hidden bg-deep_navy texture-dark hover:bg-white/[0.05] transition-colors duration-[250ms] ease-premium';
+            const cardClass = 'group flex flex-col overflow-hidden bg-deep_navy hover:bg-white/[0.05] transition-colors duration-[250ms] ease-premium';
             const photo = PHOTO_BY_TITLE[title];
             const body = (
               <>

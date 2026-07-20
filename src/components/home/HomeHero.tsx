@@ -90,15 +90,7 @@ export function HomeHero({ data }: Props) {
         {fallbackImage ? (
           <Image src={fallbackImage} alt="" fill className="object-cover" priority sizes="100vw" />
         ) : (
-          <>
-            <div className="h-full w-full bg-[radial-gradient(ellipse_at_30%_40%,rgba(13,41,73,0.95)_0%,rgba(3,17,31,1)_60%,rgba(3,17,31,1)_100%)]" />
-            {/* Única superfície com movimento no site: drift lento da textura
-                (26s, ~20px). Respeita prefers-reduced-motion. */}
-            <div
-              className="absolute inset-0 texture-layer texture-drift"
-              aria-hidden="true"
-            />
-          </>
+          <div className="h-full w-full bg-[radial-gradient(ellipse_at_30%_40%,rgba(13,41,73,0.95)_0%,rgba(3,17,31,1)_60%,rgba(3,17,31,1)_100%)]" />
         )}
 
         {videoUrl && (
@@ -160,9 +152,15 @@ export function HomeHero({ data }: Props) {
 
         {/* Foto real do produto MasterBlock instalado */}
         <div className="relative mt-2 lg:col-span-5 lg:mt-0">
+          {/* Glow ambiente (3c) — luz de palco difusa atrás da foto: cyan
+              quente + navy frio, bem espalhados, dão profundidade ao escuro. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_60%_45%,rgba(0,140,200,0.28)_0%,transparent_65%)]"
+            className="absolute -inset-x-16 -inset-y-12 -z-10 bg-[radial-gradient(60%_55%_at_60%_42%,rgba(0,140,200,0.34)_0%,rgba(0,140,200,0.12)_38%,transparent_72%)] blur-2xl"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute -inset-x-10 -inset-y-8 -z-10 bg-[radial-gradient(50%_50%_at_38%_70%,rgba(0,65,110,0.5)_0%,transparent_70%)] blur-2xl"
           />
           <div className="relative mx-auto w-full max-w-[400px] overflow-hidden rounded-card-lg shadow-premium-dark lg:max-w-[540px]">
             <Image
