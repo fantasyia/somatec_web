@@ -20,7 +20,7 @@ export function PlaceholderPage({
     <>
       {/* Compact hero */}
       <section
-        className="relative pt-28 pb-10 md:pt-32 md:pb-14 bg-deep_navy text-white overflow-hidden"
+        className="relative pt-28 pb-10 md:pt-32 md:pb-14 bg-deep_navy texture-dark text-white overflow-hidden"
         aria-label="Cabeçalho da página"
       >
         <div className="container-msm relative">

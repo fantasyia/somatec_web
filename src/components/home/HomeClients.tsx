@@ -33,7 +33,7 @@ const TRACK = [...CLIENTS, ...CLIENTS];
 export function HomeClients() {
   return (
     <section
-      className="border-y border-white/10 bg-navy"
+      className="border-y border-white/10 bg-navy texture-dark"
       aria-label="Indústrias que confiam na Somatec Blocking"
     >
       <div className="py-6 md:py-7">

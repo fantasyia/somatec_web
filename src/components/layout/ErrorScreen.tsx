@@ -20,7 +20,7 @@ type Props = {
 
 export function ErrorScreen({ code, title, description, illustration, actions }: Props) {
   return (
-    <section className="relative min-h-[82vh] flex items-center justify-center overflow-hidden bg-deep_navy text-white px-6">
+    <section className="relative min-h-[82vh] flex items-center justify-center overflow-hidden bg-deep_navy texture-dark text-white px-6">
       {/* Watermark gigante do código */}
       <span
         className="pointer-events-none select-none absolute inset-0 flex items-center justify-center font-serif font-bold leading-none text-white opacity-[0.04] text-[200px] md:text-[400px]"

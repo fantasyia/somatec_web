@@ -59,7 +59,7 @@ const MUTED = 'rgba(255,255,255,0.55)';
 
 export function CaseChart() {
   return (
-    <figure className="rounded-card-lg border border-white/10 bg-deep_navy p-5 md:p-7 overflow-hidden">
+    <figure className="rounded-card-lg border border-white/10 bg-deep_navy texture-dark p-5 md:p-7 overflow-hidden">
       {/* Cabeçalho do "instrumento" */}
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
         <span className="text-[11px] font-sans font-semibold uppercase tracking-[0.14em] text-white/55">

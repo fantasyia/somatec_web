@@ -197,9 +197,24 @@
   }
 
   /* Camada de textura reutilizável (mesmo token do body). Usada SÓ no hero,
-     que é opaco e cobre a textura do body — aqui ela reaparece com movimento. */
+     que é opaco e cobre a textura do body — aqui ela reaparece com movimento.
+     Var-based → adapta a cor da linha ao tema (escura no claro, branca no escuro). */
   .texture-layer {
     background-image: var(--texture);
+  }
+
+  /* Textura para superfícies ESCURAS/navy (sempre navy nos 2 temas → linha
+     SEMPRE branca). Mesmos parâmetros do body (2% · 22px · 45°) — só muda a cor.
+     Não é doubling: a superfície opaca cobre a do body e põe a sua por cima →
+     uma textura por ponto. */
+  .texture-dark {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.02) 0,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 22px
+    );
   }
   /* Movimento: EXCLUSIVO da banda do hero. Muito lento e translação mínima —
      o passo (31.1px ≈ 22px·√2) fecha o loop sem costura. */
@@ -212,12 +227,19 @@
     }
   }
 
-  /* Superfície nível 3 — banda de destaque navy: gradiente em camadas (linear
-     vertical sutil + radial suave), nunca cor chapada. A textura NÃO fica aqui:
-     a banda é opaca e cobre a camada única do body (arquitetura de 1 layer). */
+  /* Superfície nível 3 — banda de destaque navy: textura branca (a banda é opaca
+     e cobre a camada do body, então põe a sua própria) + gradiente em camadas
+     (radial suave + linear vertical). Nunca cor chapada. Mesmos 2%·22px·45°. */
   .band-navy {
     background-color: rgb(var(--deep-navy));
     background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.02) 0,
+        rgba(255, 255, 255, 0.02) 1px,
+        transparent 1px,
+        transparent 22px
+      ),
       radial-gradient(60rem 28rem at 88% -15%, rgba(0, 140, 200, 0.2), transparent 62%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
   }
