@@ -17,8 +17,9 @@ import type { LucideIcon } from 'lucide-react';
  */
 const PHOTO_BY_TITLE: Record<string, string> = {
   Alimentícia: '/home/seg-frigorifico.webp',
+  Autopeças: '/home/seg-autopecas.webp',
   Metalurgia: '/home/seg-metalurgia.webp',
-  // Autopeças e Têxtil: fotos em produção no Estúdio — caem no placeholder neutro.
+  Têxtil: '/home/seg-textil.webp',
 };
 
 const ICON_BY_INTEREST: Record<string, LucideIcon> = {
