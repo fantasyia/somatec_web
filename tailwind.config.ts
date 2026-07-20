@@ -37,7 +37,7 @@ const config: Config = {
           DEFAULT: '#F39200',
           soft: '#F7B24D',
         },
-        off_white: '#F5F8FB',
+        off_white: '#F1F5F9',
         neutral: {
           200: '#E1E8EF',
           700: '#33475C',

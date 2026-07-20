@@ -8,7 +8,7 @@
 export function HomeManifesto() {
   return (
     <section
-      className="bg-[rgb(var(--surface))] border-y border-[rgb(var(--border))]"
+      className="bg-[rgb(var(--bg))] border-y border-[rgb(var(--border))]"
       aria-label="Manifesto Somatec"
     >
       <div className="container-msm section-y-lg">

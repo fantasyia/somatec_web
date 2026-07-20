@@ -9,9 +9,12 @@
 
 @layer base {
   :root {
-    /* Light theme — Somatec (ciano + navy + branco frio) */
-    --bg: 245 248 251;            /* off_white #F5F8FB (branco frio) */
-    --surface: 255 255 255;
+    /* Light theme — Somatec. Sistema de 3 camadas:
+       --bg (fundo tonalizado frio) → --surface (card BRANCO, descola do fundo)
+       → banda navy. O card branco puro sobre fundo tonalizado é o que faz a
+       profundidade do 2.4 aparecer. */
+    --bg: 241 245 249;            /* off-white frio #F1F5F9 (nível de fundo) */
+    --surface: 255 255 255;       /* card branco puro */
     --surface-elevated: 255 255 255;
     --border: 220 228 236;        /* border_light #DCE4EC */
     --text: 14 34 51;             /* text_dark #0E2233 */

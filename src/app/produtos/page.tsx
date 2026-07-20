@@ -117,7 +117,7 @@ export default function ProdutosPage() {
       </section>
 
       {/* ── Especificações comuns ────────────────────────────────── */}
-      <section className="bg-[rgb(var(--surface))] border-y border-[rgb(var(--border))]">
+      <section className="bg-[rgb(var(--bg))] border-y border-[rgb(var(--border))]">
         <div className="container-msm py-12 md:py-16">
           <Reveal className="max-w-3xl space-y-4 mb-8">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">

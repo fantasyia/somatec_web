@@ -123,7 +123,7 @@ export function HomeCarousel({ items }: Props) {
 
   return (
     <section
-      className="bg-[rgb(var(--surface))] border-y border-[rgb(var(--border))]"
+      className="bg-[rgb(var(--bg))] border-y border-[rgb(var(--border))]"
       aria-label="Destaques"
       aria-roledescription="carousel"
       onFocus={() => setFocused(true)}
