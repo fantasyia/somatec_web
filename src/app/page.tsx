@@ -74,7 +74,8 @@ export default async function HomePage() {
           (gráfico 10 vs 100 kHz) → prova (cases). O "100 kHz" da fileira planta
           o número que o gráfico logo abaixo demonstra. */}
       <Reveal><HomeManifesto /></Reveal>
-      <SectionDivider />
+      {/* Sem sombra aqui: manifesto e indicadores compartilham o mesmo fundo
+          (body), então a fronteira não separa planos — a sombra só borraria. */}
       <HomeIndicators indicators={indicators} />
       <SectionDivider />
       <HomeFrequency />
