@@ -92,7 +92,12 @@ export function HomeHero({ data }: Props) {
         ) : (
           <>
             <div className="h-full w-full bg-[radial-gradient(ellipse_at_30%_40%,rgba(232,228,214,0.95)_0%,rgba(247,245,239,1)_60%,rgba(247,245,239,1)_100%)] dark:bg-[radial-gradient(ellipse_at_30%_40%,rgba(13,41,73,0.95)_0%,rgba(3,17,31,1)_60%,rgba(3,17,31,1)_100%)]" />
-            <div className="absolute inset-0 opacity-[0.05] bg-[repeating-linear-gradient(45deg,rgba(7,27,51,0.4)_0,rgba(7,27,51,0.4)_1px,transparent_1px,transparent_14px)] dark:bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.5)_0,rgba(255,255,255,0.5)_1px,transparent_1px,transparent_14px)]" />
+            {/* Única superfície com movimento no site: drift lento da textura
+                (26s, ~20px). Respeita prefers-reduced-motion. */}
+            <div
+              className="absolute inset-0 texture-diagonal-light dark:texture-diagonal texture-drift"
+              aria-hidden="true"
+            />
           </>
         )}
 

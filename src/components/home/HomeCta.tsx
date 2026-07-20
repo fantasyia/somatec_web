@@ -126,15 +126,7 @@ export async function HomeCta({ cards }: Props) {
       className="relative band-navy text-text_light overflow-hidden"
       aria-label="Fale conosco"
     >
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        aria-hidden="true"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(45deg, rgba(255,255,255,0.6) 0, rgba(255,255,255,0.6) 1px, transparent 1px, transparent 16px)',
-        }}
-      />
-
+      {/* Textura vem do token .band-navy — não duplicar aqui. */}
       <div className="relative container-msm section-y-lg">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-12">
           <div className="space-y-3 max-w-xl">

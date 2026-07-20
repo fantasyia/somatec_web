@@ -33,18 +33,22 @@ export function HomeIndicators({ indicators }: Props) {
             className="relative flex flex-col items-start md:items-center md:text-center md:px-8"
           >
             {/* Divisor vertical com gradient fade (apenas entre colunas, desktop) */}
+            {/* Divisor de ritmo — 1px, contraste bem baixo (não cria caixa). */}
             {i > 0 && (
               <span
                 className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 h-3/5 w-px"
                 style={{
                   background:
-                    'linear-gradient(180deg, transparent 0%, rgb(var(--border)) 50%, transparent 100%)',
+                    'linear-gradient(180deg, transparent 0%, rgb(var(--border) / 0.55) 50%, transparent 100%)',
                 }}
                 aria-hidden="true"
               />
             )}
-            <div className="font-serif font-semibold text-indicator-m md:text-indicator-d leading-none text-[rgb(var(--text))]">
-              {useReal ? <CountUp value={item.main} /> : <span className="text-gold">{item.main}</span>}
+            {/* Número em laranja: é valor de performance do Master Block.
+                whitespace-nowrap + tamanho que cabe em 1 linha → "100 kHz" não
+                quebra e as baselines dos 4 ficam alinhadas. */}
+            <div className="font-serif font-semibold text-indicator-m md:text-[3.5rem] leading-none whitespace-nowrap text-gold">
+              {useReal ? <CountUp value={item.main} /> : <span>{item.main}</span>}
             </div>
             {item.label && (
               <div className="mt-3 text-xs md:text-sm font-sans font-semibold text-[rgb(var(--text-muted))]">

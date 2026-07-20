@@ -66,9 +66,12 @@ export default async function HomePage() {
       <HomeHero data={hero} />
       <HomeClients />
       <HomeCarousel items={sliderItems} />
+      {/* Escalada: afirma (manifesto) → quantifica (indicadores) → demonstra
+          (gráfico 10 vs 100 kHz) → prova (cases). O "100 kHz" da fileira planta
+          o número que o gráfico logo abaixo demonstra. */}
       <Reveal><HomeManifesto /></Reveal>
-      <HomeFrequency />
       <HomeIndicators indicators={indicators} />
+      <HomeFrequency />
       <HomeProof />
       <HomeNoRisk />
       {BLOG_TEASER_ENABLED && (
