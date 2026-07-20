@@ -33,7 +33,7 @@ export type MullerBotPayload = {
     referer: string | null;
     submitted_at: string;
   };
-  /** Qual formulário do site converteu (contato|representante|calculadora|seletor|amostra). */
+  /** Qual formulário do site converteu (contato|representante|calculadora|seletor). */
   formulario?: FormSubmitData['formulario'];
   /** Atribuição de marketing (1º + último toque). Ausente quando não há UTM. */
   atribuicao?: FormSubmitData['atribuicao'];
@@ -56,7 +56,6 @@ const PICK_AS_EXTRA: Partial<Record<FormSubmitData['form_type'], string[]>> = {
   terceirizacao: ['product_interest', 'estimated_volume'],
   envase: ['product_type', 'packaging_type', 'estimated_volume'],
   contato_geral: [],
-  amostra: ['cnpj', 'quantity_estimate', 'application', 'product_id', 'product_name', 'product_sku'],
 };
 
 function sha256(input: string): string {

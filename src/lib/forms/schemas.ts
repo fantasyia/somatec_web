@@ -80,9 +80,9 @@ const baseFields = {
   website: honeypotSchema, // honeypot
   captcha_token: turnstileSchema,
   // Qual dos formulários do site converteu (intenção difere: calculadora=topo,
-  // representante=outro tipo de contato). Amostra é legado — não instrumentado.
+  // representante=outro tipo de contato).
   formulario: z
-    .enum(['contato', 'representante', 'calculadora', 'seletor', 'amostra'])
+    .enum(['contato', 'representante', 'calculadora', 'seletor'])
     .optional(),
   atribuicao: atribuicaoSchema.optional(),
 };
@@ -152,31 +152,6 @@ export const contatoGeralSchema = z.object({
   company: z.string().trim().max(160).optional().default(''),
 });
 
-// CNPJ — aceita com ou sem máscara, normaliza p/ 14 dígitos.
-const cnpjSchema = z
-  .string()
-  .trim()
-  .min(14, 'CNPJ inválido')
-  .max(18, 'CNPJ inválido')
-  .transform((v) => v.replace(/\D/g, ''))
-  .refine((v) => v.length === 14, 'CNPJ deve ter 14 dígitos');
-
-// Solicitação de amostra (modal em /produtos/[slug]). Lead comercial B2B;
-// dados do produto vão em extra_fields (ver payload.ts).
-export const amostraSchema = z.object({
-  ...baseFields,
-  interest_type: z.literal('b2b'),
-  company: trimmed(2, 160, 'Empresa'),
-  cnpj: cnpjSchema,
-  city: trimmed(2, 80, 'Cidade'),
-  state: z.string().trim().min(2, 'UF é obrigatória').max(2, 'UF inválida'),
-  quantity_estimate: trimmed(1, 80, 'Quantidade aproximada'),
-  application: z.string().trim().max(500).optional().default(''),
-  product_id: z.string().uuid().optional(),
-  product_name: z.string().trim().max(200).optional().default(''),
-  product_sku: z.string().trim().max(80).optional().default(''),
-});
-
 // -----------------------------------------------------------------------------
 // Union para o endpoint /api/forms/submit
 // -----------------------------------------------------------------------------
@@ -188,7 +163,6 @@ export const formSubmitSchema = z.discriminatedUnion('form_type', [
   z.object({ form_type: z.literal('terceirizacao') }).merge(terceirizacaoSchema),
   z.object({ form_type: z.literal('envase') }).merge(envaseSchema),
   z.object({ form_type: z.literal('contato_geral') }).merge(contatoGeralSchema),
-  z.object({ form_type: z.literal('amostra') }).merge(amostraSchema),
 ]);
 
 export type FormSubmitInput = z.input<typeof formSubmitSchema>;

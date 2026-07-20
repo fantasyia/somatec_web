@@ -24,7 +24,7 @@ function cut(v: string | null | undefined, max: number): string | undefined {
  *  (POST /public/leads): empresa, cidade/uf, segmento, região/experiência,
  *  paginaOrigem, consentimentoLgpd e metadados viram CAMPOS — aparecem na
  *  seção "Dados da captura" do lead no CRM. Só o que não tem campo
- *  correspondente (volume estimado, CNPJ de amostra…) vai para `mensagem`. */
+ *  correspondente (volume estimado, etc.) vai para `mensagem`. */
 function buildBody(p: MullerBotPayload) {
   // Campos estruturados por tipo de formulário (region/experience = representante,
   // segment = b2b). O restante dos extra_fields fica como contexto na mensagem.
