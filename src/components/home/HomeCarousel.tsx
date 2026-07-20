@@ -133,7 +133,7 @@ export function HomeCarousel({ items }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
           {/* Image side (60%) — pausa o autoplay só com o mouse sobre a imagem */}
           <div
-            className="md:col-span-7 relative aspect-[16/10] md:aspect-[4/3] overflow-hidden rounded-card-lg bg-navy-700 border border-[rgb(var(--border))]"
+            className="md:col-span-7 relative aspect-video overflow-hidden rounded-card-lg bg-navy-700 border border-[rgb(var(--border))]"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >

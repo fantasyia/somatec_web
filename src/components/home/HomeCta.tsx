@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight, Zap, ShieldCheck, Cpu, Factory, Server, Layers } from 'lucide-react';
 import { CTA_CARDS_FALLBACK } from '@/lib/constants/home-fallback';
@@ -9,6 +10,16 @@ import {
 } from '@/lib/whatsapp-button';
 import type { HomeCtaCard } from '@/types/database';
 import type { LucideIcon } from 'lucide-react';
+
+/**
+ * Foto por card de segmento (Estúdio, aprovadas). Slot 16:9 fixo + object-cover
+ * → sem layout shift. Card sem foto cai no placeholder neutro (mesmo formato).
+ */
+const PHOTO_BY_TITLE: Record<string, string> = {
+  'Frigoríficos e alimentos': '/home/seg-frigorifico.webp',
+  'Metalurgia e fundição': '/home/seg-metalurgia.webp',
+  'Automação industrial': '/home/seg-automacao.webp',
+};
 
 const ICON_BY_INTEREST: Record<string, LucideIcon> = {
   representante: ShieldCheck,
@@ -159,9 +170,34 @@ export async function HomeCta({ cards }: Props) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.08] rounded-card overflow-hidden border border-white/[0.08]">
           {items.map(({ id, eyebrow, title, description, href, external, Icon }) => {
-            const cardClass = 'group flex flex-col gap-3 p-6 md:p-7 bg-deep_navy hover:bg-white/[0.05] transition-colors duration-[250ms] ease-premium';
+            const cardClass = 'group flex flex-col overflow-hidden bg-deep_navy hover:bg-white/[0.05] transition-colors duration-[250ms] ease-premium';
+            const photo = PHOTO_BY_TITLE[title];
             const body = (
               <>
+                {/* Slot de foto 16:9 fixo — sem layout shift quando a imagem carrega */}
+                <div className="relative aspect-video w-full overflow-hidden bg-navy-700">
+                  {photo ? (
+                    <Image
+                      src={photo}
+                      alt={title}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 ease-premium group-hover:scale-[1.03]"
+                    />
+                  ) : (
+                    <div
+                      className="h-full w-full"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, rgb(13,41,73) 0%, rgb(3,17,31) 100%)',
+                      }}
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
+
+                <div className="flex flex-1 flex-col gap-3 p-6 md:p-7">
                 <div className="flex items-center gap-2.5">
                   <Icon
                     className="h-4 w-4 text-gold flex-shrink-0"
@@ -182,6 +218,7 @@ export async function HomeCta({ cards }: Props) {
                   Saiba mais
                   <ChevronRight className="h-3 w-3" strokeWidth={2} />
                 </span>
+                </div>
               </>
             );
             return external ? (
