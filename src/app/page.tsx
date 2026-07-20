@@ -65,7 +65,9 @@ export default async function HomePage() {
           entram com fade-up ao scroll (§20.14). HomeIndicators tem stagger
           interno próprio entre os indicadores. */}
       <HomeHero data={hero} />
+      <SectionDivider />
       <HomeClients />
+      <SectionDivider />
       <HomeCarousel items={sliderItems} />
       <SectionDivider />
       {/* Escalada: afirma (manifesto) → quantifica (indicadores) → demonstra
@@ -78,9 +80,14 @@ export default async function HomePage() {
       <HomeFrequency />
       <SectionDivider />
       <HomeProof />
+      <SectionDivider />
       <HomeNoRisk />
+      <SectionDivider />
       {BLOG_TEASER_ENABLED && (
-        <Reveal><HomeBlogTeaser /></Reveal>
+        <>
+          <Reveal><HomeBlogTeaser /></Reveal>
+          <SectionDivider />
+        </>
       )}
       <Reveal><HomeCta cards={ctaCards} /></Reveal>
     </>

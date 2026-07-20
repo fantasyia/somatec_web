@@ -27,12 +27,13 @@
        compatibilidade com os componentes. */
     --gold: 0 140 200;
     --gold-soft: 51 166 214;
-    /* Textura diagonal — UMA camada, no fundo da página (body). Muito sutil
-       (~2%), linhas a cada 22px. Ângulo único 45°. Light = linha navy escura. */
+    /* Textura diagonal — UMA camada, no fundo da página (body). Sussurro visível.
+       Linhas a cada 22px, ângulo único 45°. Light = linha navy sobre off-white:
+       dark-on-light some fácil, então precisa de mais opacidade que o dark (~5%). */
     --texture: repeating-linear-gradient(
       45deg,
-      rgba(0, 65, 110, 0.02) 0,
-      rgba(0, 65, 110, 0.02) 1px,
+      rgba(0, 65, 110, 0.05) 0,
+      rgba(0, 65, 110, 0.05) 1px,
       transparent 1px,
       transparent 22px
     );
@@ -134,6 +135,27 @@
       rgb(var(--border)) 50%,
       transparent 100%
     );
+  }
+
+  /* Separação entre seções por SOMBRA (planos sobrepostos), não por linha. Uma
+     sombra suave que "cai" da seção de cima na de baixo — marca a fronteira por
+     profundidade. Não ocupa espaço no fluxo (::before absoluto sobre a costura). */
+  .section-shadow {
+    position: relative;
+    height: 0;
+    pointer-events: none;
+  }
+  .section-shadow::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 22px;
+    background: linear-gradient(to bottom, rgba(0, 20, 40, 0.06), transparent);
+  }
+  .dark .section-shadow::before {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.28), transparent);
   }
 
   /* ── 2.4 Profundidade & ritmo ─────────────────────────────────────

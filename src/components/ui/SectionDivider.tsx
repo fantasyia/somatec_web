@@ -1,13 +1,8 @@
 /**
- * Separador sutil entre seções — hairline 1px com pontas suavizadas (fade),
- * largura do container, baixo contraste e adaptado ao tema (via --border:
- * levemente mais escuro no claro, mais claro no navy). Dá ritmo sem brigar com
- * a textura. Decorativo → aria-hidden.
+ * Separação entre seções por SOMBRA suave (planos sobrepostos) — não por linha.
+ * Marca a fronteira por profundidade e dá ritmo, bem sutil. Decorativo →
+ * aria-hidden. Não ocupa espaço (o estilo vive no ::before de .section-shadow).
  */
 export function SectionDivider() {
-  return (
-    <div className="container-msm" aria-hidden="true">
-      <div className="divider-gradient" />
-    </div>
-  );
+  return <div className="section-shadow" aria-hidden="true" />;
 }
