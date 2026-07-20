@@ -16,9 +16,9 @@ import type { LucideIcon } from 'lucide-react';
  * → sem layout shift. Card sem foto cai no placeholder neutro (mesmo formato).
  */
 const PHOTO_BY_TITLE: Record<string, string> = {
-  'Frigoríficos e alimentos': '/home/seg-frigorifico.webp',
-  'Metalurgia e fundição': '/home/seg-metalurgia.webp',
-  'Automação industrial': '/home/seg-automacao.webp',
+  Alimentícia: '/home/seg-frigorifico.webp',
+  Metalurgia: '/home/seg-metalurgia.webp',
+  // Autopeças e Têxtil: fotos em produção no Estúdio — caem no placeholder neutro.
 };
 
 const ICON_BY_INTEREST: Record<string, LucideIcon> = {
@@ -112,7 +112,7 @@ type Props = { cards: HomeCtaCard[] };
 
 // Mostra no máximo 3 cards na home (em grid lg:grid-cols-3 fica sem buraco).
 // Para listar todas as segmentações, /contato tem a lista completa.
-const MAX_CARDS = 3;
+const MAX_CARDS = 4;
 
 export async function HomeCta({ cards }: Props) {
   const config = await getWhatsAppButtonConfig();
@@ -168,8 +168,8 @@ export async function HomeCta({ cards }: Props) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.08] rounded-card overflow-hidden border border-white/[0.08]">
-          {items.map(({ id, eyebrow, title, description, href, external, Icon }) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.08] rounded-card overflow-hidden border border-white/[0.08]">
+          {items.map(({ id, title, description, href, external }) => {
             const cardClass = 'group flex flex-col overflow-hidden bg-deep_navy hover:bg-white/[0.05] transition-colors duration-[250ms] ease-premium';
             const photo = PHOTO_BY_TITLE[title];
             const body = (
@@ -198,16 +198,6 @@ export async function HomeCta({ cards }: Props) {
                 </div>
 
                 <div className="flex flex-1 flex-col gap-3 p-6 md:p-7">
-                <div className="flex items-center gap-2.5">
-                  <Icon
-                    className="h-4 w-4 text-gold flex-shrink-0"
-                    strokeWidth={1.5}
-                    aria-hidden="true"
-                  />
-                  <span className="text-[11px] font-sans font-semibold text-gold/80">
-                    {eyebrow}
-                  </span>
-                </div>
                 <h3 className="font-sans font-semibold text-base text-text_light group-hover:text-gold transition-colors duration-[250ms] text-balance">
                   {title}
                 </h3>
