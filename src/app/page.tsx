@@ -19,6 +19,7 @@ import { HomeCta } from '@/components/home/HomeCta';
 import { BLOG_TEASER_ENABLED } from '@/lib/constants/flags';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Reveal } from '@/components/ui/Reveal';
+import { SectionDivider } from '@/components/ui/SectionDivider';
 import { organizationSchema, masterBlockProductSchema, faqSchema } from '@/lib/seo/structured-data';
 
 export const metadata: Metadata = {
@@ -66,12 +67,16 @@ export default async function HomePage() {
       <HomeHero data={hero} />
       <HomeClients />
       <HomeCarousel items={sliderItems} />
+      <SectionDivider />
       {/* Escalada: afirma (manifesto) → quantifica (indicadores) → demonstra
           (gráfico 10 vs 100 kHz) → prova (cases). O "100 kHz" da fileira planta
           o número que o gráfico logo abaixo demonstra. */}
       <Reveal><HomeManifesto /></Reveal>
+      <SectionDivider />
       <HomeIndicators indicators={indicators} />
+      <SectionDivider />
       <HomeFrequency />
+      <SectionDivider />
       <HomeProof />
       <HomeNoRisk />
       {BLOG_TEASER_ENABLED && (

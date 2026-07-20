@@ -123,7 +123,7 @@ export async function HomeCta({ cards }: Props) {
 
   return (
     <section
-      className="relative band-navy text-text_light overflow-hidden"
+      className="relative band-navy-end text-text_light overflow-hidden"
       aria-label="Fale conosco"
     >
       {/* Textura vem do token .band-navy — não duplicar aqui. */}

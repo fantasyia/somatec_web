@@ -21,6 +21,7 @@
     --text-muted: 51 71 92;       /* neutral-700 #33475C */
     --navy: 0 65 110;             /* #00416E */
     --deep-navy: 0 43 71;         /* #002B47 */
+    --navy-end: 0 23 42;          /* #00172A — bookend (rodapé + banda final) */
     /* --gold = acento institucional = CIANO #008CC8 (eyebrows, links, focus).
        Botões/CTA usam a chave tailwind `gold` (laranja). Nome mantido por
        compatibilidade com os componentes. */
@@ -46,13 +47,14 @@
     --text-muted: 157 178 196;
     --navy: 0 65 110;
     --deep-navy: 0 43 71;
+    --navy-end: 0 23 42;
     --gold: 0 140 200;           /* ciano */
     --gold-soft: 51 166 214;
     /* Dark = linha branca (mesma sutileza). */
     --texture: repeating-linear-gradient(
       45deg,
-      rgba(255, 255, 255, 0.02) 0,
-      rgba(255, 255, 255, 0.02) 1px,
+      rgba(255, 255, 255, 0.038) 0,
+      rgba(255, 255, 255, 0.038) 1px,
       transparent 1px,
       transparent 22px
     );
@@ -210,8 +212,8 @@
   .texture-dark {
     background-image: repeating-linear-gradient(
       45deg,
-      rgba(255, 255, 255, 0.02) 0,
-      rgba(255, 255, 255, 0.02) 1px,
+      rgba(255, 255, 255, 0.038) 0,
+      rgba(255, 255, 255, 0.038) 1px,
       transparent 1px,
       transparent 22px
     );
@@ -235,13 +237,29 @@
     background-image:
       repeating-linear-gradient(
         45deg,
-        rgba(255, 255, 255, 0.02) 0,
-        rgba(255, 255, 255, 0.02) 1px,
+        rgba(255, 255, 255, 0.038) 0,
+        rgba(255, 255, 255, 0.038) 1px,
         transparent 1px,
         transparent 22px
       ),
       radial-gradient(60rem 28rem at 88% -15%, rgba(0, 140, 200, 0.2), transparent 62%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
+  }
+
+  /* Bookend: banda final + rodapé num navy MAIS escuro (--navy-end) que as
+     bandas do meio — ancora o "fim do site", como o hero ancora o topo. Mesma
+     textura branca por cima. */
+  .band-navy-end {
+    background-color: rgb(var(--navy-end));
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.038) 0,
+        rgba(255, 255, 255, 0.038) 1px,
+        transparent 1px,
+        transparent 22px
+      ),
+      radial-gradient(60rem 28rem at 88% -15%, rgba(0, 140, 200, 0.14), transparent 62%);
   }
 
   .btn-primary {
