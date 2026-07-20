@@ -14,7 +14,7 @@ export default function RepresentantesPage() {
   return (
     <>
       {/* Hero compacto */}
-      <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 bg-deep_navy texture-diagonal text-text_light overflow-hidden">
+      <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 bg-deep_navy text-text_light overflow-hidden">
         <div className="container-msm">
           <div className="max-w-3xl space-y-4 animate-fade-up">
             <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">

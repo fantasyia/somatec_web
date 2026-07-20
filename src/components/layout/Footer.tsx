@@ -32,7 +32,7 @@ export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
   ].filter((s) => s.href && s.href.length > 0);
 
   return (
-    <footer className="relative bg-deep_navy texture-diagonal text-text_light mt-10 md:mt-20">
+    <footer className="relative bg-deep_navy text-text_light mt-10 md:mt-20">
       <div className="container-msm pt-10 md:pt-20 pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
           {/* Brand column */}

@@ -95,7 +95,7 @@ export function HomeHero({ data }: Props) {
             {/* Única superfície com movimento no site: drift lento da textura
                 (26s, ~20px). Respeita prefers-reduced-motion. */}
             <div
-              className="absolute inset-0 texture-diagonal-light dark:texture-diagonal texture-drift"
+              className="absolute inset-0 texture-layer texture-drift"
               aria-hidden="true"
             />
           </>

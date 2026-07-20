@@ -41,7 +41,7 @@ export function StickyCta() {
         visible ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
-      <div className="border-t border-white/10 bg-deep_navy/95 texture-diagonal text-white shadow-premium-dark backdrop-blur-md">
+      <div className="border-t border-white/10 bg-deep_navy/95 text-white shadow-premium-dark backdrop-blur-md">
         <div className="container-msm flex items-center justify-between gap-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <GaugeCircle className="hidden h-6 w-6 shrink-0 text-cyan sm:block" strokeWidth={1.75} aria-hidden="true" />

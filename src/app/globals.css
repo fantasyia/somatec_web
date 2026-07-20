@@ -26,6 +26,15 @@
        compatibilidade com os componentes. */
     --gold: 0 140 200;
     --gold-soft: 51 166 214;
+    /* Textura diagonal — UMA camada, no fundo da página (body). Muito sutil
+       (~2%), linhas a cada 22px. Ângulo único 45°. Light = linha navy escura. */
+    --texture: repeating-linear-gradient(
+      45deg,
+      rgba(0, 65, 110, 0.02) 0,
+      rgba(0, 65, 110, 0.02) 1px,
+      transparent 1px,
+      transparent 22px
+    );
   }
 
   .dark {
@@ -39,6 +48,14 @@
     --deep-navy: 0 43 71;
     --gold: 0 140 200;           /* ciano */
     --gold-soft: 51 166 214;
+    /* Dark = linha branca (mesma sutileza). */
+    --texture: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.02) 0,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 22px
+    );
   }
 
   html {
@@ -49,6 +66,11 @@
 
   body {
     background-color: rgb(var(--bg));
+    /* Textura diagonal — UMA camada única, edge-to-edge, atrás de TODO o
+       conteúdo. Elementos opacos (fotos, cards, bandas navy) ficam por cima e
+       cobrem a textura naturalmente. background-attachment padrão (scroll) →
+       acompanha a rolagem, sem parallax/jank. */
+    background-image: var(--texture);
     color: rgb(var(--text));
     font-feature-settings: 'ss01', 'cv11';
     transition: background-color 300ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -174,32 +196,13 @@
     }
   }
 
-  /* ── Textura diagonal — TOKEN ÚNICO do site ────────────────────────
-     Ângulo 45° em TODO lugar (padronizado).
-     REGRAS: nunca sobre foto (vira moiré) e nunca atrás de parágrafo longo —
-     só bandas de destaque, rodapé e faixas curtas.                      */
-  .texture-diagonal {
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(255, 255, 255, 0.035) 0,
-      rgba(255, 255, 255, 0.035) 1px,
-      transparent 1px,
-      transparent 14px
-    );
+  /* Camada de textura reutilizável (mesmo token do body). Usada SÓ no hero,
+     que é opaco e cobre a textura do body — aqui ela reaparece com movimento. */
+  .texture-layer {
+    background-image: var(--texture);
   }
-  /* Variante para fundo claro — ainda mais discreta. */
-  .texture-diagonal-light {
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(0, 65, 110, 0.022) 0,
-      rgba(0, 65, 110, 0.022) 1px,
-      transparent 1px,
-      transparent 14px
-    );
-  }
-
   /* Movimento: EXCLUSIVO da banda do hero. Muito lento e translação mínima —
-     o passo (19.8px ≈ 14px·√2) fecha o loop sem costura. */
+     o passo (31.1px ≈ 22px·√2) fecha o loop sem costura. */
   .texture-drift {
     animation: texture-drift 26s linear infinite;
   }
@@ -209,18 +212,12 @@
     }
   }
 
-  /* Superfície nível 3 — banda de destaque navy: textura + gradiente em
-     camadas (linear vertical sutil + radial suave), nunca cor chapada. */
+  /* Superfície nível 3 — banda de destaque navy: gradiente em camadas (linear
+     vertical sutil + radial suave), nunca cor chapada. A textura NÃO fica aqui:
+     a banda é opaca e cobre a camada única do body (arquitetura de 1 layer). */
   .band-navy {
     background-color: rgb(var(--deep-navy));
     background-image:
-      repeating-linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.035) 0,
-        rgba(255, 255, 255, 0.035) 1px,
-        transparent 1px,
-        transparent 14px
-      ),
       radial-gradient(60rem 28rem at 88% -15%, rgba(0, 140, 200, 0.2), transparent 62%),
       linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
   }
@@ -324,6 +321,6 @@
     background-position: 0 0;
   }
   to {
-    background-position: 19.8px 19.8px;
+    background-position: 31.1px 31.1px;
   }
 }

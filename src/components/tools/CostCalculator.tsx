@@ -150,7 +150,7 @@ export function CostCalculator() {
       {/* Resultado */}
       {hasResult && (
         <div
-          className="mt-8 rounded-card-lg bg-deep_navy texture-diagonal p-6 text-white md:p-8"
+          className="mt-8 rounded-card-lg bg-deep_navy p-6 text-white md:p-8"
           role="status"
           aria-live="polite"
         >
