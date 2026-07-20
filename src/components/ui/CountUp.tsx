@@ -4,14 +4,16 @@ import { useEffect, useRef, useState } from 'react';
 
 /**
  * Anima um número de 0 até o valor quando entra na viewport (uma vez).
- * Recebe o texto completo ("92%", "100 kHz", "26 anos") e anima só a parte
- * numérica, preservando o sufixo. Sem parte numérica → renderiza como veio.
+ * Recebe o texto completo ("92%", "100 kHz", "até 70%", "~R$1 mi") e anima só a
+ * parte numérica, preservando prefixo ("até ", "~R$") e sufixo. Sem parte
+ * numérica → renderiza como veio.
  * Respeita prefers-reduced-motion (mostra o valor final direto).
  */
 export function CountUp({ value, durationMs = 1400 }: { value: string; durationMs?: number }) {
-  const match = /^(\d+)(.*)$/.exec(value.trim());
-  const target = match ? parseInt(match[1], 10) : null;
-  const suffix = match ? match[2] : '';
+  const match = /^(\D*?)(\d+)(.*)$/.exec(value.trim());
+  const prefix = match ? match[1] : '';
+  const target = match ? parseInt(match[2], 10) : null;
+  const suffix = match ? match[3] : '';
 
   const ref = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState<number | null>(target !== null ? 0 : null);
@@ -56,10 +58,12 @@ export function CountUp({ value, durationMs = 1400 }: { value: string; durationM
     // não "anda" enquanto o número sobe.
     <span ref={ref} className="relative inline-block tabular-nums">
       <span aria-hidden="true" className="invisible">
+        {prefix}
         {target}
         {suffix}
       </span>
       <span className="absolute inset-0">
+        {prefix}
         {display}
         {suffix}
       </span>
