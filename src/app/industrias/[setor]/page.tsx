@@ -73,7 +73,7 @@ export default async function IndustriaPage({
             <Reveal
               key={s}
               delay={i * 70}
-              className="rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5"
+              className="card-elevated p-5"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-btn bg-gold/10 text-gold">
                 <AlertTriangle className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
@@ -90,7 +90,7 @@ export default async function IndustriaPage({
 
       {/* Case do setor */}
       {ind.case && (
-        <section className="bg-deep_navy text-white" aria-label={`Case ${ind.case.company}`}>
+        <section className="band-navy text-white" aria-label={`Case ${ind.case.company}`}>
           <div className="container-msm py-14 md:py-20">
             <Reveal className="grid gap-8 md:grid-cols-[240px_1fr] md:items-center">
               <div>

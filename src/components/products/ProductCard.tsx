@@ -39,7 +39,7 @@ export function ProductCard({ product }: { product: ProductCardData }) {
   return (
     <Link
       href={`/produtos/${product.slug}`}
-      className="group flex flex-col rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] overflow-hidden transition-all duration-[250ms] ease-premium hover:-translate-y-0.5 hover:border-gold hover:shadow-premium-light dark:hover:shadow-premium-dark"
+      className="group flex flex-col card-elevated overflow-hidden transition-all duration-[250ms] ease-premium hover:-translate-y-0.5 hover:border-gold hover:shadow-premium-light dark:hover:shadow-premium-dark"
     >
       <div className="aspect-[4/5] relative bg-[rgb(var(--border))] overflow-hidden">
         {product.main_image_url ? (

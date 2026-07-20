@@ -81,6 +81,14 @@
     background-color: rgba(0, 140, 200, 0.22);
     color: rgb(var(--text));
   }
+
+  /* 3.4 — foco visível em TODO interativo (teclado). Ciano institucional
+     (--gold = #008CC8); nunca remover sem substituir por outro indicador. */
+  :focus-visible {
+    outline: 2px solid rgb(var(--gold));
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
 }
 
 @layer components {
@@ -108,12 +116,82 @@
     );
   }
 
+  /* ── 2.4 Profundidade & ritmo ─────────────────────────────────────
+     Premium industrial = contenção + contraste + respiro.
+     Nada de glassmorphism/neon/parallax/sombra colorida.               */
+
+  /* Ritmo vertical. Seções intermediárias usam .section-y (64/112px);
+     hero e CTA final respiram mais com .section-y-lg (80/128px).       */
+  .section-y {
+    @apply py-16 md:py-28;
+  }
+  .section-y-lg {
+    @apply py-20 md:py-32;
+  }
+
+  /* Ritmo interno: bloco de cabeçalho → conteúdo = 48px.
+     Dentro dele, título → linha de apoio = 20px (usar .support).       */
+  .section-head {
+    @apply mb-12;
+  }
+  .section-head .support {
+    @apply mt-5;
+  }
+
+  /* Largura de leitura confortável (~68 caracteres). */
+  .read-width {
+    max-width: 68ch;
+  }
+
+  /* Superfície nível 2 — card elevado: sombra em DUAS camadas, neutra. */
+  .card-elevated {
+    @apply rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))];
+    box-shadow:
+      0 1px 2px rgba(0, 20, 40, 0.06),
+      0 8px 24px rgba(0, 20, 40, 0.08);
+    transition:
+      transform 200ms cubic-bezier(0, 0, 0.2, 1),
+      box-shadow 200ms cubic-bezier(0, 0, 0.2, 1),
+      border-color 200ms cubic-bezier(0, 0, 0.2, 1);
+  }
+  .card-elevated:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 2px 4px rgba(0, 20, 40, 0.08),
+      0 16px 40px rgba(0, 20, 40, 0.12);
+  }
+  .dark .card-elevated {
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 10px 28px rgba(0, 0, 0, 0.35);
+  }
+  .dark .card-elevated:hover {
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.35),
+      0 18px 44px rgba(0, 0, 0, 0.45);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card-elevated,
+    .card-elevated:hover {
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* Superfície nível 3 — banda de destaque navy com gradiente em camadas
+     (linear vertical sutil + radial suave num canto), nunca cor chapada. */
+  .band-navy {
+    background-color: rgb(var(--deep-navy));
+    background-image:
+      radial-gradient(60rem 28rem at 88% -15%, rgba(0, 140, 200, 0.2), transparent 62%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 42%);
+  }
+
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-btn font-sans font-semibold text-sm
            text-deep_navy bg-gold-gradient
            transition-all duration-200 ease-premium
-           hover:-translate-y-px hover:shadow-premium-light
-           focus:outline-none;
+           hover:-translate-y-px hover:shadow-premium-light;
   }
 
   .btn-secondary {

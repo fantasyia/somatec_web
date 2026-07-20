@@ -9,7 +9,7 @@ import { FrequencySpectrum } from '@/components/graphics/FrequencySpectrum';
 export function HomeFrequency() {
   return (
     <section
-      className="container-msm py-16 md:py-24"
+      className="container-msm section-y"
       aria-label="Comparativo de frequência: DPS comum versus Master Block"
     >
       <div className="grid items-center gap-10 lg:grid-cols-12">

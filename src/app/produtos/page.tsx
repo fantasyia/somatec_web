@@ -204,7 +204,7 @@ export default function ProdutosPage() {
       </section>
 
       {/* ── Proteção em cascata ──────────────────────────────────── */}
-      <section className="bg-deep_navy text-white">
+      <section className="band-navy text-white">
         <div className="container-msm py-14 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <Reveal className="space-y-5">

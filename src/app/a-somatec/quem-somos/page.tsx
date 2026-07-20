@@ -88,7 +88,7 @@ export default function QuemSomosPage() {
             {values.map(({ title, description }) => (
               <div
                 key={title}
-                className="p-8 rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))]"
+                className="p-8 card-elevated"
               >
                 <h3 className="font-sans font-semibold text-lg mb-2 text-[rgb(var(--text))]">{title}</h3>
                 <p className="text-sm leading-relaxed text-[rgb(var(--text-muted))]">{description}</p>

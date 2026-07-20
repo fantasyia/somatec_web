@@ -17,8 +17,8 @@ const STEPS = [
 
 export function HomeNoRisk() {
   return (
-    <section className="bg-deep_navy text-white" aria-label="Investimento sem risco">
-      <div className="container-msm py-16 md:py-24">
+    <section className="band-navy text-white" aria-label="Investimento sem risco">
+      <div className="container-msm section-y">
         <div className="max-w-3xl space-y-4">
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Você só paga quando o resultado é comprovado

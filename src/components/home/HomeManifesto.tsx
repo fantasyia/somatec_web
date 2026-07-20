@@ -11,7 +11,7 @@ export function HomeManifesto() {
       className="bg-[rgb(var(--surface))] border-y border-[rgb(var(--border))]"
       aria-label="Manifesto Somatec"
     >
-      <div className="container-msm py-20 md:py-32">
+      <div className="container-msm section-y-lg">
         <div className="max-w-3xl mx-auto text-center space-y-8">
           <h2 className="font-serif font-semibold text-h2-m md:text-h2-d text-balance leading-[1.15] text-[rgb(var(--text))]">
             Não é um DPS comum. É a proteção que{' '}

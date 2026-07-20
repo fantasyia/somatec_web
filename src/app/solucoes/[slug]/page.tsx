@@ -75,7 +75,7 @@ export default async function SolucaoPage({
             {s.highlights.map((h) => (
               <div
                 key={h.title}
-                className="flex gap-3.5 rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5"
+                className="flex gap-3.5 card-elevated p-5"
               >
                 <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-btn bg-cyan/10 text-cyan">
                   <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />

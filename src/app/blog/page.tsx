@@ -56,7 +56,7 @@ export default function BlogPage() {
       </section>
 
       {/* CTA de diagnóstico — banda navy padrão do site */}
-      <section className="bg-deep_navy text-white" aria-label="Chamada para diagnóstico">
+      <section className="band-navy text-white" aria-label="Chamada para diagnóstico">
         <div className="container-msm py-14 text-center md:py-20">
           <div className="mx-auto max-w-2xl space-y-4">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">

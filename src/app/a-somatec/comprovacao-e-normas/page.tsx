@@ -81,7 +81,7 @@ export default function ComprovacaoNormasPage() {
             {pillars.map(({ icon: Icon, title, description }) => (
               <div
                 key={title}
-                className="flex gap-5 p-8 rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))]"
+                className="flex gap-5 p-8 card-elevated"
               >
                 <Icon
                   className="h-7 w-7 text-gold shrink-0 mt-0.5"

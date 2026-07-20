@@ -39,7 +39,7 @@ export default function SolucoesPage() {
             <Link
               key={slug}
               href={`/solucoes/${slug}`}
-              className="group flex flex-col gap-4 p-6 md:p-8 rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] transition-all duration-[250ms] ease-premium hover:-translate-y-0.5 hover:border-gold hover:shadow-premium-light"
+              className="group flex flex-col gap-4 p-6 md:p-8 card-elevated transition-all duration-[250ms] ease-premium hover:-translate-y-0.5 hover:border-gold hover:shadow-premium-light"
             >
               <Icon
                 className="h-8 w-8 text-[rgb(var(--text))] group-hover:text-gold transition-colors duration-[250ms]"

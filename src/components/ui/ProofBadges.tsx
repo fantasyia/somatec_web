@@ -34,15 +34,16 @@ export function ProofBadges({ variant = 'light', className = '' }: Props) {
       {PROOFS.map(({ Icon, main, sub }) => (
         <div
           key={main}
-          className={`flex items-center gap-3 rounded-card border p-3.5 transition-colors md:p-4 ${
+          className={`flex items-center gap-3 p-3.5 md:p-4 ${
             dark
-              ? 'border-white/10 bg-white/[0.03] hover:border-cyan/50'
-              : 'border-[rgb(var(--border))] bg-[rgb(var(--surface))] shadow-sm hover:border-cyan/50'
+              ? 'rounded-card border border-white/10 bg-white/[0.03] transition-colors duration-200 hover:border-white/25'
+              : 'card-elevated'
           }`}
         >
+          {/* Sobre navy o ciano puro some — usa o ciano claro (--gold-soft). */}
           <span
             className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-btn ${
-              dark ? 'bg-cyan/15 text-cyan' : 'bg-cyan/10 text-cyan'
+              dark ? 'bg-white/10 text-[rgb(var(--gold-soft))]' : 'bg-cyan/10 text-cyan'
             }`}
           >
             <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />

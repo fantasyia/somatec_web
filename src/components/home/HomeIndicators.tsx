@@ -22,7 +22,7 @@ export function HomeIndicators({ indicators }: Props) {
 
   return (
     <section
-      className="container-msm py-12 md:py-16"
+      className="container-msm section-y"
       aria-label="Indicadores institucionais"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-10 sm:gap-x-8 md:gap-x-0 relative">

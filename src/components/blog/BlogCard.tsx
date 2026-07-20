@@ -55,7 +55,7 @@ export function BlogCard({
 
   return (
     <article
-      className={`group relative flex h-full overflow-hidden rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-lg ${
+      className={`group relative flex h-full overflow-hidden card-elevated ${
         horizontal ? 'flex-col md:flex-row' : 'flex-col'
       }`}
     >

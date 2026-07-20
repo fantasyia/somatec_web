@@ -61,7 +61,7 @@ export default function ASomatecPage() {
             <Link
               key={href}
               href={href}
-              className="group flex flex-col gap-4 p-8 md:p-10 rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] transition-all duration-[250ms] ease-premium hover:-translate-y-0.5 hover:border-gold hover:shadow-premium-light dark:hover:shadow-premium-dark"
+              className="group flex flex-col gap-4 p-8 md:p-10 card-elevated transition-all duration-[250ms] ease-premium hover:-translate-y-0.5 hover:border-gold hover:shadow-premium-light dark:hover:shadow-premium-dark"
             >
               <Icon
                 className="h-8 w-8 text-[rgb(var(--text))] group-hover:text-gold transition-colors duration-[250ms]"

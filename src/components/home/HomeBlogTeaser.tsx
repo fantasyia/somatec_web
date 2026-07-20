@@ -15,7 +15,7 @@ export function HomeBlogTeaser() {
   const [featured, ...rest] = posts;
 
   return (
-    <section className="container-msm py-16 md:py-24" aria-label="Conteúdo técnico do blog">
+    <section className="container-msm section-y" aria-label="Conteúdo técnico do blog">
       <div className="mb-8 max-w-3xl md:mb-10">
         <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance leading-tight">
           Conteúdo técnico pra quem cuida da planta

@@ -260,7 +260,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           {/* Lateral: TOC + CTA discreto */}
           <aside className="lg:sticky lg:top-28 lg:h-fit">
             <ArticleToc items={tocItems} />
-            <div className="mt-6 rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5">
+            <div className="mt-6 card-elevated p-5">
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-btn bg-gold/10 text-gold">
                   <Zap className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
@@ -285,7 +285,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* CTA final — banda navy padrão do site */}
-      <section className="bg-deep_navy text-white" aria-label="Chamada para diagnóstico">
+      <section className="band-navy text-white" aria-label="Chamada para diagnóstico">
         <div className="container-msm py-14 text-center md:py-20">
           <div className="mx-auto max-w-2xl space-y-4">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">

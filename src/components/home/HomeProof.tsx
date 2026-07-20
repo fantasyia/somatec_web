@@ -53,7 +53,7 @@ const CASES: readonly Case[] = [
 export function HomeProof() {
   return (
     <section
-      className="container-msm py-16 md:py-24"
+      className="container-msm section-y"
       aria-label="Cases e prova social"
     >
       <Reveal className="max-w-3xl mb-12 space-y-4">
@@ -76,7 +76,7 @@ export function HomeProof() {
         {CASES.map((c) => (
           <Reveal
             key={c.company}
-            className="flex flex-col rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-6 h-full"
+            className="flex flex-col card-elevated p-6 h-full"
           >
             <div className="font-serif font-bold text-indicator-m leading-none text-gold">
               {c.metric}
