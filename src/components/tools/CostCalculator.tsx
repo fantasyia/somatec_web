@@ -8,6 +8,7 @@ import { HoneypotField } from '@/components/forms/fields/HoneypotField';
 import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
+import { getAtribuicao } from '@/lib/attribution';
 
 // =============================================================================
 // Calculadora de custo de parada (lead magnet) — o visitante informa 2-4
@@ -86,6 +87,8 @@ export function CostCalculator() {
           source_page: '/ferramentas/custo-de-parada',
           website: fd.get('website') ?? '',
           captcha_token: captchaToken,
+          formulario: 'calculadora',
+          ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
         }),
       });
       const data = (await res.json()) as { ok: boolean; message: string };

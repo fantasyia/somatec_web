@@ -8,6 +8,7 @@ import { HoneypotField } from '@/components/forms/fields/HoneypotField';
 import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
+import { getAtribuicao } from '@/lib/attribution';
 import {
   selecionarMasterBlock,
   formatBRL,
@@ -95,6 +96,8 @@ export function MasterBlockSelector({
           source_page: sourcePage,
           website: fd.get('website') ?? '',
           captcha_token: captchaToken,
+          formulario: 'seletor',
+          ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
         }),
       });
       const data = (await res.json()) as { ok: boolean; message: string };

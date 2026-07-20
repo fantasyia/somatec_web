@@ -15,6 +15,7 @@ import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getWhatsAppButtonConfig, buildWhatsAppUrl } from '@/lib/whatsapp-button';
 import { getSeoSettings, getSocials, getCertifications } from '@/lib/data/site-settings';
+import { AttributionTracker } from '@/components/AttributionTracker';
 
 // Texto corrido — Source Sans Pro (brandbook Somatec). Var mantém o nome
 // legado --font-inter para não tocar o tailwind/html.
@@ -177,6 +178,8 @@ export default async function RootLayout({
           >
             Pular para o conteúdo principal
           </a>
+          {/* Captura de atribuição (UTM/gclid/fbclid) na chegada — cookie funcional. */}
+          <AttributionTracker />
           <PublicOnly>
             <Header />
           </PublicOnly>

@@ -20,6 +20,10 @@ const sections = [
     body: 'Este site utiliza exclusivamente cookies técnicos e essenciais, necessários para o funcionamento correto das páginas, incluindo autenticação de área restrita, preferências de tema (claro/escuro) e segurança de formulários. Não utilizamos cookies de rastreamento ou publicidade de terceiros.',
   },
   {
+    title: 'Cookie de origem de contato (atribuição)',
+    body: 'Utilizamos um cookie próprio (first-party), chamado "stc_attrib", com a finalidade exclusiva de medir a origem do seu contato — de qual campanha ou canal você chegou até nós — quando você preenche um de nossos formulários. É um cookie funcional, gravado no seu primeiro acesso, não compartilhado com terceiros e sem perfilamento publicitário externo. Retenção: 90 dias. Ele não interfere na navegação e pode ser removido a qualquer momento nas configurações do seu navegador.',
+  },
+  {
     title: 'Cookies de sessão e persistentes',
     body: 'Cookies de sessão são temporários e expiram quando você fecha o navegador. Cookies persistentes permanecem no seu dispositivo por um período determinado ou até que sejam excluídos manualmente. As preferências de tema e consentimento LGPD são armazenadas localmente no seu dispositivo.',
   },

@@ -15,6 +15,7 @@ import {
   OPERATION_TYPE_OPTIONS,
 } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
+import { getAtribuicao } from '@/lib/attribution';
 import Link from 'next/link';
 
 export type ContactFormVariant =
@@ -70,7 +71,11 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
       source_page: sourcePage,
       website: fd.get('website') ?? '',
       captcha_token: captchaToken,
+      formulario: 'contato',
     };
+
+    const atribuicao = getAtribuicao();
+    if (atribuicao) payload.atribuicao = atribuicao;
 
     // Interest type — variant segmentado já define
     if (variant === 'contato_geral') {

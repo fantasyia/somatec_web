@@ -44,6 +44,31 @@ const honeypotSchema = z
 // Zod só normaliza para string (aceita vazio/undefined).
 const turnstileSchema = z.string().max(2048).optional().default('');
 
+// -----------------------------------------------------------------------------
+// Atribuição de marketing (UTM/gclid/fbclid) — valor CRU do site, camelCase.
+// Todos os campos opcionais; o backend do Betinna normaliza e sanitiza. Limites
+// só como guarda-corpo (o util já capa em 512). Ver src/lib/attribution.ts.
+// -----------------------------------------------------------------------------
+const attributionTouchSchema = z
+  .object({
+    utmSource: z.string().max(600),
+    utmMedium: z.string().max(600),
+    utmCampaign: z.string().max(600),
+    utmContent: z.string().max(600),
+    utmTerm: z.string().max(600),
+    gclid: z.string().max(600),
+    fbclid: z.string().max(600),
+    landingPage: z.string().max(600),
+    referrer: z.string().max(1000),
+    capturadoEm: z.string().max(40),
+  })
+  .partial();
+
+const atribuicaoSchema = z.object({
+  primeiro: attributionTouchSchema,
+  ultimo: attributionTouchSchema,
+});
+
 // Campos comuns a todos os formulários
 const baseFields = {
   name: trimmed(2, 120, 'Nome'),
@@ -54,6 +79,12 @@ const baseFields = {
   source_page: z.string().max(200).optional().default('/contato'),
   website: honeypotSchema, // honeypot
   captcha_token: turnstileSchema,
+  // Qual dos formulários do site converteu (intenção difere: calculadora=topo,
+  // representante=outro tipo de contato). Amostra é legado — não instrumentado.
+  formulario: z
+    .enum(['contato', 'representante', 'calculadora', 'seletor', 'amostra'])
+    .optional(),
+  atribuicao: atribuicaoSchema.optional(),
 };
 
 // -----------------------------------------------------------------------------

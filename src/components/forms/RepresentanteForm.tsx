@@ -12,6 +12,7 @@ import { TurnstileWidget } from './fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from './fields/FormStatus';
 import { BR_STATES } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
+import { getAtribuicao } from '@/lib/attribution';
 
 export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePage?: string }) {
   const [status, setStatus] = useState<FormStatusKind>('idle');
@@ -39,6 +40,8 @@ export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePa
       source_page: sourcePage,
       website: fd.get('website') ?? '',
       captcha_token: captchaToken,
+      formulario: 'representante' as const,
+      ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
     };
 
     try {

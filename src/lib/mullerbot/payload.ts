@@ -33,6 +33,10 @@ export type MullerBotPayload = {
     referer: string | null;
     submitted_at: string;
   };
+  /** Qual formulário do site converteu (contato|representante|calculadora|seletor|amostra). */
+  formulario?: FormSubmitData['formulario'];
+  /** Atribuição de marketing (1º + último toque). Ausente quando não há UTM. */
+  atribuicao?: FormSubmitData['atribuicao'];
 };
 
 export type BuildPayloadInput = {
@@ -102,5 +106,7 @@ export function buildMullerBotPayload(input: BuildPayloadInput): MullerBotPayloa
       referer,
       submitted_at: now,
     },
+    formulario: validated.formulario,
+    atribuicao: validated.atribuicao,
   };
 }

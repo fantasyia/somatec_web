@@ -78,6 +78,12 @@ function buildBody(p: MullerBotPayload) {
       referer: cut(p.site_metadata.referer, 500),
     },
     ...(funilId ? { funilId } : {}),
+    // Atribuição de marketing (contrato fechado com o dev do Betinna). O site
+    // manda o valor CRU; o backend normaliza/sanitiza. origemCadastro sempre;
+    // formulario quando o form informa; atribuicao só quando há UTM (omite senão).
+    origemCadastro: 'site',
+    ...(p.formulario ? { formulario: p.formulario } : {}),
+    ...(p.atribuicao ? { atribuicao: p.atribuicao } : {}),
   };
 }
 
