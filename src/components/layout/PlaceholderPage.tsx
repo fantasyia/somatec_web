@@ -20,17 +20,9 @@ export function PlaceholderPage({
     <>
       {/* Compact hero */}
       <section
-        className="relative pt-28 pb-10 md:pt-32 md:pb-14 bg-deep_navy text-white overflow-hidden"
+        className="relative pt-28 pb-10 md:pt-32 md:pb-14 bg-deep_navy texture-diagonal text-white overflow-hidden"
         aria-label="Cabeçalho da página"
       >
-        <div
-          className="absolute inset-0 -z-10 opacity-[0.05]"
-          aria-hidden="true"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0, rgba(255,255,255,0.5) 1px, transparent 1px, transparent 14px)',
-          }}
-        />
         <div className="container-msm relative">
           {breadcrumbs && breadcrumbs.length > 0 && (
             <nav aria-label="Breadcrumb" className="mb-6">

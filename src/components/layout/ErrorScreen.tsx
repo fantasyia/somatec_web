@@ -20,17 +20,7 @@ type Props = {
 
 export function ErrorScreen({ code, title, description, illustration, actions }: Props) {
   return (
-    <section className="relative min-h-[82vh] flex items-center justify-center overflow-hidden bg-deep_navy text-white px-6">
-      {/* Pattern diagonal sutil (igual PageHero) */}
-      <div
-        className="absolute inset-0 opacity-[0.05]"
-        aria-hidden="true"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0, rgba(255,255,255,0.5) 1px, transparent 1px, transparent 14px)',
-        }}
-      />
-
+    <section className="relative min-h-[82vh] flex items-center justify-center overflow-hidden bg-deep_navy texture-diagonal text-white px-6">
       {/* Watermark gigante do código */}
       <span
         className="pointer-events-none select-none absolute inset-0 flex items-center justify-center font-serif font-bold leading-none text-white opacity-[0.04] text-[200px] md:text-[400px]"

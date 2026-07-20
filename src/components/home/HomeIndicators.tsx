@@ -1,7 +1,6 @@
 import { INDICATORS_FALLBACK } from '@/lib/constants/home-fallback';
 import { Reveal } from '@/components/ui/Reveal';
 import { CountUp } from '@/components/ui/CountUp';
-import { ProofBadges } from '@/components/ui/ProofBadges';
 import type { HomeIndicator } from '@/types/database';
 
 type Props = { indicators: HomeIndicator[] };
@@ -58,11 +57,6 @@ export function HomeIndicators({ indicators }: Props) {
           </Reveal>
         ))}
       </div>
-
-      {/* Provas reais da Somatec (substitui as certificações de alimentos legadas) */}
-      <Reveal className="mt-12 border-t border-[rgb(var(--border))] pt-10">
-        <ProofBadges variant="light" />
-      </Reveal>
     </section>
   );
 }

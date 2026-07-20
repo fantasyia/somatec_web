@@ -3,9 +3,10 @@
  * Números e empresas conforme material comercial oficial (case Cinpal,
  * Nissin, Stampline, Grow Up) + selo FIESP + linha de grandes marcas.
  */
-import { Award, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { CaseChart } from '@/components/home/CaseChart';
+import { ProofBadges } from '@/components/ui/ProofBadges';
 
 type Case = {
   metric: string;
@@ -95,18 +96,11 @@ export function HomeProof() {
         ))}
       </div>
 
-      {/* Selo FIESP + marcas de confiança */}
-      <Reveal className="mt-10 pt-8 border-t border-[rgb(var(--border))] flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
-        <div className="inline-flex items-center gap-3 shrink-0">
-          <span className="inline-flex h-11 w-11 items-center justify-center rounded-btn bg-gold/10 text-gold">
-            <Award className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-          </span>
-          <div className="text-sm">
-            <div className="font-sans font-bold text-[rgb(var(--text))]">Prêmio FIESP</div>
-            <div className="text-[rgb(var(--text-muted))]">Concurso Acelera Startup 2015</div>
-          </div>
-        </div>
-        <div className="flex items-start gap-3 lg:border-l lg:border-[rgb(var(--border))] lg:pl-10">
+      {/* Provas institucionais (FIESP · DPS Classe III · patente · segurança) +
+          clientes — credibilidade fica no bloco de prova, não com os indicadores. */}
+      <Reveal className="mt-12 pt-8 border-t border-[rgb(var(--border))] space-y-6">
+        <ProofBadges variant="light" />
+        <div className="flex items-start gap-3">
           <ShieldCheck className="h-5 w-5 mt-0.5 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
           <p className="text-sm text-[rgb(var(--text-muted))] leading-relaxed">
             Entre os clientes atendidos: <span className="font-semibold text-[rgb(var(--text))]">BASF,
