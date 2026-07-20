@@ -162,13 +162,13 @@
      Premium industrial = contenção + contraste + respiro.
      Nada de glassmorphism/neon/parallax/sombra colorida.               */
 
-  /* Ritmo vertical. Seções intermediárias usam .section-y (64/112px);
-     hero e CTA final respiram mais com .section-y-lg (80/128px).       */
+  /* Ritmo vertical. Seções intermediárias usam .section-y (48/80px);
+     hero e CTA final respiram mais com .section-y-lg (56/96px).        */
   .section-y {
-    @apply py-16 md:py-28;
+    @apply py-12 md:py-20;
   }
   .section-y-lg {
-    @apply py-20 md:py-32;
+    @apply py-14 md:py-24;
   }
 
   /* Ritmo interno: bloco de cabeçalho → conteúdo = 48px.
