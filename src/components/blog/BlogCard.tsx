@@ -119,13 +119,14 @@ export function BlogCard({
         </div>
 
         {/* CTA interno (dupla conversão) — z-10 fica acima do stretched link
-            do card. Renderiza sempre que o post define ctaInterno (destaque e
-            cards NI). */}
+            do card. É um BOTÃO de contorno, não texto: o corpo do card leva ao
+            ARTIGO e o botão à FERRAMENTA — destinos diferentes precisam ler
+            diferente (despacho #9). */}
         {post.ctaInterno && (
           <Link
             href={post.ctaInterno.href}
-            className={`relative z-10 inline-flex w-fit items-center gap-1 font-sans font-semibold text-cyan transition-colors hover:text-cyan/80 ${
-              featured ? 'mt-2 text-sm' : 'mt-1 text-[13px]'
+            className={`relative z-10 inline-flex w-fit items-center gap-1.5 rounded-btn border border-cyan font-sans font-semibold text-cyan transition-colors hover:bg-cyan/10 ${
+              featured ? 'mt-2 px-4 py-2 text-sm' : 'mt-1.5 px-3 py-1.5 text-[13px]'
             }`}
           >
             {post.ctaInterno.label}

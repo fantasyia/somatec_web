@@ -155,9 +155,22 @@ export const BLOG_POSTS: readonly BlogPost[] = [
   },
 ] as const;
 
-/** Posts ordenados do mais recente ao mais antigo. */
+import { getArticleContent } from '@/lib/constants/blog-content';
+
+/** REGRA ESTRUTURAL (despacho #9): um post só existe em QUALQUER superfície
+ *  (teaser da home, índice /blog, página do artigo, relacionados) se tiver
+ *  CORPO escrito em blog-content.ts. Post sem corpo = invisível e /blog/<slug>
+ *  dá 404 (dynamicParams=false). Quando a redação escrever o artigo, o post
+ *  aparece sozinho em todas as superfícies — ninguém precisa ligar nada. */
+function isPublicado(p: BlogPost): boolean {
+  return getArticleContent(p.slug) !== undefined;
+}
+
+/** Posts PUBLICADOS (com corpo), do mais recente ao mais antigo. */
 export function getBlogPosts(): BlogPost[] {
-  return [...BLOG_POSTS].sort((a, b) => (a.publicadoEm < b.publicadoEm ? 1 : -1));
+  return [...BLOG_POSTS]
+    .filter(isPublicado)
+    .sort((a, b) => (a.publicadoEm < b.publicadoEm ? 1 : -1));
 }
 
 /** O post destaque (mais recente marcado como destaque, senão o mais recente). */
@@ -176,5 +189,6 @@ export function getTeaserPosts(): BlogPost[] {
 }
 
 export function getPostBySlug(slug: string): BlogPost | undefined {
-  return BLOG_POSTS.find((p) => p.slug === slug);
+  const post = BLOG_POSTS.find((p) => p.slug === slug);
+  return post && isPublicado(post) ? post : undefined;
 }
