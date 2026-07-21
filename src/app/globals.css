@@ -29,19 +29,8 @@
     --gold-soft: 51 166 214;
   }
 
-  .dark {
-    --bg: 0 43 71;               /* deep_navy #002B47 */
-    --surface: 0 65 110;         /* navy #00416E */
-    --surface-elevated: 1 82 130;
-    --border: 18 59 87;          /* border_dark #123B57 */
-    --text: 234 242 248;         /* text_light #EAF2F8 */
-    --text-muted: 157 178 196;
-    --navy: 0 65 110;
-    --deep-navy: 0 43 71;
-    --navy-end: 0 23 42;
-    --gold: 0 140 200;           /* ciano */
-    --gold-soft: 51 166 214;
-  }
+  /* Tema ÚNICO claro (despacho #4). O navy segue como cor-âncora fixa
+     (hero, footer, bandas escuras) — não existe mais modo escuro. */
 
   html {
     -webkit-font-smoothing: antialiased;
@@ -161,16 +150,6 @@
     box-shadow:
       0 2px 4px rgba(0, 20, 40, 0.08),
       0 16px 40px rgba(0, 20, 40, 0.12);
-  }
-  .dark .card-elevated {
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.3),
-      0 10px 28px rgba(0, 0, 0, 0.35);
-  }
-  .dark .card-elevated:hover {
-    box-shadow:
-      0 2px 6px rgba(0, 0, 0, 0.35),
-      0 18px 44px rgba(0, 0, 0, 0.45);
   }
   @media (prefers-reduced-motion: reduce) {
     .card-elevated,

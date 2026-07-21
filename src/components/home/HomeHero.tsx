@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight, Pause, Play } from 'lucide-react';
 import { HERO_FALLBACK } from '@/lib/constants/home-fallback';
+import { HeroSolutionsCarousel } from '@/components/home/HeroSolutionsCarousel';
 import type { HomeHero as HeroData } from '@/types/database';
 
 type Props = { data: HeroData | null };
@@ -150,9 +151,10 @@ export function HomeHero({ data }: Props) {
           </div>
         </div>
 
-        {/* Foto real do produto MasterBlock instalado */}
+        {/* Carrossel de 3 slides (despacho #4) — a tese fica fixa à esquerda;
+            aqui giram as portas de entrada (solução / cascata / NI). */}
         <div className="relative mt-2 lg:col-span-5 lg:mt-0">
-          {/* Glow ambiente (3c) — luz de palco difusa atrás da foto: cyan
+          {/* Glow ambiente (3c) — luz de palco difusa atrás do card: cyan
               quente + navy frio, bem espalhados, dão profundidade ao escuro. */}
           <div
             aria-hidden="true"
@@ -162,20 +164,8 @@ export function HomeHero({ data }: Props) {
             aria-hidden="true"
             className="absolute -inset-x-10 -inset-y-8 -z-10 bg-[radial-gradient(50%_50%_at_38%_70%,rgba(0,65,110,0.5)_0%,transparent_70%)] blur-2xl"
           />
-          <div className="relative mx-auto w-full max-w-[400px] overflow-hidden rounded-card-lg shadow-premium-dark lg:max-w-[540px]">
-            <Image
-              src="/masterblock-hero.jpg"
-              alt="Master Block instalado em painel elétrico industrial"
-              width={1080}
-              height={1440}
-              priority
-              sizes="(min-width: 1024px) 540px, 400px"
-              className="h-auto w-full"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-card-lg ring-1 ring-inset ring-white/10 [background:radial-gradient(ellipse_at_center,transparent_55%,rgba(0,19,31,0.35)_100%)]"
-            />
+          <div className="relative mx-auto w-full max-w-[440px] lg:max-w-[540px]">
+            <HeroSolutionsCarousel />
           </div>
         </div>
         </div>

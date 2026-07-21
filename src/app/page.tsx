@@ -2,12 +2,11 @@ import type { Metadata } from 'next';
 import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import {
   getHomeHero,
-  getSliderItems,
   getIndicators,
   getCtaCards,
 } from '@/lib/data/home';
 import { HomeHero } from '@/components/home/HomeHero';
-import { HomeCarousel } from '@/components/home/HomeCarousel';
+import { HomeAterramento } from '@/components/home/HomeAterramento';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
 import { HomeManifesto } from '@/components/home/HomeManifesto';
 import { HomeFrequency } from '@/components/home/HomeFrequency';
@@ -48,9 +47,8 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   // Fetch paralelo de todos os blocos.
-  const [hero, sliderItems, indicators, ctaCards] = await Promise.all([
+  const [hero, indicators, ctaCards] = await Promise.all([
     getHomeHero(),
-    getSliderItems(),
     getIndicators(),
     getCtaCards(),
   ]);
@@ -64,28 +62,28 @@ export default async function HomePage() {
           entram com fade-up ao scroll (§20.14). HomeIndicators tem stagger
           interno próprio entre os indicadores. */}
       {/* Ritmo de tom (TESTE): navy só nas âncoras (hero + footer); o miolo
-          alterna branco (.tone-surface) ↔ off-white (.tone-base), theme-aware,
-          nunca dois vizinhos iguais. Separação por TOM, sem device de sombra.
-          Exceção: a faixa de logos segue navy (assets são logos brancos) e
-          forma, junto do hero, a âncora de topo. */}
+          alterna branco (.tone-surface) ↔ off-white (.tone-base), nunca dois
+          vizinhos iguais. Separação por TOM, sem device de sombra. O antigo
+          carrossel de soluções foi absorvido pelo hero (despacho #4). */}
       <HomeHero data={hero} />
       <HomeClients />
-      <div className="tone-base">
-        <HomeCarousel items={sliderItems} />
-      </div>
       {/* Escalada: afirma (manifesto) → quantifica (indicadores) → demonstra
           (gráfico 10 vs 100 kHz) → prova (cases). O "100 kHz" da fileira planta
           o número que o gráfico logo abaixo demonstra. Manifesto+indicadores =
-          um único passo branco. */}
-      <div className="tone-surface">
+          um único passo de tom. */}
+      <div className="tone-base">
         <Reveal><HomeManifesto /></Reveal>
         <HomeIndicators indicators={indicators} />
       </div>
-      <div className="tone-base">
+      <div className="tone-surface">
         <HomeFrequency />
       </div>
-      <div className="tone-surface">
+      <div className="tone-base">
         <HomeProof />
+      </div>
+      {/* Aterramento dedicado: saiu do carrossel do topo, vira faixa simples. */}
+      <div className="tone-surface">
+        <HomeAterramento />
       </div>
       <div className="tone-base">
         <HomeNoRisk />
