@@ -83,17 +83,20 @@ export function Header() {
   }, [mobileOpen]);
 
   const onHome = pathname === '/';
-  // Cabeçalho sempre com fundo sólido na cor do site (nunca transparente sobre
-  // o vídeo do hero). O vídeo fica só no hero, atrás da barra opaca.
-  const isTransparent = false;
+  // Despacho #7: na home o cabeçalho é TRANSPARENTE sobreposto ao carrossel
+  // full-bleed (é o que faz ele "ocupar tudo") e vira sólido ao rolar. Menus
+  // abertos forçam o sólido pra não flutuar painel sobre foto.
+  const isTransparent = onHome && !scrolled && !mobileOpen && hoveredMenu === null;
 
   return (
     <header
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-200 ease-premium',
-        scrolled || !onHome
-          ? 'backdrop-blur-md bg-[rgb(var(--bg))]/85 border-b border-[rgb(var(--border))]/60'
-          : 'bg-[rgb(var(--bg))] border-b border-[rgb(var(--border))]/60',
+        isTransparent
+          ? 'bg-transparent border-b border-transparent'
+          : scrolled || !onHome
+            ? 'backdrop-blur-md bg-[rgb(var(--bg))]/85 border-b border-[rgb(var(--border))]/60'
+            : 'bg-[rgb(var(--bg))] border-b border-[rgb(var(--border))]/60',
       )}
     >
       <div className="container-msm flex h-20 items-center justify-between gap-6">
@@ -109,7 +112,7 @@ export function Header() {
             width={1576}
             height={494}
             priority
-            className="h-9 w-auto dark:hidden"
+            className={cn('h-9 w-auto', isTransparent && 'hidden')}
           />
           <Image
             src="/logo-somatec-white.png"
@@ -117,7 +120,7 @@ export function Header() {
             width={792}
             height={248}
             priority
-            className="hidden h-9 w-auto dark:block"
+            className={cn('h-9 w-auto', !isTransparent && 'hidden')}
           />
         </Link>
 
@@ -165,7 +168,7 @@ export function Header() {
                   aria-expanded={hasChildren ? hoveredMenu === item.href : undefined}
                   className={cn(
                     'link-underline text-sm font-sans font-medium hover:text-gold transition-colors py-2',
-                    'text-[rgb(var(--text))]/90 dark:text-white/90',
+                    isTransparent ? 'text-white/90' : 'text-[rgb(var(--text))]/90',
                   )}
                 >
                   {item.label}
@@ -253,7 +256,7 @@ export function Header() {
             className={cn(
               'hidden md:inline-flex btn-secondary',
               isTransparent
-                ? 'border-[rgb(var(--text))]/40 text-[rgb(var(--text))] hover:border-[rgb(var(--text))] dark:border-white/40 dark:text-white dark:hover:border-white'
+                ? 'border-white/40 text-white hover:border-white'
                 : 'text-[rgb(var(--text))]',
             )}
           >
@@ -271,7 +274,7 @@ export function Header() {
             className={cn(
               'lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border hover:border-gold transition-colors',
               isTransparent
-                ? 'border-[rgb(var(--text))]/40 text-[rgb(var(--text))] dark:border-white/40 dark:text-white'
+                ? 'border-white/40 text-white'
                 : 'border-[rgb(var(--border))]',
             )}
             onClick={() => setMobileOpen(true)}

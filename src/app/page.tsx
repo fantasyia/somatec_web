@@ -63,12 +63,15 @@ export default async function HomePage() {
       {/* Hero e carrossel: render imediato (acima da dobra). Demais seções
           entram com fade-up ao scroll (§20.14). HomeIndicators tem stagger
           interno próprio entre os indicadores. */}
-      {/* Ritmo de tom (TESTE): navy só nas âncoras (hero + footer); o miolo
-          alterna branco (.tone-surface) ↔ off-white (.tone-base), nunca dois
-          vizinhos iguais. Separação por TOM, sem device de sombra. O antigo
-          carrossel de soluções foi absorvido pelo hero (despacho #4). */}
-      <HomeHero data={hero} />
-      <HomeClients />
+      {/* Primeira tela = 100svh com SÓ 3 coisas (despacho #7): cabeçalho
+          transparente sobreposto + carrossel full-bleed + faixa de logos
+          ancorada na base. svh (não vh) por causa da barra do navegador
+          mobile. Ritmo de tom segue abaixo da dobra: navy só nas âncoras;
+          miolo alterna branco (.tone-surface) ↔ off-white (.tone-base). */}
+      <div className="flex h-[100svh] flex-col">
+        <HomeHero data={hero} />
+        <HomeClients />
+      </div>
       {/* Escalada: afirma (manifesto) → quantifica (indicadores) → demonstra
           (gráfico 10 vs 100 kHz) → prova (cases). O "100 kHz" da fileira planta
           o número que o gráfico logo abaixo demonstra. Manifesto+indicadores =
