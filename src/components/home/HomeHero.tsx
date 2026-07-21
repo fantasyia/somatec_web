@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { HERO_FALLBACK } from '@/lib/constants/home-fallback';
@@ -17,9 +16,8 @@ import type { HomeHero as HeroData } from '@/types/database';
  * denso do lado do texto + reforço na base (onde ficam texto mobile e a barra
  * de progresso).
  *
- * ⚠️ Fotos atuais foram feitas pra card 16:9 pequeno — servem de placeholder
- * até o Estúdio regerar na proporção real do slide (dimensões reportadas ao
- * master junto da entrega).
+ * Fotos do Estúdio em 3 formatos por slide (despacho #8): wide 2048x1024 ·
+ * tablet 1024x1192 · tall 832x1536, servidas via <picture> por breakpoint.
  */
 
 type Props = { data: HeroData | null };
@@ -31,8 +29,11 @@ type Slide = {
   /** Texto de apoio menor (slide 1 = conteúdo "MasterBlock + software"). */
   apoio?: string;
   ctas: { label: string; href: string; primary?: boolean }[];
-  image: string;
+  /** Art direction (despacho #8): wide ≥1024 · tablet 768–1023 · tall <768. */
+  images: { wide: string; tablet: string; tall: string };
   alt: string;
+  /** 'cold' = scrim neutro-escuro frio (S2b é âmbar — devolve contraste ao CTA laranja). */
+  scrim?: 'cold';
 };
 
 const DURATION_MS = 7000;
@@ -66,8 +67,12 @@ export function HomeHero({ data }: Props) {
           href: data?.secondary_cta_url ?? HERO_FALLBACK.secondary.href,
         },
       ],
-      image: '/home/sol-masterblock.webp',
-      alt: 'Master Block instalado em painel elétrico industrial',
+      images: {
+        wide: '/home/hero/hero-s1-wide.webp',
+        tablet: '/home/hero/hero-s1-tablet.webp',
+        tall: '/home/hero/hero-s1-tall.webp',
+      },
+      alt: 'Painel elétrico industrial aberto com disjuntores e fiação',
     },
     {
       id: 'cascata',
@@ -75,8 +80,13 @@ export function HomeHero({ data }: Props) {
       subtitle:
         'Master Block na entrada, no quadro e junto ao equipamento crítico, atenuando o surto em etapas.',
       ctas: [{ label: 'Ver como funciona', href: '/solucoes/protecao-contra-surtos', primary: true }],
-      image: '/home/sol-cascata.webp',
-      alt: 'Diagrama de proteção em cascata Somatec',
+      images: {
+        wide: '/home/hero/hero-s2b-wide.webp',
+        tablet: '/home/hero/hero-s2b-tablet.webp',
+        tall: '/home/hero/hero-s2b-tall.webp',
+      },
+      alt: 'Linha de produção industrial com painel de proteção em primeiro plano',
+      scrim: 'cold',
     },
     {
       id: 'nao-industrial',
@@ -84,7 +94,11 @@ export function HomeHero({ data }: Props) {
       subtitle:
         'O mesmo que blinda a indústria protege freezer e PDV do comércio, bombas e elevador do condomínio, automação e painel solar da casa de alto padrão.',
       ctas: [{ label: 'Calcular a minha proteção', href: '/ferramentas/orcamento', primary: true }],
-      image: '/home/hero-nao-industrial.webp',
+      images: {
+        wide: '/home/hero/hero-s3-wide.webp',
+        tablet: '/home/hero/hero-s3-tablet.webp',
+        tall: '/home/hero/hero-s3-tall.webp',
+      },
       alt: 'Sala de estar de alto padrão com automação e home theater',
     },
   ];
@@ -177,20 +191,32 @@ export function HomeHero({ data }: Props) {
             i === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          {/* Foto full-bleed — cobre toda a área, sem card/borda/margem */}
-          <Image
-            src={slide.image}
-            alt={slide.alt}
-            fill
-            priority={i === 0}
-            sizes="100vw"
-            className="object-cover"
-          />
+          {/* Foto full-bleed com art direction (despacho #8): wide ≥1024,
+              tablet 768–1023, tall <768. next/image não faz <picture> com
+              media queries — assets já vêm otimizados em webp do build. */}
+          <picture>
+            <source media="(min-width: 1024px)" srcSet={slide.images.wide} />
+            <source media="(min-width: 768px)" srcSet={slide.images.tablet} />
+            <img
+              src={slide.images.tall}
+              alt={slide.alt}
+              className="absolute inset-0 h-full w-full object-cover"
+              fetchPriority={i === 0 ? 'high' : undefined}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          </picture>
 
-          {/* Scrim (regra de marca): denso do lado do texto + reforço na base */}
+          {/* Scrim (regra de marca): denso do lado do texto + reforço na base.
+              S2b (âmbar quente) usa a variante FRIA neutro-escura — laranja
+              sobre âmbar mata o CTA; o frio devolve o contraste. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(90deg,rgba(1,12,22,0.86)_0%,rgba(1,12,22,0.62)_34%,rgba(1,12,22,0.24)_62%,rgba(1,12,22,0.05)_100%)]"
+            className={
+              slide.scrim === 'cold'
+                ? 'absolute inset-0 bg-[linear-gradient(90deg,rgba(9,13,18,0.93)_0%,rgba(9,13,18,0.74)_36%,rgba(9,13,18,0.32)_64%,rgba(9,13,18,0.06)_100%)]'
+                : 'absolute inset-0 bg-[linear-gradient(90deg,rgba(1,12,22,0.86)_0%,rgba(1,12,22,0.62)_34%,rgba(1,12,22,0.24)_62%,rgba(1,12,22,0.05)_100%)]'
+            }
           />
           <div
             aria-hidden="true"
