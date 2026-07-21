@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
@@ -37,18 +38,17 @@ export function HomeCarroEletrico() {
               </div>
             </div>
 
-            {/* Placeholder até a foto do Estúdio (prompt já despachado) */}
-            <div
-              className="relative flex aspect-video items-end overflow-hidden rounded-card-lg border border-[rgb(var(--border))] p-6 md:col-span-5"
-              style={{
-                background:
-                  'linear-gradient(135deg, rgb(13,41,73) 0%, rgb(7,27,51) 60%, rgb(3,17,31) 100%)',
-              }}
-              aria-hidden="true"
-            >
-              <span className="font-serif text-3xl font-bold tracking-tight text-white/10">
-                Carro elétrico
-              </span>
+            {/* Foto do Estúdio (despacho #6b) — 16:9 nativo, conector e cabo
+                do carregador visíveis (sustentam o argumento do bloco). */}
+            <div className="relative aspect-video overflow-hidden rounded-card-lg border border-[rgb(var(--border))] md:col-span-5">
+              <Image
+                src="/home/ni-carro-eletrico.webp"
+                alt="Carro elétrico carregando na garagem com carregador de parede"
+                fill
+                loading="lazy"
+                sizes="(min-width: 768px) 40vw, 100vw"
+                className="object-cover"
+              />
             </div>
           </div>
         </Reveal>
