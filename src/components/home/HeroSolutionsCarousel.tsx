@@ -41,7 +41,7 @@ const SLIDES: readonly HeroSlide[] = [
     title: 'Proteção também pra comércio, condomínio e casa de alto padrão',
     text: 'O mesmo que blinda a indústria protege freezer e PDV do comércio, bombas e elevador do condomínio, automação e painel solar da casa de alto padrão.',
     cta: { label: 'Calcular a minha proteção', href: '/ferramentas/orcamento' },
-    image: null,
+    image: '/home/hero-nao-industrial.webp',
   },
 ];
 
