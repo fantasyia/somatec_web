@@ -26,9 +26,11 @@ export function HomeBlogTeaser() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <BlogCard post={featured} variant="featured" />
-        <div className="flex flex-col gap-6">
+      {/* 4 cards (2 industriais + 2 NI): destaque horizontal em cima +
+          fileira de 3 — evita o destaque esticar contra uma coluna alta. */}
+      <div className="space-y-6">
+        <BlogCard post={featured} variant="featured" orientation="horizontal" />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {rest.map((post) => (
             <BlogCard key={post.slug} post={post} />
           ))}

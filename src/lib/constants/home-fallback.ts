@@ -10,7 +10,7 @@ export const HERO_FALLBACK = {
   eyebrow: 'MasterBlock · Supressor de surtos',
   title: 'O surto que destrói seu equipamento opera em 100 kHz',
   subtitle:
-    'O DPS comum atua só até 10 kHz. O MasterBlock é a única proteção que age na frequência do dano.',
+    'O DPS comum atua só até 10 kHz. O MasterBlock é a única proteção que age na frequência do dano — instalada nas maiores indústrias do Brasil.',
   primary: { label: 'Receba um diagnóstico de risco', href: '/contato' },
   secondary: { label: 'Conheça o MasterBlock', href: '/produtos' },
   fallback_image_url: null as string | null,

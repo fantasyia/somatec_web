@@ -43,10 +43,17 @@ export function HomeIndicators({ indicators }: Props) {
                 aria-hidden="true"
               />
             )}
-            {/* Número em laranja: é valor de performance do Master Block.
-                whitespace-nowrap + tamanho que cabe em 1 linha → "100 kHz" não
-                quebra e as baselines dos 4 ficam alinhadas. */}
-            <div className="font-serif font-semibold text-indicator-m md:text-[3.5rem] leading-none whitespace-nowrap text-gold">
+            {/* UM soco laranja por seção (3a): só o índice 1 (ex.: "92%") em
+                laranja; os demais em cyan (--gold-soft, legível nos 2 temas).
+                whitespace-nowrap + 1 linha → "100 kHz" não quebra e as baselines
+                dos 4 ficam alinhadas. */}
+            <div
+              className={`font-serif font-semibold text-indicator-m md:text-[3.5rem] leading-none whitespace-nowrap ${
+                i === 1
+                  ? 'text-gold'
+                  : 'text-[rgb(var(--gold))] dark:text-[rgb(var(--gold-soft))]'
+              }`}
+            >
               {useReal ? <CountUp value={item.main} /> : <span>{item.main}</span>}
             </div>
             {item.label && (

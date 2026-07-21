@@ -123,10 +123,11 @@ export async function HomeCta({ cards }: Props) {
 
   return (
     <section
-      className="relative band-navy text-text_light overflow-hidden"
+      className="relative overflow-hidden"
       aria-label="Fale conosco"
     >
-      {/* Textura vem do token .band-navy — não duplicar aqui. */}
+      {/* Tom da seção vem do wrapper .tone-base (page.tsx). Os cards seguem
+          navy escuro (bg-deep_navy) — pulam sobre o off-white. */}
       <div className="relative container-msm section-y-lg">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-12">
           <div className="space-y-3 max-w-xl">
@@ -163,7 +164,7 @@ export async function HomeCta({ cards }: Props) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.08] rounded-card overflow-hidden border border-white/[0.08]">
           {items.map(({ id, title, description, href, external }) => {
-            const cardClass = 'group flex flex-col overflow-hidden bg-deep_navy texture-dark hover:bg-white/[0.05] transition-colors duration-[250ms] ease-premium';
+            const cardClass = 'group flex flex-col overflow-hidden bg-deep_navy hover:bg-white/[0.05] transition-colors duration-[250ms] ease-premium';
             const photo = PHOTO_BY_TITLE[title];
             const body = (
               <>

@@ -3,7 +3,6 @@ import Script from 'next/script';
 import { Source_Sans_3, Poppins } from 'next/font/google';
 import { unstable_cache } from 'next/cache';
 import './globals.css';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CookieBanner, type CookieBannerText } from '@/components/layout/CookieBanner';
@@ -37,10 +36,8 @@ const fraunces = Poppins({
 });
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F5F8FB' },
-    { media: '(prefers-color-scheme: dark)', color: '#002B47' },
-  ],
+  // Tema único claro — sem variação por prefers-color-scheme.
+  themeColor: '#F5F8FB',
   width: 'device-width',
   initialScale: 1,
 };
@@ -164,35 +161,29 @@ export default async function RootLayout({
   const whatsAppUrl = buildWhatsAppUrl(whatsAppConfig);
   const gaId = seo.google_analytics_id;
   return (
-    <html
-      lang="pt-BR"
-      className={`${inter.variable} ${fraunces.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="pt-BR" className={`${inter.variable} ${fraunces.variable}`}>
       <body className="font-sans antialiased min-h-screen flex flex-col">
-        <ThemeProvider>
-          {/* Skip link for keyboard navigation */}
-          <a
-            href="#conteudo"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gold focus:text-deep_navy focus:rounded-btn focus:font-semibold"
-          >
-            Pular para o conteúdo principal
-          </a>
-          {/* Captura de atribuição (UTM/gclid/fbclid) na chegada — cookie funcional. */}
-          <AttributionTracker />
-          <PublicOnly>
-            <Header />
-          </PublicOnly>
-          <main id="conteudo" className="flex-1">
-            {children}
-          </main>
-          <PublicOnly>
-            <Footer columns={footerColumns} socials={socials} certifications={certifications} />
-            <CookieBanner text={cookieBannerText} />
-            {whatsAppUrl && <WhatsAppButton href={whatsAppUrl} />}
-            <StickyCta />
-          </PublicOnly>
-        </ThemeProvider>
+        {/* Skip link for keyboard navigation */}
+        <a
+          href="#conteudo"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gold focus:text-deep_navy focus:rounded-btn focus:font-semibold"
+        >
+          Pular para o conteúdo principal
+        </a>
+        {/* Captura de atribuição (UTM/gclid/fbclid) na chegada — cookie funcional. */}
+        <AttributionTracker />
+        <PublicOnly>
+          <Header />
+        </PublicOnly>
+        <main id="conteudo" className="flex-1">
+          {children}
+        </main>
+        <PublicOnly>
+          <Footer columns={footerColumns} socials={socials} certifications={certifications} />
+          <CookieBanner text={cookieBannerText} />
+          {whatsAppUrl && <WhatsAppButton href={whatsAppUrl} />}
+          <StickyCta />
+        </PublicOnly>
 
         {/* Google Analytics — só carrega quando admin cadastrou GA ID em
             /admin/seo. Usa strategy=afterInteractive (não bloqueia LCP). */}

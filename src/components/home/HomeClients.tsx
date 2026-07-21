@@ -33,12 +33,12 @@ const TRACK = [...CLIENTS, ...CLIENTS];
 export function HomeClients() {
   return (
     <section
-      className="border-y border-white/10 bg-navy texture-dark"
+      className="border-y border-[rgb(var(--border))] tone-surface"
       aria-label="Indústrias que confiam na Somatec Blocking"
     >
       <div className="py-6 md:py-7">
         <Reveal className="space-y-5">
-          <p className="text-center text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-white/55">
+          <p className="text-center text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-[rgb(var(--text-muted))]">
             Indústrias que confiam na Somatec Blocking
           </p>
 
@@ -64,7 +64,7 @@ export function HomeClients() {
                     title={c.name}
                     width={500}
                     height={260}
-                    className="h-8 w-auto max-w-[92px] object-contain opacity-80 transition duration-300 hover:opacity-100 md:h-9 md:max-w-[112px]"
+                    className="h-8 w-auto max-w-[92px] object-contain brightness-0 opacity-55 transition duration-300 hover:opacity-100 dark:brightness-100 dark:opacity-80 md:h-9 md:max-w-[112px]"
                   />
                 </li>
               ))}

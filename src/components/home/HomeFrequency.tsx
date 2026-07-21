@@ -32,8 +32,14 @@ export function HomeFrequency() {
           </p>
         </Reveal>
 
-        <Reveal delay={120} className="lg:col-span-7">
-          <div className="rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5 text-[rgb(var(--text))] md:p-8">
+        <Reveal delay={120} className="relative lg:col-span-7">
+          {/* Glow ambiente (3c) — luz de palco difusa atrás do gráfico: halo
+              cyan/navy que dá profundidade e destaca o painel do fundo. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-8 -z-10 bg-[radial-gradient(60%_60%_at_55%_45%,rgba(0,140,200,0.22)_0%,transparent_70%)] blur-2xl"
+          />
+          <div className="relative rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5 text-[rgb(var(--text))] shadow-premium-light md:p-8">
             <FrequencySpectrum />
           </div>
         </Reveal>

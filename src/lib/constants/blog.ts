@@ -24,7 +24,7 @@ export type BlogPost = {
   publicadoEm: string;
   /** Marca o post destaque (card grande). */
   destaque?: boolean;
-  /** CTA interno extra (só no card destaque) — dupla conversão. */
+  /** CTA interno extra (dupla conversão) — renderiza no destaque e nos cards NI. */
   ctaInterno?: { label: string; href: string };
   /** true = entrada estrutural (sem copy final); some quando o WP entrar. */
   placeholder?: boolean;
@@ -37,6 +37,8 @@ export const BLOG_CLUSTERS = [
   'Auto-Diagnóstico',
   'Cases',
   'Setores',
+  'Residencial',
+  'Comércio',
 ] as const;
 
 export const BLOG_POSTS: readonly BlogPost[] = [
@@ -62,6 +64,32 @@ export const BLOG_POSTS: readonly BlogPost[] = [
     tempoLeitura: 5,
     heroUrl: '/blog/nobreak-nao-protege.jpg',
     publicadoEm: '2026-07-10',
+  },
+  // ── Cards NI do bloco da home (copy EXATA da master, despacho 2026-07-21).
+  // ⚠️ Os artigos ainda NÃO existem — slugs travados no cluster-mapa (c09/b09);
+  // /blog/<slug> dá 404 até a redação escrever. NÃO ligar
+  // NEXT_PUBLIC_BLOG_TEASER_ENABLED em prod antes disso.
+  {
+    slug: 'protecao-contra-surtos-residencial',
+    titulo: 'O surto que queima o home theater, a automação e o inversor solar da sua casa',
+    excerpt:
+      'Não precisa cair raio no telhado. Oscilação da rede e religamento da concessionária bastam pra fritar o que há de mais caro na casa. Veja o que realmente protege.',
+    cluster: 'Residencial',
+    tempoLeitura: 5,
+    heroUrl: '/blog/casa-condominio.webp',
+    publicadoEm: '2026-07-09',
+    ctaInterno: { label: 'Proteger minha casa', href: '/ferramentas/orcamento' },
+  },
+  {
+    slug: 'protecao-eletrica-para-comercio',
+    titulo: 'A padaria que perdeu o forno, a câmara fria e o PDV num piscar de olhos',
+    excerpt:
+      'Um transiente na rede queima a placa do forno, desarma a câmara fria e trava o PDV — e um dia parado no comércio pequeno pesa igual ao de uma fábrica. Veja como blindar.',
+    cluster: 'Comércio',
+    tempoLeitura: 4,
+    heroUrl: '/blog/comercio-padaria.webp',
+    publicadoEm: '2026-07-08',
+    ctaInterno: { label: 'Proteger meu comércio', href: '/ferramentas/orcamento' },
   },
   {
     slug: '5-sinais-vtcd-sem-saber',
@@ -127,9 +155,22 @@ export const BLOG_POSTS: readonly BlogPost[] = [
   },
 ] as const;
 
-/** Posts ordenados do mais recente ao mais antigo. */
+import { getArticleContent } from '@/lib/constants/blog-content';
+
+/** REGRA ESTRUTURAL (despacho #9): um post só existe em QUALQUER superfície
+ *  (teaser da home, índice /blog, página do artigo, relacionados) se tiver
+ *  CORPO escrito em blog-content.ts. Post sem corpo = invisível e /blog/<slug>
+ *  dá 404 (dynamicParams=false). Quando a redação escrever o artigo, o post
+ *  aparece sozinho em todas as superfícies — ninguém precisa ligar nada. */
+function isPublicado(p: BlogPost): boolean {
+  return getArticleContent(p.slug) !== undefined;
+}
+
+/** Posts PUBLICADOS (com corpo), do mais recente ao mais antigo. */
 export function getBlogPosts(): BlogPost[] {
-  return [...BLOG_POSTS].sort((a, b) => (a.publicadoEm < b.publicadoEm ? 1 : -1));
+  return [...BLOG_POSTS]
+    .filter(isPublicado)
+    .sort((a, b) => (a.publicadoEm < b.publicadoEm ? 1 : -1));
 }
 
 /** O post destaque (mais recente marcado como destaque, senão o mais recente). */
@@ -138,14 +179,16 @@ export function getFeaturedPost(): BlogPost {
   return ordered.find((p) => p.destaque) ?? ordered[0];
 }
 
-/** Os 3 posts do teaser da home (destaque + os 2 seguintes com hero real). */
+/** Os 4 posts do teaser da home: destaque + 3 seguintes com hero real
+ *  (2 industriais + 2 NI — Residencial e Comércio). */
 export function getTeaserPosts(): BlogPost[] {
   const withHero = getBlogPosts().filter((p) => p.heroUrl);
   const featured = withHero.find((p) => p.destaque) ?? withHero[0];
-  const rest = withHero.filter((p) => p.slug !== featured.slug).slice(0, 2);
+  const rest = withHero.filter((p) => p.slug !== featured.slug).slice(0, 3);
   return [featured, ...rest];
 }
 
 export function getPostBySlug(slug: string): BlogPost | undefined {
-  return BLOG_POSTS.find((p) => p.slug === slug);
+  const post = BLOG_POSTS.find((p) => p.slug === slug);
+  return post && isPublicado(post) ? post : undefined;
 }
