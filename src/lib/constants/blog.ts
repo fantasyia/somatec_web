@@ -59,7 +59,7 @@ export const BLOG_POSTS: readonly BlogPost[] = [
     slug: 'no-break-nao-protege-contra-surto',
     titulo: 'Seu no-break não protege contra o surto que queima placa',
     excerpt:
-      'No-break segura queda de energia. Estabilizador segura variação lenta. Mas o transiente de 100 kHz passa por cima dos dois, e é ele que queima drive, inversor e CLP.',
+      'No-break segura queda de energia. Estabilizador segura variação lenta. Mas o transiente de 100 kHz passa por cima dos dois — e é ele que queima placa, seja no inversor da fábrica ou no eletrônico caro de casa.',
     cluster: 'Proteção Elétrica',
     tempoLeitura: 5,
     heroUrl: '/blog/nobreak-nao-protege.jpg',

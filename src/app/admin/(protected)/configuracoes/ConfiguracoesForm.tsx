@@ -321,7 +321,7 @@ function CertificationsForm({ initial }: { initial: Certification[] }) {
                     type="text"
                     value={cert.label}
                     onChange={(e) => update(i, { label: e.target.value })}
-                    placeholder="Ex: FSSC 22000"
+                    placeholder="Ex: ABNT NBR 5410"
                     className="w-full rounded-md border border-[rgb(var(--border))] bg-[rgb(var(--surface))] px-2.5 py-1.5 text-sm text-[rgb(var(--text))] placeholder-[rgb(var(--text-muted))]/50 focus:outline-none focus:border-gold/60"
                   />
                 </label>
@@ -331,7 +331,7 @@ function CertificationsForm({ initial }: { initial: Certification[] }) {
                     type="text"
                     value={cert.src}
                     onChange={(e) => update(i, { src: e.target.value })}
-                    placeholder="/certifications/fssc-22000.svg"
+                    placeholder="/certifications/norma.svg"
                     className="w-full rounded-md border border-[rgb(var(--border))] bg-[rgb(var(--surface))] px-2.5 py-1.5 text-sm text-[rgb(var(--text))] placeholder-[rgb(var(--text-muted))]/50 focus:outline-none focus:border-gold/60"
                   />
                 </label>

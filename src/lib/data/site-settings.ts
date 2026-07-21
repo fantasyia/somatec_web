@@ -48,12 +48,14 @@ export type Certification = {
   src: string;
 };
 
-/** Fallback quando site_settings.certifications não existe. */
+/** Fallback quando site_settings.certifications não existe.
+ *  Regra (despacho #11): IP-65 é ESPECIFICAÇÃO técnica (datasheet /produtos),
+ *  não certificação — nunca entra aqui. ISO 50001 em andamento = só texto,
+ *  nunca selo. ISO 9001 não é da Somatec — não usar. */
 export const CERTIFICATIONS_FALLBACK: Certification[] = [
   { label: 'ABNT NBR 5410', src: '/certifications/norma.svg' },
   { label: 'IEC 61643-1', src: '/certifications/norma.svg' },
   { label: 'DPS Classe III', src: '/certifications/norma.svg' },
-  { label: 'IP-65', src: '/certifications/norma.svg' },
 ];
 
 function hasValidSupabaseConfig(): boolean {

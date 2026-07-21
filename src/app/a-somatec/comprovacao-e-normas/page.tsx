@@ -28,8 +28,10 @@ const pillars = [
   {
     icon: Leaf,
     title: 'Eficiência energética (ISO 50001)',
+    // Redação da master (despacho #11): ISO 50001 EM ANDAMENTO → "alinhada à
+    // ISO 50001", sem a palavra "certificação" (sugeriria obtida). Nunca selo.
     description:
-      'Nossa atuação em qualidade de energia caminha alinhada à certificação ISO 50001, reduzindo desperdícios, retrabalhos e geração de lixo eletrônico.',
+      'Nossa atuação em qualidade de energia caminha alinhada à ISO 50001, reduzindo desperdícios, retrabalhos e geração de lixo eletrônico.',
   },
   {
     icon: ShieldCheck,
