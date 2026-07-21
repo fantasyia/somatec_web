@@ -7,6 +7,8 @@ import {
 } from '@/lib/data/home';
 import { HomeHero } from '@/components/home/HomeHero';
 import { HomeAterramento } from '@/components/home/HomeAterramento';
+import { HomeNaoIndustrial } from '@/components/home/HomeNaoIndustrial';
+import { HomeCarroEletrico } from '@/components/home/HomeCarroEletrico';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
 import { HomeManifesto } from '@/components/home/HomeManifesto';
 import { HomeFrequency } from '@/components/home/HomeFrequency';
@@ -88,12 +90,21 @@ export default async function HomePage() {
       <div className="tone-base">
         <HomeNoRisk />
       </div>
+      {/* Ponte NI (o que está em risco por público) + aprofundamento EV —
+          vizinhos, então tons alternados (despacho #5). */}
+      <div className="tone-surface">
+        <HomeNaoIndustrial />
+      </div>
+      <div className="tone-base">
+        <HomeCarroEletrico />
+      </div>
       {BLOG_TEASER_ENABLED && (
         <div className="tone-surface">
           <Reveal><HomeBlogTeaser /></Reveal>
         </div>
       )}
-      <div className="tone-base">
+      {/* Sem o blog teaser, o vizinho de cima é o EV (tone-base) — alterna. */}
+      <div className={BLOG_TEASER_ENABLED ? 'tone-base' : 'tone-surface'}>
         <Reveal><HomeCta cards={ctaCards} /></Reveal>
       </div>
     </>
