@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Activity, Award, Calculator, ChevronRight, Clock, Factory, FileText, ShieldCheck } from 'lucide-react';
+import { Activity, Award, Calculator, ChevronRight, Clock, Factory, FileText, Home, ShieldCheck, Store } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { BlogPost } from '@/lib/constants/blog';
 
@@ -10,6 +10,8 @@ const CLUSTER_ICON: Record<string, LucideIcon> = {
   'Auto-Diagnóstico': Activity,
   Cases: Award,
   Setores: Factory,
+  Residencial: Home,
+  Comércio: Store,
 };
 
 function ClusterPill({ cluster }: { cluster: string }) {
@@ -116,11 +118,15 @@ export function BlogCard({
           <span>{post.tempoLeitura} min de leitura</span>
         </div>
 
-        {/* CTA interno (só no destaque) — z-10 fica acima do stretched link do card */}
-        {featured && post.ctaInterno && (
+        {/* CTA interno (dupla conversão) — z-10 fica acima do stretched link
+            do card. Renderiza sempre que o post define ctaInterno (destaque e
+            cards NI). */}
+        {post.ctaInterno && (
           <Link
             href={post.ctaInterno.href}
-            className="relative z-10 mt-2 inline-flex w-fit items-center gap-1 font-sans text-sm font-semibold text-cyan transition-colors hover:text-cyan/80"
+            className={`relative z-10 inline-flex w-fit items-center gap-1 font-sans font-semibold text-cyan transition-colors hover:text-cyan/80 ${
+              featured ? 'mt-2 text-sm' : 'mt-1 text-[13px]'
+            }`}
           >
             {post.ctaInterno.label}
             <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
