@@ -81,8 +81,8 @@ const PUBLICOS: readonly Publico[] = [
     nome: 'Pequena indústria',
     risco:
       'A mesma dor da grande, em escala menor — e resolvida com compra direta, sem locação.',
-    foto: null,
-    alt: 'Pequena indústria',
+    foto: '/home/ni-pequena-industria.webp',
+    alt: 'Oficina de pequena indústria com bancada de ferramentas e quadro elétrico',
   },
   {
     Icon: Zap,
@@ -156,19 +156,19 @@ export default async function ProtecaoPage() {
         className="relative isolate flex min-h-[72svh] items-center overflow-hidden bg-deep_navy pt-20 text-white"
         aria-label="Proteção para casa, comércio e condomínio"
       >
-        {/* Foto full-bleed — ⏳ foto nova do Estúdio; placeholder até chegar */}
+        {/* Foto full-bleed com art direction (fechamento #12): wide no desktop,
+            tall no mobile. Assets pré-otimizados em webp. */}
         <div className="absolute inset-0 -z-20" aria-hidden="true">
-          <div
-            className="flex h-full w-full items-end p-8"
-            style={{
-              background:
-                'linear-gradient(135deg, rgb(13,41,73) 0%, rgb(7,27,51) 60%, rgb(3,17,31) 100%)',
-            }}
-          >
-            <span className="font-serif text-4xl font-bold tracking-tight text-white/10 md:text-6xl">
-              Casa · Comércio · Condomínio
-            </span>
-          </div>
+          <picture>
+            <source media="(min-width: 768px)" srcSet="/home/hero/ni-landing-hero-wide.webp" />
+            <img
+              src="/home/hero/ni-landing-hero-tall.webp"
+              alt=""
+              className="h-full w-full object-cover"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
         </div>
         {/* Scrim — denso do lado do texto (regra de marca) */}
         <div
