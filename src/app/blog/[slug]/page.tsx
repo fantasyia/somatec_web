@@ -133,6 +133,18 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </nav>
 
         <div className="max-w-3xl">
+          {/* ⚠️ TEMP (despacho #13): aviso de validação interna — some quando a
+              redação entregar o texto real (emPreparacao sai do stub). */}
+          {content?.emPreparacao && (
+            <div
+              role="status"
+              className="mb-5 inline-flex items-center gap-2 rounded-btn border border-gold/40 bg-gold/10 px-3.5 py-2 font-sans text-[13px] font-semibold text-[rgb(var(--text))]"
+            >
+              <Clock className="h-4 w-4 text-gold" strokeWidth={2} aria-hidden="true" />
+              Conteúdo em preparação — este texto é provisório, para validação interna. O artigo
+              final será publicado pela redação antes do lançamento.
+            </div>
+          )}
           <h1 className="font-serif text-h2-m md:text-h1-d font-semibold text-balance leading-tight">
             {post.titulo}
           </h1>

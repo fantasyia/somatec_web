@@ -24,7 +24,34 @@ export type ArticleContent = {
   atualizadoEm?: string;
   secoes: ArticleSection[];
   faq: ArticleFaq[];
+  /** ⚠️ TEMP (despacho #13): stub de validação interna — renderiza o aviso
+   *  "conteúdo em preparação" no artigo. Some quando a redação entregar o
+   *  texto real. NÃO lançar publicamente com isso true. */
+  emPreparacao?: boolean;
 };
+
+/** ⚠️ TEMP (despacho #13) — corpo PLACEHOLDER de validação interna: alimenta
+ *  o portão estrutural (post só renderiza com corpo) SÓ pra o artigo passar a
+ *  existir e o Leandro validar layout/navegação. O portão PERMANECE — isto é
+ *  um stub nele, não a remoção. Antes do go-live público, o conteúdo REAL
+ *  (master + sessão de blog) substitui cada stub. */
+function stubEmPreparacao(): ArticleContent {
+  return {
+    respostaRapida:
+      'Conteúdo em preparação pela redação da Somatec. Esta página está no ar para validação interna de layout e navegação.',
+    secoes: [
+      {
+        id: 'em-preparacao',
+        titulo: 'Conteúdo em preparação',
+        paragrafos: [
+          'O texto completo deste artigo está sendo preparado pela redação da Somatec e substituirá esta página antes do lançamento. A estrutura que você vê aqui — título, capa, tempo de leitura e navegação — já é a definitiva.',
+        ],
+      },
+    ],
+    faq: [],
+    emPreparacao: true,
+  };
+}
 
 const DEMO: ArticleContent = {
   respostaRapida:
@@ -93,9 +120,14 @@ const DEMO: ArticleContent = {
   ],
 };
 
-/** Mapa slug → conteúdo. Só o artigo DEMO está preenchido (validação de template). */
+/** Mapa slug → conteúdo. DEMO = validação de template; os stubs são o estado
+ *  TEMPORÁRIO de validação com o Leandro (despacho #13) — os 4 artigos do
+ *  teaser da home passam no portão e renderizam com o aviso visível. */
 const ARTICLE_CONTENT: Record<string, ArticleContent> = {
-  'quanto-custa-1-hora-de-linha-parada': DEMO,
+  'quanto-custa-1-hora-de-linha-parada': { ...DEMO, emPreparacao: true },
+  'no-break-nao-protege-contra-surto': stubEmPreparacao(),
+  'protecao-contra-surtos-residencial': stubEmPreparacao(),
+  'protecao-eletrica-para-comercio': stubEmPreparacao(),
 };
 
 export function getArticleContent(slug: string): ArticleContent | undefined {
