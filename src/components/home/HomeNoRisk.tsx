@@ -20,6 +20,10 @@ export function HomeNoRisk() {
     <section aria-label="Investimento sem risco">
       <div className="container-msm section-y">
         <div className="max-w-3xl space-y-4">
+          {/* Rótulo do modelo (despacho #15) — chip, não eyebrow. */}
+          <span className="inline-flex items-center rounded-full bg-cyan/10 px-3 py-1 font-sans text-xs font-semibold text-cyan">
+            Locação · Indústria
+          </span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Você só paga quando o resultado é comprovado
           </h2>

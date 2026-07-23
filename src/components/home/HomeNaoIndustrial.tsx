@@ -46,6 +46,10 @@ export function HomeNaoIndustrial() {
     <section aria-label="Proteção para comércio, condomínio e residência">
       <div className="container-msm section-y">
         <Reveal className="max-w-3xl space-y-4 mb-8">
+          {/* Rótulo do modelo (despacho #15) — chip, não eyebrow. */}
+          <span className="inline-flex items-center rounded-full bg-cyan/10 px-3 py-1 font-sans text-xs font-semibold text-cyan">
+            Compra direta
+          </span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Proteção também pra comércio, condomínio e casa de alto padrão
           </h2>
@@ -72,9 +76,9 @@ export function HomeNaoIndustrial() {
         </div>
 
         <Reveal className="mt-8">
-          {/* Fechamento #12: funil home NI → /protecao (convite completo) →
-              calculadora. Não vai mais direto pra ferramenta. */}
-          <Link href="/protecao" className="btn-primary group inline-flex">
+          {/* Funil: /protecao é o hub NI. O verbo é "calcular" → deep-link na
+              âncora da calculadora embutida (regra do Léo, igual ao slide 3). */}
+          <Link href="/protecao#calculadora" className="btn-primary group inline-flex">
             Calcular a minha proteção
             <ChevronRight
               className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
