@@ -9,6 +9,8 @@ import {
   Zap,
   ChevronRight,
   ShieldCheck,
+  Wrench,
+  BadgeCheck,
 } from 'lucide-react';
 import { MasterBlockSelector } from '@/components/tools/MasterBlockSelector';
 import { FrequencySpectrum } from '@/components/graphics/FrequencySpectrum';
@@ -94,16 +96,7 @@ const PUBLICOS: readonly Publico[] = [
   },
 ];
 
-// ── Seção 7 — compra com segurança — ⏳ GATE (decisão 3 do Léo) ─────
-// Estrutura pronta, TERMOS pendentes (garantia de fábrica, troca/devolução,
-// prazo). NÃO inventar: enquanto null, a seção NÃO renderiza — quando o Léo
-// definir os termos, preencher aqui e ela aparece sozinha.
-const TERMOS_COMPRA: { titulo: string; texto: string }[] | null = null;
-
-// ── Seção 8 — FAQ (só as 4 respostas aprovadas; copy do despacho) ───
-// ⏳ GATED (não publicar sem confirmação):
-//   • "Preciso de eletricista pra instalar?" — depende da instalação NI (decisão 4).
-//   • "Tem garantia?" — depende dos termos de compra (decisão 3).
+// ── Seção 8 — FAQ (copy exata dos despachos #12 e #14) ──────────────
 const FAQ: readonly { pergunta: string; resposta: string }[] = [
   {
     pergunta: 'Meu no-break já não protege isso?',
@@ -123,6 +116,15 @@ const FAQ: readonly { pergunta: string; resposta: string }[] = [
   {
     pergunta: 'Serve pra minha casa / meu comércio?',
     resposta: 'Sim. Há modelo do pequeno ao grande — a calculadora aponta o seu.',
+  },
+  {
+    pergunta: 'Preciso de eletricista pra instalar?',
+    resposta:
+      'A instalação é simples e o produto vai com manual de instruções. Recomendamos que seja feita por um eletricista, pra garantir a qualidade e o pleno funcionamento da proteção.',
+  },
+  {
+    pergunta: 'Tem garantia?',
+    resposta: 'Sim: 3 anos de garantia de fábrica.',
   },
 ];
 
@@ -323,6 +325,10 @@ export default async function ProtecaoPage() {
             <p className="font-sans text-lg font-bold text-gold">
               A partir de {precoBase} · compra direta.
             </p>
+            {/* Bônus de conversão (#14): baixa a objeção "é difícil instalar?" */}
+            <p className="text-sm text-[rgb(var(--text-muted))]">
+              Chega com manual e instala fácil — qualquer eletricista faz.
+            </p>
           </Reveal>
           {/* Calculadora EMBUTIDA (encurta o funil) — já captura o lead pro
               Betinna com atribuição; reusada, não refeita. */}
@@ -360,23 +366,39 @@ export default async function ProtecaoPage() {
         </div>
       </section>
 
-      {/* ── 7. COMPRA COM SEGURANÇA (off-white) — ⏳ GATE ──────────── */}
-      {TERMOS_COMPRA && (
-        <div className="tone-base">
-          <section className="container-msm section-y" aria-label="Compra com segurança">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {TERMOS_COMPRA.map((t) => (
-                <div key={t.titulo} className="card-elevated p-6">
-                  <h3 className="font-sans font-semibold text-base">{t.titulo}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[rgb(var(--text-muted))]">
-                    {t.texto}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      )}
+      {/* ── 7. COMPRA COM SEGURANÇA (off-white) — gate fechado (#14) ── */}
+      <div className="tone-base">
+        <section className="container-msm section-y" aria-label="Compra com segurança">
+          <Reveal className="max-w-3xl space-y-4">
+            <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
+              Compra com segurança.
+            </h2>
+            <p className="text-[rgb(var(--text-muted))] leading-relaxed">
+              O Master Block tem{' '}
+              <span className="font-semibold text-gold">3 anos</span> de garantia
+              de fábrica. É a mesma engenharia que protege as maiores indústrias
+              do Brasil — agora no seu quadro, com a tranquilidade de uma
+              garantia de 3 anos.
+            </p>
+          </Reveal>
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {[
+              { Icon: ShieldCheck, selo: 'Garantia de 3 anos' },
+              { Icon: Wrench, selo: 'Instalação simples, por eletricista' },
+              { Icon: BadgeCheck, selo: 'Produto patenteado' },
+            ].map(({ Icon, selo }, i) => (
+              <Reveal key={selo} delay={i * 70} className="card-elevated flex items-center gap-3 p-5">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-btn bg-cyan/15 text-cyan">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+                </span>
+                <span className="font-sans font-semibold text-sm text-[rgb(var(--text))]">
+                  {selo}
+                </span>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      </div>
 
       {/* ── 8. FAQ (claro) ────────────────────────────────────────── */}
       <div className="tone-surface">
