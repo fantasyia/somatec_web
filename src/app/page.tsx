@@ -87,8 +87,8 @@ export default async function HomePage() {
             MAIS altura + webp q92 / quality 90 pra não degradar a fonte. */}
         <div className="relative h-[320px] w-full overflow-hidden md:h-[440px]">
           <Image
-            src="/home/faixa-industrial-top.webp"
-            alt="Planta industrial em operação ao anoitecer"
+            src="/home/faixa-industrial-galpao.webp"
+            alt="Galpão industrial com linha de máquinas em perspectiva"
             fill
             loading="lazy"
             quality={90}
