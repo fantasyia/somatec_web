@@ -3,10 +3,19 @@
  * Números e empresas conforme material comercial oficial (case Cinpal,
  * Nissin, Stampline, Grow Up) + selo FIESP + linha de grandes marcas.
  */
+import Image from 'next/image';
 import { ShieldCheck } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { CaseChart } from '@/components/home/CaseChart';
 import { ProofBadges } from '@/components/ui/ProofBadges';
+
+/** Foto de segmento por case (#16-E) — reaproveitadas de /home. */
+const CASE_PHOTO: Record<string, string> = {
+  Cinpal: '/home/seg-autopecas.webp',
+  'Nissin Foods': '/home/seg-frigorifico.webp',
+  Stampline: '/home/seg-metalurgia.webp',
+  'Grow Up': '/home/seg-textil.webp',
+};
 
 type Case = {
   metric: string;
@@ -77,8 +86,20 @@ export function HomeProof() {
         {CASES.map((c) => (
           <Reveal
             key={c.company}
-            className="flex flex-col card-elevated p-6 h-full"
+            className="flex flex-col card-elevated overflow-hidden h-full"
           >
+            {/* Foto de segmento (#16-E) — pequena, no topo do card */}
+            <div className="relative h-28 w-full overflow-hidden bg-navy-700">
+              <Image
+                src={CASE_PHOTO[c.company]}
+                alt={c.sector}
+                fill
+                loading="lazy"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="flex flex-1 flex-col p-6">
             <div className="font-serif font-bold text-indicator-m leading-none text-gold">
               {c.metric}
             </div>
@@ -91,6 +112,7 @@ export function HomeProof() {
                 {c.sector}
               </div>
               <p className="text-sm leading-relaxed text-[rgb(var(--text-muted))]">{c.description}</p>
+            </div>
             </div>
           </Reveal>
         ))}

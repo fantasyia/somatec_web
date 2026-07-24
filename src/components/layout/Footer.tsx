@@ -4,7 +4,6 @@ import { Instagram, Linkedin, Youtube } from 'lucide-react';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
 import { SITE, SOCIALS as ENV_SOCIALS } from '@/lib/constants/site';
 import { type Socials, type Certification } from '@/lib/data/site-settings';
-import { ProofBadges } from '@/components/ui/ProofBadges';
 
 type FooterLink = { label: string; href: string };
 type FooterColumnData = { title: string; links: FooterLink[] };
@@ -92,10 +91,8 @@ export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
           </div>
         </div>
 
-        {/* Provas reais da Somatec (substitui os shields placeholder) */}
-        <div className="mt-16 max-w-3xl">
-          <ProofBadges variant="dark" />
-        </div>
+        {/* #16-F: os 4 selos vivem SÓ no bloco de prova (cases) — a duplicata
+            do rodapé foi removida. */}
 
         {/* Divider */}
         <div className="mt-12 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />

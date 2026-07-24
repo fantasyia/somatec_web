@@ -164,7 +164,11 @@ export async function HomeCta({ cards }: Props) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.08] rounded-card overflow-hidden border border-white/[0.08]">
           {items.map(({ id, title, description, href, external }) => {
-            const cardClass = 'group flex flex-col overflow-hidden bg-deep_navy hover:bg-white/[0.05] transition-colors duration-[250ms] ease-premium';
+            // BUG #16-J: hover:bg-white/[0.05] SUBSTITUÍA o bg-deep_navy (não
+            // sobrepõe) → em seção clara o fundo sumia e o texto branco ficava
+            // ilegível. Feedback de hover = elevação/translate, nunca troca de
+            // cor de fundo/texto.
+            const cardClass = 'group flex flex-col overflow-hidden bg-deep_navy transition-transform duration-[250ms] ease-premium hover:-translate-y-1 hover:shadow-premium-dark motion-reduce:hover:translate-y-0';
             const photo = PHOTO_BY_TITLE[title];
             const body = (
               <>

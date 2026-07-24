@@ -3,17 +3,8 @@
  * playbook: os 5 primeiros passos são sem custo e o cliente só paga se
  * aprovar o resultado. Band navy para máximo contraste.
  */
-import { Search, PencilRuler, FileText, Wrench, GaugeCircle } from 'lucide-react';
 import { CommercialCta } from '@/components/ui/CommercialCta';
-import { Reveal } from '@/components/ui/Reveal';
-
-const STEPS = [
-  { Icon: Search, label: 'Estudo da rede' },
-  { Icon: PencilRuler, label: 'Projeto do sistema' },
-  { Icon: FileText, label: 'Proposta técnica' },
-  { Icon: Wrench, label: 'Instalação' },
-  { Icon: GaugeCircle, label: 'Período de avaliação' },
-] as const;
+import { LocacaoTimeline } from '@/components/home/LocacaoTimeline';
 
 export function HomeNoRisk() {
   return (
@@ -35,23 +26,9 @@ export function HomeNoRisk() {
           </p>
         </div>
 
-        {/* Passos */}
-        <div className="mt-12 grid grid-cols-2 md:grid-cols-5 gap-4">
-          {STEPS.map(({ Icon, label }, i) => (
-            <Reveal
-              key={label}
-              delay={i * 70}
-              className="relative rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5"
-            >
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-btn bg-cyan/15 text-cyan mb-3">
-                <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-              </span>
-              <div className="text-[11px] font-sans font-bold text-cyan">
-                Passo {i + 1} · sem custo
-              </div>
-              <div className="mt-1 font-sans font-semibold text-sm text-[rgb(var(--text))]">{label}</div>
-            </Reveal>
-          ))}
+        {/* Timeline conectada (#16-D): linha preenche + nós acendem em sequência. */}
+        <div className="mt-12">
+          <LocacaoTimeline />
         </div>
 
         <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">

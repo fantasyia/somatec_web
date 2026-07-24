@@ -32,6 +32,11 @@ export function HomeFrequency() {
             Por isso indústrias que já haviam instalado DPS de grandes marcas seguiam tendo
             prejuízo — e resolveram com a Somatec.
           </p>
+          {/* Dado da CNI (#16-B) — discreto; o único laranja da seção é o 100 kHz. */}
+          <p className="text-sm text-white/70 leading-relaxed">
+            Segundo a CNI, <span className="font-semibold text-white">67%</span> da indústria
+            nacional sofre prejuízo com má qualidade de energia.
+          </p>
         </Reveal>
 
         <Reveal delay={120} className="relative lg:col-span-7">

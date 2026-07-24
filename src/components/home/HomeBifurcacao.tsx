@@ -4,58 +4,63 @@ import { ChevronRight } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 
 /**
- * ⭐ Bifurcação — coração do despacho #15: logo após os logos, a home declara
- * que serve OS DOIS públicos, com os 2 modelos explícitos (INDÚSTRIA =
- * locação · NI = compra direta). 1 foco laranja por card = o CTA; a palavra
- * do modelo vai em navy/negrito.
+ * ⭐ Bifurcação (despachos #15 + #16-A): seção FULL-SCREEN logo após os
+ * logos — a home declara os 2 públicos e os 2 modelos (indústria = locação ·
+ * NI = compra direta). 2 cards ALTOS com as fotos VERTICAIS aprovadas, Ken
+ * Burns sutil (reduced-motion respeitado) e texto sobre scrim.
+ * O painel industrial recebe VÍDEO depois; a still fica de poster/fallback.
+ * 1 foco laranja por card = o CTA; a palavra do modelo em negrito claro.
  */
 
 const CARDS = [
   {
     id: 'industria',
-    foto: '/home/seg-metalurgia.webp',
-    alt: 'Fornos e motores em planta metalúrgica',
+    foto: '/home/bifurcacao-industrial.webp',
+    alt: 'Planta industrial em operação',
     titulo: 'Para a indústria',
-    // "Locação" em navy/negrito (não laranja)
-    texto: (
-      <>
-        <strong className="font-semibold text-[rgb(var(--text))]">Locação</strong>{' '}
-        com resultado comprovado — estudo, projeto, instalação e teste sem
-        custo. Você só paga a mensalidade se aprovar o resultado na sua
-        operação.
-      </>
-    ),
+    modelo: 'Locação',
+    resto:
+      ' com resultado comprovado — estudo, projeto, instalação e teste sem custo. Você só paga a mensalidade se aprovar o resultado na sua operação.',
     cta: { label: 'Ver proteção industrial', href: '#industria' },
   },
   {
     id: 'nao-industrial',
-    foto: '/home/hero-nao-industrial.webp',
-    alt: 'Sala de estar de alto padrão com automação e home theater',
+    foto: '/home/bifurcacao-ni.webp',
+    alt: 'Casa de alto padrão ao anoitecer',
     titulo: 'Para comércio, condomínio e residência',
-    texto: (
-      <>
-        <strong className="font-semibold text-[rgb(var(--text))]">Compra direta</strong>{' '}
-        — descubra o modelo certo e o preço na hora, sem esperar vendedor.
-      </>
-    ),
+    modelo: 'Compra direta',
+    resto:
+      ' — descubra o modelo certo e o preço na hora, sem esperar vendedor.',
     cta: { label: 'Ver proteção pro meu negócio ou casa', href: '/protecao' },
   },
 ] as const;
 
 export function HomeBifurcacao() {
   return (
-    <section aria-label="Duas formas de proteger">
-      <div className="container-msm section-y">
-        <Reveal className="max-w-3xl space-y-4 mb-10">
+    <section
+      aria-label="Duas formas de proteger"
+      // ~100svh no desktop (altura DEFINIDA — h-full dos cards resolve);
+      // no mobile os 2 cards empilham com altura própria.
+      className="flex flex-col md:h-[100svh] md:min-h-[720px]"
+    >
+      <div className="container-msm pt-14 pb-8 md:pt-20 md:pb-10">
+        <Reveal>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Duas formas de proteger. Escolha a sua.
           </h2>
         </Reveal>
+      </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {CARDS.map(({ id, foto, alt, titulo, texto, cta }, i) => (
-            <Reveal key={id} delay={i * 80} className="card-elevated flex h-full flex-col overflow-hidden">
-              <div className="relative aspect-[16/8] w-full overflow-hidden bg-navy-700">
+      <div className="container-msm flex-1 pb-10 md:pb-14">
+        <div className="grid h-full grid-cols-1 gap-6 md:grid-cols-2">
+          {CARDS.map(({ id, foto, alt, titulo, modelo, resto, cta }, i) => (
+            <Reveal
+              key={id}
+              delay={i * 90}
+              className="group relative min-h-[420px] overflow-hidden rounded-card-lg md:min-h-0"
+            >
+              {/* Foto vertical full-bleed + Ken Burns sutil */}
+              <div className="absolute inset-0 animate-ken-burns motion-reduce:animate-none">
                 <Image
                   src={foto}
                   alt={alt}
@@ -65,18 +70,24 @@ export function HomeBifurcacao() {
                   className="object-cover"
                 />
               </div>
-              <div className="flex flex-1 flex-col gap-3 p-6 md:p-7">
-                <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))] md:text-2xl">
+              {/* Scrim — denso embaixo, onde vive o texto */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(1,12,22,0.12)_0%,rgba(1,12,22,0.2)_45%,rgba(1,12,22,0.82)_100%)]"
+              />
+              <div className="relative flex h-full flex-col justify-end p-6 text-white md:p-8">
+                <h3 className="font-serif text-2xl font-semibold text-balance [text-shadow:0_2px_10px_rgba(0,0,0,0.4)] md:text-3xl">
                   {titulo}
                 </h3>
-                <p className="text-sm leading-relaxed text-[rgb(var(--text-muted))] md:text-base flex-1">
-                  {texto}
+                <p className="mt-2 max-w-[440px] text-sm leading-relaxed text-white/85 md:text-base">
+                  <strong className="font-semibold text-white">{modelo}</strong>
+                  {resto}
                 </p>
-                <div>
-                  <Link href={cta.href} className="btn-primary group inline-flex">
+                <div className="mt-4">
+                  <Link href={cta.href} className="btn-primary group/cta inline-flex">
                     {cta.label}
                     <ChevronRight
-                      className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
+                      className="h-4 w-4 transition-transform duration-200 ease-premium group-hover/cta:translate-x-0.5"
                       strokeWidth={2}
                     />
                   </Link>

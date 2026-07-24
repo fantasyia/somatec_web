@@ -7,8 +7,8 @@ import {
 } from '@/lib/data/home';
 import { HomeHero } from '@/components/home/HomeHero';
 import { HomeAterramento } from '@/components/home/HomeAterramento';
-import { HomeNaoIndustrial } from '@/components/home/HomeNaoIndustrial';
-import { HomeCarroEletrico } from '@/components/home/HomeCarroEletrico';
+import { HomeHoraParada } from '@/components/home/HomeHoraParada';
+import { HomeNiPaineis } from '@/components/home/HomeNiPaineis';
 import Image from 'next/image';
 import { HomeBifurcacao } from '@/components/home/HomeBifurcacao';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
@@ -99,25 +99,27 @@ export default async function HomePage() {
         </div>
         <HomeProof />
       </div>
-      {/* Modelo industrial explícito (rótulo Locação · Indústria). */}
+      {/* Modelo industrial explícito (rótulo Locação · Indústria, timeline). */}
       <div className="tone-base">
         <HomeNoRisk />
       </div>
-      {/* Trilha NI SUBIDA do rodapé (despacho #15): bloco-ponte (compra
-          direta) + carro elétrico, colados na trilha industrial — os 2
-          modelos lado a lado. CTAs → /protecao (hub NI). */}
+      {/* Lead magnet industrial (#16-G): custo da hora parada. */}
       <div className="tone-surface">
-        <HomeNaoIndustrial />
-        <HomeCarroEletrico />
+        <HomeHoraParada />
       </div>
       <div className="tone-base">
         <HomeAterramento />
       </div>
+      {/* Módulo NI mesclado (#16-H): 2 painéis de foto → /protecao (o detalhe
+          completo vive na landing). Substitui o bloco de 4 cards + faixa EV. */}
       <div className="tone-surface">
+        <HomeNiPaineis />
+      </div>
+      <div className="tone-base">
         <Reveal><HomeCta cards={ctaCards} /></Reveal>
       </div>
       {BLOG_TEASER_ENABLED && (
-        <div className="tone-base">
+        <div className="tone-surface">
           <Reveal><HomeBlogTeaser /></Reveal>
         </div>
       )}
