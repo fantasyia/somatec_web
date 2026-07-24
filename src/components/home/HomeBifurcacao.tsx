@@ -1,14 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
-import { BifurcacaoVideo } from '@/components/home/BifurcacaoVideo';
 import { Reveal } from '@/components/ui/Reveal';
 
 /**
  * ⭐ Bifurcação (despachos #15 + #16 + adendos): seção FULL-SCREEN com TRÊS
- * painéis altos — Industrial (vídeo em loop no desktop) · Comercial (foto de
- * supermercado, vertical) · Residencial (bifurcacao-ni). Ken Burns sutil nas
- * stills, texto sobre scrim, reduced-motion respeitado.
+ * painéis altos — Industrial (parque industrial) · Comercial (supermercado) ·
+ * Residencial (EV + mansão), todos foto vertical. Ken Burns sutil, texto
+ * sobre scrim, reduced-motion respeitado.
  * Modelo em negrito claro; 1 foco laranja por card = o CTA.
  * ⚠️ Copy dos cards Comercial/Residencial DERIVADA dos textos já aprovados
  * (grade da landing /protecao) — o despacho trouxe só a foto; master valida.
@@ -30,8 +29,10 @@ type Card = {
 const CARDS: readonly Card[] = [
   {
     id: 'industria',
-    foto: '/home/bifurcacao-industrial.webp',
-    alt: 'Planta industrial em operação',
+    foto: '/home/bifurcacao-industrial-park.webp',
+    alt: 'Parque industrial ao entardecer com chaminés',
+    // Focal nas chaminés/complexo (não sobra céu vazio no topo).
+    fotoPos: 'center 62%',
     titulo: 'Industrial',
     modelo: 'Locação',
     resto:
@@ -89,13 +90,11 @@ export function HomeBifurcacao() {
               delay={i * 90}
               className="group relative min-h-[420px] overflow-hidden rounded-card-lg border border-white/25 md:min-h-0"
             >
-              {/* Painel industrial: VÍDEO em loop no desktop (still no mobile
-                  e sob reduced-motion). Demais: foto vertical + Ken Burns;
-                  sem foto ainda = placeholder no mesmo slot. */}
+              {/* Foto vertical full-bleed + Ken Burns; sem foto ainda =
+                  placeholder no mesmo slot. (O painel industrial deixou de
+                  usar vídeo — imagem final do parque industrial.) */}
               <div className="absolute inset-0 transition-transform duration-[600ms] ease-premium group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
-              {id === 'industria' ? (
-                <BifurcacaoVideo />
-              ) : foto ? (
+              {foto ? (
                 <div className="absolute inset-0 animate-ken-burns motion-reduce:animate-none">
                   <Image
                     src={foto}
