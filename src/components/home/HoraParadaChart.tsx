@@ -119,16 +119,20 @@ export function HoraParadaChart() {
             strokeWidth={1.5}
             strokeDasharray="7 6"
           />
+          {/* Rótulo em 2 linhas ABAIXO da linha, terminando antes da chave
+              (x=124) — não cruza a chave nem cola no "já paga a conta". */}
           <text
-            x={60}
-            y={LINHA_Y - 10}
+            x={116}
+            y={LINHA_Y + 20}
+            textAnchor="end"
             fontFamily={FONT}
             fontSize={13.5}
             fontWeight={600}
             fill="currentColor"
             fillOpacity={0.7}
           >
-            valor da mensalidade
+            <tspan x={116} dy={0}>valor da</tspan>
+            <tspan x={116} dy={17}>mensalidade</tspan>
           </text>
         </g>
 
