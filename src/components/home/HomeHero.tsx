@@ -30,7 +30,11 @@ type Slide = {
   apoio?: string;
   ctas: { label: string; href: string; primary?: boolean }[];
   /** Art direction (despacho #8): wide ≥1024 · tablet 768–1023 · tall <768. */
-  images: { wide: string; tablet: string; tall: string };
+  images?: { wide: string; tablet: string; tall: string };
+  /** Foto REAL do produto (retrato 3:4, despacho mb-reais): no desktop entra
+   *  como painel na METADE direita sobre fundo navy (full-bleed 2:1 cortaria
+   *  o produto); no mobile vira full-bleed. */
+  realFoto?: string;
   alt: string;
   /** 'cold' = scrim neutro-escuro frio (S2b é âmbar — devolve contraste ao CTA laranja). */
   scrim?: 'cold';
@@ -67,12 +71,8 @@ export function HomeHero({ data }: Props) {
           href: data?.secondary_cta_url ?? HERO_FALLBACK.secondary.href,
         },
       ],
-      images: {
-        wide: '/home/hero/hero-s1-wide.webp',
-        tablet: '/home/hero/hero-s1-tablet.webp',
-        tall: '/home/hero/hero-s1-tall.webp',
-      },
-      alt: 'Painel elétrico industrial aberto com disjuntores e fiação',
+      realFoto: '/home/mb-instalado-maquina2.webp',
+      alt: 'Master Block instalado protegendo a máquina',
     },
     {
       id: 'cascata',
@@ -80,13 +80,8 @@ export function HomeHero({ data }: Props) {
       subtitle:
         'Master Block na entrada, no quadro e junto ao equipamento crítico, atenuando o surto em etapas.',
       ctas: [{ label: 'Ver como funciona', href: '/solucoes/protecao-contra-surtos', primary: true }],
-      images: {
-        wide: '/home/hero/hero-s2b-wide.webp',
-        tablet: '/home/hero/hero-s2b-tablet.webp',
-        tall: '/home/hero/hero-s2b-tall.webp',
-      },
-      alt: 'Linha de produção industrial com painel de proteção em primeiro plano',
-      scrim: 'cold',
+      realFoto: '/home/mb-cascata-quadro.webp',
+      alt: 'Master Block instalado em quadro elétrico com disjuntores',
     },
     {
       id: 'nao-industrial',
@@ -205,9 +200,29 @@ export function HomeHero({ data }: Props) {
             i === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          {/* Foto full-bleed com art direction (despacho #8): wide ≥1024,
-              tablet 768–1023, tall <768. next/image não faz <picture> com
-              media queries — assets já vêm otimizados em webp do build. */}
+          {/* Mídia do slide: FOTO REAL retrato (split: navy + painel direito
+              no desktop; full-bleed no mobile) OU set art-directed via
+              <picture> (despacho #8). */}
+          {slide.realFoto ? (
+            <>
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(120deg, rgb(3,17,31) 0%, rgb(7,27,51) 55%, rgb(13,41,73) 100%)',
+                }}
+                aria-hidden="true"
+              />
+              <img
+                src={slide.realFoto}
+                alt={slide.alt}
+                className="absolute inset-y-0 right-0 h-full w-full object-cover md:w-[46%]"
+                fetchPriority={i === 0 ? 'high' : undefined}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </>
+          ) : slide.images ? (
           <picture>
             <source media="(min-width: 1024px)" srcSet={slide.images.wide} />
             <source media="(min-width: 768px)" srcSet={slide.images.tablet} />
@@ -220,6 +235,7 @@ export function HomeHero({ data }: Props) {
               decoding="async"
             />
           </picture>
+          ) : null}
 
           {/* Scrim (regra de marca): denso do lado do texto + reforço na base.
               S2b (âmbar quente) usa a variante FRIA neutro-escura — laranja
