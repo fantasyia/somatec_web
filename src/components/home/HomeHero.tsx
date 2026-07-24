@@ -73,8 +73,8 @@ export function HomeHero({ data }: Props) {
           href: data?.secondary_cta_url ?? HERO_FALLBACK.secondary.href,
         },
       ],
-      realFoto: '/home/mb-instalado-maquina2.webp',
-      alt: 'Master Block instalado protegendo a máquina',
+      realFoto: '/home/hero-s1-mbwall.webp',
+      alt: 'Master Block instalado em parede de painel industrial',
     },
     {
       id: 'cascata',

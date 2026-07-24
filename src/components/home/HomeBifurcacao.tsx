@@ -117,10 +117,16 @@ export function HomeBifurcacao() {
                 />
               )}
               </div>
-              {/* Scrim — denso embaixo, onde vive o texto */}
+              {/* Leve desfoque no fundo SÓ atrás do texto (base), mascarado
+                  pra sumir subindo — melhora a leitura sem virar borrão. */}
               <div
                 aria-hidden="true"
-                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(1,12,22,0.12)_0%,rgba(1,12,22,0.2)_45%,rgba(1,12,22,0.85)_100%)]"
+                className="absolute inset-x-0 bottom-0 h-1/2 backdrop-blur-[3px] [mask-image:linear-gradient(to_top,black_40%,transparent)] [-webkit-mask-image:linear-gradient(to_top,black_40%,transparent)]"
+              />
+              {/* Scrim — mais denso embaixo, onde vive o texto */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-[linear-gradient(180deg,rgba(1,12,22,0.1)_0%,rgba(1,12,22,0.3)_42%,rgba(1,12,22,0.92)_100%)]"
               />
               <div className="relative flex h-full flex-col justify-end p-6 text-white md:p-7">
                 <h3 className="font-serif text-xl font-semibold text-balance [text-shadow:0_2px_10px_rgba(0,0,0,0.4)] md:text-2xl">
