@@ -38,8 +38,7 @@ const CARDS: readonly Card[] = [
   },
   {
     id: 'comercio',
-    // ⏳ bifurcacao-comercial (supermercado, vertical) — Estúdio a entregar.
-    foto: null,
+    foto: '/home/bifurcacao-comercial.webp',
     alt: 'Supermercado com refrigeração e PDV',
     titulo: 'Comercial',
     modelo: 'Compra direta',
@@ -70,7 +69,7 @@ export function HomeBifurcacao() {
       <div className="container-msm pt-14 pb-8 md:pt-20 md:pb-10">
         <Reveal>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Duas formas de proteger. Escolha a sua.
+            Duas formas de <span className="text-gold">proteger</span>. Escolha a sua.
           </h2>
         </Reveal>
       </div>
