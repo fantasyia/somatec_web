@@ -23,6 +23,8 @@ type Card = {
   modelo: string;
   resto: string;
   cta: { label: string; href: string };
+  /** object-position custom (default center) — enquadra a ação da foto. */
+  fotoPos?: string;
 };
 
 const CARDS: readonly Card[] = [
@@ -48,13 +50,15 @@ const CARDS: readonly Card[] = [
   },
   {
     id: 'residencial',
-    foto: '/home/bifurcacao-ni.webp',
-    alt: 'Casa de alto padrão ao anoitecer',
+    foto: '/home/bifurcacao-residencial.webp',
+    alt: 'Carro elétrico carregando na entrada de uma mansão ao anoitecer',
     titulo: 'Residencial',
     modelo: 'Compra direta',
     resto:
       ' — automação, home theater, ar-condicionado e inversor solar: o patrimônio eletrônico da casa, todo na mesma rede.',
     cta: { label: 'Ver proteção pra minha casa', href: '/protecao' },
+    // Foco na metade inferior-esquerda (carro + wallbox), não corta a ação.
+    fotoPos: 'left 70%',
   },
 ];
 
@@ -78,7 +82,7 @@ export function HomeBifurcacao() {
         {/* Painéis com borda UNIFORME de 1px e cantos arredondados nas 4
             pontas cada um (feedback do Léo), separados pela costura mínima. */}
         <div className="grid h-full grid-cols-1 gap-1 md:grid-cols-3">
-          {CARDS.map(({ id, foto, alt, titulo, modelo, resto, cta }, i) => (
+          {CARDS.map(({ id, foto, alt, titulo, modelo, resto, cta, fotoPos }, i) => (
             <Reveal
               key={id}
               delay={i * 90}
@@ -98,6 +102,7 @@ export function HomeBifurcacao() {
                     fill
                     loading="lazy"
                     sizes="(max-width: 768px) 100vw, 33vw"
+                    style={fotoPos ? { objectPosition: fotoPos } : undefined}
                     className="object-cover"
                   />
                 </div>
