@@ -87,9 +87,9 @@ export function HomeHero({ data }: Props) {
     },
     {
       id: 'nao-industrial',
-      title: 'Proteção também pra comércio, condomínio e casa de alto padrão',
+      title: 'Proteção também pra casa e apartamento de alto padrão',
       subtitle:
-        'O mesmo que blinda a indústria protege freezer e PDV do comércio, bombas e elevador do condomínio, automação e painel solar da casa de alto padrão.',
+        'O mesmo que blinda a indústria protege a automação, o home theater, o ar-condicionado e o inversor solar — todo o patrimônio eletrônico da casa, na mesma rede.',
       // /protecao é o HUB único do NI — deep-link na âncora da calculadora
       // embutida mantém o verbo "calcular" com o clique de alta intenção.
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
