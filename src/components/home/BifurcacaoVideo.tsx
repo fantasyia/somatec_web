@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 /**
- * Mídia do painel INDUSTRIAL da bifurcação (despacho vídeo-atmosfera):
- * vídeo curto em loop SÓ no desktop (mobile fica na still, pra não pesar) e
- * SÓ sem prefers-reduced-motion (reduced = still). Poster = frame limpo do
- * próprio vídeo (fallback se não carregar). A still do foundry
- * (bifurcacao-industrial) segue no repo como backup/mobile.
- * SSR renderiza a still (LCP/fallback); o vídeo entra no mount se couber.
+ * Mídia do painel INDUSTRIAL da bifurcação (despacho vídeo night→day):
+ * timelapse noite→dia curto SÓ no desktop (mobile fica no poster, pra não
+ * pesar) e SÓ sem prefers-reduced-motion (reduced = poster de dia).
+ *
+ * PLAY-ONCE parando no frame de dia (não loop): o corte dia↔noite de um loop
+ * seria brusco — o despacho já previu cair pra play-once. O poster (dia) é o
+ * mesmo frame em que o vídeo congela, então não há salto no fim. H.264
+ * comprimido (~1,3 MB). SSR renderiza o poster (LCP/fallback); o vídeo entra
+ * no mount se couber.
  */
 export function BifurcacaoVideo() {
   const [playVideo, setPlayVideo] = useState(false);
@@ -32,11 +35,10 @@ export function BifurcacaoVideo() {
     return (
       <video
         className="absolute inset-0 h-full w-full object-cover"
-        src="/home/industrial-atmosfera-v2.mp4"
-        poster="/home/industrial-atmosfera-poster.webp"
+        src="/home/industria-24h.mp4"
+        poster="/home/industria-24h-poster.webp"
         autoPlay
         muted
-        loop
         playsInline
         preload="metadata"
         aria-hidden="true"
@@ -44,16 +46,15 @@ export function BifurcacaoVideo() {
     );
   }
 
+  // Desktop reduced-motion / mobile: poster estático de DIA.
   return (
-    <div className="absolute inset-0 animate-ken-burns motion-reduce:animate-none">
-      <Image
-        src="/home/bifurcacao-industrial.webp"
-        alt="Planta industrial em operação"
-        fill
-        loading="lazy"
-        sizes="(max-width: 768px) 100vw, 50vw"
-        className="object-cover"
-      />
-    </div>
+    <Image
+      src="/home/industria-24h-poster.webp"
+      alt="Planta industrial ao amanhecer"
+      fill
+      loading="lazy"
+      sizes="(max-width: 768px) 100vw, 33vw"
+      className="absolute inset-0 object-cover"
+    />
   );
 }
