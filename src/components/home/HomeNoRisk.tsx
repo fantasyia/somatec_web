@@ -20,9 +20,11 @@ export function HomeNoRisk() {
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
             Estudo, projeto, proposta, instalação e período de avaliação: tudo{' '}
-            <span className="font-semibold text-[rgb(var(--text))]">sem custo</span>. Você só passa a pagar a
-            mensalidade se, ao fim do teste de 60 a 90 dias, aprovar o resultado na sua própria
-            operação. Se não houver resultado, retiramos os equipamentos — sem custo algum.
+            <span className="font-semibold text-[rgb(var(--text))]">sem custo</span>. O período de
+            avaliação — de 60 a 90 dias — é definido pela análise do software, que mede até ter
+            dados suficientes pra comprovar (ou não) o resultado na sua operação. Você só passa a
+            pagar a mensalidade se aprovar o resultado. Se não houver, retiramos os equipamentos —
+            sem custo algum.
           </p>
         </div>
 
@@ -31,17 +33,15 @@ export function HomeNoRisk() {
           <LocacaoTimeline />
         </div>
 
-        <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-5">
+        {/* Adendo #16-A: a legenda do saving (30%) saiu daqui — o argumento
+            subiu de nível e virou o módulo "Uma hora parada por mês já paga
+            a conta" (HomeHoraParada), logo abaixo. */}
+        <div className="mt-10">
           <CommercialCta
             label="Solicitar diagnóstico gratuito"
             context="Modelo sem risco (home)"
             fallbackPath="/contato"
           />
-          <p className="text-sm text-[rgb(var(--text-muted))] max-w-md leading-relaxed">
-            O saving costuma superar em{' '}
-            <span className="font-bold text-gold">30% o valor da parcela</span> — em alguns casos,
-            várias vezes mais.
-          </p>
         </div>
       </div>
     </section>

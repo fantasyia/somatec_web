@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { HERO_FALLBACK } from '@/lib/constants/home-fallback';
 import type { HomeHero as HeroData } from '@/types/database';
 
@@ -275,35 +275,57 @@ export function HomeHero({ data }: Props) {
         </div>
       ))}
 
-      {/* Barra de progresso segmentada — base do carrossel, sobre o scrim */}
+      {/* Barra de progresso segmentada + setas ‹ › (adendo #16-C) — base do
+          carrossel, sobre o scrim. Setas = alvo de clique visível e sutil
+          (teclado já navega); rótulos acessíveis. */}
       <div className="absolute inset-x-0 bottom-0">
-        <div
-          className="container-msm grid gap-1.5 pb-5"
-          style={{ gridTemplateColumns: `repeat(${slides.length}, 1fr)` }}
-          role="tablist"
-          aria-label="Selecionar slide"
-        >
-          {slides.map((slide, i) => (
+        <div className="container-msm flex items-center gap-4 pb-5">
+          <div
+            className="grid flex-1 gap-1.5"
+            style={{ gridTemplateColumns: `repeat(${slides.length}, 1fr)` }}
+            role="tablist"
+            aria-label="Selecionar slide"
+          >
+            {slides.map((slide, i) => (
+              <button
+                key={slide.id}
+                type="button"
+                role="tab"
+                aria-selected={i === index}
+                aria-label={`Slide ${i + 1}: ${slide.title}`}
+                onClick={() => goTo(i)}
+                className="group relative h-1 overflow-hidden rounded-full bg-white/25"
+              >
+                <span
+                  className="absolute inset-y-0 left-0 bg-gold transition-[width]"
+                  style={{
+                    width: i < index ? '100%' : i === index ? `${progress}%` : '0%',
+                    transitionDuration: i === index ? '0ms' : '300ms',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="sr-only">Ir para slide {i + 1}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5">
             <button
-              key={slide.id}
               type="button"
-              role="tab"
-              aria-selected={i === index}
-              aria-label={`Slide ${i + 1}: ${slide.title}`}
-              onClick={() => goTo(i)}
-              className="group relative h-1 overflow-hidden rounded-full bg-white/25"
+              aria-label="Slide anterior"
+              onClick={() => goTo(index - 1)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/25 text-white/50 transition-all duration-200 ease-premium hover:border-white/70 hover:text-white"
             >
-              <span
-                className="absolute inset-y-0 left-0 bg-gold transition-[width]"
-                style={{
-                  width: i < index ? '100%' : i === index ? `${progress}%` : '0%',
-                  transitionDuration: i === index ? '0ms' : '300ms',
-                }}
-                aria-hidden="true"
-              />
-              <span className="sr-only">Ir para slide {i + 1}</span>
+              <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </button>
-          ))}
+            <button
+              type="button"
+              aria-label="Próximo slide"
+              onClick={() => goTo(index + 1)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/25 text-white/50 transition-all duration-200 ease-premium hover:border-white/70 hover:text-white"
+            >
+              <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </div>
     </section>
