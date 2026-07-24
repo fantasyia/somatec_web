@@ -27,28 +27,28 @@ type Setor = {
 const SETORES: readonly Setor[] = [
   {
     nome: 'Alimentícia',
-    foto: '/home/seg-frigorifico.webp',
+    foto: '/home/setor-alimenticia.webp',
     dor: 'Linhas de empacotamento e automação parando, com queima de placas.',
     prova: ['Nissin Foods — ', '~R$ 1 mi/ano', ' economizados.'],
     href: '/industrias/alimenticia',
   },
   {
     nome: 'Autopeças',
-    foto: '/home/seg-autopecas.webp',
+    foto: '/home/setor-autopecas.webp',
     dor: 'Centros de usinagem (CNC) travando ou reiniciando sozinhos.',
     prova: ['Cinpal — ', '92%', ' de supressão de VTCD.'],
     href: '/industrias/autopecas',
   },
   {
     nome: 'Metalurgia',
-    foto: '/home/seg-metalurgia.webp',
+    foto: '/home/setor-metalurgia.webp',
     dor: 'Fornos e motores grandes geram surto interno constante.',
     prova: ['Stampline — ', 'R$ 560 mil/ano', ' em placas.'],
     href: '/industrias/metalurgia',
   },
   {
     nome: 'Têxtil',
-    foto: '/home/seg-textil.webp',
+    foto: '/home/setor-textil.webp',
     dor: 'Máquinas de costura e bordado queimando e parando a confecção.',
     prova: ['Grow Up — ', '4 dias/mês', ' de produção salvos.'],
     href: '/industrias/textil',
