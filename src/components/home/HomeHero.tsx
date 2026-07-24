@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { HERO_FALLBACK } from '@/lib/constants/home-fallback';
 import type { HomeHero as HeroData } from '@/types/database';
 
@@ -30,7 +30,13 @@ type Slide = {
   apoio?: string;
   ctas: { label: string; href: string; primary?: boolean }[];
   /** Art direction (despacho #8): wide ≥1024 · tablet 768–1023 · tall <768. */
-  images: { wide: string; tablet: string; tall: string };
+  images?: { wide: string; tablet: string; tall: string };
+  /** Foto única full-bleed (ambiente ocupa a largura toda). objPos enquadra. */
+  fullFoto?: { src: string; pos?: string };
+  /** Foto REAL do produto (retrato 3:4, despacho mb-reais): no desktop entra
+   *  como painel na METADE direita sobre fundo navy (full-bleed 2:1 cortaria
+   *  o produto); no mobile vira full-bleed. */
+  realFoto?: string;
   alt: string;
   /** 'cold' = scrim neutro-escuro frio (S2b é âmbar — devolve contraste ao CTA laranja). */
   scrim?: 'cold';
@@ -67,12 +73,8 @@ export function HomeHero({ data }: Props) {
           href: data?.secondary_cta_url ?? HERO_FALLBACK.secondary.href,
         },
       ],
-      images: {
-        wide: '/home/hero/hero-s1-wide.webp',
-        tablet: '/home/hero/hero-s1-tablet.webp',
-        tall: '/home/hero/hero-s1-tall.webp',
-      },
-      alt: 'Painel elétrico industrial aberto com disjuntores e fiação',
+      realFoto: '/home/mb-instalado-maquina2.webp',
+      alt: 'Master Block instalado protegendo a máquina',
     },
     {
       id: 'cascata',
@@ -80,26 +82,19 @@ export function HomeHero({ data }: Props) {
       subtitle:
         'Master Block na entrada, no quadro e junto ao equipamento crítico, atenuando o surto em etapas.',
       ctas: [{ label: 'Ver como funciona', href: '/solucoes/protecao-contra-surtos', primary: true }],
-      images: {
-        wide: '/home/hero/hero-s2b-wide.webp',
-        tablet: '/home/hero/hero-s2b-tablet.webp',
-        tall: '/home/hero/hero-s2b-tall.webp',
-      },
-      alt: 'Linha de produção industrial com painel de proteção em primeiro plano',
-      scrim: 'cold',
+      realFoto: '/home/mb-cascata-quadro.webp',
+      alt: 'Master Block instalado em quadro elétrico com disjuntores',
     },
     {
       id: 'nao-industrial',
       title: 'Proteção também pra comércio, condomínio e casa de alto padrão',
       subtitle:
         'O mesmo que blinda a indústria protege freezer e PDV do comércio, bombas e elevador do condomínio, automação e painel solar da casa de alto padrão.',
-      ctas: [{ label: 'Calcular a minha proteção', href: '/ferramentas/orcamento', primary: true }],
-      images: {
-        wide: '/home/hero/hero-s3-wide.webp',
-        tablet: '/home/hero/hero-s3-tablet.webp',
-        tall: '/home/hero/hero-s3-tall.webp',
-      },
-      alt: 'Sala de estar de alto padrão com automação e home theater',
+      // /protecao é o HUB único do NI — deep-link na âncora da calculadora
+      // embutida mantém o verbo "calcular" com o clique de alta intenção.
+      ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
+      fullFoto: { src: '/home/hero-s3-livingroom-pool.webp' },
+      alt: 'Sala de estar aberta de alto padrão com piscina ao fundo',
     },
   ];
 
@@ -169,16 +164,28 @@ export function HomeHero({ data }: Props) {
       aria-label="Destaques Somatec Blocking"
       data-hero-slide-area
       className="relative flex-1 overflow-hidden bg-deep_navy text-white"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
+      // Pausa por FOCO só quando o foco veio do TECLADO (:focus-visible) —
+      // clique nas setas foca o botão sem focus-visible e a barra segue
+      // rodando (feedback do Léo). Blur só limpa quando o foco SAI da seção.
+      onFocus={(e) => {
+        if ((e.target as HTMLElement).matches?.(':focus-visible')) setFocused(true);
+      }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+      }}
       // Setas navegam; nada de focus trap — Tab segue o fluxo normal.
       onKeyDown={(e) => {
         if (e.key === 'ArrowRight') goTo(index + 1);
         if (e.key === 'ArrowLeft') goTo(index - 1);
       }}
     >
+      {/* Zona de pausa por HOVER = só o conteúdo dos slides; os controles
+          (setas + barra) ficam FORA — interagir com eles não segura o giro. */}
+      <div
+        className="absolute inset-0"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
       {slides.map((slide, i) => (
         <div
           key={slide.id}
@@ -191,9 +198,58 @@ export function HomeHero({ data }: Props) {
             i === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          {/* Foto full-bleed com art direction (despacho #8): wide ≥1024,
-              tablet 768–1023, tall <768. next/image não faz <picture> com
-              media queries — assets já vêm otimizados em webp do build. */}
+          {/* Mídia do slide: FOTO REAL retrato (split: navy + painel direito
+              no desktop; full-bleed no mobile) OU set art-directed via
+              <picture> (despacho #8). */}
+          {slide.realFoto ? (
+            <>
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(120deg, rgb(3,17,31) 0%, rgb(7,27,51) 55%, rgb(13,41,73) 100%)',
+                }}
+                aria-hidden="true"
+              />
+              <img
+                src={slide.realFoto}
+                alt={slide.alt}
+                className="absolute inset-y-0 right-0 h-full w-full object-cover md:w-[46%]"
+                fetchPriority={i === 0 ? 'high' : undefined}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </>
+          ) : slide.fullFoto ? (
+            <>
+              {/* Camada de fundo (fill): cópia borrada, 100% da largura,
+                  object-cover + scale (esconde a borda do blur). Só aparece
+                  em telas MAIS LARGAS que a camada nítida. */}
+              <img
+                src={slide.fullFoto.src}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+              {/* Camada nítida: object-cover CAPADA em max-w e centralizada
+                  (margin-inline auto). Em telas ≤ max-w cobre tudo (blur
+                  escondido); acima, centraliza e o blur aparece IGUAL dos dois
+                  lados. */}
+              <div className="absolute inset-0 mx-auto max-w-[1600px] overflow-hidden">
+                <img
+                  src={slide.fullFoto.src}
+                  alt={slide.alt}
+                  style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
+                  className="h-full w-full object-cover"
+                  fetchPriority={i === 0 ? 'high' : undefined}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </div>
+            </>
+          ) : slide.images ? (
           <picture>
             <source media="(min-width: 1024px)" srcSet={slide.images.wide} />
             <source media="(min-width: 768px)" srcSet={slide.images.tablet} />
@@ -206,6 +262,7 @@ export function HomeHero({ data }: Props) {
               decoding="async"
             />
           </picture>
+          ) : null}
 
           {/* Scrim (regra de marca): denso do lado do texto + reforço na base.
               S2b (âmbar quente) usa a variante FRIA neutro-escura — laranja
@@ -272,36 +329,59 @@ export function HomeHero({ data }: Props) {
           </div>
         </div>
       ))}
+      </div>
 
-      {/* Barra de progresso segmentada — base do carrossel, sobre o scrim */}
+      {/* Barra de progresso segmentada + setas ‹ › (adendo #16-C) — base do
+          carrossel, sobre o scrim. Setas = alvo de clique visível e sutil
+          (teclado já navega); rótulos acessíveis. */}
       <div className="absolute inset-x-0 bottom-0">
-        <div
-          className="container-msm grid gap-1.5 pb-5"
-          style={{ gridTemplateColumns: `repeat(${slides.length}, 1fr)` }}
-          role="tablist"
-          aria-label="Selecionar slide"
-        >
-          {slides.map((slide, i) => (
+        <div className="container-msm flex items-center gap-4 pb-5">
+          <div
+            className="grid flex-1 gap-1.5"
+            style={{ gridTemplateColumns: `repeat(${slides.length}, 1fr)` }}
+            role="tablist"
+            aria-label="Selecionar slide"
+          >
+            {slides.map((slide, i) => (
+              <button
+                key={slide.id}
+                type="button"
+                role="tab"
+                aria-selected={i === index}
+                aria-label={`Slide ${i + 1}: ${slide.title}`}
+                onClick={() => goTo(i)}
+                className="group relative h-1 overflow-hidden rounded-full bg-white/25"
+              >
+                <span
+                  className="absolute inset-y-0 left-0 bg-gold transition-[width]"
+                  style={{
+                    width: i < index ? '100%' : i === index ? `${progress}%` : '0%',
+                    transitionDuration: i === index ? '0ms' : '300ms',
+                  }}
+                  aria-hidden="true"
+                />
+                <span className="sr-only">Ir para slide {i + 1}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5">
             <button
-              key={slide.id}
               type="button"
-              role="tab"
-              aria-selected={i === index}
-              aria-label={`Slide ${i + 1}: ${slide.title}`}
-              onClick={() => goTo(i)}
-              className="group relative h-1 overflow-hidden rounded-full bg-white/25"
+              aria-label="Slide anterior"
+              onClick={() => goTo(index - 1)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/25 text-white/50 transition-all duration-200 ease-premium hover:border-white/70 hover:text-white"
             >
-              <span
-                className="absolute inset-y-0 left-0 bg-gold transition-[width]"
-                style={{
-                  width: i < index ? '100%' : i === index ? `${progress}%` : '0%',
-                  transitionDuration: i === index ? '0ms' : '300ms',
-                }}
-                aria-hidden="true"
-              />
-              <span className="sr-only">Ir para slide {i + 1}</span>
+              <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </button>
-          ))}
+            <button
+              type="button"
+              aria-label="Próximo slide"
+              onClick={() => goTo(index + 1)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/25 text-white/50 transition-all duration-200 ease-premium hover:border-white/70 hover:text-white"
+            >
+              <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </div>
     </section>

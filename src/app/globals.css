@@ -36,6 +36,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Rolagem suave p/ âncoras internas (ex.: bifurcação → #industria).
+       O guard de prefers-reduced-motion abaixo devolve pra auto. */
+    scroll-behavior: smooth;
   }
 
   body {

@@ -2,6 +2,8 @@
  * Seção "categoria de um": mostra (não só diz) o argumento central — o DPS
  * comum para em 10 kHz; o Master Block atua até 100 kHz. O gráfico
  * FrequencySpectrum se desenha ao entrar no viewport.
+ * Despacho #15: vive na banda NAVY (argumento universal), junto dos
+ * indicadores — cores de texto pra fundo escuro.
  */
 import { Reveal } from '@/components/ui/Reveal';
 import { FrequencySpectrum } from '@/components/graphics/FrequencySpectrum';
@@ -14,21 +16,26 @@ export function HomeFrequency() {
     >
       <div className="grid items-center gap-10 lg:grid-cols-12">
         <Reveal className="space-y-4 lg:col-span-5">
-          <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
+          <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance text-white">
             Onde todo DPS para, o Master Block continua atuando
           </h2>
-          <p className="text-[rgb(var(--text-muted))] leading-relaxed">
+          <p className="text-white/85 leading-relaxed">
             Dispositivos de proteção convencionais atuam até{' '}
-            <span className="font-semibold text-[rgb(var(--text))]">10 kHz</span>. Só que os
+            <span className="font-semibold text-white">10 kHz</span>. Só que os
             distúrbios que travam máquinas, queimam placas e param a produção — surtos,
             transientes e VTCD — acontecem em frequências muito mais altas. O filtro passivo do
             Master Block atua em{' '}
             <span className="font-semibold text-gold">100 kHz</span>: exatamente na faixa em que
             o resto do mercado é cego.
           </p>
-          <p className="text-sm text-[rgb(var(--text-muted))] leading-relaxed">
+          <p className="text-sm text-white/70 leading-relaxed">
             Por isso indústrias que já haviam instalado DPS de grandes marcas seguiam tendo
             prejuízo — e resolveram com a Somatec.
+          </p>
+          {/* Dado da CNI (#16-B) — discreto; o único laranja da seção é o 100 kHz. */}
+          <p className="text-sm text-white/70 leading-relaxed">
+            Segundo a CNI, <span className="font-semibold text-white">67%</span> da indústria
+            nacional sofre prejuízo com má qualidade de energia.
           </p>
         </Reveal>
 

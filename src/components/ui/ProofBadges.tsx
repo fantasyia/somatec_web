@@ -11,7 +11,8 @@ import type { LucideIcon } from 'lucide-react';
 
 type Proof = { Icon: LucideIcon; main: string; sub: string };
 
-const PROOFS: readonly Proof[] = [
+/** Exportado p/ a faixa de trust COMPACTA do rodapé (única instância no site). */
+export const PROOFS: readonly Proof[] = [
   { Icon: Award, main: 'Prêmio FIESP', sub: 'Acelera Startup 2015' },
   { Icon: ShieldCheck, main: 'DPS Classe III', sub: 'ABNT NBR IEC 61643-1 · NBR 5410' },
   { Icon: BadgeCheck, main: 'Produto patenteado', sub: 'Fabricação exclusiva' },
