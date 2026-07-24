@@ -48,7 +48,8 @@ export function HomeNiPaineis() {
   return (
     <section aria-label="Proteção não-industrial">
       <div className="container-msm section-y">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {/* Vão MÍNIMO entre os painéis (feedback do Léo): costura de 4px. */}
+        <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
           {PAINEIS.map(({ id, foto, alt, texto }, i) => (
             <Reveal key={id} delay={i * 90}>
               <Link

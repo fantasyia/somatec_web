@@ -76,7 +76,8 @@ export function HomeBifurcacao() {
       </div>
 
       <div className="container-msm flex-1 pb-10 md:pb-14">
-        <div className="grid h-full grid-cols-1 gap-6 md:grid-cols-3">
+        {/* Vão MÍNIMO entre os painéis (feedback do Léo): costura de 4px. */}
+        <div className="grid h-full grid-cols-1 gap-1 md:grid-cols-3">
           {CARDS.map(({ id, foto, alt, titulo, modelo, resto, cta }, i) => (
             <Reveal
               key={id}
