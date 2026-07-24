@@ -31,8 +31,7 @@ const PAINEIS: readonly Painel[] = [
   },
   {
     id: 'piscina',
-    // ⏳ ni-piscina — Estúdio a entregar.
-    foto: null,
+    foto: '/home/ni-piscina.webp',
     alt: 'Piscina aquecida de residência de alto padrão',
     texto:
       'Bomba, aquecedor e trocador de calor vivem ligados. É o conserto mais caro (e mais esquecido) da casa.',
@@ -40,8 +39,7 @@ const PAINEIS: readonly Painel[] = [
   },
   {
     id: 'elevador',
-    // ⏳ ni-elevador — Estúdio a entregar.
-    foto: null,
+    foto: '/home/ni-elevador.webp',
     alt: 'Elevador de condomínio residencial',
     texto:
       'Quando a placa de comando queima, o elevador para — e a conta não estava no orçamento.',
