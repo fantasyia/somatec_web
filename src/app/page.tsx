@@ -108,10 +108,9 @@ export default async function HomePage() {
       <div className="tone-surface">
         <HomeNoRisk />
       </div>
-      {/* Lead magnet industrial (#16-G): custo da hora parada. */}
-      <div className="tone-base">
-        <HomeHoraParada />
-      </div>
+      {/* Lead magnet industrial (#16-G, banda NAVY espelhando o gráfico do
+          DPS): vizinhos claros dos dois lados (NoRisk ⚪ · Aterramento ⚪). */}
+      <HomeHoraParada />
       <div className="tone-surface">
         <HomeAterramento />
       </div>

@@ -1,62 +1,56 @@
 import Link from 'next/link';
-import { ChevronRight, PackageX, Trash2, Clock, Wrench, Cpu } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
-import type { LucideIcon } from 'lucide-react';
+import { HoraParadaChart } from '@/components/home/HoraParadaChart';
 
 /**
- * Módulo "hora parada" (#16 + adendo): unifica o lead magnet industrial com o
- * argumento do saving que antes era legenda da locação — o argumento subiu de
- * nível e virou este módulo. 5 chips concretizam os componentes do custo.
- * CTA → /ferramentas/custo-de-parada (calculadora no ar). 1 laranja = o CTA.
+ * Módulo "hora parada" (despacho banda navy): espelha a diagramação de
+ * "Onde todo DPS para" — banda NAVY, texto + CTA à ESQUERDA, gráfico
+ * ilustrativo à DIREITA ("a conta que soma": barra empilhada dos 5 custos
+ * cruzando a linha da mensalidade). Os chips viraram os rótulos dos
+ * segmentos da barra (morre a redundância chip+texto).
+ * 1 foco laranja = CTA + o excedente "já paga a conta" do gráfico.
  */
-
-const COMPONENTES_DO_CUSTO: { Icon: LucideIcon; label: string }[] = [
-  { Icon: PackageX, label: 'produção perdida' },
-  { Icon: Trash2, label: 'refugo' },
-  { Icon: Clock, label: 'hora extra' },
-  { Icon: Wrench, label: 'manutenção' },
-  { Icon: Cpu, label: 'equipamento queimado' },
-];
-
 export function HomeHoraParada() {
   return (
-    <section aria-label="Uma hora parada por mês já paga a conta">
+    <section className="band-navy text-white" aria-label="Uma hora parada por mês já paga a conta">
       <div className="container-msm section-y">
-        <Reveal className="max-w-3xl space-y-4">
-          <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Uma hora parada por mês já paga a conta.
-          </h2>
-          {/* Corpo sem re-listar os 5 itens — os chips abaixo são a resposta
-              ao "nunca vem sozinha", não eco do texto. */}
-          <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Numa fábrica do porte que o Master Block protege, uma única hora de
-            linha parada por mês já supera o valor da mensalidade. E ela nunca
-            vem sozinha — calcule quanto custa a sua.
-          </p>
-        </Reveal>
+        <div className="grid items-center gap-10 lg:grid-cols-12">
+          <Reveal className="space-y-4 lg:col-span-5">
+            <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance text-white">
+              Uma hora parada por mês já paga a conta.
+            </h2>
+            <p className="text-white/85 leading-relaxed">
+              Numa fábrica do porte que o Master Block protege, uma única hora
+              de linha parada por mês já supera o valor da mensalidade. E ela
+              nunca vem sozinha — calcule quanto custa a sua.
+            </p>
+            <div className="pt-2">
+              <Link href="/ferramentas/custo-de-parada" className="btn-primary group inline-flex">
+                Calcular o prejuízo da minha parada
+                <ChevronRight
+                  className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
+                  strokeWidth={2}
+                />
+              </Link>
+            </div>
+          </Reveal>
 
-        {/* Componentes do custo — chips concretos */}
-        <Reveal delay={80} className="mt-6 flex flex-wrap gap-2.5">
-          {COMPONENTES_DO_CUSTO.map(({ Icon, label }) => (
-            <span
-              key={label}
-              className="inline-flex items-center gap-2 rounded-full border border-[rgb(var(--border))] bg-[rgb(var(--bg))] px-3.5 py-1.5 font-sans text-[13px] font-semibold text-[rgb(var(--text))]"
-            >
-              <Icon className="h-4 w-4 text-cyan" strokeWidth={1.75} aria-hidden="true" />
-              {label}
-            </span>
-          ))}
-        </Reveal>
-
-        <Reveal delay={140} className="mt-8">
-          <Link href="/ferramentas/custo-de-parada" className="btn-primary group inline-flex">
-            Calcular o prejuízo da minha parada
-            <ChevronRight
-              className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
-              strokeWidth={2}
+          <Reveal delay={120} className="relative lg:col-span-7">
+            {/* Glow ambiente — mesma luz de palco do gráfico do DPS. */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-8 -z-10 bg-[radial-gradient(60%_60%_at_55%_45%,rgba(0,140,200,0.22)_0%,transparent_70%)] blur-2xl"
             />
-          </Link>
-        </Reveal>
+            <div className="relative rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5 text-[rgb(var(--text))] shadow-premium-light md:p-8">
+              <HoraParadaChart />
+              <p className="mt-2 text-[11px] leading-relaxed text-[rgb(var(--text-muted))]">
+                Representação ilustrativa — as proporções variam por operação; a
+                calculadora usa os números da sua planta.
+              </p>
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
   );
