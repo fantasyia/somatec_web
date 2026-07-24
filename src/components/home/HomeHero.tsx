@@ -87,7 +87,7 @@ export function HomeHero({ data }: Props) {
     },
     {
       id: 'nao-industrial',
-      title: 'Proteção também pra casa e apartamento de alto padrão',
+      title: 'Proteção também para casas e apartamentos de alto padrão',
       subtitle:
         'O mesmo que blinda a indústria protege a automação, o home theater, o ar-condicionado e o inversor solar — todo o patrimônio eletrônico da casa, na mesma rede.',
       // /protecao é o HUB único do NI — deep-link na âncora da calculadora
