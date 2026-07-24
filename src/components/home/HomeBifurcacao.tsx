@@ -30,7 +30,7 @@ const CARDS: readonly Card[] = [
     id: 'industria',
     foto: '/home/bifurcacao-industrial.webp',
     alt: 'Planta industrial em operação',
-    titulo: 'Para a indústria',
+    titulo: 'Industrial',
     modelo: 'Locação',
     resto:
       ' com resultado comprovado — estudo, projeto, instalação e teste sem custo. Você só paga a mensalidade se aprovar o resultado na sua operação.',
@@ -41,7 +41,7 @@ const CARDS: readonly Card[] = [
     // ⏳ bifurcacao-comercial (supermercado, vertical) — Estúdio a entregar.
     foto: null,
     alt: 'Supermercado com refrigeração e PDV',
-    titulo: 'Para o comércio',
+    titulo: 'Comercial',
     modelo: 'Compra direta',
     resto:
       ' — freezer, câmara fria, PDV e ar-condicionado: um dia parado no comércio pesa igual ao de uma fábrica.',
@@ -51,7 +51,7 @@ const CARDS: readonly Card[] = [
     id: 'residencial',
     foto: '/home/bifurcacao-ni.webp',
     alt: 'Casa de alto padrão ao anoitecer',
-    titulo: 'Para condomínio e residência',
+    titulo: 'Residencial',
     modelo: 'Compra direta',
     resto:
       ' — automação, home theater, ar-condicionado e inversor solar: o patrimônio eletrônico da casa, todo na mesma rede.',
@@ -76,17 +76,19 @@ export function HomeBifurcacao() {
       </div>
 
       <div className="container-msm flex-1 pb-10 md:pb-14">
-        {/* Vão MÍNIMO entre os painéis (feedback do Léo): costura de 4px. */}
-        <div className="grid h-full grid-cols-1 gap-1 md:grid-cols-3">
+        {/* SEM espaçamento (feedback do Léo): tríptico contínuo — cantos
+            arredondados só nas bordas externas do bloco. */}
+        <div className="grid h-full grid-cols-1 gap-0 overflow-hidden rounded-card-lg md:grid-cols-3">
           {CARDS.map(({ id, foto, alt, titulo, modelo, resto, cta }, i) => (
             <Reveal
               key={id}
               delay={i * 90}
-              className="group relative min-h-[420px] overflow-hidden rounded-card-lg md:min-h-0"
+              className="group relative min-h-[420px] overflow-hidden md:min-h-0"
             >
               {/* Painel industrial: VÍDEO em loop no desktop (still no mobile
                   e sob reduced-motion). Demais: foto vertical + Ken Burns;
                   sem foto ainda = placeholder no mesmo slot. */}
+              <div className="absolute inset-0 transition-transform duration-[600ms] ease-premium group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
               {id === 'industria' ? (
                 <BifurcacaoVideo />
               ) : foto ? (
@@ -110,6 +112,7 @@ export function HomeBifurcacao() {
                   aria-hidden="true"
                 />
               )}
+              </div>
               {/* Scrim — denso embaixo, onde vive o texto */}
               <div
                 aria-hidden="true"
