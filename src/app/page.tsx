@@ -1,10 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
-import {
-  getHomeHero,
-  getIndicators,
-  getCtaCards,
-} from '@/lib/data/home';
+import { getHomeHero, getIndicators } from '@/lib/data/home';
 import { HomeHero } from '@/components/home/HomeHero';
 import { HomeAterramento } from '@/components/home/HomeAterramento';
 import { HomeHoraParada } from '@/components/home/HomeHoraParada';
@@ -15,9 +11,9 @@ import { HomeIndicators } from '@/components/home/HomeIndicators';
 import { HomeFrequency } from '@/components/home/HomeFrequency';
 import { HomeClients } from '@/components/home/HomeClients';
 import { HomeProof } from '@/components/home/HomeProof';
+import { HomeSetores } from '@/components/home/HomeSetores';
 import { HomeNoRisk } from '@/components/home/HomeNoRisk';
 import { HomeBlogTeaser } from '@/components/home/HomeBlogTeaser';
-import { HomeCta } from '@/components/home/HomeCta';
 import { BLOG_TEASER_ENABLED } from '@/lib/constants/flags';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Reveal } from '@/components/ui/Reveal';
@@ -50,10 +46,9 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   // Fetch paralelo de todos os blocos.
-  const [hero, indicators, ctaCards] = await Promise.all([
+  const [hero, indicators] = await Promise.all([
     getHomeHero(),
     getIndicators(),
-    getCtaCards(),
   ]);
 
   return (
@@ -99,24 +94,27 @@ export default async function HomePage() {
         </div>
         <HomeProof />
       </div>
-      {/* Modelo industrial explícito (rótulo Locação · Indústria, timeline). */}
+      {/* FUSÃO (adendo #16): cases + segmentos viram UMA seção — "Resultado
+          real, setor por setor" (4 setores: foto + dor + prova + CTA), com a
+          linha de clientes e a faixa de selos. A antiga seção de segmentos do
+          fim foi absorvida aqui. */}
       <div className="tone-base">
+        <HomeSetores />
+      </div>
+      {/* Modelo industrial explícito (rótulo Locação · Indústria, timeline). */}
+      <div className="tone-surface">
         <HomeNoRisk />
       </div>
       {/* Lead magnet industrial (#16-G): custo da hora parada. */}
-      <div className="tone-surface">
+      <div className="tone-base">
         <HomeHoraParada />
       </div>
-      <div className="tone-base">
+      <div className="tone-surface">
         <HomeAterramento />
       </div>
-      {/* Módulo NI mesclado (#16-H): 2 painéis de foto → /protecao (o detalhe
-          completo vive na landing). Substitui o bloco de 4 cards + faixa EV. */}
-      <div className="tone-surface">
-        <HomeNiPaineis />
-      </div>
+      {/* Módulo NI (#16-H + adendo): 3 painéis de foto → /protecao. */}
       <div className="tone-base">
-        <Reveal><HomeCta cards={ctaCards} /></Reveal>
+        <HomeNiPaineis />
       </div>
       {BLOG_TEASER_ENABLED && (
         <div className="tone-surface">
