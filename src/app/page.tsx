@@ -12,6 +12,7 @@ import { HomeFrequency } from '@/components/home/HomeFrequency';
 import { HomeClients } from '@/components/home/HomeClients';
 import { HomeProof } from '@/components/home/HomeProof';
 import { HomeSetores } from '@/components/home/HomeSetores';
+import { HomePonteMedido } from '@/components/home/HomePonteMedido';
 import { HomeNoRisk } from '@/components/home/HomeNoRisk';
 import { HomeBlogTeaser } from '@/components/home/HomeBlogTeaser';
 import { BLOG_TEASER_ENABLED } from '@/lib/constants/flags';
@@ -97,6 +98,9 @@ export default async function HomePage() {
           />
         </div>
       </div>
+      {/* Faixa-ponte navy (despacho): "isso funciona" → "isso funcionou de
+          verdade". Entre o galpão (claro) e os cases (off-white). */}
+      <HomePonteMedido />
       {/* FUSÃO (adendo #16): cases + segmentos viram UMA seção — "Resultado
           real, setor por setor" (4 setores: foto + dor + prova + CTA), com a
           linha de clientes e a faixa de selos. A antiga seção de segmentos do
