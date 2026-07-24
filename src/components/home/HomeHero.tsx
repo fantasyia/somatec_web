@@ -93,7 +93,7 @@ export function HomeHero({ data }: Props) {
       // /protecao é o HUB único do NI — deep-link na âncora da calculadora
       // embutida mantém o verbo "calcular" com o clique de alta intenção.
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
-      fullFoto: { src: '/home/hero-s3-livingroom-pool.webp', pos: 'left center' },
+      fullFoto: { src: '/home/hero-s3-livingroom-pool.webp' },
       alt: 'Sala de estar aberta de alto padrão com piscina ao fundo',
     },
   ];
@@ -222,26 +222,32 @@ export function HomeHero({ data }: Props) {
             </>
           ) : slide.fullFoto ? (
             <>
-              {/* Blur-fill: cópia borrada preenche o container (sem barras) e a
-                  foto INTEIRA aparece sharp por cima (contain) — "afasta" a
-                  imagem pra ver o ambiente todo, sem crop. */}
+              {/* Camada de fundo (fill): cópia borrada, 100% da largura,
+                  object-cover + scale (esconde a borda do blur). Só aparece
+                  em telas MAIS LARGAS que a camada nítida. */}
               <img
                 src={slide.fullFoto.src}
                 alt=""
                 aria-hidden="true"
-                className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl"
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
                 loading={i === 0 ? 'eager' : 'lazy'}
                 decoding="async"
               />
-              <img
-                src={slide.fullFoto.src}
-                alt={slide.alt}
-                style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
-                className="absolute inset-0 h-full w-full object-contain"
-                fetchPriority={i === 0 ? 'high' : undefined}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
+              {/* Camada nítida: object-cover CAPADA em max-w e centralizada
+                  (margin-inline auto). Em telas ≤ max-w cobre tudo (blur
+                  escondido); acima, centraliza e o blur aparece IGUAL dos dois
+                  lados. */}
+              <div className="absolute inset-0 mx-auto max-w-[1600px] overflow-hidden">
+                <img
+                  src={slide.fullFoto.src}
+                  alt={slide.alt}
+                  style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
+                  className="h-full w-full object-cover"
+                  fetchPriority={i === 0 ? 'high' : undefined}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </div>
             </>
           ) : slide.images ? (
           <picture>
