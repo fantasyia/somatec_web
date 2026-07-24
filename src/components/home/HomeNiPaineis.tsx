@@ -16,6 +16,9 @@ type Painel = {
   foto: string | null;
   alt: string;
   texto: string;
+  /** Trecho de `texto` que recebe o foco LARANJA (o soco do card). O card
+   *  do elevador não usa: o foco laranja dele é o CTA-link. */
+  foco?: string;
   /** CTAs variados (feedback do Léo — o site estava cheio de CTA igual). */
   cta: { label: string; estilo: 'solido' | 'contorno' | 'link' };
 };
@@ -26,7 +29,8 @@ const PAINEIS: readonly Painel[] = [
     foto: '/home/ni-carro-eletrico.webp',
     alt: 'Carro elétrico carregando na garagem com carregador de parede',
     texto:
-      'O carregador e o carro carregam a noite inteira. Basta um surto pra fritar os dois.',
+      'Plugado à rede por horas, de madrugada e sem ninguém por perto: um surto danifica o carregador e o carro.',
+    foco: 'o carregador e o carro',
     cta: { label: 'Proteger meu carregador', estilo: 'solido' },
   },
   {
@@ -35,6 +39,7 @@ const PAINEIS: readonly Painel[] = [
     alt: 'Piscina aquecida de residência de alto padrão',
     texto:
       'Bomba, aquecedor e trocador de calor vivem ligados. É o conserto mais caro (e mais esquecido) da casa.',
+    foco: 'o conserto mais caro',
     cta: { label: 'Proteger minha casa', estilo: 'contorno' },
   },
   {
@@ -47,6 +52,19 @@ const PAINEIS: readonly Painel[] = [
   },
 ];
 
+/** Renderiza `texto` com o trecho `foco` em laranja (1 destaque por card). */
+function comFoco(texto: string, foco?: string) {
+  if (!foco || !texto.includes(foco)) return texto;
+  const [antes, depois] = texto.split(foco);
+  return (
+    <>
+      {antes}
+      <span className="text-gold">{foco}</span>
+      {depois}
+    </>
+  );
+}
+
 export function HomeNiPaineis() {
   return (
     <section aria-label="Proteção não-industrial">
@@ -54,7 +72,7 @@ export function HomeNiPaineis() {
           container — os 3 painéis enchem a tela, com respiro mínimo. */}
       <div className="section-y px-2 md:px-3">
         <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
-          {PAINEIS.map(({ id, foto, alt, texto, cta }, i) => (
+          {PAINEIS.map(({ id, foto, alt, texto, foco, cta }, i) => (
             <Reveal key={id} delay={i * 90}>
               <Link
                 href="/protecao"
@@ -86,7 +104,7 @@ export function HomeNiPaineis() {
                 />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                   <p className="font-serif text-lg font-semibold leading-snug text-balance [text-shadow:0_2px_10px_rgba(0,0,0,0.4)] md:text-xl">
-                    {texto}
+                    {comFoco(texto, foco)}
                   </p>
                   <span
                     className={
