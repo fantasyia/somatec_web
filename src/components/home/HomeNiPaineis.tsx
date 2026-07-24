@@ -47,8 +47,9 @@ const PAINEIS: readonly Painel[] = [
 export function HomeNiPaineis() {
   return (
     <section aria-label="Proteção não-industrial">
-      <div className="container-msm section-y">
-        {/* Vão MÍNIMO entre os painéis (feedback do Léo): costura de 4px. */}
+      {/* FULL-BLEED (feedback do Léo: cards maiores na largura): sem
+          container — os 3 painéis enchem a tela, com respiro mínimo. */}
+      <div className="section-y px-2 md:px-3">
         <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
           {PAINEIS.map(({ id, foto, alt, texto }, i) => (
             <Reveal key={id} delay={i * 90}>
