@@ -31,6 +31,8 @@ type Slide = {
   ctas: { label: string; href: string; primary?: boolean }[];
   /** Art direction (despacho #8): wide ≥1024 · tablet 768–1023 · tall <768. */
   images?: { wide: string; tablet: string; tall: string };
+  /** Foto única full-bleed (ambiente ocupa a largura toda). objPos enquadra. */
+  fullFoto?: { src: string; pos?: string };
   /** Foto REAL do produto (retrato 3:4, despacho mb-reais): no desktop entra
    *  como painel na METADE direita sobre fundo navy (full-bleed 2:1 cortaria
    *  o produto); no mobile vira full-bleed. */
@@ -91,12 +93,8 @@ export function HomeHero({ data }: Props) {
       // /protecao é o HUB único do NI — deep-link na âncora da calculadora
       // embutida mantém o verbo "calcular" com o clique de alta intenção.
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
-      images: {
-        wide: '/home/hero/hero-s3-wide.webp',
-        tablet: '/home/hero/hero-s3-tablet.webp',
-        tall: '/home/hero/hero-s3-tall.webp',
-      },
-      alt: 'Sala de estar de alto padrão com automação e home theater',
+      fullFoto: { src: '/home/hero-s3-livingroom-pool.webp', pos: 'left center' },
+      alt: 'Sala de estar aberta de alto padrão com piscina ao fundo',
     },
   ];
 
@@ -222,6 +220,16 @@ export function HomeHero({ data }: Props) {
                 decoding="async"
               />
             </>
+          ) : slide.fullFoto ? (
+            <img
+              src={slide.fullFoto.src}
+              alt={slide.alt}
+              style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
+              className="absolute inset-0 h-full w-full object-cover"
+              fetchPriority={i === 0 ? 'high' : undefined}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
           ) : slide.images ? (
           <picture>
             <source media="(min-width: 1024px)" srcSet={slide.images.wide} />

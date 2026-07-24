@@ -57,8 +57,9 @@ const CARDS: readonly Card[] = [
     resto:
       ' — automação, home theater, ar-condicionado e inversor solar: o patrimônio eletrônico da casa, todo na mesma rede.',
     cta: { label: 'Ver proteção pra minha casa', href: '/protecao' },
-    // Foco na metade inferior-esquerda (carro + wallbox), não corta a ação.
-    fotoPos: 'left 70%',
+    // Enquadramento mais alto (feedback do Léo: aparecer mais a casa ao
+    // fundo) — ainda pega carro + wallbox na base.
+    fotoPos: 'left 42%',
   },
 ];
 
