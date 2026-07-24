@@ -171,16 +171,28 @@ export function HomeHero({ data }: Props) {
       aria-label="Destaques Somatec Blocking"
       data-hero-slide-area
       className="relative flex-1 overflow-hidden bg-deep_navy text-white"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
+      // Pausa por FOCO só quando o foco veio do TECLADO (:focus-visible) —
+      // clique nas setas foca o botão sem focus-visible e a barra segue
+      // rodando (feedback do Léo). Blur só limpa quando o foco SAI da seção.
+      onFocus={(e) => {
+        if ((e.target as HTMLElement).matches?.(':focus-visible')) setFocused(true);
+      }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+      }}
       // Setas navegam; nada de focus trap — Tab segue o fluxo normal.
       onKeyDown={(e) => {
         if (e.key === 'ArrowRight') goTo(index + 1);
         if (e.key === 'ArrowLeft') goTo(index - 1);
       }}
     >
+      {/* Zona de pausa por HOVER = só o conteúdo dos slides; os controles
+          (setas + barra) ficam FORA — interagir com eles não segura o giro. */}
+      <div
+        className="absolute inset-0"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
       {slides.map((slide, i) => (
         <div
           key={slide.id}
@@ -274,6 +286,7 @@ export function HomeHero({ data }: Props) {
           </div>
         </div>
       ))}
+      </div>
 
       {/* Barra de progresso segmentada + setas ‹ › (adendo #16-C) — base do
           carrossel, sobre o scrim. Setas = alvo de clique visível e sutil
