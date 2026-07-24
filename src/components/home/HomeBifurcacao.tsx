@@ -76,14 +76,14 @@ export function HomeBifurcacao() {
       </div>
 
       <div className="container-msm flex-1 pb-10 md:pb-14">
-        {/* Tríptico emendado com SEPARAÇÃO por borda bem fininha (feedback
-            do Léo): linhas de 1px entre os painéis + contorno externo sutil. */}
-        <div className="grid h-full grid-cols-1 gap-0 overflow-hidden rounded-card-lg border border-[rgb(var(--border))] divide-y divide-white/20 md:grid-cols-3 md:divide-x md:divide-y-0">
+        {/* Painéis com borda UNIFORME de 1px e cantos arredondados nas 4
+            pontas cada um (feedback do Léo), separados pela costura mínima. */}
+        <div className="grid h-full grid-cols-1 gap-1 md:grid-cols-3">
           {CARDS.map(({ id, foto, alt, titulo, modelo, resto, cta }, i) => (
             <Reveal
               key={id}
               delay={i * 90}
-              className="group relative min-h-[420px] overflow-hidden md:min-h-0"
+              className="group relative min-h-[420px] overflow-hidden rounded-card-lg border border-white/25 md:min-h-0"
             >
               {/* Painel industrial: VÍDEO em loop no desktop (still no mobile
                   e sob reduced-motion). Demais: foto vertical + Ken Burns;
