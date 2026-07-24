@@ -44,7 +44,7 @@ const CARDS: readonly Card[] = [
     titulo: 'Comercial',
     modelo: 'Compra direta',
     resto:
-      ' — freezer, câmara fria, PDV e ar-condicionado: um dia parado no comércio pesa igual ao de uma fábrica.',
+      ' — forno da padaria, câmara fria do restaurante, PDV da loja, ar-condicionado do consultório: um dia parado pesa igual ao de uma fábrica.',
     cta: { label: 'Ver proteção pro meu negócio', href: '/protecao' },
   },
   {
@@ -76,9 +76,9 @@ export function HomeBifurcacao() {
       </div>
 
       <div className="container-msm flex-1 pb-10 md:pb-14">
-        {/* SEM espaçamento (feedback do Léo): tríptico contínuo — cantos
-            arredondados só nas bordas externas do bloco. */}
-        <div className="grid h-full grid-cols-1 gap-0 overflow-hidden rounded-card-lg md:grid-cols-3">
+        {/* Tríptico emendado com SEPARAÇÃO por borda bem fininha (feedback
+            do Léo): linhas de 1px entre os painéis + contorno externo sutil. */}
+        <div className="grid h-full grid-cols-1 gap-0 overflow-hidden rounded-card-lg border border-[rgb(var(--border))] divide-y divide-white/20 md:grid-cols-3 md:divide-x md:divide-y-0">
           {CARDS.map(({ id, foto, alt, titulo, modelo, resto, cta }, i) => (
             <Reveal
               key={id}
