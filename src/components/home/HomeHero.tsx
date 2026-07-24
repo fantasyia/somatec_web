@@ -221,15 +221,28 @@ export function HomeHero({ data }: Props) {
               />
             </>
           ) : slide.fullFoto ? (
-            <img
-              src={slide.fullFoto.src}
-              alt={slide.alt}
-              style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
-              className="absolute inset-0 h-full w-full object-cover"
-              fetchPriority={i === 0 ? 'high' : undefined}
-              loading={i === 0 ? 'eager' : 'lazy'}
-              decoding="async"
-            />
+            <>
+              {/* Blur-fill: cópia borrada preenche o container (sem barras) e a
+                  foto INTEIRA aparece sharp por cima (contain) — "afasta" a
+                  imagem pra ver o ambiente todo, sem crop. */}
+              <img
+                src={slide.fullFoto.src}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+              <img
+                src={slide.fullFoto.src}
+                alt={slide.alt}
+                style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
+                className="absolute inset-0 h-full w-full object-contain"
+                fetchPriority={i === 0 ? 'high' : undefined}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </>
           ) : slide.images ? (
           <picture>
             <source media="(min-width: 1024px)" srcSet={slide.images.wide} />
