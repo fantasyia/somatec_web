@@ -4,6 +4,7 @@ import { Instagram, Linkedin, Youtube } from 'lucide-react';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
 import { SITE, SOCIALS as ENV_SOCIALS } from '@/lib/constants/site';
 import { type Socials, type Certification } from '@/lib/data/site-settings';
+import { PROOFS } from '@/components/ui/ProofBadges';
 
 type FooterLink = { label: string; href: string };
 type FooterColumnData = { title: string; links: FooterLink[] };
@@ -91,8 +92,31 @@ export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
           </div>
         </div>
 
-        {/* #16-F: os 4 selos vivem SÓ no bloco de prova (cases) — a duplicata
-            do rodapé foi removida. */}
+        {/* Faixa de TRUST compacta (despacho): os 4 selos + clientes atendidos
+            vivem SÓ aqui — selos menores/discretos, não os cards grandes. */}
+        <div className="mt-14 space-y-4">
+          <ul
+            aria-label="Provas e reconhecimentos da Somatec"
+            className="flex flex-wrap items-center gap-x-7 gap-y-2.5"
+          >
+            {PROOFS.map(({ Icon, main, sub }) => (
+              <li key={main} className="flex items-center gap-2">
+                <Icon className="h-4 w-4 shrink-0 text-[rgb(var(--gold-soft))]" strokeWidth={1.75} aria-hidden="true" />
+                <span className="font-sans text-xs leading-snug text-white/75">
+                  <span className="font-semibold text-white/90">{main}</span>
+                  <span className="text-white/50"> · {sub}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="max-w-3xl text-xs leading-relaxed text-white/55">
+            Entre os clientes atendidos:{' '}
+            <span className="font-semibold text-white/80">
+              BASF, Akzo Nobel / Tintas Coral, Acrilex, Extrafarma, Nissin Foods
+            </span>{' '}
+            e outras indústrias de referência.
+          </p>
+        </div>
 
         {/* Divider */}
         <div className="mt-12 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />

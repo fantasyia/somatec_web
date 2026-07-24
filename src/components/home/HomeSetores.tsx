@@ -1,8 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronRight, ShieldCheck } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
-import { ProofBadges } from '@/components/ui/ProofBadges';
 
 /**
  * "Resultado real, setor por setor" (adendo #16): FUNDE os 4 case-cards com
@@ -11,8 +10,7 @@ import { ProofBadges } from '@/components/ui/ProofBadges';
  * Regra: 1 foco laranja por card = o NÚMERO da prova; título do setor em
  * navy; CTA em cyan. Dores verificadas no playbook (têxtil corrigida:
  * Grow Up é CONFECÇÃO — costura e bordado, não tinturaria/tecelagem).
- * Abaixo da grade: linha de clientes (prova de escala) e a faixa própria
- * de certificações (selos).
+ * Selos e linha de clientes vivem no RODAPÉ (trust persistente).
  */
 
 type Setor = {
@@ -101,22 +99,9 @@ export function HomeSetores() {
           ))}
         </div>
 
-        {/* Prova de escala — logo abaixo da grade */}
-        <Reveal className="mt-8 flex items-start gap-3">
-          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
-          <p className="text-sm leading-relaxed text-[rgb(var(--text-muted))]">
-            Entre os clientes atendidos:{' '}
-            <span className="font-semibold text-[rgb(var(--text))]">
-              BASF, Akzo Nobel / Tintas Coral, Acrilex, Extrafarma, Nissin Foods
-            </span>{' '}
-            e outras indústrias de referência.
-          </p>
-        </Reveal>
-
-        {/* Faixa própria de certificações (selos) */}
-        <Reveal className="mt-10 border-t border-[rgb(var(--border))] pt-8">
-          <ProofBadges variant="light" />
-        </Reveal>
+        {/* Selos + "clientes atendidos" foram pro RODAPÉ (trust persistente,
+            única instância no site) — aqui fica só a prova no ponto de
+            persuasão (números por setor). */}
       </div>
     </section>
   );
