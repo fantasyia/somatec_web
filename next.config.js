@@ -55,6 +55,9 @@ const nextConfig = {
   poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
+    // q75 (padrão) + q90 (imagens de marca em alta qualidade, ex.: faixa
+    // industrial da home — despacho de qualidade).
+    qualities: [75, 90],
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: '*.supabase.in' },

@@ -82,19 +82,19 @@ export default async function HomePage() {
       {/* Trilha industrial (âncora do card A da bifurcação). */}
       <div id="industria" className="tone-surface scroll-mt-20">
         <HomeProof />
-        {/* Faixa de transição industrial (despacho): entre o gráfico −92% e a
-            seção de setores — corte horizontal baixo + Ken Burns sutil. */}
-        <div className="relative h-[220px] w-full overflow-hidden md:h-[300px]">
-          <div className="absolute inset-0 animate-ken-burns motion-reduce:animate-none">
-            <Image
-              src="/home/faixa-industrial-top.webp"
-              alt="Planta industrial em operação ao anoitecer"
-              fill
-              loading="lazy"
-              sizes="100vw"
-              className="object-cover object-[center_68%]"
-            />
-          </div>
+        {/* Faixa de transição industrial (despacho + 2 correções): ESTÁTICA
+            (banda fina se mexendo distrai — motion fica nos gráficos) e com
+            MAIS altura + webp q92 / quality 90 pra não degradar a fonte. */}
+        <div className="relative h-[320px] w-full overflow-hidden md:h-[440px]">
+          <Image
+            src="/home/faixa-industrial-top.webp"
+            alt="Planta industrial em operação ao anoitecer"
+            fill
+            loading="lazy"
+            quality={90}
+            sizes="100vw"
+            className="object-cover object-[center_62%]"
+          />
         </div>
       </div>
       {/* FUSÃO (adendo #16): cases + segmentos viram UMA seção — "Resultado
