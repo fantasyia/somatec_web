@@ -79,20 +79,23 @@ export default async function HomePage() {
         <HomeFrequency />
         <HomeIndicators indicators={indicators} />
       </div>
-      {/* Trilha industrial (âncora do card A da bifurcação): faixa full-width
-          de FOTO de produção — quebra o "técnico demais" antes dos cases. */}
+      {/* Trilha industrial (âncora do card A da bifurcação). */}
       <div id="industria" className="tone-surface scroll-mt-20">
-        <div className="relative h-[260px] w-full overflow-hidden md:h-[360px]">
-          <Image
-            src="/home/hero/hero-s2b-wide.webp"
-            alt="Linha de produção industrial com painel de proteção Master Block"
-            fill
-            loading="lazy"
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
         <HomeProof />
+        {/* Faixa de transição industrial (despacho): entre o gráfico −92% e a
+            seção de setores — corte horizontal baixo + Ken Burns sutil. */}
+        <div className="relative h-[220px] w-full overflow-hidden md:h-[300px]">
+          <div className="absolute inset-0 animate-ken-burns motion-reduce:animate-none">
+            <Image
+              src="/home/faixa-industrial-top.webp"
+              alt="Planta industrial em operação ao anoitecer"
+              fill
+              loading="lazy"
+              sizes="100vw"
+              className="object-cover object-[center_68%]"
+            />
+          </div>
+        </div>
       </div>
       {/* FUSÃO (adendo #16): cases + segmentos viram UMA seção — "Resultado
           real, setor por setor" (4 setores: foto + dor + prova + CTA), com a
