@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
+import { BifurcacaoVideo } from '@/components/home/BifurcacaoVideo';
 import { Reveal } from '@/components/ui/Reveal';
 
 /**
@@ -59,17 +60,22 @@ export function HomeBifurcacao() {
               delay={i * 90}
               className="group relative min-h-[420px] overflow-hidden rounded-card-lg md:min-h-0"
             >
-              {/* Foto vertical full-bleed + Ken Burns sutil */}
-              <div className="absolute inset-0 animate-ken-burns motion-reduce:animate-none">
-                <Image
-                  src={foto}
-                  alt={alt}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover"
-                />
-              </div>
+              {/* Painel industrial: VÍDEO em loop no desktop (still no mobile
+                  e sob reduced-motion). Demais: foto vertical + Ken Burns. */}
+              {id === 'industria' ? (
+                <BifurcacaoVideo />
+              ) : (
+                <div className="absolute inset-0 animate-ken-burns motion-reduce:animate-none">
+                  <Image
+                    src={foto}
+                    alt={alt}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                </div>
+              )}
               {/* Scrim — denso embaixo, onde vive o texto */}
               <div
                 aria-hidden="true"
