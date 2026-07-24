@@ -18,7 +18,7 @@ export function HomeHoraParada() {
         <div className="grid items-center gap-10 lg:grid-cols-12">
           <Reveal className="space-y-4 lg:col-span-5">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance text-white">
-              Uma hora parada por mês já paga a conta.
+              Uma <span className="text-gold">hora</span> parada por mês já paga a conta.
             </h2>
             <p className="text-white/85 leading-relaxed">
               Numa fábrica do porte que o Master Block protege, uma única hora
