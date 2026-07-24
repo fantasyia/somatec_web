@@ -26,11 +26,12 @@ export function HomeHoraParada() {
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
             Uma hora parada por mês já paga a conta.
           </h2>
+          {/* Corpo sem re-listar os 5 itens — os chips abaixo são a resposta
+              ao "nunca vem sozinha", não eco do texto. */}
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Produção que não saiu, refugo, hora extra, manutenção e equipamento
-            queimado entram na conta — e em boa parte das fábricas uma única
-            hora de linha parada por mês já supera o valor da mensalidade. Veja
-            quanto é na sua.
+            Numa fábrica do porte que o Master Block protege, uma única hora de
+            linha parada por mês já supera o valor da mensalidade. E ela nunca
+            vem sozinha — calcule quanto custa a sua.
           </p>
         </Reveal>
 
