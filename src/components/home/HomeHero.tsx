@@ -77,13 +77,16 @@ export function HomeHero({ data }: Props) {
       alt: 'Master Block instalado em parede de painel industrial',
     },
     {
-      id: 'cascata',
-      title: 'Proteção em cascata',
+      id: 'comercio',
+      title: 'No comércio, um surto leva a câmara fria, o forno e o PDV de uma vez.',
       subtitle:
-        'Master Block na entrada, no quadro e junto ao equipamento crítico, atenuando o surto em etapas.',
-      ctas: [{ label: 'Ver como funciona', href: '/solucoes/protecao-contra-surtos', primary: true }],
-      realFoto: '/home/mb-cascata-quadro.webp',
-      alt: 'Master Block instalado em quadro elétrico com disjuntores',
+        'A mesma tecnologia que blinda a indústria mantém sua refrigeração, seus servidores/PDV e o ar-condicionado de pé — sem parada de venda e sem estoque estragado.',
+      // Comércio = compra direta → hub NI /protecao (âncora da calculadora).
+      ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
+      fullFoto: { src: '/home/hero-s2-comercio.webp', pos: 'center 38%' },
+      alt: 'Vitrine de padaria com pães e o forno aceso ao fundo',
+      // Foto quente (dourada) — scrim frio devolve contraste ao CTA laranja.
+      scrim: 'cold',
     },
     {
       id: 'nao-industrial',
