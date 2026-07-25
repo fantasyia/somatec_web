@@ -3,6 +3,7 @@ import { PageHero } from '@/components/layout/PageHero';
 import { Reveal } from '@/components/ui/Reveal';
 import { VtcdQuiz } from '@/components/tools/VtcdQuiz';
 import { CostCalculator } from '@/components/tools/CostCalculator';
+import { CustoHeroCta } from '@/components/tools/CustoHeroCta';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
@@ -27,7 +28,9 @@ export default function CustoDeParadaPage() {
         title="Quanto a energia suja custa por ano na sua operação?"
         description="Responda 6 perguntas sobre os sintomas da sua planta e coloque 2 números na calculadora — em 2 minutos você sabe o tamanho do prejuízo e se ele tem cara de VTCD."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Custo de parada' }]}
-      />
+      >
+        <CustoHeroCta />
+      </PageHero>
 
       <section className="container-msm py-16 md:py-20" aria-label="Auto-diagnóstico de VTCD">
         <Reveal className="mb-8 max-w-3xl space-y-3">

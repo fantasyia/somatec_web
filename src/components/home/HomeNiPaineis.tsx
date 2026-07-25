@@ -35,7 +35,7 @@ const PAINEIS: readonly Painel[] = [
   },
   {
     id: 'piscina',
-    foto: '/home/ni-piscina.webp',
+    foto: '/home/ni-piscina-v2.webp',
     alt: 'Piscina aquecida de residência de alto padrão',
     texto:
       'Bomba, aquecedor e trocador de calor vivem ligados. É o conserto mais caro (e mais esquecido) da casa.',
@@ -44,7 +44,7 @@ const PAINEIS: readonly Painel[] = [
   },
   {
     id: 'elevador',
-    foto: '/home/ni-elevador.webp',
+    foto: '/home/ni-elevador-v2.webp',
     alt: 'Elevador de condomínio residencial',
     texto:
       'Quando a placa de comando queima, o elevador para — e a conta não estava no orçamento.',
@@ -100,7 +100,7 @@ export function HomeNiPaineis() {
                 {/* Scrim — denso embaixo, onde vive o texto */}
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 bg-[linear-gradient(180deg,rgba(1,12,22,0.05)_0%,rgba(1,12,22,0.18)_50%,rgba(1,12,22,0.85)_100%)]"
+                  className="absolute inset-0 bg-[linear-gradient(180deg,rgba(1,12,22,0.05)_0%,rgba(1,12,22,0.28)_50%,rgba(1,12,22,0.92)_100%)]"
                 />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                   <p className="font-serif text-lg font-semibold leading-snug text-balance [text-shadow:0_2px_10px_rgba(0,0,0,0.4)] md:text-xl">

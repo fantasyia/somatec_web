@@ -275,6 +275,16 @@
 .animate-led-pulse {
   animation: led-pulse 2.2s ease-in-out infinite;
 }
+/* Pulse ÚNICO (anel de brilho) — chama a atenção pro CTA ao entrar na
+   viewport. Roda 1x. reduced-motion: o guard global zera a animação. */
+@keyframes cta-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(243, 146, 0, 0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(243, 146, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(243, 146, 0, 0); }
+}
+.animate-cta-pulse {
+  animation: cta-pulse 1.4s ease-out 0.3s 1;
+}
 /* Desenho progressivo de curvas SVG (seção 10 kHz vs 100 kHz) */
 .draw-path {
   stroke-dasharray: var(--path-length, 1200);
