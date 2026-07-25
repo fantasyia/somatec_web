@@ -83,7 +83,7 @@ export function HomeHero({ data }: Props) {
         'A mesma tecnologia que blinda a indústria mantém sua refrigeração, seus servidores/PDV e o ar-condicionado de pé — sem parada de venda e sem estoque estragado.',
       // Comércio = compra direta → hub NI /protecao (âncora da calculadora).
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
-      fullFoto: { src: '/home/hero-s2-comercio.webp', pos: 'center 38%' },
+      fullFoto: { src: '/home/hero-s2-comercio-v2.webp', pos: 'center 42%' },
       alt: 'Vitrine de padaria com pães e o forno aceso ao fundo',
       // Foto quente (dourada) — scrim frio devolve contraste ao CTA laranja.
       scrim: 'cold',
@@ -96,7 +96,7 @@ export function HomeHero({ data }: Props) {
       // /protecao é o HUB único do NI — deep-link na âncora da calculadora
       // embutida mantém o verbo "calcular" com o clique de alta intenção.
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
-      fullFoto: { src: '/home/hero-s3-livingroom-pool.webp' },
+      fullFoto: { src: '/home/hero-s3-family.webp', pos: '62% center' },
       alt: 'Sala de estar aberta de alto padrão com piscina ao fundo',
     },
   ];
