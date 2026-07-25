@@ -353,16 +353,20 @@ export function HomeHero({ data }: Props) {
                 aria-selected={i === index}
                 aria-label={`Slide ${i + 1}: ${slide.title}`}
                 onClick={() => goTo(i)}
-                className="group relative h-1 overflow-hidden rounded-full bg-white/25"
+                // Barra hairline premium (1px). O botão tem padding vertical
+                // pra manter uma área de clique/toque confortável.
+                className="group relative flex items-center py-2.5"
               >
-                <span
-                  className="absolute inset-y-0 left-0 bg-gold transition-[width]"
-                  style={{
-                    width: i < index ? '100%' : i === index ? `${progress}%` : '0%',
-                    transitionDuration: i === index ? '0ms' : '300ms',
-                  }}
-                  aria-hidden="true"
-                />
+                <span className="relative block h-px w-full overflow-hidden rounded-full bg-white/20 transition-[height] duration-200 group-hover:h-0.5">
+                  <span
+                    className="absolute inset-y-0 left-0 bg-gold transition-[width]"
+                    style={{
+                      width: i < index ? '100%' : i === index ? `${progress}%` : '0%',
+                      transitionDuration: i === index ? '0ms' : '300ms',
+                    }}
+                    aria-hidden="true"
+                  />
+                </span>
                 <span className="sr-only">Ir para slide {i + 1}</span>
               </button>
             ))}
