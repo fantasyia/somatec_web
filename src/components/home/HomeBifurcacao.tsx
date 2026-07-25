@@ -67,7 +67,7 @@ const CARDS: readonly Card[] = [
 export function HomeBifurcacao() {
   return (
     <section
-      aria-label="Duas formas de proteger"
+      aria-label="Uma engenharia, três frentes de proteção"
       // ~100svh no desktop (altura DEFINIDA — h-full dos cards resolve);
       // no mobile os cards empilham com altura própria.
       className="flex flex-col md:h-[100svh] md:min-h-[720px]"
@@ -75,7 +75,7 @@ export function HomeBifurcacao() {
       <div className="container-msm pt-14 pb-8 md:pt-20 md:pb-10">
         <Reveal>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Duas formas de <span className="text-gold">proteger</span>. Escolha a sua.
+            Uma engenharia, <span className="text-gold">três frentes</span>. Escolha a sua.
           </h2>
         </Reveal>
       </div>
