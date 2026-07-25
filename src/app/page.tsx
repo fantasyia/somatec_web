@@ -5,7 +5,6 @@ import { HomeHero } from '@/components/home/HomeHero';
 import { HomeAterramento } from '@/components/home/HomeAterramento';
 import { HomeHoraParada } from '@/components/home/HomeHoraParada';
 import { HomeNiPaineis } from '@/components/home/HomeNiPaineis';
-import Image from 'next/image';
 import { HomeBifurcacao } from '@/components/home/HomeBifurcacao';
 import { HomeIndicators } from '@/components/home/HomeIndicators';
 import { HomeFrequency } from '@/components/home/HomeFrequency';
@@ -80,26 +79,14 @@ export default async function HomePage() {
         <HomeFrequency />
         <HomeIndicators indicators={indicators} />
       </div>
-      {/* Trilha industrial (âncora do card A da bifurcação). */}
+      {/* Trilha industrial (âncora do card A da bifurcação). A faixa full-bleed
+          do galpão saiu — a ponte contida logo abaixo já traz a imagem. */}
       <div id="industria" className="tone-surface scroll-mt-20">
         <HomeProof />
-        {/* Faixa de transição industrial (despacho + 2 correções): ESTÁTICA
-            (banda fina se mexendo distrai — motion fica nos gráficos) e com
-            MAIS altura + webp q92 / quality 90 pra não degradar a fonte. */}
-        <div className="relative h-[320px] w-full overflow-hidden md:h-[440px]">
-          <Image
-            src="/home/faixa-industrial-galpao.webp"
-            alt="Galpão industrial com linha de máquinas em perspectiva"
-            fill
-            loading="lazy"
-            quality={90}
-            sizes="100vw"
-            className="object-cover object-[center_62%]"
-          />
-        </div>
       </div>
-      {/* Faixa-ponte navy (despacho): "isso funciona" → "isso funcionou de
-          verdade". Entre o galpão (claro) e os cases (off-white). */}
+      {/* Faixa-ponte navy contida (2 colunas com card de imagem): "isso
+          funciona" → "isso funcionou de verdade". Entre HomeProof (claro) e os
+          cases (off-white) — navy sem colar dois navy. */}
       <HomePonteMedido />
       {/* FUSÃO (adendo #16): cases + segmentos viram UMA seção — "Resultado
           real, setor por setor" (4 setores: foto + dor + prova + CTA), com a
