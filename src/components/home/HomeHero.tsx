@@ -42,7 +42,7 @@ type Slide = {
   scrim?: 'cold';
 };
 
-const DURATION_MS = 7000;
+const DURATION_MS = 8000;
 
 export function HomeHero({ data }: Props) {
   const [index, setIndex] = useState(0);
