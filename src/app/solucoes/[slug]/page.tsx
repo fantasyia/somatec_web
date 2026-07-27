@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Check } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
+import { HomeNoRisk } from '@/components/home/HomeNoRisk';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { SOLUCOES, getSolucao } from '@/lib/constants/solucoes';
 
@@ -107,6 +108,11 @@ export default async function SolucaoPage({
           />
         </div>
       </section>
+
+      {/* Oferta de LOCAÇÃO — SÓ na trilha industrial (protecao-contra-surtos).
+          Segregação (despacho): o público NI não pode topar com essa condição,
+          então saiu da home e vive só aqui, onde só o industrial navega. */}
+      {slug === 'protecao-contra-surtos' && <HomeNoRisk />}
     </>
   );
 }
