@@ -12,6 +12,7 @@ import { HomeClients } from '@/components/home/HomeClients';
 import { HomeProof } from '@/components/home/HomeProof';
 import { HomeSetores } from '@/components/home/HomeSetores';
 import { HomePonteMedido } from '@/components/home/HomePonteMedido';
+import { HomeNoRisk } from '@/components/home/HomeNoRisk';
 import { HomeBlogTeaser } from '@/components/home/HomeBlogTeaser';
 import { BLOG_TEASER_ENABLED } from '@/lib/constants/flags';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -94,11 +95,12 @@ export default async function HomePage() {
       <div className="tone-base">
         <HomeSetores />
       </div>
-      {/* SEGREGAÇÃO DE OFERTAS (despacho): o bloco de locação "Você só paga…"
-          saiu da home → vive só em /solucoes/protecao-contra-surtos (trilha
-          industrial). O público NI não topa com a condição industrial aqui. */}
-      {/* Lead magnet industrial (#16-G, banda NAVY): vizinho de cima agora é
-          HomeSetores (off-white) — navy após off-white, sem colar. */}
+      {/* Modelo industrial explícito (rótulo Locação · Indústria, timeline). */}
+      <div className="tone-surface">
+        <HomeNoRisk />
+      </div>
+      {/* Lead magnet industrial (#16-G, banda NAVY espelhando o gráfico do
+          DPS): vizinhos claros dos dois lados (NoRisk ⚪ · Aterramento ⚪). */}
       <HomeHoraParada />
       <div className="tone-surface">
         <HomeAterramento />
