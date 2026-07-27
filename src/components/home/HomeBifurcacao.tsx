@@ -47,7 +47,7 @@ const CARDS: readonly Card[] = [
     modelo: 'Compra direta',
     resto:
       ' — forno da padaria, câmara fria do restaurante, PDV da loja, ar-condicionado do consultório: um dia parado pesa igual ao de uma fábrica.',
-    cta: { label: 'Ver proteção pro meu negócio', href: '/protecao' },
+    cta: { label: 'Ver proteção pro meu negócio', href: '/protecao-comercial' },
   },
   {
     id: 'residencial',
@@ -57,7 +57,7 @@ const CARDS: readonly Card[] = [
     modelo: 'Compra direta',
     resto:
       ' — você mesmo dimensiona a proteção da sua casa em minutos, sem depender de vendedor.',
-    cta: { label: 'Ver proteção pra minha casa', href: '/protecao' },
+    cta: { label: 'Ver proteção pra minha casa', href: '/protecao-residencial' },
     // Enquadramento mais alto (feedback do Léo: aparecer mais a casa ao
     // fundo) — ainda pega carro + wallbox na base.
     fotoPos: 'left 42%',

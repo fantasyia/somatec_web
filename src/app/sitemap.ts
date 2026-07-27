@@ -31,6 +31,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/produtos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
     { url: `${base}/solucoes`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/solucoes/protecao-contra-surtos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/protecao-residencial`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/protecao-comercial`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/solucoes/qualidade-de-energia`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/solucoes/banco-de-capacitores`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/solucoes/medicao-e-laudos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },

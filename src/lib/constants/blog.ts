@@ -78,7 +78,7 @@ export const BLOG_POSTS: readonly BlogPost[] = [
     tempoLeitura: 5,
     heroUrl: '/blog/casa-condominio.webp',
     publicadoEm: '2026-07-09',
-    ctaInterno: { label: 'Proteger minha casa', href: '/protecao' },
+    ctaInterno: { label: 'Proteger minha casa', href: '/protecao-residencial' },
   },
   {
     slug: 'protecao-eletrica-para-comercio',
@@ -89,7 +89,7 @@ export const BLOG_POSTS: readonly BlogPost[] = [
     tempoLeitura: 4,
     heroUrl: '/blog/comercio-padaria.webp',
     publicadoEm: '2026-07-08',
-    ctaInterno: { label: 'Proteger meu comércio', href: '/protecao' },
+    ctaInterno: { label: 'Proteger meu comércio', href: '/protecao-comercial' },
   },
   {
     slug: '5-sinais-vtcd-sem-saber',

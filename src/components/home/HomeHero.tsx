@@ -81,8 +81,8 @@ export function HomeHero({ data }: Props) {
       title: 'No comércio, um surto leva a câmara fria, o forno e o PDV de uma vez.',
       subtitle:
         'A mesma tecnologia que blinda a indústria mantém sua refrigeração, seus servidores/PDV e o ar-condicionado de pé — sem parada de venda e sem estoque estragado.',
-      // Comércio = compra direta → hub NI /protecao (âncora da calculadora).
-      ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
+      // Comércio = compra direta → LP comercial (âncora da calculadora).
+      ctas: [{ label: 'Calcular a minha proteção', href: '/protecao-comercial#calculadora', primary: true }],
       fullFoto: { src: '/home/hero-s2-comercio-v3.webp', pos: 'center 42%' },
       alt: 'Atendente de padaria entregando o pão a uma cliente, com a vitrine e o forno ao fundo',
       // Foto quente (dourada) — scrim frio devolve contraste ao CTA laranja.
@@ -93,9 +93,9 @@ export function HomeHero({ data }: Props) {
       title: 'Proteção também para casas e apartamentos de alto padrão',
       subtitle:
         'O mesmo que blinda a indústria protege a automação, o home theater, o ar-condicionado e o inversor solar — todo o patrimônio eletrônico da casa, na mesma rede.',
-      // /protecao é o HUB único do NI — deep-link na âncora da calculadora
-      // embutida mantém o verbo "calcular" com o clique de alta intenção.
-      ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
+      // LP residencial — deep-link na âncora da calculadora embutida mantém o
+      // verbo "calcular" com o clique de alta intenção.
+      ctas: [{ label: 'Calcular a minha proteção', href: '/protecao-residencial#calculadora', primary: true }],
       fullFoto: { src: '/home/hero-s3-family-v2.webp', pos: 'center' },
       alt: 'Família reunida no sofá da sala de estar, com a piscina iluminada pela janela',
     },

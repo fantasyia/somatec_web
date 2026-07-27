@@ -77,6 +77,10 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // LP /protecao antiga (uma só p/ os 2 públicos) foi substituída pelas 2
+      // LPs segmentadas (/protecao-residencial + /protecao-comercial). 301 pra
+      // a bifurcação da home (escolha de perfil), sem quebrar links/UTM.
+      { source: '/protecao', destination: '/#bifurcacao', permanent: true },
       // Rename institucional /a-msm -> /a-somatec (slugs limpos).
       { source: '/a-msm', destination: '/a-somatec', permanent: true },
       { source: '/a-msm/quem-somos', destination: '/a-somatec/quem-somos', permanent: true },

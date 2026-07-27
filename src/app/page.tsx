@@ -70,7 +70,7 @@ export default async function HomePage() {
       </div>
       {/* ⭐ BIFURCAÇÃO (despacho #15): logo após os logos, a home declara os
           2 públicos e os 2 modelos (indústria=locação · NI=compra direta). */}
-      <div className="tone-base">
+      <div id="bifurcacao" className="tone-base scroll-mt-20">
         <HomeBifurcacao />
       </div>
       {/* Argumento universal em banda navy: gráfico 10 vs 100 kHz + a fileira

@@ -15,6 +15,8 @@ type Painel = {
   /** null = foto do Estúdio pendente → placeholder no mesmo slot. */
   foto: string | null;
   alt: string;
+  /** LP de destino (compra direta): residencial ou comercial. */
+  href: string;
   texto: string;
   /** Trecho de `texto` que recebe o foco LARANJA (o soco do card). O card
    *  do elevador não usa: o foco laranja dele é o CTA-link. */
@@ -27,6 +29,7 @@ const PAINEIS: readonly Painel[] = [
   {
     id: 'carro-eletrico',
     foto: '/home/ni-carro-eletrico.webp',
+    href: '/protecao-residencial',
     alt: 'Carro elétrico carregando na garagem com carregador de parede',
     texto:
       'Plugado à rede por horas, de madrugada e sem ninguém por perto: um surto danifica o carregador e o carro.',
@@ -36,6 +39,7 @@ const PAINEIS: readonly Painel[] = [
   {
     id: 'piscina',
     foto: '/home/ni-piscina-v2.webp',
+    href: '/protecao-residencial',
     alt: 'Piscina aquecida de residência de alto padrão',
     texto:
       'Bomba, aquecedor e trocador de calor vivem ligados. É o conserto mais caro (e mais esquecido) da casa.',
@@ -45,6 +49,7 @@ const PAINEIS: readonly Painel[] = [
   {
     id: 'elevador',
     foto: '/home/ni-elevador-v3.webp',
+    href: '/protecao-comercial',
     alt: 'Elevador de condomínio residencial',
     texto:
       'Quando a placa de comando queima, o elevador para — e a conta não estava no orçamento.',
@@ -72,10 +77,10 @@ export function HomeNiPaineis() {
           container — os 3 painéis enchem a tela, com respiro mínimo. */}
       <div className="section-y px-2 md:px-3">
         <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
-          {PAINEIS.map(({ id, foto, alt, texto, foco, cta }, i) => (
+          {PAINEIS.map(({ id, foto, href, alt, texto, foco, cta }, i) => (
             <Reveal key={id} delay={i * 90}>
               <Link
-                href="/protecao"
+                href={href}
                 className="group relative block h-[300px] overflow-hidden rounded-card-lg md:h-[400px]"
               >
                 {foto ? (
