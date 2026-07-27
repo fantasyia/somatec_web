@@ -3,6 +3,8 @@
  * playbook: os 5 primeiros passos são sem custo e o cliente só paga se
  * aprovar o resultado. Band navy para máximo contraste.
  */
+import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { LocacaoTimeline } from '@/components/home/LocacaoTimeline';
 
@@ -36,12 +38,20 @@ export function HomeNoRisk() {
         {/* Adendo #16-A: a legenda do saving (30%) saiu daqui — o argumento
             subiu de nível e virou o módulo "Uma hora parada por mês já paga
             a conta" (HomeHoraParada), logo abaixo. */}
-        <div className="mt-10">
+        <div className="mt-10 flex flex-wrap items-center gap-3">
           <CommercialCta
             label="Solicitar diagnóstico gratuito"
             context="Modelo sem risco (home)"
             fallbackPath="/contato"
           />
+          {/* Auto-orçamento industrial: monta a planta em cascata → proposta de locação. */}
+          <Link
+            href="/orcamento-industrial"
+            className="group inline-flex items-center gap-1.5 rounded-btn border border-white/40 px-5 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:border-gold hover:text-gold"
+          >
+            Montar o projeto da minha planta
+            <ChevronRight className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5" strokeWidth={2} />
+          </Link>
         </div>
       </div>
     </section>
