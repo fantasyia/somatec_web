@@ -83,8 +83,8 @@ export function HomeHero({ data }: Props) {
         'A mesma tecnologia que blinda a indústria mantém sua refrigeração, seus servidores/PDV e o ar-condicionado de pé — sem parada de venda e sem estoque estragado.',
       // Comércio = compra direta → hub NI /protecao (âncora da calculadora).
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
-      fullFoto: { src: '/home/hero-s2-comercio-v2.webp', pos: 'center 42%' },
-      alt: 'Vitrine de padaria com pães e o forno aceso ao fundo',
+      fullFoto: { src: '/home/hero-s2-comercio-v3.webp', pos: 'center 42%' },
+      alt: 'Atendente de padaria entregando o pão a uma cliente, com a vitrine e o forno ao fundo',
       // Foto quente (dourada) — scrim frio devolve contraste ao CTA laranja.
       scrim: 'cold',
     },
