@@ -96,8 +96,8 @@ export function HomeHero({ data }: Props) {
       // /protecao é o HUB único do NI — deep-link na âncora da calculadora
       // embutida mantém o verbo "calcular" com o clique de alta intenção.
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao#calculadora', primary: true }],
-      fullFoto: { src: '/home/hero-s3-family.webp', pos: '62% center' },
-      alt: 'Sala de estar aberta de alto padrão com piscina ao fundo',
+      fullFoto: { src: '/home/hero-s3-family-v2.webp', pos: 'center' },
+      alt: 'Família reunida no sofá da sala de estar, com a piscina iluminada pela janela',
     },
   ];
 
