@@ -56,7 +56,7 @@ const CARDS: readonly Card[] = [
     titulo: 'Residencial',
     modelo: 'Compra direta',
     resto:
-      ' — automação, home theater, ar-condicionado e inversor solar: o patrimônio eletrônico da casa, todo na mesma rede.',
+      ' — você mesmo dimensiona a proteção da sua casa em minutos, sem depender de vendedor.',
     cta: { label: 'Ver proteção pra minha casa', href: '/protecao' },
     // Enquadramento mais alto (feedback do Léo: aparecer mais a casa ao
     // fundo) — ainda pega carro + wallbox na base.
