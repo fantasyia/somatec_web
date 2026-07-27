@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import { Network, Clock, ShieldCheck } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { ProofBadges } from '@/components/ui/ProofBadges';
 import { OrcamentoIndustrial } from '@/components/tools/OrcamentoIndustrial';
+import { DiagramaExemploIndustrial } from '@/components/lp/DiagramaExemploIndustrial';
 import {
   buildCommercialCtaHref,
   getWhatsAppButtonConfig,
@@ -30,12 +30,13 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600;
 
-// Exemplo Moura Un05 (transcrição fiel — calculadora-industrial-estrutura.md)
+// Exemplo ILUSTRATIVO (não é o documento de nenhum cliente) — mantém a ordem de
+// grandeza de uma planta cheia; espelha o diagrama próprio ao lado.
 const EXEMPLO = [
-  { se: 'SE 01', trafo: '2× 750 kVA', setor: 'G01 + Administrativo' },
-  { se: 'SE 02', trafo: '1× 1000 kVA', setor: 'G02 — 6 robôs + 12 injetoras' },
-  { se: 'SE 03', trafo: '1× 2000 kVA', setor: 'Repla' },
-  { se: 'SE 04', trafo: '2× 2000 kVA', setor: 'G03 + G04 — 6 robôs + 25 injetoras' },
+  { se: 'Subestação 1', trafo: '1× 1000 kVA', setor: 'Injeção — 6 robôs + 12 injetoras' },
+  { se: 'Subestação 2', trafo: '1× 2000 kVA', setor: 'Usinagem — 6 robôs' },
+  { se: 'Subestação 3', trafo: '2× 2000 kVA', setor: 'Acabamento — 13 injetoras' },
+  { se: 'Subestação 4', trafo: '2× 750 kVA', setor: 'Administrativo — servidores, CFTV' },
 ];
 
 export default async function OrcamentoIndustrialPage() {
@@ -81,38 +82,16 @@ export default async function OrcamentoIndustrialPage() {
               <OrcamentoIndustrial landingSlug={SLUG} whatsappHref={zapHref} whatsappExternal={zapExternal} />
             </Reveal>
 
-            {/* Exemplo pré-montado (Moura Un05) */}
+            {/* Exemplo ilustrativo — resumo em tabela ao lado do wizard */}
             <Reveal delay={120} className="lg:col-span-5">
               <div className="rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-6">
                 <h2 className="font-serif text-lg font-semibold text-[rgb(var(--text))]">
-                  Veja um projeto real
+                  Veja como fica um projeto
                 </h2>
                 <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">
                   Uma planta industrial: entrada em 69 kV → subestação → 4 subestações internas →
                   galpões → dezenas de servomotores, servobombas e inversores. É a árvore que você
-                  monta acima.
-                </p>
-
-                {/* Diagrama unifilar do projeto exemplo — abre em tamanho cheio
-                    (o desenho é denso demais pra ler no card). */}
-                <a
-                  href="/home/diagrama-exemplo-industrial.webp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group mt-4 block overflow-hidden rounded-card border border-[rgb(var(--border))] bg-white"
-                >
-                  <Image
-                    src="/home/diagrama-exemplo-industrial.webp"
-                    alt="Diagrama elétrico unifilar de uma planta industrial: entrada em 69 kV, subestação, quatro subestações internas de 13,8 kV para 380 V com transformadores, painéis de baixa tensão e os galpões com robôs, injetoras, servomotores e servobombas"
-                    width={1800}
-                    height={1274}
-                    loading="lazy"
-                    sizes="(max-width: 1024px) 100vw, 40vw"
-                    className="w-full transition-transform duration-500 ease-premium group-hover:scale-[1.02]"
-                  />
-                </a>
-                <p className="mt-2 text-xs text-[rgb(var(--text-muted))]">
-                  Toque no diagrama para ver em tamanho cheio.
+                  monta ao lado.
                 </p>
 
                 <div className="mt-5 overflow-hidden rounded-card border border-[rgb(var(--border))]">
@@ -142,6 +121,25 @@ export default async function OrcamentoIndustrialPage() {
               </div>
             </Reveal>
           </div>
+
+          {/* Diagrama em largura cheia — desenho próprio (não é o documento de
+              nenhum cliente): mesma estrutura didática, mais os pontos de
+              proteção em cascata acendendo, que o unifilar comum não mostra. */}
+          <Reveal delay={80} className="mt-8">
+            <div className="rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-6 md:p-8">
+              <h2 className="font-serif text-lg font-semibold text-[rgb(var(--text))]">
+                Onde o Master Block entra na planta
+              </h2>
+              <p className="mt-1 max-w-2xl text-sm text-[rgb(var(--text-muted))]">
+                Da entrada da rede até o painel de cada galpão. Cada ponto laranja é uma camada da{' '}
+                <span className="font-semibold text-gold">proteção em cascata</span> — é isso que o
+                seu projeto vai mostrar.
+              </p>
+              <div className="mt-6">
+                <DiagramaExemploIndustrial />
+              </div>
+            </div>
+          </Reveal>
         </section>
       </div>
 
