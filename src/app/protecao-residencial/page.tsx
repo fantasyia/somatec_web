@@ -156,7 +156,7 @@ export default async function ProtecaoResidencialPage() {
           <div className="grid items-center gap-10 lg:grid-cols-12">
             <Reveal className="space-y-5 lg:col-span-7">
               <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-                A mesma proteção das grandes indústrias, no tamanho da sua casa
+                A proteção de uma fábrica inteira — do tamanho de uma caixa no seu quadro.
               </h2>
               <p className="leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
                 O Master Block é um bloqueador de surtos brasileiro, patenteado, que há 26 anos

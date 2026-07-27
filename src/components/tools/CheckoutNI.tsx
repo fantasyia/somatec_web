@@ -19,6 +19,13 @@ import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormS
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
 import { trackEvent } from '@/lib/analytics';
+import { selecionarMasterBlock, formatBRL, MB_LOAD_MAX } from '@/lib/constants/masterblock';
+
+// Aceita "40", "63 A", "1.250" → número ou 0.
+function parseAmp(s: string): number {
+  const n = parseFloat(s.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.'));
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
 
 // =============================================================================
 // CheckoutNI — wizard de auto-orçamento para clientes NÃO industriais (leigos).
@@ -93,6 +100,14 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [message, setMessage] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState('');
 
+  // Dimensionamento LIVE (Tabela de Potências 2026 + preço de venda direta): a
+  // corrente do quadro de entrada → modelo MB + preço. Fallback só quando o
+  // cliente não sabe os dados (naoSei) ou está acima da linha padrão.
+  const amp = parseAmp(corrente);
+  const modelo = !naoSei && amp > 0 && amp <= MB_LOAD_MAX ? selecionarMasterBlock(amp) : null;
+  const overRange = !naoSei && amp > MB_LOAD_MAX;
+  const temPreco = modelo != null;
+
   // Emite calc_inicio na 1ª interação e calc_passo a cada avanço.
   function irPara(n: number) {
     if (!startedRef.current) {
@@ -102,6 +117,14 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     const alvo = Math.min(TOTAL_PASSOS, Math.max(1, n));
     setPasso(alvo);
     trackEvent('calc_passo', { setor, landing: landingSlug, passo: alvo });
+    if (alvo === TOTAL_PASSOS) {
+      trackEvent('calc_resultado', {
+        setor,
+        landing: landingSlug,
+        temPreco,
+        modelo: modelo?.model ?? (overRange ? 'acima-da-linha' : 'nao-sei'),
+      });
+    }
   }
 
   function toggleAdicional(q: string) {
@@ -123,12 +146,17 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     const dadosQuadro = naoSei
       ? 'não sabe os dados do quadro (pediu dimensionamento pela equipe — foto/WhatsApp)'
       : `tensão ${tensao || 'não informada'}, corrente do disjuntor geral ${corrente.trim() || 'não informada'}`;
+    const dimensionamento = modelo
+      ? `Dimensionado (quadro de entrada): ${modelo.model} (${modelo.loadLabel}) — ${formatBRL(modelo.preco)}.`
+      : overRange
+        ? `Acima da linha padrão (> ${MB_LOAD_MAX} A) — requer dimensionamento dedicado.`
+        : '';
     const adic = adicionais.length
-      ? `Quadros adicionais a proteger: ${adicionais.join(', ')}.`
+      ? `Quadros adicionais a proteger (1 MB secundário cada, dimensionado no contato): ${adicionais.join(', ')}.`
       : 'Sem quadros adicionais indicados.';
     const resumo =
       `[Orçamento ${setor} — compra direta] Contexto: ${contexto}. ` +
-      `Quadro de entrada: ${dadosQuadro}. ${adic}`;
+      `Quadro de entrada: ${dadosQuadro}. ${dimensionamento} ${adic}`.replace(/\s+/g, ' ').trim();
 
     try {
       const res = await fetch('/api/forms/submit', {
@@ -366,16 +394,46 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
               </div>
             )}
 
-            {/* ── Passo 4 — Resultado (fallback) + captura ───────── */}
+            {/* ── Passo 4 — Resultado (dimensionado c/ preço · fallback p/ "não sei") + captura ── */}
             {passo === 4 && (
               <div className="space-y-5">
+                {/* Card de resultado dimensionado — quando a corrente é conhecida */}
+                {temPreco && modelo && (
+                  <div className="rounded-card-lg bg-deep_navy p-6 text-white md:p-7">
+                    <div className="text-[11px] font-sans font-bold text-white/60">
+                      Recomendado para o seu quadro de entrada
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                      <span className="font-serif text-4xl font-bold text-gold">{modelo.model}</span>
+                      <span className="text-sm text-white/70">{modelo.loadLabel}</span>
+                    </div>
+                    <div className="mt-4 flex flex-wrap items-baseline gap-x-3 border-t border-white/10 pt-4">
+                      <span className="text-sm text-white/60">Compra direta do equipamento</span>
+                      <span className="font-serif text-3xl font-bold text-gold">{formatBRL(modelo.preco)}</span>
+                    </div>
+                    {adicionais.length > 0 && (
+                      <p className="mt-3 text-sm text-white/75">
+                        + 1 Master Block menor por quadro adicional ({adicionais.length}) — dimensionado
+                        no contato, pra proteger tudo em cascata.
+                      </p>
+                    )}
+                    <p className="mt-3 text-xs leading-relaxed text-white/60">
+                      Protege seus equipamentos contra os picos de tensão que o DPS e o no-break não
+                      pegam. Indicação pela corrente informada; a engenharia confirma o projeto final.
+                    </p>
+                  </div>
+                )}
+
                 <div>
                   <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))]">
-                    Falta só um passo pro seu orçamento.
+                    {temPreco ? 'Falta só um passo pra fechar.' : 'Falta só um passo pro seu orçamento.'}
                   </h3>
                   <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">
-                    Nossa equipe dimensiona o Master Block certo pro seu quadro e te retorna com o
-                    valor — sem compromisso, sem vendedor no seu pé.
+                    {temPreco
+                      ? 'Deixe seus dados que a Somatec confirma o modelo e fecha a compra com você — sem vendedor no seu pé.'
+                      : overRange
+                        ? 'Seu quadro está acima da linha padrão — nossa equipe dimensiona a solução certa e te retorna com o valor.'
+                        : 'Nossa equipe dimensiona o Master Block certo pro seu quadro e te retorna com o valor — sem compromisso, sem vendedor no seu pé.'}
                   </p>
                 </div>
 
@@ -434,7 +492,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                     ) : (
                       <>
-                        Solicitar meu orçamento
+                        {temPreco ? 'Fechar meu pedido' : 'Solicitar meu orçamento'}
                         <ChevronRight
                           className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
                           strokeWidth={2}
