@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { Network, Clock, ShieldCheck } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { ProofBadges } from '@/components/ui/ProofBadges';
@@ -92,12 +93,27 @@ export default async function OrcamentoIndustrialPage() {
                   monta acima.
                 </p>
 
-                {/* Slot do diagrama-exemplo (imagem chega do Léo) */}
-                <div className="mt-4 flex aspect-[4/3] w-full items-center justify-center rounded-card border border-dashed border-[rgb(var(--border))] bg-[rgb(var(--bg))] text-center">
-                  <span className="px-6 text-xs text-[rgb(var(--text-muted))]">
-                    Diagrama unifilar do projeto exemplo<br />(em preparação)
-                  </span>
-                </div>
+                {/* Diagrama unifilar do projeto exemplo — abre em tamanho cheio
+                    (o desenho é denso demais pra ler no card). */}
+                <a
+                  href="/home/diagrama-exemplo-industrial.webp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group mt-4 block overflow-hidden rounded-card border border-[rgb(var(--border))] bg-white"
+                >
+                  <Image
+                    src="/home/diagrama-exemplo-industrial.webp"
+                    alt="Diagrama elétrico unifilar de uma planta industrial: entrada em 69 kV, subestação, quatro subestações internas de 13,8 kV para 380 V com transformadores, painéis de baixa tensão e os galpões com robôs, injetoras, servomotores e servobombas"
+                    width={1800}
+                    height={1274}
+                    loading="lazy"
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    className="w-full transition-transform duration-500 ease-premium group-hover:scale-[1.02]"
+                  />
+                </a>
+                <p className="mt-2 text-xs text-[rgb(var(--text-muted))]">
+                  Toque no diagrama para ver em tamanho cheio.
+                </p>
 
                 <div className="mt-5 overflow-hidden rounded-card border border-[rgb(var(--border))]">
                   <table className="w-full text-left text-xs">
