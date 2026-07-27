@@ -89,6 +89,8 @@ export default async function ProtecaoComercialPage() {
         <div className="absolute inset-0 -z-20" aria-hidden="true">
           <img
             src="/home/hero-s2-comercio-v3.webp"
+            srcSet="/home/hero-s2-comercio-v3-480.webp 480w, /home/hero-s2-comercio-v3-768.webp 768w, /home/hero-s2-comercio-v3-1200.webp 1200w, /home/hero-s2-comercio-v3.webp 1920w"
+            sizes="100vw"
             alt="Atendente de padaria entregando o pão a uma cliente, com a vitrine e o forno ao fundo"
             className="h-full w-full object-cover"
             style={{ objectPosition: 'center 42%' }}

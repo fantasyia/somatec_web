@@ -90,6 +90,8 @@ export default async function ProtecaoResidencialPage() {
         <div className="absolute inset-0 -z-20" aria-hidden="true">
           <img
             src="/home/hero-s3-family-v2.webp"
+            srcSet="/home/hero-s3-family-v2-480.webp 480w, /home/hero-s3-family-v2-768.webp 768w, /home/hero-s3-family-v2-1200.webp 1200w, /home/hero-s3-family-v2.webp 1920w"
+            sizes="100vw"
             alt="Família reunida no sofá da sala de estar, com a piscina iluminada pela janela"
             className="h-full w-full object-cover"
             style={{ objectPosition: 'center' }}

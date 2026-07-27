@@ -22,6 +22,19 @@ import type { HomeHero as HeroData } from '@/types/database';
 
 type Props = { data: HeroData | null };
 
+/**
+ * Foto do hero com variantes responsivas. O hero usa <img> cru (art direction +
+ * blur-fill), então o srcset é montado à mão: sem ele o mobile baixava o arquivo
+ * de 1920px. Arquivos gerados: `<base>-<largura>.webp`.
+ */
+type Foto = { src: string; widths: number[]; orig: number; pos?: string };
+
+const semExt = (src: string) => src.replace(/\.webp$/, '');
+const srcSetDe = (f: Foto) =>
+  [...f.widths.map((w) => `${semExt(f.src)}-${w}.webp ${w}w`), `${f.src} ${f.orig}w`].join(', ');
+/** Camada de fundo borrada: a menor variante basta (sai blur + scale por cima). */
+const menorDe = (f: Foto) => `${semExt(f.src)}-${f.widths[0]}.webp`;
+
 type Slide = {
   id: string;
   title: string;
@@ -31,12 +44,12 @@ type Slide = {
   ctas: { label: string; href: string; primary?: boolean }[];
   /** Art direction (despacho #8): wide ≥1024 · tablet 768–1023 · tall <768. */
   images?: { wide: string; tablet: string; tall: string };
-  /** Foto única full-bleed (ambiente ocupa a largura toda). objPos enquadra. */
-  fullFoto?: { src: string; pos?: string };
+  /** Foto única full-bleed (ambiente ocupa a largura toda). pos enquadra. */
+  fullFoto?: Foto;
   /** Foto REAL do produto (retrato 3:4, despacho mb-reais): no desktop entra
    *  como painel na METADE direita sobre fundo navy (full-bleed 2:1 cortaria
    *  o produto); no mobile vira full-bleed. */
-  realFoto?: string;
+  realFoto?: Foto;
   alt: string;
   /** 'cold' = scrim neutro-escuro frio (S2b é âmbar — devolve contraste ao CTA laranja). */
   scrim?: 'cold';
@@ -73,7 +86,7 @@ export function HomeHero({ data }: Props) {
           href: data?.secondary_cta_url ?? HERO_FALLBACK.secondary.href,
         },
       ],
-      realFoto: '/home/hero-s1-mbwall.webp',
+      realFoto: { src: '/home/hero-s1-mbwall.webp', widths: [480, 768], orig: 1080 },
       alt: 'Master Block instalado em parede de painel industrial',
     },
     {
@@ -83,7 +96,7 @@ export function HomeHero({ data }: Props) {
         'A mesma tecnologia que blinda a indústria mantém sua refrigeração, seus servidores/PDV e o ar-condicionado de pé — sem parada de venda e sem estoque estragado.',
       // Comércio = compra direta → LP comercial (âncora da calculadora).
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao-comercial#calculadora', primary: true }],
-      fullFoto: { src: '/home/hero-s2-comercio-v3.webp', pos: 'center 42%' },
+      fullFoto: { src: '/home/hero-s2-comercio-v3.webp', pos: 'center 42%', widths: [480, 768, 1200], orig: 1920 },
       alt: 'Atendente de padaria entregando o pão a uma cliente, com a vitrine e o forno ao fundo',
       // Foto quente (dourada) — scrim frio devolve contraste ao CTA laranja.
       scrim: 'cold',
@@ -96,7 +109,7 @@ export function HomeHero({ data }: Props) {
       // LP residencial — deep-link na âncora da calculadora embutida mantém o
       // verbo "calcular" com o clique de alta intenção.
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao-residencial#calculadora', primary: true }],
-      fullFoto: { src: '/home/hero-s3-family-v2.webp', pos: 'center' },
+      fullFoto: { src: '/home/hero-s3-family-v2.webp', pos: 'center', widths: [480, 768, 1200], orig: 1920 },
       alt: 'Família reunida no sofá da sala de estar, com a piscina iluminada pela janela',
     },
   ];
@@ -215,7 +228,9 @@ export function HomeHero({ data }: Props) {
                 aria-hidden="true"
               />
               <img
-                src={slide.realFoto}
+                src={slide.realFoto.src}
+                srcSet={srcSetDe(slide.realFoto)}
+                sizes="(min-width: 768px) 46vw, 100vw"
                 alt={slide.alt}
                 className="absolute inset-y-0 right-0 h-full w-full object-cover md:w-[46%]"
                 fetchPriority={i === 0 ? 'high' : undefined}
@@ -229,7 +244,7 @@ export function HomeHero({ data }: Props) {
                   object-cover + scale (esconde a borda do blur). Só aparece
                   em telas MAIS LARGAS que a camada nítida. */}
               <img
-                src={slide.fullFoto.src}
+                src={menorDe(slide.fullFoto)}
                 alt=""
                 aria-hidden="true"
                 className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
@@ -243,6 +258,8 @@ export function HomeHero({ data }: Props) {
               <div className="absolute inset-0 mx-auto max-w-[1600px] overflow-hidden">
                 <img
                   src={slide.fullFoto.src}
+                  srcSet={srcSetDe(slide.fullFoto)}
+                  sizes="100vw"
                   alt={slide.alt}
                   style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
                   className="h-full w-full object-cover"
