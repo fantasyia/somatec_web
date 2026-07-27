@@ -94,7 +94,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [tensao, setTensao] = useState('');
   const [corrente, setCorrente] = useState('');
   const [naoSei, setNaoSei] = useState(false);
-  const [adicionais, setAdicionais] = useState<string[]>([]);
+  /** Quadros adicionais escolhidos + a corrente de cada um (opcional: sem ela,
+   *  o secundário vai "a dimensionar no contato" em vez de já vir com preço). */
+  const [adicionais, setAdicionais] = useState<{ nome: string; corrente: string }[]>([]);
 
   const [status, setStatus] = useState<FormStatusKind>('idle');
   const [message, setMessage] = useState<string | null>(null);
@@ -128,8 +130,26 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   }
 
   function toggleAdicional(q: string) {
-    setAdicionais((prev) => (prev.includes(q) ? prev.filter((x) => x !== q) : [...prev, q]));
+    setAdicionais((prev) =>
+      prev.some((a) => a.nome === q) ? prev.filter((a) => a.nome !== q) : [...prev, { nome: q, corrente: '' }],
+    );
   }
+
+  function setCorrenteAdicional(nome: string, valor: string) {
+    setAdicionais((prev) => prev.map((a) => (a.nome === nome ? { ...a, corrente: valor } : a)));
+  }
+
+  /** Carrinho: MB do quadro de entrada + 1 MB por quadro adicional com corrente. */
+  const itensCarrinho = [
+    ...(modelo ? [{ quadro: 'Quadro de entrada', modelo, principal: true }] : []),
+    ...adicionais.map((a) => {
+      const amp = parseAmp(a.corrente);
+      const m = amp > 0 && amp <= MB_LOAD_MAX ? selecionarMasterBlock(amp) : null;
+      return { quadro: a.nome, modelo: m, principal: false };
+    }),
+  ];
+  const totalCarrinho = itensCarrinho.reduce((s, i) => s + (i.modelo?.preco ?? 0), 0);
+  const semPreco = itensCarrinho.filter((i) => !i.modelo).length;
 
   function podeAvancar(): boolean {
     if (passo === 1) return contexto !== '';
@@ -151,8 +171,13 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       : overRange
         ? `Acima da linha padrão (> ${MB_LOAD_MAX} A) — requer dimensionamento dedicado.`
         : '';
-    const adic = adicionais.length
-      ? `Quadros adicionais a proteger (1 MB secundário cada, dimensionado no contato): ${adicionais.join(', ')}.`
+    const secundarios = itensCarrinho.filter((i) => !i.principal);
+    const adic = secundarios.length
+      ? 'Quadros adicionais: ' +
+        secundarios
+          .map((i) => `${i.quadro} → ${i.modelo ? `${i.modelo.model} (${formatBRL(i.modelo.preco)})` : 'sem corrente, a dimensionar'}`)
+          .join('; ') +
+        `. Total dos itens dimensionados: ${formatBRL(totalCarrinho)}.`
       : 'Sem quadros adicionais indicados.';
     const resumo =
       `[Orçamento ${setor} — compra direta] Contexto: ${contexto}. ` +
@@ -366,28 +391,52 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {QUADROS_ADICIONAIS[setor].map((q) => {
-                    const sel = adicionais.includes(q);
+                    const escolhido = adicionais.find((a) => a.nome === q);
+                    const sel = escolhido !== undefined;
                     return (
-                      <button
+                      <div
                         key={q}
-                        type="button"
-                        onClick={() => toggleAdicional(q)}
-                        className={`${cardBtn} ${
-                          sel
-                            ? 'border-gold bg-gold/[0.06]'
-                            : 'border-[rgb(var(--border))] hover:border-gold/50'
-                        } text-[rgb(var(--text))]`}
-                        aria-pressed={sel}
+                        className={`rounded-card border transition-colors ${
+                          sel ? 'border-gold bg-gold/[0.06]' : 'border-[rgb(var(--border))]'
+                        }`}
                       >
-                        <span
-                          className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                            sel ? 'border-gold bg-gold text-white' : 'border-[rgb(var(--border))]'
-                          }`}
+                        <button
+                          type="button"
+                          onClick={() => toggleAdicional(q)}
+                          className="flex w-full items-center gap-3 p-4 text-left font-sans text-sm font-semibold text-[rgb(var(--text))]"
+                          aria-pressed={sel}
                         >
-                          {sel && <ChevronRight className="h-3.5 w-3.5 rotate-90" strokeWidth={3} />}
-                        </span>
-                        {q}
-                      </button>
+                          <span
+                            className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+                              sel ? 'border-gold bg-gold text-white' : 'border-[rgb(var(--border))]'
+                            }`}
+                          >
+                            {sel && <ChevronRight className="h-3.5 w-3.5 rotate-90" strokeWidth={3} />}
+                          </span>
+                          {q}
+                        </button>
+                        {/* Corrente do quadro adicional → dá o MB secundário e o
+                            preço dele. Em branco = dimensionado no contato. */}
+                        {sel && (
+                          <div className="px-4 pb-4">
+                            <label
+                              htmlFor={`${baseId}-adic-${q}`}
+                              className="block pb-1.5 text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
+                            >
+                              Corrente do disjuntor deste quadro (A) — opcional
+                            </label>
+                            <input
+                              id={`${baseId}-adic-${q}`}
+                              type="text"
+                              inputMode="numeric"
+                              placeholder="Ex.: 25, 40…"
+                              value={escolhido.corrente}
+                              onChange={(e) => setCorrenteAdicional(q, e.target.value)}
+                              className="w-full rounded-btn border border-[rgb(var(--border))] bg-[rgb(var(--bg))] px-3.5 py-2 font-sans text-sm outline-none transition-colors focus:border-gold"
+                            />
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -398,23 +447,36 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
             {passo === 4 && (
               <div className="space-y-5">
                 {/* Card de resultado dimensionado — quando a corrente é conhecida */}
-                {temPreco && modelo && (
+                {temPreco && (
                   <div className="rounded-card-lg bg-deep_navy p-6 text-white md:p-7">
                     <div className="text-[11px] font-sans font-bold text-white/60">
-                      Recomendado para o seu quadro de entrada
+                      Sua proteção em cascata
                     </div>
-                    <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                      <span className="font-serif text-4xl font-bold text-gold">{modelo.model}</span>
-                      <span className="text-sm text-white/70">{modelo.loadLabel}</span>
+                    <ul className="mt-3 divide-y divide-white/10">
+                      {itensCarrinho.map((item) => (
+                        <li key={item.quadro} className="flex items-baseline justify-between gap-4 py-2.5">
+                          <span className="text-sm">
+                            <span className="font-semibold text-white">
+                              {item.modelo ? item.modelo.model : 'A dimensionar'}
+                            </span>
+                            <span className="ml-2 text-white/60">{item.quadro}</span>
+                          </span>
+                          <span className="shrink-0 text-sm tabular-nums text-white/80">
+                            {item.modelo ? formatBRL(item.modelo.preco) : 'no contato'}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 border-t border-white/10 pt-4">
+                      <span className="text-sm text-white/60">
+                        {semPreco > 0 ? 'Subtotal (itens dimensionados)' : 'Total · compra direta'}
+                      </span>
+                      <span className="font-serif text-3xl font-bold text-gold">{formatBRL(totalCarrinho)}</span>
                     </div>
-                    <div className="mt-4 flex flex-wrap items-baseline gap-x-3 border-t border-white/10 pt-4">
-                      <span className="text-sm text-white/60">Compra direta do equipamento</span>
-                      <span className="font-serif text-3xl font-bold text-gold">{formatBRL(modelo.preco)}</span>
-                    </div>
-                    {adicionais.length > 0 && (
+                    {semPreco > 0 && (
                       <p className="mt-3 text-sm text-white/75">
-                        + 1 Master Block menor por quadro adicional ({adicionais.length}) — dimensionado
-                        no contato, pra proteger tudo em cascata.
+                        {semPreco === 1 ? 'Um quadro ficou' : `${semPreco} quadros ficaram`} sem a
+                        corrente — a equipe dimensiona e inclui no orçamento.
                       </p>
                     )}
                     <p className="mt-3 text-xs leading-relaxed text-white/60">
