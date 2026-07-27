@@ -156,6 +156,7 @@ export const BLOG_POSTS: readonly BlogPost[] = [
 ] as const;
 
 import { getArticleContent } from '@/lib/constants/blog-content';
+import { publicoDoCluster, type PublicoNI } from '@/lib/constants/publico-clusters';
 
 /** REGRA ESTRUTURAL (despacho #9): um post só existe em QUALQUER superfície
  *  (teaser da home, índice /blog, página do artigo, relacionados) se tiver
@@ -191,4 +192,19 @@ export function getTeaserPosts(): BlogPost[] {
 export function getPostBySlug(slug: string): BlogPost | undefined {
   const post = BLOG_POSTS.find((p) => p.slug === slug);
   return post && isPublicado(post) ? post : undefined;
+}
+
+/** Artigos de um PÚBLICO NI (seção "Blog do público" das LPs — R7.5/C7.5).
+ *
+ *  O público sai do CLUSTER do artigo (config única em publico-clusters.ts) —
+ *  não existe campo "público" no post. Portão estrutural reforçado: além de
+ *  exigir CORPO (isPublicado), exclui os stubs `emPreparacao` — a seção só pode
+ *  mostrar artigo de verdade. Enquanto não houver nenhum, devolve [] e a seção
+ *  some sozinha; quando o 1º artigo do público for escrito, ela aparece sem
+ *  precisar de deploy novo. */
+export function getPostsDoPublico(publico: PublicoNI, limite = 3): BlogPost[] {
+  return getBlogPosts()
+    .filter((p) => publicoDoCluster(p.cluster) === publico)
+    .filter((p) => !getArticleContent(p.slug)?.emPreparacao)
+    .slice(0, limite);
 }

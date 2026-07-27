@@ -12,6 +12,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { ProofBadges } from '@/components/ui/ProofBadges';
 import { CheckoutNI } from '@/components/tools/CheckoutNI';
 import { CascataDiagram } from '@/components/lp/CascataDiagram';
+import { BlogDoPublico } from '@/components/lp/BlogDoPublico';
 import { LpCta } from '@/components/lp/LpCta';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { masterBlockProductSchema } from '@/lib/seo/structured-data';
@@ -283,6 +284,13 @@ export default async function ProtecaoComercialPage() {
           </div>
         </section>
       </div>
+
+      {/* ── C7.5 · BLOG DO PÚBLICO ────────────────────────────────── */}
+      <BlogDoPublico
+        publico="comercial"
+        titulo="Para ler antes de decidir"
+        subtitulo="Artigos sobre proteção elétrica no comércio — câmara fria, PDV, elevador de condomínio e o que o DPS do quadro não resolve."
+      />
 
       {/* ── C8 · CTA FINAL (navy) ─────────────────────────────────── */}
       <section className="band-navy-end text-white" aria-label="Chamada final">

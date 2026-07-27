@@ -13,6 +13,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { ProofBadges } from '@/components/ui/ProofBadges';
 import { CheckoutNI } from '@/components/tools/CheckoutNI';
 import { CascataDiagram } from '@/components/lp/CascataDiagram';
+import { BlogDoPublico } from '@/components/lp/BlogDoPublico';
 import { LpCta } from '@/components/lp/LpCta';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { masterBlockProductSchema } from '@/lib/seo/structured-data';
@@ -304,6 +305,13 @@ export default async function ProtecaoResidencialPage() {
           </div>
         </section>
       </div>
+
+      {/* ── R7.5 · BLOG DO PÚBLICO ────────────────────────────────── */}
+      <BlogDoPublico
+        publico="residencial"
+        titulo="Para ler antes de decidir"
+        subtitulo="Artigos sobre proteção elétrica em casa — automação, inversor solar, carro elétrico e o que o DPS do quadro não resolve."
+      />
 
       {/* ── R8 · CTA FINAL (navy) ─────────────────────────────────── */}
       <section className="band-navy-end text-white" aria-label="Chamada final">
