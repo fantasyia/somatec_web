@@ -23,6 +23,20 @@ const STEPS: { Icon: LucideIcon; label: string }[] = [
 export function LocacaoTimeline() {
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.3 });
 
+  // Nota da jornada (desktop + mobile): amarra os 5 passos ao prazo total e
+  // deixa explícito que o pagamento só começa DEPOIS de tudo — e só se aprovar.
+  const nota = (
+    <div className="flex items-start gap-3 rounded-card border border-gold/30 bg-gold/[0.06] p-4 md:items-center md:justify-center md:p-5 md:text-center">
+      <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-gold md:mt-0" aria-hidden="true" />
+      <p className="font-sans text-sm leading-relaxed text-[rgb(var(--text))] md:text-[15px]">
+        Estudo da rede, projeto, proposta, instalação e período de avaliação levam de{' '}
+        <span className="font-semibold text-gold">60 a 90 dias — tudo sem custo</span>. Você só
+        começa a pagar <span className="font-semibold">depois de toda essa jornada</span>, e só se
+        aprovar o resultado.
+      </p>
+    </div>
+  );
+
   return (
     <div ref={ref}>
       {/* ── Desktop: horizontal conectado ─────────────────────────── */}
@@ -66,14 +80,12 @@ export function LocacaoTimeline() {
             ))}
           </ol>
         </div>
-        {/* Legenda da bolinha laranja — alinhada sob o marcador do trilho */}
+        {/* Nota da jornada — amarra o prazo total e o momento do pagamento */}
         <div
-          className="mt-5 flex justify-end pr-[2%] transition-opacity duration-700 ease-premium"
+          className="mt-9 transition-opacity duration-700 ease-premium"
           style={{ opacity: inView ? 1 : 0, transitionDelay: '2.05s' }}
         >
-          <span className="font-sans text-sm font-semibold text-gold">
-            você só paga a partir daqui, se aprovar
-          </span>
+          {nota}
         </div>
       </div>
 
@@ -96,16 +108,13 @@ export function LocacaoTimeline() {
               <div className="font-sans text-base font-semibold text-[rgb(var(--text))]">{label}</div>
             </li>
           ))}
-          <li
-            className="relative transition-opacity duration-700 ease-premium"
-            style={{ opacity: inView ? 1 : 0, transitionDelay: '1.4s' }}
-          >
-            <span className="absolute -left-[31px] top-1 h-3 w-3 rounded-full bg-gold" aria-hidden="true" />
-            <div className="font-sans text-sm font-semibold text-[rgb(var(--text))]">
-              você só paga a partir daqui, se aprovar
-            </div>
-          </li>
         </ol>
+        <div
+          className="mt-6 transition-opacity duration-700 ease-premium"
+          style={{ opacity: inView ? 1 : 0, transitionDelay: '1.4s' }}
+        >
+          {nota}
+        </div>
       </div>
     </div>
   );
