@@ -44,7 +44,7 @@ const PAINEIS: readonly Painel[] = [
   },
   {
     id: 'elevador',
-    foto: '/home/ni-elevador-v2.webp',
+    foto: '/home/ni-elevador-v3.webp',
     alt: 'Elevador de condomínio residencial',
     texto:
       'Quando a placa de comando queima, o elevador para — e a conta não estava no orçamento.',
