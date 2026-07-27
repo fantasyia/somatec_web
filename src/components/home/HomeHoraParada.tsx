@@ -22,8 +22,8 @@ export function HomeHoraParada() {
             </h2>
             <p className="text-white/85 leading-relaxed">
               Numa fábrica do porte que o Master Block protege, uma única hora
-              de linha parada por mês já supera o valor da mensalidade. E ela
-              nunca vem sozinha — calcule quanto custa a sua.
+              de linha parada por mês já supera o valor da mensalidade. E a
+              hora parada nunca vem sozinha — calcule quanto custa a sua.
             </p>
             <div className="pt-2">
               <Link href="/ferramentas/custo-de-parada" className="btn-primary group inline-flex">
