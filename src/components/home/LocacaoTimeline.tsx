@@ -28,12 +28,19 @@ export function LocacaoTimeline() {
       {/* ── Desktop: horizontal conectado ─────────────────────────── */}
       <div className="hidden md:block">
         <div className="relative">
-          {/* Trilho + preenchimento progressivo */}
-          <div className="absolute left-[10%] right-[10%] top-6 h-0.5 bg-[rgb(var(--border))]" aria-hidden="true" />
+          {/* Trilho + preenchimento progressivo — vai até a bolinha laranja
+              (o ponto onde o pagamento começa), logo após o 5º nó. */}
+          <div className="absolute left-[10%] right-[4%] top-6 h-0.5 bg-[rgb(var(--border))]" aria-hidden="true" />
           <div
             aria-hidden="true"
             className="absolute left-[10%] top-6 h-0.5 origin-left bg-cyan transition-transform duration-[1600ms] ease-premium"
-            style={{ width: '80%', transform: inView ? 'scaleX(1)' : 'scaleX(0)' }}
+            style={{ width: '86%', transform: inView ? 'scaleX(1)' : 'scaleX(0)' }}
+          />
+          {/* Bolinha laranja ANCORADA no trilho — marca onde o pagamento começa */}
+          <span
+            aria-hidden="true"
+            className="absolute right-[4%] top-6 z-10 h-4 w-4 -translate-y-1/2 translate-x-1/2 rounded-full bg-gold shadow-[0_0_0_5px_rgba(243,146,0,0.18)] transition-all duration-700 ease-premium"
+            style={{ opacity: inView ? 1 : 0, transform: `translate(50%,-50%) scale(${inView ? 1 : 0.4})`, transitionDelay: '1.9s' }}
           />
           <ol className="relative grid grid-cols-5">
             {STEPS.map(({ Icon, label }, i) => (
@@ -59,13 +66,12 @@ export function LocacaoTimeline() {
             ))}
           </ol>
         </div>
-        {/* Marcador final — onde o pagamento começa */}
+        {/* Legenda da bolinha laranja — alinhada sob o marcador do trilho */}
         <div
-          className="mt-8 flex items-center justify-end gap-3 transition-opacity duration-700 ease-premium"
-          style={{ opacity: inView ? 1 : 0, transitionDelay: '1.7s' }}
+          className="mt-5 flex justify-end pr-[2%] transition-opacity duration-700 ease-premium"
+          style={{ opacity: inView ? 1 : 0, transitionDelay: '2.05s' }}
         >
-          <span className="h-3 w-3 rounded-full bg-gold" aria-hidden="true" />
-          <span className="font-sans text-sm font-semibold text-[rgb(var(--text))]">
+          <span className="font-sans text-sm font-semibold text-gold">
             você só paga a partir daqui, se aprovar
           </span>
         </div>
