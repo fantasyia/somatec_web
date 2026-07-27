@@ -16,6 +16,8 @@ import {
   Gauge,
   Droplets,
   Zap,
+  AlertTriangle,
+  Download,
 } from 'lucide-react';
 import { TextField } from '@/components/forms/fields/TextField';
 import { HoneypotField } from '@/components/forms/fields/HoneypotField';
@@ -24,6 +26,8 @@ import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormS
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
 import { trackEvent } from '@/lib/analytics';
+import { formatBRL } from '@/lib/constants/masterblock';
+import { dimensionarLocacao, VALORES_SIMULADOS } from '@/lib/constants/locacao';
 
 // =============================================================================
 // OrcamentoIndustrial — auto-orçamento da TRILHA INDUSTRIAL (final = LOCAÇÃO).
@@ -86,9 +90,12 @@ export function OrcamentoIndustrial({
   const [status, setStatus] = useState<FormStatusKind>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState('');
+  const [gerandoPdf, setGerandoPdf] = useState(false);
 
   const setoresValidos = setores.map((s) => s.trim()).filter(Boolean);
   const totalPontos = Object.values(pontos).reduce((a, b) => a + b, 0);
+  /** Projeto em cascata (nº de MB por camada + custo). Config: locacao.ts. */
+  const projeto = dimensionarLocacao({ paineis: nPaineis, pontosSensiveis: totalPontos });
 
   function irPara(n: number) {
     if (!startedRef.current) {
@@ -99,6 +106,29 @@ export function OrcamentoIndustrial({
     setPasso(alvo);
     trackEvent('calc_ind_passo', { landing: landingSlug, passo: alvo });
     if (alvo === TOTAL_PASSOS) trackEvent('calc_ind_resultado', { landing: landingSlug, setores: setoresValidos.length, pontos: totalPontos });
+  }
+
+  async function baixarPdf() {
+    setGerandoPdf(true);
+    try {
+      const { gerarPdfProjeto } = await import('@/lib/pdf/projeto-industrial');
+      await gerarPdfProjeto({
+        concessionaria: concessionaria.trim(),
+        tensaoEntrada,
+        setores: setoresValidos,
+        paineis: nPaineis,
+        pontos: PONTOS.filter((p) => (pontos[p.key] ?? 0) > 0).map((p) => ({
+          label: p.label,
+          qtd: pontos[p.key],
+        })),
+        projeto,
+        simulado: VALORES_SIMULADOS,
+        emitidoEm: new Date().toLocaleDateString('pt-BR'),
+      });
+      trackEvent('calc_ind_pdf', { landing: landingSlug, mbs: projeto.totalMB });
+    } finally {
+      setGerandoPdf(false);
+    }
   }
 
   function podeAvancar(): boolean {
@@ -413,12 +443,68 @@ export function OrcamentoIndustrial({
                         : 'a levantar com a engenharia'}
                     </p>
                   </div>
-                  <p className="mt-4 border-t border-white/10 pt-4 text-xs leading-relaxed text-white/60">
-                    Quanto mais quadros e pontos, mais camadas de cascata: um Master Block robusto na
-                    entrada + um em cada painel/equipamento crítico. O representante dimensiona os
-                    modelos e a proposta de locação.
+                  {/* Dimensionamento em cascata: nº de MB por camada + custo */}
+                  <div className="mt-5 border-t border-white/10 pt-4">
+                    <div className="text-[11px] font-sans font-bold text-white/60">
+                      Master Blocks por camada
+                    </div>
+                    <ul className="mt-2.5 space-y-2">
+                      {projeto.linhas.map((l) => (
+                        <li key={l.camada.id} className="flex items-baseline justify-between gap-4 text-sm">
+                          <span className="text-white/85">
+                            <span className="font-semibold text-white">{l.quantidade}×</span>{' '}
+                            {l.camada.nome}
+                          </span>
+                          <span className="shrink-0 tabular-nums text-white/70">
+                            {formatBRL(l.subtotal)}/mês
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-white/10 pt-4">
+                      <span className="text-sm text-white/60">
+                        {projeto.totalMB} Master Blocks · locação estimada
+                      </span>
+                      <span className="font-serif text-3xl font-bold text-gold">
+                        {formatBRL(projeto.mensalidadeTotal)}<span className="text-lg">/mês</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="mt-4 text-xs leading-relaxed text-white/60">
+                    Estimativa pela planta que você montou. O representante confirma o dimensionamento
+                    e fecha o valor — e você só passa a pagar depois do período de avaliação, se
+                    aprovar o resultado.
                   </p>
                 </div>
+
+                {/* ⛔ Enquanto a tabela real não chega: deixa explícito que o
+                    número é simulado, pra ninguém tratar como proposta. */}
+                {VALORES_SIMULADOS && (
+                  <div className="flex items-start gap-3 rounded-card border border-gold/40 bg-gold/[0.08] p-4">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-gold" strokeWidth={2} aria-hidden="true" />
+                    <p className="text-sm leading-relaxed text-[rgb(var(--text))]">
+                      <span className="font-semibold">Valores de simulação (ambiente de teste).</span>{' '}
+                      A tabela oficial de locação ainda não está publicada — os números acima servem
+                      só para experimentar a ferramenta e não valem como proposta.
+                    </p>
+                  </div>
+                )}
+
+                {/* PDF do projeto — o cliente leva pro comitê de compra. */}
+                <button
+                  type="button"
+                  onClick={baixarPdf}
+                  disabled={gerandoPdf}
+                  className="inline-flex items-center gap-2 rounded-btn border border-[rgb(var(--border))] px-5 py-2.5 font-sans text-sm font-semibold text-[rgb(var(--text))] transition-colors hover:border-gold hover:text-gold disabled:opacity-50"
+                >
+                  {gerandoPdf ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                  )}
+                  Baixar o projeto em PDF
+                </button>
 
                 <div>
                   <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))]">
