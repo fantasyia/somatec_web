@@ -254,7 +254,16 @@ const CLUSTERS = [
     {id:'a62',title:'Como tempestades e raios afetam a qualidade de energia da sua planta',f:'topo',kw:'tempestade raio qualidade energia elétrica indústria',lk:['p0','a05','a01'],n:true},
   ]},
   { id:'c2', name:'C02 · 🛡️ Proteção Elétrica e Comparativos', color:'#2a9a5c', articles:[
-    {id:'a09',title:'DPS, no-break, estabilizador e Master Block: quem protege o quê',f:'meio',kw:'DPS vs no-break vs estabilizador proteção industrial',lk:['p0','a01','a10','a11']},
+    {id:'a09',title:'DPS, no-break, estabilizador e Master Block: quem protege o quê',f:'meio',kw:'DPS vs no-break vs estabilizador proteção industrial',lk:['p0','a01','a10','a11'],st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 2.118 palavras. O no MAIS REQUISITADO do blog (71 entradas apontam pra ele) e abre o cluster C02. Falta publicar (site NOINDEX).',br:{
+      arq:'clients/somatec/reports/blog/dps-nobreak-estabilizador-masterblock/artigo.md', pal:2118,
+      seo:{kwa:'DPS vs no-break vs estabilizador protecao industrial', mt:'DPS x no-break x estabilizador x Master Block: comparativo (2026)', md:'Cada protecao eletrica cobre um tipo de evento - e tem um ponto cego. Veja o comparativo tecnico e descubra por que ter todas ainda deixa a VTCD passar.'},
+      geo:['Resposta direta no topo','4 tabelas (ameacas, comparativo, classes de DPS, MATRIZ evento x solucao)','Classes de DPS: onde instala e contra o que (10/350us, 12,5kA, 5kA)','NBR 5410: DPS obrigatorio com >25 dias de trovoada/ano','IEEE 1159: transitorios de media frequencia 5-500 kHz','FAQ 6 perguntas','JSON-LD Article + FAQPage'],
+      fun:'TOPO (curto): as 4 familias de ameaca eletrica. MEIO (dominante): tabela comparativa, cada solucao em detalhe (aterramento, DPS I/II/III, no-break, estabilizador, disjuntor, Master Block), matriz evento x solucao, o mito da soma, protecao em cascata. FUNDO: como escolher (4 passos) - descobrir o evento, verificar a FAIXA nao a marca, dimensionar pelo custo, combinar em cascata + medicao sem custo.',
+      cta:'1 CTA natural: "antes de comprar qualquer protecao, descubra o que esta te atingindo". URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=dps-nobreak-estabilizador-masterblock',
+      prova:'Honestidade tecnica como espinha: cada solucao e apresentada pelo que RESOLVE BEM antes do ponto cego. Prova propria: VTCD medida em planta nova com subestacao de 138 kV. Sem numero inventado.',
+      lks:'16 ids. lk canonico p0/a01/a10/a11 respeitado. Escada: topo (a01,a02,a10,a11) -> meio (a13,a14,a15,a08,hp01) -> fundo (a54,a55,a58,cv06).',
+      pend:['URL real do CTA','Links internos sem href','Imagem hero (Estudio) - sugestao: diagrama de faixas de atuacao','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+    }},
     {id:'a10',title:'O que é um DPS e quais são suas limitações reais',f:'topo',kw:'o que é DPS dispositivo proteção surtos',lk:['p0','a09','a11']},
     {id:'a11',title:'Classes de DPS (I, II e III): qual protege contra o quê',f:'meio',kw:'classes DPS I II III diferença',lk:['p0','a10','a09']},
     {id:'a12',title:'Por que DPS classe I e II não bastam sozinhos',f:'meio',kw:'DPS classe I II insuficiente surtos industriais',lk:['p0','a11','a01']},
