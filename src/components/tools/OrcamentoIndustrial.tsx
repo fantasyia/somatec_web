@@ -28,6 +28,7 @@ import { getAtribuicao } from '@/lib/attribution';
 import { trackEvent } from '@/lib/analytics';
 import { formatBRL } from '@/lib/constants/masterblock';
 import { dimensionarLocacao, VALORES_SIMULADOS } from '@/lib/constants/locacao';
+import { DiagramaProjetoCascata } from '@/components/lp/DiagramaProjetoCascata';
 
 // =============================================================================
 // OrcamentoIndustrial — auto-orçamento da TRILHA INDUSTRIAL (final = LOCAÇÃO).
@@ -447,6 +448,10 @@ export function OrcamentoIndustrial({
                   <div className="mt-5 border-t border-white/10 pt-4">
                     <div className="text-[11px] font-sans font-bold text-white/60">
                       Master Blocks por camada
+                    </div>
+                    {/* O projeto desenhado: os pontos acendem em sequência */}
+                    <div className="mt-4">
+                      <DiagramaProjetoCascata projeto={projeto} />
                     </div>
                     <ul className="mt-2.5 space-y-2">
                       {projeto.linhas.map((l) => (
