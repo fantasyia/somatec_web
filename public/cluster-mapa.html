@@ -408,7 +408,7 @@ const CLUSTERS = [
   ]},
   { id:'c10', name:'C10 · 📝 Listas e Checklists SEO', color:'#0a7a7a', articles:[
     {id:'a81',title:'Os 10 equipamentos industriais mais sensíveis a surtos elétricos',f:'lista',kw:'equipamentos industriais sensíveis surtos elétricos lista',lk:['p0','a01','a09']},
-    {id:'a82',title:'7 sinais de que sua fábrica tem problema de qualidade de energia',f:'lista',kw:'sinais problema qualidade energia elétrica fábrica',lk:['p0','a07','a08']},
+    {id:'a82',title:'⚠️ DUPLICATA — rever/aposentar (ver ad01)',f:'lista',kw:'sinais problema qualidade energia elétrica fábrica',lk:['p0','a07','a08'],nt:'⚠️ DUPLICATA DO ad01 (decisao do Leo, 27/07/2026). Titulo original: "7 sinais de que sua fabrica tem problema de qualidade de energia" - mesmo numero, mesmo tema e mesma keyword do ad01, que JA FOI ESCRITO e e citado por 7 nos. Manter os dois canibalizaria a mesma busca. ACAO: aposentar este no OU redefinir com publico diferente (ex.: "sinais no comercio" ou "sinais em condominio"), que sao angulos que o ad01 nao cobre.'},
     {id:'a83',title:'Os 5 erros mais comuns na proteção elétrica industrial',f:'lista',kw:'erros proteção elétrica industrial mais comuns',lk:['p0','a09','a13','a14']},
     {id:'a84',title:'Checklist completo de proteção elétrica para indústrias',f:'lista',kw:'checklist proteção elétrica industrial completo',lk:['p0','a13','a16','a47']},
     {id:'a85',title:'10 perguntas para fazer antes de contratar proteção elétrica',f:'lista',kw:'perguntas contratar proteção elétrica industrial',lk:['p0','a09','a54','a58']},
@@ -639,7 +639,17 @@ const CLUSTERS = [
     }},
   ]},
   { id:'c30', name:'C30 · 🔍 Auto-Diagnóstico', color:'#005080', n:true, articles:[
-    {id:'ad01',title:'7 sinais de que sua fábrica tem problema de qualidade de energia — antes de perder o próximo equipamento',f:'topo',kw:'sinais problema qualidade energia fábrica antes perder equipamento queima',lk:['p0','a01','hp01','cv09'],n:true},
+    {id:'ad01',title:'7 sinais de que sua fábrica tem problema de qualidade de energia — antes de perder o próximo equipamento',f:'topo',kw:'sinais problema qualidade energia fábrica antes perder equipamento queima',lk:['p0','a01','hp01','cv09'],n:true,st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 1.586 palavras. PRIMEIRO ARTIGO EM FORMATO LISTA do blog e abre o C30. ⚠️ O no a82 e duplicata deste - decisao do Leo: aposentar/redefinir o a82. Falta publicar (site NOINDEX).',br:{
+      arq:'clients/somatec/reports/blog/7-sinais-qualidade-energia/artigo.md', pal:1586,
+      seo:{kwa:'sinais problema qualidade energia fabrica', mt:'7 sinais de problema de qualidade de energia na fabrica (2026)', md:'Cada sinal com o que observar, por que acontece e como confirmar que a causa e eletrica - mais uma autoavaliacao para saber o nivel de risco da sua operacao.'},
+      geo:['Resposta direta listando os 7 sinais','Cada sinal em H2 numerado (formato lista, extraivel)','Estrutura fixa por sinal: o que observa / por que acontece / como confirmar','Tabela de autoavaliacao por pontuacao','FAQ 6 perguntas','JSON-LD Article + FAQPage'],
+      recorte:'CADA SINAL COM PROFUNDIDADE + o teste de CONFIRMACAO (como distinguir de causa mecanica) + AUTOAVALIACAO por pontuacao. O p0 tem sintomas por tipo de operacao em tabela (12 linhas) e o a08 tem os sinais que justificam medir (7 linhas) - aqui cada sinal vira secao propria, o que nenhum dos dois faz.',
+      fun:'TOPO (dominante): os 7 sinais, um por secao. MEIO: a autoavaliacao por pontuacao (0-1 / 2-3 / 4+) e os 2 criterios que pesam mais (reincidencia e simultaneidade). FUNDO: o que fazer com o resultado (3 passos) + medicao sem custo.',
+      cta:'1 CTA no fecho. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=7-sinais-qualidade-energia',
+      prova:'Sem numero de case - e autodiagnostico. O diferencial e o teste de confirmacao em cada sinal: "falha interna afeta uma maquina; evento de rede atinge o alimentador inteiro", "padrao de horario e assinatura de causa eletrica - problema mecanico nao tem hora marcada". Valida a equipe no sinal 4: a percepcao de que "dia de chuva da problema" nao e supersticao, e padrao.',
+      lks:'16 ids. lk canonico p0/a01/hp01/cv09 respeitado. Escada: topo (p0,a01,a03,a07) -> meio (a08,hp10,a21,hp01) -> fundo (cv09,cv06,a58).',
+      pend:['URL real do CTA','Links internos sem href','⚠️ APOSENTAR/REDEFINIR o no a82 (duplicata)','Versao interativa do autodiagnostico (dev/site)','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+    }},
     {id:'ad02',title:'Checklist rápido: sua instalação elétrica está protegida? Responda em 5 minutos',f:'topo',kw:'checklist instalação elétrica protegida 5 minutos diagnóstico',lk:['p0','a09','ad01','cv06'],n:true},
     {id:'ad03',title:'Como identificar se o seu CLP está queimando por VTCD ou por outro motivo',f:'topo',kw:'CLP queimando VTCD outro motivo identificar diagnóstico causa',lk:['p0','a01','a06','ad01'],n:true},
     {id:'ad04',title:'Sua empresa tem algum desses 5 sintomas? O diagnóstico elétrico que você pode fazer agora',f:'topo',kw:'sintomas diagnóstico elétrico empresa fábrica checklist agora',lk:['p0','ad01','ad02','a01'],n:true},
