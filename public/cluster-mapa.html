@@ -112,6 +112,15 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 .status-btn[data-s="todo"].active{border-color:var(--muted);color:var(--muted);}
 .status-btn[data-s="wip"].active{background:rgba(243,146,0,0.15);color:var(--orange);border-color:var(--orange);}
 .status-btn[data-s="done"].active{background:rgba(58,178,106,0.15);color:#3ab26a;border-color:#3ab26a;}
+/* Briefing de produção do artigo (SEO / GEO / CTA / rascunho) */
+.brief{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.6;}
+.brief-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.brief-row:last-child{border-bottom:none;}
+.brief-k{color:var(--muted);min-width:74px;font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;flex-shrink:0;}
+.brief-v{color:var(--text);word-break:break-word;flex:1;}
+.brief-v code{background:rgba(255,255,255,.07);padding:1px 5px;border-radius:4px;font-size:11.5px;}
+.brief-tag{display:inline-block;background:rgba(42,154,92,.18);color:#4ec97f;border-radius:4px;padding:1px 7px;font-size:11px;margin:2px 3px 2px 0;}
+.brief-pend{display:inline-block;background:rgba(217,144,0,.16);color:#e0a52e;border-radius:4px;padding:1px 7px;font-size:11px;margin:2px 3px 2px 0;}
 .notes-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;resize:vertical;min-height:60px;font-family:inherit;}
 .notes-input:focus{outline:none;border-color:var(--cyan);}
 .modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
@@ -149,6 +158,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 <div class="view-bar">
   <button class="view-btn active" id="btn-lista" onclick="setView('lista')">📋 Lista</button>
   <button class="view-btn" id="btn-mapa" onclick="setView('mapa')">🌐 Mapa</button>
+  <button class="view-btn" onclick="limparLocal()" title="Descarta as marcações feitas neste navegador e volta ao que está salvo no arquivo" style="margin-left:auto">↺ Limpar rascunho local</button>
 </div>
 
 <div class="stats-row">
@@ -197,7 +207,8 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
         </div>
       </div>
       <div class="modal-field"><label>Links internos sugeridos</label><div class="linked-articles" id="m-links"></div></div>
-      <div class="modal-field"><label>Notas / Briefing</label><textarea class="notes-input" id="m-notes" placeholder="Palavra-chave secundária, CTA específico, ângulo GEO..."></textarea></div>
+      <div class="modal-field" id="m-brief-wrap" style="display:none"><label>📄 Produção — briefing do artigo</label><div id="m-brief"></div></div>
+      <div class="modal-field"><label>Notas / Briefing (livre)</label><textarea class="notes-input" id="m-notes" placeholder="Palavra-chave secundária, CTA específico, ângulo GEO..."></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal()">Fechar</button>
@@ -210,8 +221,16 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
 const FL = {topo:'Topo de funil',meio:'Meio de funil',fundo:'Fundo de funil',case:'Case / Prova Social',setor:'Setorial',lista:'Lista / Checklist',esg:'ESG',resid:'Residencial Alto Padrão',geo:'GEO / IA',cond:'Condomínio',reddit:'Reddit / GEO Externo',pilar:'Pilar Central'};
 
 const CLUSTERS = [
-  { id:'c1', name:'VTCD e Fenômenos Elétricos', color:'#1a9bbf', articles:[
-    {id:'a01',title:'O que é VTCD e por que destrói equipamentos industriais',f:'topo',kw:'o que é VTCD variação de tensão de curta duração',lk:['p0','a10','a03']},
+  { id:'c1', name:'C01 · ⚡ VTCD e Fenômenos Elétricos', color:'#1a9bbf', articles:[
+    {id:'a01',title:'O que é VTCD e por que destrói equipamentos industriais',f:'topo',kw:'o que é VTCD variação de tensão de curta duração',lk:['p0','a10','a03'],st:'wip',nt:'Rascunho aguardando aprovacao do Leo. Card no quadro: "C1 A01 - O que e VTCD (o vilao invisivel)", lista Briefing.',br:{
+      arq:'clients/somatec/reports/blog/vtcd-o-que-e/artigo.md', pal:1274,
+      seo:{kwa:'o que e VTCD', mt:'O que e VTCD? Causas e efeitos na industria (2026)', md:'VTCD e a variacao de tensao de curta duracao que trava CLPs e queima equipamentos sem causa aparente. Entenda o que e, os tipos, as causas e como se proteger.'},
+      geo:['Resposta direta no topo','Fonte: ANEEL PRODIST Mod. 8','Tabela AMT/ATT/EMT','FAQ 4 perguntas','JSON-LD Article+FAQPage'],
+      cta:'1 CTA natural, apos ensinar a diagnosticar. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=vtcd-o-que-e',
+      prova:'Case Cinpal - 92% de supressao de VTCD (2 analisadores, 80 dias) e fim de ~R$120 mil/mes. Atribuicao conferida.',
+      lks:'lk canonico p0, a10, a03 respeitado + irmaos a09, a08, a06',
+      pend:['URL real do CTA','Links internos sem href','Imagem hero (Estudio)','JSON-LD no head (sessao Site)']
+    }},
     {id:'a02',title:'O que são transitórios elétricos na faixa de 100 kHz',f:'topo',kw:'transitório elétrico industrial 100 kHz',lk:['p0','a01','a10']},
     {id:'a03',title:'O que é THDv — distorção harmônica de tensão e seus efeitos',f:'topo',kw:'THDv distorção harmônica tensão indústria',lk:['p0','a01']},
     {id:'a04',title:'Diferença entre surto, pico e transiente elétrico',f:'topo',kw:'diferença surto pico transiente elétrico',lk:['p0','a01','a10']},
@@ -224,7 +243,7 @@ const CLUSTERS = [
     {id:'a61',title:'Ruído elétrico de alta frequência: o inimigo invisível da automação',f:'topo',kw:'ruído elétrico alta frequência automação industrial',lk:['p0','a02','a36'],n:true},
     {id:'a62',title:'Como tempestades e raios afetam a qualidade de energia da sua planta',f:'topo',kw:'tempestade raio qualidade energia elétrica indústria',lk:['p0','a05','a01'],n:true},
   ]},
-  { id:'c2', name:'Proteção Elétrica e Comparativos', color:'#2a9a5c', articles:[
+  { id:'c2', name:'C02 · 🛡️ Proteção Elétrica e Comparativos', color:'#2a9a5c', articles:[
     {id:'a09',title:'DPS, no-break, estabilizador e Master Block: quem protege o quê',f:'meio',kw:'DPS vs no-break vs estabilizador proteção industrial',lk:['p0','a01','a10','a11']},
     {id:'a10',title:'O que é um DPS e quais são suas limitações reais',f:'topo',kw:'o que é DPS dispositivo proteção surtos',lk:['p0','a09','a11']},
     {id:'a11',title:'Classes de DPS (I, II e III): qual protege contra o quê',f:'meio',kw:'classes DPS I II III diferença',lk:['p0','a10','a09']},
@@ -240,7 +259,7 @@ const CLUSTERS = [
     {id:'a65',title:'NR-10 e qualidade de energia: o que o gestor de manutenção precisa saber',f:'meio',kw:'NR-10 qualidade energia elétrica manutenção',lk:['p0','a16','a47'],n:true},
     {id:'a66',title:'Como fazer um laudo de qualidade de energia elétrica',f:'meio',kw:'laudo qualidade energia elétrica como fazer',lk:['p0','a64','a08'],n:true},
   ]},
-  { id:'c3', name:'Custo, ROI & Orçamento', color:'#c06020', articles:[
+  { id:'c3', name:'C03 · 💵 Custo, ROI & Orçamento', color:'#c06020', articles:[
     {id:'a21',title:'Custo real de queima de placa eletrônica industrial',f:'meio',kw:'custo queima placa eletrônica industrial',lk:['p0','a07','hp01']},
     {id:'a22',title:'Manutenção reativa vs. preventiva em sistemas elétricos: comparativo',f:'meio',kw:'manutenção reativa vs preventiva elétrica custo',lk:['p0','a46','a47']},
     {id:'a23',title:'Como apresentar proteção elétrica como investimento para o board',f:'fundo',kw:'ROI proteção elétrica justificar investimento',lk:['p0','hp01','a21']},
@@ -249,7 +268,7 @@ const CLUSTERS = [
     {id:'a68',title:'Como incluir proteção elétrica no orçamento anual de manutenção',f:'fundo',kw:'orçamento manutenção proteção elétrica planejamento',lk:['p0','a23','a47'],n:true},
     {id:'a69',title:'Seguros industriais e qualidade de energia: o que as apólices cobrem',f:'meio',kw:'seguro industrial qualidade energia elétrica apólice',lk:['p0','hp01','a23'],n:true},
   ]},
-  { id:'c4', name:'Setorial — Hub por Indústria (visão geral → silo)', color:'#7a30b0', articles:[
+  { id:'c4', name:'C04 · 🏭 Setorial — Hub por Indústria', color:'#7a30b0', articles:[
     {id:'a25',title:'Proteção elétrica na indústria alimentícia: empacotadeiras e CLPs',f:'setor',kw:'proteção elétrica indústria alimentícia',lk:['p0','a01','a09']},
     {id:'a26',title:'Proteção elétrica em farmácias e distribuidoras farmacêuticas',f:'setor',kw:'proteção elétrica farmácia distribuidora pharma',lk:['p0','a01','a09']},
     {id:'a27',title:'Proteção elétrica em metalúrgicas e siderúrgicas',f:'setor',kw:'proteção elétrica metalúrgica siderúrgica',lk:['p0','a01','a13']},
@@ -267,38 +286,7 @@ const CLUSTERS = [
     {id:'a97',title:'Proteção elétrica na indústria de papel e celulose: processo contínuo e alto custo de parada',f:'setor',kw:'proteção elétrica papel celulose máquina contínua parada indústria',lk:['p0','a01','a09','hp01'],n:true},
     {id:'a99',title:'Proteção elétrica na mineração: britadores, correias e automação de operação contínua',f:'setor',kw:'proteção elétrica mineração britador correia automação operação contínua',lk:['p0','a34','a36','hp01'],n:true},
   ]},
-  { id:'c13', name:'Comércio, Varejo e Serviços', color:'#b06000', n:true, articles:[
-    {id:'b01',title:'Proteção elétrica para restaurantes e cozinhas industriais',f:'setor',kw:'proteção elétrica restaurante cozinha industrial surtos',lk:['p0','a01','a09'],n:true},
-    {id:'b02',title:'Proteção elétrica para supermercados: câmaras, checkouts e automação',f:'setor',kw:'proteção elétrica supermercado câmara fria checkout',lk:['p0','a01','a09'],n:true},
-    {id:'b03',title:'Proteção elétrica em salões de beleza e clínicas de estética',f:'setor',kw:'proteção elétrica salão beleza clínica estética equipamentos',lk:['p0','a01','a09'],n:true},
-    {id:'b04',title:'Proteção elétrica para escritórios e coworkings com servidores',f:'setor',kw:'proteção elétrica escritório servidor coworking',lk:['p0','a09','a30'],n:true},
-    {id:'b05',title:'Proteção elétrica para academias e estúdios fitness',f:'setor',kw:'proteção elétrica academia estúdio fitness equipamentos',lk:['p0','a01','a09'],n:true},
-    {id:'b06',title:'Proteção elétrica em hotéis e pousadas: como proteger a operação',f:'setor',kw:'proteção elétrica hotel pousada operação',lk:['p0','a01','a09'],n:true},
-    {id:'b07',title:'Proteção elétrica para postos de combustível e lava-rápidos',f:'setor',kw:'proteção elétrica posto combustível lava-rápido',lk:['p0','a01','a09'],n:true},
-    {id:'b08',title:'Por que seu PDV trava e como a qualidade de energia está por trás disso',f:'topo',kw:'PDV trava qualidade energia elétrica varejo',lk:['p0','a07','a01'],n:true},
-    {id:'b09',title:'A padaria que perdeu o forno, a câmara fria e o PDV num piscar de olhos',f:'setor',kw:'proteção elétrica comércio padaria forno câmara fria PDV surto transiente',lk:['p0','b08','b02','hp01'],n:true,slug:'protecao-eletrica-para-comercio'},
-  ]},
-  { id:'c14', name:'Residências de Alto Padrão', color:'#9a6800', n:true, articles:[
-    {id:'c01',title:'Proteção elétrica para residências de alto padrão: o que arquitetos não especificam',f:'resid',kw:'proteção elétrica residência alto padrão casa de luxo',lk:['p0','a09','a13'],n:true},
-    {id:'c02',title:'Home automation e qualidade de energia: por que sua automação residencial falha',f:'resid',kw:'home automation automação residencial falhas qualidade energia',lk:['p0','a01','a09'],n:true},
-    {id:'c03',title:'Proteção elétrica para home theater e equipamentos de áudio de alta fidelidade',f:'resid',kw:'proteção elétrica home theater áudio alta fidelidade',lk:['p0','a01','a09'],n:true},
-    {id:'c04',title:'Proteção do inversor solar residencial contra surtos: o que sua integradora não fez',f:'resid',kw:'proteção inversor solar residencial surtos VTCD',lk:['p0','a18','a09'],n:true},
-    {id:'c05',title:'Adega climatizada, piscina aquecida e ar-condicionado: como proteger seus eletrodomésticos premium',f:'resid',kw:'proteção elétrica eletrodomésticos premium adega piscina ar-condicionado',lk:['p0','a01','a09'],n:true},
-    {id:'c06',title:'Proteção em cascata para mansões e casas de condomínio fechado',f:'resid',kw:'proteção em cascata residência mansão condomínio fechado',lk:['p0','a13','a09'],n:true},
-    {id:'c07',title:'Por que condomínios de alto padrão precisam de proteção elétrica nas áreas comuns',f:'resid',kw:'proteção elétrica condomínio alto padrão área comum',lk:['p0','a33','a09'],n:true},
-    {id:'c08',title:'Seguro residencial e surtos elétricos: o que a apólice não cobre (e você não sabe)',f:'resid',kw:'seguro residencial surtos elétricos cobertura apólice',lk:['p0','a69','a01'],n:true},
-    {id:'c09',title:'O surto que queima o home theater, a automação e o inversor solar da sua casa',f:'resid',kw:'proteção contra surtos residencial home theater automação inversor solar queima eletrônicos casa',lk:['p0','c02','c03','c04'],n:true,slug:'protecao-contra-surtos-residencial'},
-  ]},
-  { id:'c15', name:'Tecnologia e Nichos Digitais', color:'#205090', n:true, articles:[
-    {id:'d01',title:'Proteção elétrica para mineradores de Bitcoin e fazendas de criptomoedas',f:'setor',kw:'proteção elétrica mineração bitcoin crypto mining ASIC',lk:['p0','a01','a09'],n:true},
-    {id:'d02',title:'Por que ASICs e GPUs queimam com surtos elétricos: guia para mineradores',f:'setor',kw:'ASIC GPU queima surto elétrico mineração crypto',lk:['p0','a01','a21'],n:true},
-    {id:'d03',title:'Fazenda de mining: como dimensionar proteção elétrica em cascata',f:'setor',kw:'farm mining proteção elétrica cascata dimensionamento',lk:['p0','a13','a09'],n:true},
-    {id:'d04',title:'Proteção elétrica para impressoras 3D industriais e farms de impressão',f:'setor',kw:'proteção elétrica impressora 3D industrial farm impressão',lk:['p0','a01','a09'],n:true},
-    {id:'d05',title:'Impressora 3D travando no meio da peça? Qualidade de energia pode ser a causa',f:'topo',kw:'impressora 3D travando falha causa qualidade energia',lk:['p0','a07','a01'],n:true},
-    {id:'d06',title:'Proteção elétrica para estúdios de gravação e produção musical',f:'setor',kw:'proteção elétrica estúdio gravação produção musical',lk:['p0','a01','a09'],n:true},
-    {id:'d07',title:'Rack de servidores e NAS: como proteger contra transitórios elétricos',f:'setor',kw:'proteção elétrica rack servidor NAS transitório',lk:['p0','a02','a30'],n:true},
-  ]},
-  { id:'c5', name:'Indústria 4.0 e Automação', color:'#1060a0', articles:[
+  { id:'c5', name:'C05 · 🤖 Indústria 4.0 e Automação', color:'#1060a0', articles:[
     {id:'a35',title:'Indústria 4.0 e qualidade de energia: por que um depende do outro',f:'topo',kw:'indústria 4.0 qualidade energia elétrica',lk:['p0','a01','a36']},
     {id:'a36',title:'Como VTCD afeta CLPs, IHMs e sistemas SCADA',f:'meio',kw:'VTCD CLP SCADA IHM automação industrial',lk:['p0','a01','a06']},
     {id:'a37',title:'Proteção elétrica para robótica industrial',f:'meio',kw:'proteção elétrica robótica industrial',lk:['p0','a36','a09']},
@@ -313,14 +301,14 @@ const CLUSTERS = [
     {id:'srv04',title:'Servo em envase, rotulagem e empacotamento: o sincronismo que o surto destrói',f:'setor',kw:'servo envase rotulagem empacotamento sincronismo surto alimentício',lk:['p0','a25','ali03','a38'],n:true},
     {id:'srv05',title:'Servo em CNC, robô e paletizadora: reposição cara, importada e demorada',f:'setor',kw:'servo CNC robô paletizadora reposição cara importada lead time servo',lk:['p0','a28','met07','obs02'],n:true},
   ]},
-  { id:'c6', name:'Cases e Prova Social', color:'#b02040', articles:[
+  { id:'c6', name:'C06 · 🏆 Cases e Prova Social', color:'#b02040', articles:[
     {id:'a40',title:'Case Cinpal: como eliminar R$ 120 mil/mês de prejuízo elétrico',f:'case',kw:'case proteção elétrica industria R$ 120 mil mês',lk:['p0','a01','a09','hp01']},
     {id:'a41',title:'Case Nissin Foods: R$ 1 milhão economizado por ano com qualidade de energia',f:'case',kw:'case nissin foods proteção elétrica R$ 1 milhão',lk:['p0','a01','a09','hp01']},
     {id:'a42',title:'Case Stampline: fim das desprogramações e 40 minutos por dia recuperados',f:'case',kw:'case stampline desprogramação CLP proteção',lk:['p0','a06','a36','hp01']},
     {id:'a43',title:'Case Grow Up: 4 dias de produção têxtil recuperados com Master Block',f:'case',kw:'case grow up têxtil Master Block proteção',lk:['p0','a29','a01']},
     {id:'a44',title:'Case Extrafarma: como reduzir custo de manutenção elétrica em rede de farmácias',f:'case',kw:'case extrafarma manutenção elétrica farmácia',lk:['p0','a26','a22']},
   ]},
-  { id:'c7', name:'Gestão de Manutenção', color:'#107070', articles:[
+  { id:'c7', name:'C07 · 🔧 Gestão de Manutenção', color:'#107070', articles:[
     {id:'a45',title:'Como sair do modo "apagar incêndio" na manutenção industrial',f:'topo',kw:'manutenção industrial apagar incêndio reativo',lk:['p0','a46','a47']},
     {id:'a46',title:'Manutenção preditiva em sistemas elétricos: guia prático',f:'meio',kw:'manutenção preditiva sistemas elétricos indústria',lk:['p0','a47','a48']},
     {id:'a47',title:'Como montar um plano de inspeção elétrica preventiva',f:'meio',kw:'plano inspeção elétrica preventiva indústria',lk:['p0','a46','a16']},
@@ -330,7 +318,20 @@ const CLUSTERS = [
     {id:'a79',title:'Análise de causa raiz de queima de equipamentos: passo a passo',f:'meio',kw:'análise causa raiz queima equipamentos industriais',lk:['p0','a07','a21','a46'],n:true},
     {id:'a80',title:'FMEA aplicado a falhas elétricas: como antecipar o próximo colapso',f:'meio',kw:'FMEA falhas elétricas manutenção industrial',lk:['p0','a46','a47'],n:true},
   ]},
-  { id:'c10', name:'Listas e Checklists SEO', color:'#0a7a7a', articles:[
+  { id:'c8', name:'C08 · 🌱 Eficiência e Sustentabilidade', color:'#3a6a10', articles:[
+    {id:'a50',title:'O que é eficiência energética industrial (além da geração solar)',f:'topo',kw:'eficiência energética industrial o que é',lk:['p0','a18','a51']},
+    {id:'a51',title:'ISO 50001: como a gestão de energia impacta produtividade industrial',f:'meio',kw:'ISO 50001 gestão energia produtividade',lk:['p0','a50','a52']},
+    {id:'a52',title:'Energia reativa e qualidade de energia: a relação que poucos conhecem',f:'topo',kw:'energia reativa qualidade energia elétrica',lk:['p0','a01','a50']},
+    {id:'a53',title:'Sustentabilidade e proteção elétrica: menos descarte de equipamentos industriais',f:'topo',kw:'sustentabilidade proteção elétrica descarte equipamentos',lk:['p0','a50','a51']},
+  ]},
+  { id:'c9', name:'C09 · 🏛️ Institucional e Autoridade', color:'#4a30a0', articles:[
+    {id:'a54',title:'O que é o Master Block e como ele funciona na prática',f:'topo',kw:'o que é Master Block como funciona',lk:['p0','a09','a13']},
+    {id:'a55',title:'Por que o Master Block não é um DPS comum — diferença técnica',f:'meio',kw:'Master Block vs DPS diferença técnica',lk:['p0','a10','a11','a54']},
+    {id:'a56',title:'Prêmio FIESP Acelera Startup: o que esse selo representa para a indústria',f:'topo',kw:'prêmio FIESP proteção elétrica startup',lk:['p0','a57']},
+    {id:'a57',title:'26 anos protegendo indústrias: a história da Somatec Blocking',f:'topo',kw:'Somatec Blocking história empresa proteção elétrica',lk:['p0','a56','a54']},
+    {id:'a58',title:'Modelo comodato Master Block: você só paga depois de comprovar o resultado',f:'fundo',kw:'comodato Master Block modelo sem risco pagamento',lk:['p0','a23','a24','a54']},
+  ]},
+  { id:'c10', name:'C10 · 📝 Listas e Checklists SEO', color:'#0a7a7a', articles:[
     {id:'a81',title:'Os 10 equipamentos industriais mais sensíveis a surtos elétricos',f:'lista',kw:'equipamentos industriais sensíveis surtos elétricos lista',lk:['p0','a01','a09']},
     {id:'a82',title:'7 sinais de que sua fábrica tem problema de qualidade de energia',f:'lista',kw:'sinais problema qualidade energia elétrica fábrica',lk:['p0','a07','a08']},
     {id:'a83',title:'Os 5 erros mais comuns na proteção elétrica industrial',f:'lista',kw:'erros proteção elétrica industrial mais comuns',lk:['p0','a09','a13','a14']},
@@ -346,67 +347,61 @@ const CLUSTERS = [
     {id:'e06',title:'7 itens que todo projeto de residência de alto padrão precisa ter em proteção elétrica',f:'lista',kw:'proteção elétrica residência alto padrão itens obrigatórios',lk:['p0','c01','c06'],n:true},
     {id:'e07',title:'Os 5 acertos de condomínios que nunca têm problema elétrico nas áreas comuns',f:'lista',kw:'condomínio proteção elétrica área comum acertos',lk:['p0','c07','a33'],n:true},
   ]},
-  { id:'c11', name:'Técnico Educativo', color:'#486080', articles:[
+  { id:'c11', name:'C11 · 📚 Técnico Educativo', color:'#486080', articles:[
     {id:'a88',title:'Como funciona uma subestação industrial: guia para gestores',f:'topo',kw:'como funciona subestação industrial gestores',lk:['p0','a01','a52']},
     {id:'a89',title:'O que é um quadro de distribuição de energia e como protegê-lo',f:'topo',kw:'quadro distribuição energia elétrica industrial proteção',lk:['p0','a10','a13']},
     {id:'a90',title:'Vida útil de equipamentos industriais e qualidade de energia',f:'meio',kw:'vida útil equipamentos industriais qualidade energia',lk:['p0','a01','a67']},
     {id:'a91',title:'Potência ativa, reativa e aparente: explicado para gestores industriais',f:'topo',kw:'potência ativa reativa aparente explicação gestores',lk:['p0','a52','a50']},
     {id:'a92',title:'O que é fator de potência e por que sua empresa paga mais por causa dele',f:'topo',kw:'fator de potência empresa conta energia multa',lk:['p0','a52','a51']},
   ]},
-  { id:'c8', name:'Eficiência e Sustentabilidade', color:'#3a6a10', articles:[
-    {id:'a50',title:'O que é eficiência energética industrial (além da geração solar)',f:'topo',kw:'eficiência energética industrial o que é',lk:['p0','a18','a51']},
-    {id:'a51',title:'ISO 50001: como a gestão de energia impacta produtividade industrial',f:'meio',kw:'ISO 50001 gestão energia produtividade',lk:['p0','a50','a52']},
-    {id:'a52',title:'Energia reativa e qualidade de energia: a relação que poucos conhecem',f:'topo',kw:'energia reativa qualidade energia elétrica',lk:['p0','a01','a50']},
-    {id:'a53',title:'Sustentabilidade e proteção elétrica: menos descarte de equipamentos industriais',f:'topo',kw:'sustentabilidade proteção elétrica descarte equipamentos',lk:['p0','a50','a51']},
-  ]},
-  { id:'c12', name:'ESG e Compliance', color:'#2a6a30', articles:[
+  { id:'c12', name:'C12 · 📊 ESG e Compliance', color:'#2a6a30', articles:[
     {id:'a93',title:'ESG e proteção elétrica: como menos queima de equipamentos contribui para metas',f:'esg',kw:'ESG proteção elétrica sustentabilidade indústria',lk:['p0','a53','a50']},
     {id:'a94',title:'Como a qualidade de energia afeta a pegada de carbono da indústria',f:'esg',kw:'pegada carbono qualidade energia elétrica indústria',lk:['p0','a53','a51']},
     {id:'a95',title:'Relatório de sustentabilidade: como incluir dados de qualidade de energia',f:'esg',kw:'relatório sustentabilidade eficiência energética QEE',lk:['p0','a51','a53']},
   ]},
-  { id:'c9', name:'Institucional e Autoridade', color:'#4a30a0', articles:[
-    {id:'a54',title:'O que é o Master Block e como ele funciona na prática',f:'topo',kw:'o que é Master Block como funciona',lk:['p0','a09','a13']},
-    {id:'a55',title:'Por que o Master Block não é um DPS comum — diferença técnica',f:'meio',kw:'Master Block vs DPS diferença técnica',lk:['p0','a10','a11','a54']},
-    {id:'a56',title:'Prêmio FIESP Acelera Startup: o que esse selo representa para a indústria',f:'topo',kw:'prêmio FIESP proteção elétrica startup',lk:['p0','a57']},
-    {id:'a57',title:'26 anos protegendo indústrias: a história da Somatec Blocking',f:'topo',kw:'Somatec Blocking história empresa proteção elétrica',lk:['p0','a56','a54']},
-    {id:'a58',title:'Modelo comodato Master Block: você só paga depois de comprovar o resultado',f:'fundo',kw:'comodato Master Block modelo sem risco pagamento',lk:['p0','a23','a24','a54']},
+  { id:'c13', name:'C13 · 🏪 Comércio, Varejo e Serviços', color:'#b06000', n:true, articles:[
+    {id:'b01',title:'Proteção elétrica para restaurantes e cozinhas industriais',f:'setor',kw:'proteção elétrica restaurante cozinha industrial surtos',lk:['p0','a01','a09'],n:true},
+    {id:'b02',title:'Proteção elétrica para supermercados: câmaras, checkouts e automação',f:'setor',kw:'proteção elétrica supermercado câmara fria checkout',lk:['p0','a01','a09'],n:true},
+    {id:'b03',title:'Proteção elétrica em salões de beleza e clínicas de estética',f:'setor',kw:'proteção elétrica salão beleza clínica estética equipamentos',lk:['p0','a01','a09'],n:true},
+    {id:'b04',title:'Proteção elétrica para escritórios e coworkings com servidores',f:'setor',kw:'proteção elétrica escritório servidor coworking',lk:['p0','a09','a30'],n:true},
+    {id:'b05',title:'Proteção elétrica para academias e estúdios fitness',f:'setor',kw:'proteção elétrica academia estúdio fitness equipamentos',lk:['p0','a01','a09'],n:true},
+    {id:'b06',title:'Proteção elétrica em hotéis e pousadas: como proteger a operação',f:'setor',kw:'proteção elétrica hotel pousada operação',lk:['p0','a01','a09'],n:true},
+    {id:'b07',title:'Proteção elétrica para postos de combustível e lava-rápidos',f:'setor',kw:'proteção elétrica posto combustível lava-rápido',lk:['p0','a01','a09'],n:true},
+    {id:'b08',title:'Por que seu PDV trava e como a qualidade de energia está por trás disso',f:'topo',kw:'PDV trava qualidade energia elétrica varejo',lk:['p0','a07','a01'],n:true},
+    {id:'b09',title:'A padaria que perdeu o forno, a câmara fria e o PDV num piscar de olhos',f:'setor',kw:'proteção elétrica comércio padaria forno câmara fria PDV surto transiente',lk:['p0','b08','b02','hp01'],n:true,slug:'protecao-eletrica-para-comercio'},
   ]},
-  { id:'c25', name:'Cadeia do Frio — Refrigeração Comercial', color:'#0080b0', n:true, articles:[
-    {id:'fr01',title:'Sorveteria sem proteção elétrica: quanto custa uma queima de câmara no pico do verão',f:'setor',kw:'sorveteria queima câmara fria custo verão proteção elétrica',lk:['p0','a01','hp01','a21'],n:true},
-    {id:'fr02',title:'Açougue e peixaria: queima do compressor de refrigeração por surto — o prejuízo que ninguém calcula',f:'setor',kw:'açougue peixaria compressor refrigeração queima surto prejuízo',lk:['p0','a01','hp01','fr01'],n:true},
-    {id:'fr03',title:'Supermercado: R$ 220 milhões/ano perdidos por falhas em refrigeração — e o papel da qualidade elétrica',f:'meio',kw:'supermercado perda refrigeração falha elétrica R$ 220 milhões varejo',lk:['p0','a01','hp01','a25'],n:true},
-    {id:'fr04',title:'Vacinas e insulina: por que farmácias precisam de proteção elétrica nas câmaras de refrigeração',f:'setor',kw:'farmácia câmara refrigeração vacina insulina proteção elétrica surto',lk:['p0','a01','a26','fr03'],n:true},
-    {id:'fr05',title:'Laboratório de análise clínica: surto elétrico que destrói amostras e equipamentos de R$ 500 mil',f:'setor',kw:'laboratório análise clínica surto elétrico amostras equipamentos',lk:['p0','a01','a26','a21'],n:true},
-    {id:'fr06',title:'Restaurante e buffet: o que acontece com o estoque de proteínas quando o compressor queima',f:'setor',kw:'restaurante buffet compressor queima estoque proteínas prejuízo',lk:['p0','a01','hp01','fr01'],n:true},
-    {id:'fr07',title:'Distribuidora de laticínios e bebidas: proteção elétrica para câmaras de grande volume',f:'setor',kw:'distribuidora laticínios bebidas câmara fria proteção elétrica',lk:['p0','a01','fr03'],n:true},
-    {id:'fr08',title:'Frigorífico industrial: cadeia do frio e conformidade com MAPA — risco elétrico que compromete a exportação',f:'setor',kw:'frigorífico industrial cadeia frio MAPA exportação risco elétrico',lk:['p0','a01','a69','a25'],n:true},
-    {id:'fr09',title:'Floricultura e clínica de estética: equipamentos de refrigeração que ninguém pensa em proteger',f:'setor',kw:'floricultura clínica estética botox refrigeração proteção elétrica surto',lk:['p0','a01','fr01'],n:true},
-    {id:'fr10',title:'5 negócios que não podem ter o compressor queimado — e o que fazer para nunca acontecer',f:'lista',kw:'negócios compressor queimado proteção elétrica lista cadeia frio',lk:['p0','a01','fr01','fr02','fr04'],n:true},
-    {id:'fr11',title:'Resolução ANEEL 1.000: quando a distribuidora paga pelo compressor queimado (e quando não paga)',f:'meio',kw:'ANEEL resolução 1000 ressarcimento compressor queimado distribuidora',lk:['p0','a69','fr03','a01'],n:true},
-    {id:'fr12',title:'Clínica médica e odontológica: equipamentos de imagem e esterilização que sofrem com VTCD',f:'setor',kw:'clínica médica odontológica equipamento imagem esterilização VTCD surto',lk:['p0','a01','a26','far04'],n:true},
+  { id:'c14', name:'C14 · 🏡 Residências de Alto Padrão', color:'#9a6800', n:true, articles:[
+    {id:'c01',title:'Proteção elétrica para residências de alto padrão: o que arquitetos não especificam',f:'resid',kw:'proteção elétrica residência alto padrão casa de luxo',lk:['p0','a09','a13'],n:true},
+    {id:'c02',title:'Home automation e qualidade de energia: por que sua automação residencial falha',f:'resid',kw:'home automation automação residencial falhas qualidade energia',lk:['p0','a01','a09'],n:true},
+    {id:'c03',title:'Proteção elétrica para home theater e equipamentos de áudio de alta fidelidade',f:'resid',kw:'proteção elétrica home theater áudio alta fidelidade',lk:['p0','a01','a09'],n:true},
+    {id:'c04',title:'Proteção do inversor solar residencial contra surtos: o que sua integradora não fez',f:'resid',kw:'proteção inversor solar residencial surtos VTCD',lk:['p0','a18','a09'],n:true},
+    {id:'c05',title:'Adega climatizada, piscina aquecida e ar-condicionado: como proteger seus eletrodomésticos premium',f:'resid',kw:'proteção elétrica eletrodomésticos premium adega piscina ar-condicionado',lk:['p0','a01','a09'],n:true},
+    {id:'c06',title:'Proteção em cascata para mansões e casas de condomínio fechado',f:'resid',kw:'proteção em cascata residência mansão condomínio fechado',lk:['p0','a13','a09'],n:true},
+    {id:'c07',title:'Por que condomínios de alto padrão precisam de proteção elétrica nas áreas comuns',f:'resid',kw:'proteção elétrica condomínio alto padrão área comum',lk:['p0','a33','a09'],n:true},
+    {id:'c08',title:'Seguro residencial e surtos elétricos: o que a apólice não cobre (e você não sabe)',f:'resid',kw:'seguro residencial surtos elétricos cobertura apólice',lk:['p0','a69','a01'],n:true},
+    {id:'c09',title:'O surto que queima o home theater, a automação e o inversor solar da sua casa',f:'resid',kw:'proteção contra surtos residencial home theater automação inversor solar queima eletrônicos casa',lk:['p0','c02','c03','c04'],n:true,slug:'protecao-contra-surtos-residencial'},
   ]},
-  { id:'c26', name:'Fundo de Funil — Conversão e Decisão', color:'#c00040', n:true, articles:[
-    {id:'cv01',title:'Calculadora de perdas por parada não programada: quanto sua fábrica perde por mês com VTCD',f:'fundo',kw:'calculadora perdas parada não programada fábrica VTCD custo mensal',lk:['p0','hp01','a23','a01'],n:true},
-    {id:'cv02',title:'O que o CFO precisa saber antes de aprovar proteção elétrica industrial',f:'fundo',kw:'CFO diretor financeiro aprovar proteção elétrica industrial ROI',lk:['p0','hp01','a23','a58'],n:true},
-    {id:'cv03',title:'Como o CEO de uma indústria deve pensar o risco elétrico: não é custo, é gestão de risco',f:'fundo',kw:'CEO indústria risco elétrico gestão estratégica proteção MasterBlock',lk:['p0','hp01','a57','a58'],n:true},
-    {id:'cv04',title:'Checklist de compra: o que verificar antes de contratar proteção elétrica industrial',f:'fundo',kw:'checklist contratar proteção elétrica industrial o que verificar',lk:['p0','a09','a10','a58'],n:true},
-    {id:'cv05',title:'Comodato vs. compra: qual modelo faz mais sentido para proteção elétrica industrial',f:'fundo',kw:'comodato vs compra proteção elétrica industrial modelo comercial',lk:['p0','a58','a23','cv04'],n:true},
-    {id:'cv06',title:'O que é a medição gratuita de qualidade de energia — e o que o relatório vai revelar',f:'fundo',kw:'medição gratuita qualidade energia relatório o que revela Somatec',lk:['p0','a08','a58','cv01'],n:true},
-    {id:'cv07',title:'Relatório de qualidade de energia: como interpretar os gráficos de VTCD e tomar uma decisão',f:'fundo',kw:'relatório qualidade energia interpretar gráfico VTCD decisão',lk:['p0','a08','a01','cv06'],n:true},
-    {id:'cv08',title:'Antes e depois: comparativo de relatório de qualidade de energia pré e pós Master Block',f:'case',kw:'antes depois relatório qualidade energia Master Block comparativo',lk:['p0','a08','cv06','cv07'],n:true},
-    {id:'cv09',title:'Quiz: qual é o nível de risco elétrico da sua fábrica? [autodiagnóstico em 5 perguntas]',f:'fundo',kw:'quiz risco elétrico fábrica autodiagnóstico nível proteção',lk:['p0','a01','cv01','cv06'],n:true},
-    {id:'cv10',title:'Por que empresas que protegem com DPS comum ainda perdem equipamentos — e o que muda com o Master Block',f:'fundo',kw:'DPS comum ainda perde equipamento Master Block diferença resultado',lk:['p0','a09','a10','a55'],n:true},
-    {id:'cv11',title:'3 objeções que gestores de compras levantam sobre proteção elétrica — e as respostas com dados reais',f:'fundo',kw:'objeções compras proteção elétrica respostas dados reais',lk:['p0','a58','cv02','cv05'],n:true},
-    {id:'cv12',title:'Como justificar internamente o investimento em proteção elétrica: modelo de apresentação para diretores',f:'fundo',kw:'justificar investimento proteção elétrica apresentação diretores aprovação',lk:['p0','cv02','cv03','hp01'],n:true},
+  { id:'c15', name:'C15 · 💻 Tecnologia e Nichos Digitais', color:'#205090', n:true, articles:[
+    {id:'d01',title:'Proteção elétrica para mineradores de Bitcoin e fazendas de criptomoedas',f:'setor',kw:'proteção elétrica mineração bitcoin crypto mining ASIC',lk:['p0','a01','a09'],n:true},
+    {id:'d02',title:'Por que ASICs e GPUs queimam com surtos elétricos: guia para mineradores',f:'setor',kw:'ASIC GPU queima surto elétrico mineração crypto',lk:['p0','a01','a21'],n:true},
+    {id:'d03',title:'Fazenda de mining: como dimensionar proteção elétrica em cascata',f:'setor',kw:'farm mining proteção elétrica cascata dimensionamento',lk:['p0','a13','a09'],n:true},
+    {id:'d04',title:'Proteção elétrica para impressoras 3D industriais e farms de impressão',f:'setor',kw:'proteção elétrica impressora 3D industrial farm impressão',lk:['p0','a01','a09'],n:true},
+    {id:'d05',title:'Impressora 3D travando no meio da peça? Qualidade de energia pode ser a causa',f:'topo',kw:'impressora 3D travando falha causa qualidade energia',lk:['p0','a07','a01'],n:true},
+    {id:'d06',title:'Proteção elétrica para estúdios de gravação e produção musical',f:'setor',kw:'proteção elétrica estúdio gravação produção musical',lk:['p0','a01','a09'],n:true},
+    {id:'d07',title:'Rack de servidores e NAS: como proteger contra transitórios elétricos',f:'setor',kw:'proteção elétrica rack servidor NAS transitório',lk:['p0','a02','a30'],n:true},
   ]},
-  { id:'c28', name:'Canais Indiretos — Especificadores e B2B2B', color:'#506000', n:true, articles:[
-    {id:'bi01',title:'Para arquitetos e projetistas elétricos: como especificar proteção contra VTCD em projetos novos',f:'topo',kw:'arquiteto projetista elétrico especificar VTCD proteção projeto novo',lk:['p0','a09','a13'],n:true},
-    {id:'bi02',title:'Para integradores de automação industrial: por que incluir Master Block na entrega do projeto',f:'topo',kw:'integrador automação industrial Master Block incluir projeto entrega',lk:['p0','a09','a33'],n:true},
-    {id:'bi03',title:'Para seguradoras e corretores: como proteção elétrica industrial reduz sinistros e premia apólices',f:'topo',kw:'seguradora corretor proteção elétrica industrial reduz sinistro apólice',lk:['p0','a69','cv03'],n:true},
-    {id:'bi04',title:'Para empresas de manutenção terceirizada: por que recomendar proteção elétrica aumenta sua retenção de contrato',f:'topo',kw:'manutenção terceirizada recomendar proteção elétrica retenção contrato',lk:['p0','a07','cv04'],n:true},
-    {id:'bi05',title:'Para distribuidoras elétricas: como um cliente com proteção adequada reduz chamados técnicos',f:'topo',kw:'distribuidora elétrica cliente proteção adequada chamado técnico redução',lk:['p0','a69','a09'],n:true},
+  { id:'c16', name:'C16 · 🧠 GEO — Artigos Citáveis por IA', color:'#107850', n:true, articles:[
+    {id:'f01',title:'Definição completa de VTCD: o que é, como age e como medir [citável por IA]',f:'geo',kw:'definição VTCD variação tensão curta duração o que é',lk:['p0','a01','a08'],n:true},
+    {id:'f02',title:'Comparativo técnico: DPS Classe III vs Master Block — tabela de especificações',f:'geo',kw:'comparativo DPS classe III Master Block especificações técnicas',lk:['p0','a09','a10','a55'],n:true},
+    {id:'f03',title:'Perguntas frequentes sobre proteção elétrica industrial: 20 respostas diretas',f:'geo',kw:'perguntas frequentes proteção elétrica industrial FAQ',lk:['p0','a09','a01'],n:true},
+    {id:'f04',title:'Glossário de qualidade de energia elétrica: 30 termos que todo gestor precisa saber',f:'geo',kw:'glossário qualidade energia elétrica termos técnicos',lk:['p0','a01','a03','a52'],n:true},
+    {id:'f05',title:'Dados e estatísticas de surtos elétricos no Brasil: pesquisa Somatec Blocking',f:'geo',kw:'estatísticas surtos elétricos Brasil dados pesquisa',lk:['p0','a01','a40','a41'],n:true},
   ]},
-  { id:'c18', name:'Condomínios — Síndico, Manutenção e Moradores', color:'#8a5a00', n:true, articles:[
+  { id:'c17', name:'C17 · 📧 Prospecção — Cold-Email por Dor', color:'#7a2020', n:true, articles:[
+    {id:'g13',title:'Como apresentar o problema elétrico para o gestor de compras (sem falar em técnico)',f:'fundo',kw:'apresentar problema elétrico gestor compras argumento ROI',lk:['p0','a23','hp01','a58'],n:true},
+    {id:'g14',title:'E-mail frio que converte no industrial: o que funciona quando o assunto é proteção elétrica',f:'fundo',kw:'prospecção fria industrial proteção elétrica converter',lk:['p0','a58','a24'],n:true},
+  ]},
+  { id:'c18', name:'C18 · 🏢 Condomínios — Síndico e Moradores', color:'#8a5a00', n:true, articles:[
     {id:'cnd01',title:'Quanto custa queimar o quadro de elevador de um condomínio? O cálculo que o síndico não faz',f:'cond',kw:'custo queima quadro elevador condomínio síndico',lk:['p0','hp01','a23'],n:true},
     {id:'cnd02',title:'5 equipamentos de área comum que mais sofrem com surtos elétricos — e quanto custam',f:'lista',kw:'equipamentos área comum condomínio surto elétrico custo',lk:['p0','a01','hp01'],n:true},
     {id:'cnd03',title:'Proteção elétrica de elevadores: o que a empresa de manutenção não inclui no contrato',f:'cond',kw:'proteção elétrica elevador condomínio contrato manutenção',lk:['p0','a01','a07'],n:true},
@@ -425,7 +420,7 @@ const CLUSTERS = [
     {id:'cnd16',title:'Como incluir proteção elétrica na convenção do condomínio e no regimento interno',f:'cond',kw:'convenção condomínio proteção elétrica regimento interno síndico',lk:['p0','a69','cnd09'],n:true},
     {id:'cnd17',title:'10 perguntas que o síndico deve fazer antes de contratar manutenção elétrica',f:'lista',kw:'perguntas síndico contratar manutenção elétrica condomínio checklist',lk:['p0','a07','cnd04','a09'],n:true},
   ]},
-  { id:'c19', name:'Setorial — Alimentício e Bebidas (máquinas)', color:'#a04820', n:true, articles:[
+  { id:'c19', name:'C19 · 🍽️ Setorial — Alimentício e Bebidas', color:'#a04820', n:true, articles:[
     {id:'ali01',title:'CLP de empacotadora queimado: diagnóstico e solução definitiva para fábricas de alimentos',f:'setor',kw:'CLP empacotadora queimado diagnóstico surto alimentício',lk:['p0','a25','a06'],n:true},
     {id:'ali02',title:'Pasteurizadora HTST e LTLT: por que os inversores de frequência falham por VTCD',f:'setor',kw:'pasteurizadora HTST LTLT inversor frequência falha VTCD',lk:['p0','a25','a07'],n:true},
     {id:'ali03',title:'Linha de envase de bebidas: proteção elétrica para enchedoras e rotuladoras',f:'setor',kw:'linha envase bebidas enchedora rotuladora proteção elétrica surto',lk:['p0','a25'],n:true},
@@ -435,7 +430,7 @@ const CLUSTERS = [
     {id:'ali07',title:'Forno industrial de panificação: oscilação de tensão e impacto na qualidade do produto',f:'setor',kw:'forno industrial panificação oscilação tensão produto queima',lk:['p0','a25','a01'],n:true},
     {id:'ali08',title:'Balança de pesagem industrial: por que desregula sozinha e como o problema é elétrico',f:'setor',kw:'balança pesagem industrial desregula problema elétrico surto VTCD',lk:['p0','a25','a01','a06'],n:true},
   ]},
-  { id:'c20', name:'Setorial — Metalurgia e Autopeças (máquinas)', color:'#606060', n:true, articles:[
+  { id:'c20', name:'C20 · ⚙️ Setorial — Metalurgia e Autopeças', color:'#606060', n:true, articles:[
     {id:'met01',title:'Forno de indução elétrica: o que acontece com a qualidade do aço quando cai a tensão',f:'setor',kw:'forno indução elétrica qualidade aço queda tensão metalurgia',lk:['p0','a27'],n:true},
     {id:'met02',title:'Fonte de solda inverter MIG/TIG: como surtos elétricos destroem o módulo IGBT',f:'setor',kw:'fonte solda inverter MIG TIG surto elétrico módulo IGBT',lk:['p0','a27','a01'],n:true},
     {id:'met03',title:'Prensa excêntrica e hidráulica: falha no CLP por oscilação — como diagnosticar',f:'setor',kw:'prensa excêntrica hidráulica CLP falha oscilação elétrica diagnóstico',lk:['p0','a27','a06'],n:true},
@@ -445,7 +440,7 @@ const CLUSTERS = [
     {id:'met07',title:'Torno CNC e centro de usinagem: proteção elétrica para o drive de servo e spindle',f:'setor',kw:'torno CNC usinagem drive servo spindle proteção elétrica surto',lk:['p0','a27','a28','a06'],n:true},
     {id:'met08',title:'Guilhotina e dobradeira elétrica: falhas no inversor e CLP por VTCD',f:'setor',kw:'guilhotina dobradeira elétrica inversor CLP falha VTCD',lk:['p0','a27','a07','a01'],n:true},
   ]},
-  { id:'c21', name:'Setorial — Têxtil, Confecção e Calçados', color:'#804870', n:true, articles:[
+  { id:'c21', name:'C21 · 🧵 Setorial — Têxtil e Calçados', color:'#804870', n:true, articles:[
     {id:'tex01',title:'Tear rapier e jacquard: por que a placa eletrônica queima mesmo com nobreak instalado',f:'setor',kw:'tear rapier jacquard placa eletrônica queima nobreak VTCD',lk:['p0','a29','a15'],n:true},
     {id:'tex02',title:'Engomadeira de fio: oscilação de tensão e impacto direto na resistência do tecido',f:'setor',kw:'engomadeira fio oscilação tensão qualidade tecido têxtil',lk:['p0','a29','a01'],n:true},
     {id:'tex03',title:'Bordadeira eletrônica e máquina de corte CNC têxtil: proteção elétrica essencial',f:'setor',kw:'bordadeira eletrônica corte CNC têxtil proteção elétrica surto',lk:['p0','a29','a01'],n:true},
@@ -458,7 +453,7 @@ const CLUSTERS = [
     {id:'tex10',title:'Tear circular mono e duplo: eletrônica sensível e o custo de uma placa queimada',f:'setor',kw:'tear circular mono duplo placa eletrônica queima custo têxtil VTCD',lk:['p0','a29','tex01','a21'],n:true},
     {id:'tex11',title:'Malharia e tecelagem: onde o VTCD ataca o parque de teares',f:'setor',kw:'malharia tecelagem VTCD tear parque têxtil proteção elétrica surto',lk:['p0','a29','tex05','a01'],n:true},
   ]},
-  { id:'c22', name:'Setorial — Farmacêutico e Químico', color:'#206090', n:true, articles:[
+  { id:'c22', name:'C22 · 💊 Setorial — Farmacêutico e Químico', color:'#206090', n:true, articles:[
     {id:'far01',title:'Câmara de estabilidade climática: o que um surto faz com sua amostra de 6 meses de análise',f:'setor',kw:'câmara estabilidade climática surto elétrico amostra farmacêutico perda',lk:['p0','a26'],n:true},
     {id:'far02',title:'Liofilizador farmacêutico: proteção elétrica para equipamentos críticos de alto valor',f:'setor',kw:'liofilizador farmacêutico proteção elétrica alto valor VTCD surto',lk:['p0','a26','a01'],n:true},
     {id:'far03',title:'Reator químico e agitador com inversor: falhas elétricas em processos contínuos',f:'setor',kw:'reator químico agitador inversor falha elétrica processo contínuo surto',lk:['p0','a26','a07'],n:true},
@@ -466,7 +461,7 @@ const CLUSTERS = [
     {id:'far05',title:'BPF e qualidade de energia: o que os auditores não perguntam mas deveriam',f:'setor',kw:'BPF boas práticas fabricação qualidade energia ANVISA farmacêutico auditoria',lk:['p0','a26','a69'],n:true},
     {id:'far06',title:'Bomba dosadora e agitador de tanque em indústria química: proteção do drive',f:'setor',kw:'bomba dosadora agitador tanque química proteção drive elétrico',lk:['p0','a26','a07','a01'],n:true},
   ]},
-  { id:'c23', name:'Setorial — Plásticos, Borracha e Embalagem', color:'#507030', n:true, articles:[
+  { id:'c23', name:'C23 · 🧴 Setorial — Plásticos e Embalagem', color:'#507030', n:true, articles:[
     {id:'pla01',title:'Injetora de plástico e oscilação de tensão: o defeito no produto que começa na rede elétrica',f:'setor',kw:'injetora plástico oscilação tensão defeito produto rede elétrica surto',lk:['p0','a71'],n:true},
     {id:'pla02',title:'Sopradora de garrafa PET: falha no aquecimento por VTCD — diagnóstico passo a passo',f:'setor',kw:'sopradora garrafa PET falha aquecimento VTCD diagnóstico',lk:['p0','a71','a01'],n:true},
     {id:'pla03',title:'Extrusora de perfil e tubos: inversores queimando — como separar causa elétrica de mecânica',f:'setor',kw:'extrusora perfil tubos inversor queimando causa elétrica mecânica',lk:['p0','a71','a07','a01'],n:true},
@@ -474,18 +469,7 @@ const CLUSTERS = [
     {id:'pla05',title:'Seladora a vácuo e termoformadora: 3 motivos por que falham por problema elétrico',f:'lista',kw:'seladora vácuo termoformadora falha problema elétrico surto diagnóstico',lk:['p0','a71','a01'],n:true},
     {id:'pla06',title:'Rotomoldagem e centrifugação: paradas por queda de tensão no meio do ciclo',f:'setor',kw:'rotomoldagem centrifugação parada queda tensão ciclo plástico',lk:['p0','a71','a07'],n:true},
   ]},
-  { id:'c17', name:'Prospecção — Cold-Email & Abordagem por Dor', color:'#7a2020', n:true, articles:[
-    {id:'g13',title:'Como apresentar o problema elétrico para o gestor de compras (sem falar em técnico)',f:'fundo',kw:'apresentar problema elétrico gestor compras argumento ROI',lk:['p0','a23','hp01','a58'],n:true},
-    {id:'g14',title:'E-mail frio que converte no industrial: o que funciona quando o assunto é proteção elétrica',f:'fundo',kw:'prospecção fria industrial proteção elétrica converter',lk:['p0','a58','a24'],n:true},
-  ]},
-  { id:'c16', name:'GEO — Artigos Citáveis por IA', color:'#107850', n:true, articles:[
-    {id:'f01',title:'Definição completa de VTCD: o que é, como age e como medir [citável por IA]',f:'geo',kw:'definição VTCD variação tensão curta duração o que é',lk:['p0','a01','a08'],n:true},
-    {id:'f02',title:'Comparativo técnico: DPS Classe III vs Master Block — tabela de especificações',f:'geo',kw:'comparativo DPS classe III Master Block especificações técnicas',lk:['p0','a09','a10','a55'],n:true},
-    {id:'f03',title:'Perguntas frequentes sobre proteção elétrica industrial: 20 respostas diretas',f:'geo',kw:'perguntas frequentes proteção elétrica industrial FAQ',lk:['p0','a09','a01'],n:true},
-    {id:'f04',title:'Glossário de qualidade de energia elétrica: 30 termos que todo gestor precisa saber',f:'geo',kw:'glossário qualidade energia elétrica termos técnicos',lk:['p0','a01','a03','a52'],n:true},
-    {id:'f05',title:'Dados e estatísticas de surtos elétricos no Brasil: pesquisa Somatec Blocking',f:'geo',kw:'estatísticas surtos elétricos Brasil dados pesquisa',lk:['p0','a01','a40','a41'],n:true},
-  ]},
-  { id:'c24', name:'Reddit / Quora — Posts para GEO Externo', color:'#c03000', n:true, articles:[
+  { id:'c24', name:'C24 · 💬 Reddit / Quora — GEO Externo', color:'#c03000', n:true, articles:[
     {id:'rd01',title:'[Reddit r/eletrica] "CLP queima frequentemente na minha linha — o que pode ser?" → resposta com link para artigo VTCD',f:'reddit',kw:'reddit eletrica CLP queima linha produção VTCD resposta',lk:['p0','a01','a06','ali01'],n:true},
     {id:'rd02',title:'[Reddit r/manutencaoindustrial] "Inversor de frequência queimando a cada 6 meses — já troquei 3" → diagnóstico de VTCD + link',f:'reddit',kw:'reddit manutenção industrial inversor frequência queimando diagnóstico VTCD',lk:['p0','a07','a01','met01'],n:true},
     {id:'rd03',title:'[Reddit r/sindicos] "Elevador quebrou de novo — empresa diz que é elétrico" → explicação + link artigo condomínio',f:'reddit',kw:'reddit sindicos elevador quebrou problema elétrico condomínio',lk:['p0','cnd03','cnd04'],n:true},
@@ -497,8 +481,42 @@ const CLUSTERS = [
     {id:'rd09',title:'[Reddit r/condominio] "Como apresentar proteção elétrica para o conselho aprovar?" → argumentação ROI + link',f:'reddit',kw:'reddit condominio proteção elétrica conselho aprovação ROI síndico',lk:['p0','cnd08','cnd01'],n:true},
     {id:'rd10',title:'[Reddit r/metalurgia / r/industria] "Robô de solda parou — técnico diz que é problema elétrico, mas não sabe qual" → diagnóstico VTCD',f:'reddit',kw:'reddit metalurgia robô solda parou problema elétrico diagnóstico VTCD',lk:['p0','met05','a01','a07'],n:true},
   ]},
-
-  { id:'c29', name:'💰 Custo da Hora Parada — O Argumento Central', color:'#b80000', n:true, articles:[
+  { id:'c25', name:'C25 · ❄️ Cadeia do Frio — Refrigeração', color:'#0080b0', n:true, articles:[
+    {id:'fr01',title:'Sorveteria sem proteção elétrica: quanto custa uma queima de câmara no pico do verão',f:'setor',kw:'sorveteria queima câmara fria custo verão proteção elétrica',lk:['p0','a01','hp01','a21'],n:true},
+    {id:'fr02',title:'Açougue e peixaria: queima do compressor de refrigeração por surto — o prejuízo que ninguém calcula',f:'setor',kw:'açougue peixaria compressor refrigeração queima surto prejuízo',lk:['p0','a01','hp01','fr01'],n:true},
+    {id:'fr03',title:'Supermercado: R$ 220 milhões/ano perdidos por falhas em refrigeração — e o papel da qualidade elétrica',f:'meio',kw:'supermercado perda refrigeração falha elétrica R$ 220 milhões varejo',lk:['p0','a01','hp01','a25'],n:true},
+    {id:'fr04',title:'Vacinas e insulina: por que farmácias precisam de proteção elétrica nas câmaras de refrigeração',f:'setor',kw:'farmácia câmara refrigeração vacina insulina proteção elétrica surto',lk:['p0','a01','a26','fr03'],n:true},
+    {id:'fr05',title:'Laboratório de análise clínica: surto elétrico que destrói amostras e equipamentos de R$ 500 mil',f:'setor',kw:'laboratório análise clínica surto elétrico amostras equipamentos',lk:['p0','a01','a26','a21'],n:true},
+    {id:'fr06',title:'Restaurante e buffet: o que acontece com o estoque de proteínas quando o compressor queima',f:'setor',kw:'restaurante buffet compressor queima estoque proteínas prejuízo',lk:['p0','a01','hp01','fr01'],n:true},
+    {id:'fr07',title:'Distribuidora de laticínios e bebidas: proteção elétrica para câmaras de grande volume',f:'setor',kw:'distribuidora laticínios bebidas câmara fria proteção elétrica',lk:['p0','a01','fr03'],n:true},
+    {id:'fr08',title:'Frigorífico industrial: cadeia do frio e conformidade com MAPA — risco elétrico que compromete a exportação',f:'setor',kw:'frigorífico industrial cadeia frio MAPA exportação risco elétrico',lk:['p0','a01','a69','a25'],n:true},
+    {id:'fr09',title:'Floricultura e clínica de estética: equipamentos de refrigeração que ninguém pensa em proteger',f:'setor',kw:'floricultura clínica estética botox refrigeração proteção elétrica surto',lk:['p0','a01','fr01'],n:true},
+    {id:'fr10',title:'5 negócios que não podem ter o compressor queimado — e o que fazer para nunca acontecer',f:'lista',kw:'negócios compressor queimado proteção elétrica lista cadeia frio',lk:['p0','a01','fr01','fr02','fr04'],n:true},
+    {id:'fr11',title:'Resolução ANEEL 1.000: quando a distribuidora paga pelo compressor queimado (e quando não paga)',f:'meio',kw:'ANEEL resolução 1000 ressarcimento compressor queimado distribuidora',lk:['p0','a69','fr03','a01'],n:true},
+    {id:'fr12',title:'Clínica médica e odontológica: equipamentos de imagem e esterilização que sofrem com VTCD',f:'setor',kw:'clínica médica odontológica equipamento imagem esterilização VTCD surto',lk:['p0','a01','a26','far04'],n:true},
+  ]},
+  { id:'c26', name:'C26 · 🎯 Fundo de Funil — Conversão', color:'#c00040', n:true, articles:[
+    {id:'cv01',title:'Calculadora de perdas por parada não programada: quanto sua fábrica perde por mês com VTCD',f:'fundo',kw:'calculadora perdas parada não programada fábrica VTCD custo mensal',lk:['p0','hp01','a23','a01'],n:true},
+    {id:'cv02',title:'O que o CFO precisa saber antes de aprovar proteção elétrica industrial',f:'fundo',kw:'CFO diretor financeiro aprovar proteção elétrica industrial ROI',lk:['p0','hp01','a23','a58'],n:true},
+    {id:'cv03',title:'Como o CEO de uma indústria deve pensar o risco elétrico: não é custo, é gestão de risco',f:'fundo',kw:'CEO indústria risco elétrico gestão estratégica proteção MasterBlock',lk:['p0','hp01','a57','a58'],n:true},
+    {id:'cv04',title:'Checklist de compra: o que verificar antes de contratar proteção elétrica industrial',f:'fundo',kw:'checklist contratar proteção elétrica industrial o que verificar',lk:['p0','a09','a10','a58'],n:true},
+    {id:'cv05',title:'Comodato vs. compra: qual modelo faz mais sentido para proteção elétrica industrial',f:'fundo',kw:'comodato vs compra proteção elétrica industrial modelo comercial',lk:['p0','a58','a23','cv04'],n:true},
+    {id:'cv06',title:'O que é a medição gratuita de qualidade de energia — e o que o relatório vai revelar',f:'fundo',kw:'medição gratuita qualidade energia relatório o que revela Somatec',lk:['p0','a08','a58','cv01'],n:true},
+    {id:'cv07',title:'Relatório de qualidade de energia: como interpretar os gráficos de VTCD e tomar uma decisão',f:'fundo',kw:'relatório qualidade energia interpretar gráfico VTCD decisão',lk:['p0','a08','a01','cv06'],n:true},
+    {id:'cv08',title:'Antes e depois: comparativo de relatório de qualidade de energia pré e pós Master Block',f:'case',kw:'antes depois relatório qualidade energia Master Block comparativo',lk:['p0','a08','cv06','cv07'],n:true},
+    {id:'cv09',title:'Quiz: qual é o nível de risco elétrico da sua fábrica? [autodiagnóstico em 5 perguntas]',f:'fundo',kw:'quiz risco elétrico fábrica autodiagnóstico nível proteção',lk:['p0','a01','cv01','cv06'],n:true},
+    {id:'cv10',title:'Por que empresas que protegem com DPS comum ainda perdem equipamentos — e o que muda com o Master Block',f:'fundo',kw:'DPS comum ainda perde equipamento Master Block diferença resultado',lk:['p0','a09','a10','a55'],n:true},
+    {id:'cv11',title:'3 objeções que gestores de compras levantam sobre proteção elétrica — e as respostas com dados reais',f:'fundo',kw:'objeções compras proteção elétrica respostas dados reais',lk:['p0','a58','cv02','cv05'],n:true},
+    {id:'cv12',title:'Como justificar internamente o investimento em proteção elétrica: modelo de apresentação para diretores',f:'fundo',kw:'justificar investimento proteção elétrica apresentação diretores aprovação',lk:['p0','cv02','cv03','hp01'],n:true},
+  ]},
+  { id:'c28', name:'C28 · 🤝 Canais Indiretos — Especificadores', color:'#506000', n:true, articles:[
+    {id:'bi01',title:'Para arquitetos e projetistas elétricos: como especificar proteção contra VTCD em projetos novos',f:'topo',kw:'arquiteto projetista elétrico especificar VTCD proteção projeto novo',lk:['p0','a09','a13'],n:true},
+    {id:'bi02',title:'Para integradores de automação industrial: por que incluir Master Block na entrega do projeto',f:'topo',kw:'integrador automação industrial Master Block incluir projeto entrega',lk:['p0','a09','a33'],n:true},
+    {id:'bi03',title:'Para seguradoras e corretores: como proteção elétrica industrial reduz sinistros e premia apólices',f:'topo',kw:'seguradora corretor proteção elétrica industrial reduz sinistro apólice',lk:['p0','a69','cv03'],n:true},
+    {id:'bi04',title:'Para empresas de manutenção terceirizada: por que recomendar proteção elétrica aumenta sua retenção de contrato',f:'topo',kw:'manutenção terceirizada recomendar proteção elétrica retenção contrato',lk:['p0','a07','cv04'],n:true},
+    {id:'bi05',title:'Para distribuidoras elétricas: como um cliente com proteção adequada reduz chamados técnicos',f:'topo',kw:'distribuidora elétrica cliente proteção adequada chamado técnico redução',lk:['p0','a69','a09'],n:true},
+  ]},
+  { id:'c29', name:'C29 · 💰 Custo da Hora Parada', color:'#b80000', n:true, articles:[
     {id:'hp01',title:'Quanto custa 1 hora de linha parada na sua fábrica? O cálculo que todo gestor precisa fazer',f:'meio',kw:'custo hora linha parada fábrica cálculo gestão industrial',lk:['p0','a01','cv01'],n:true},
     {id:'hp02',title:'Custo de parada por setor: alimentício, metalurgia, farmacêutico, têxtil — comparativo real',f:'meio',kw:'custo parada por setor indústria comparativo hora parada alimentício metalurgia',lk:['p0','hp01','a25','a27','a26','a29'],n:true},
     {id:'hp03',title:'O custo invisível da queima: além do equipamento, o que mais você perde quando a linha para',f:'meio',kw:'custo invisível queima equipamento linha para retrabalho mão de obra atraso',lk:['p0','hp01','a01'],n:true},
@@ -515,8 +533,7 @@ const CLUSTERS = [
     {id:'hp14',title:'Qualidade de energia como KPI industrial: por que esse número precisa estar no seu painel de indicadores',f:'meio',kw:'qualidade de energia KPI industrial indicador painel gestão',lk:['p0','a01','hp07'],n:true},
     {id:'hp15',title:'O que a qualidade de energia tem a ver com o seu lucro? A equação que a maioria ignora',f:'topo',kw:'qualidade de energia lucro indústria equação resultado financeiro',lk:['p0','a01','hp01','hp03'],n:true},
   ]},
-
-  { id:'c30', name:'🔍 Auto-Diagnóstico — O Prospect se Convence', color:'#005080', n:true, articles:[
+  { id:'c30', name:'C30 · 🔍 Auto-Diagnóstico', color:'#005080', n:true, articles:[
     {id:'ad01',title:'7 sinais de que sua fábrica tem problema de qualidade de energia — antes de perder o próximo equipamento',f:'topo',kw:'sinais problema qualidade energia fábrica antes perder equipamento queima',lk:['p0','a01','hp01','cv09'],n:true},
     {id:'ad02',title:'Checklist rápido: sua instalação elétrica está protegida? Responda em 5 minutos',f:'topo',kw:'checklist instalação elétrica protegida 5 minutos diagnóstico',lk:['p0','a09','ad01','cv06'],n:true},
     {id:'ad03',title:'Como identificar se o seu CLP está queimando por VTCD ou por outro motivo',f:'topo',kw:'CLP queimando VTCD outro motivo identificar diagnóstico causa',lk:['p0','a01','a06','ad01'],n:true},
@@ -530,8 +547,7 @@ const CLUSTERS = [
     {id:'ad11',title:'Autoavaliação: quanto sua empresa perde com VTCD sem saber? Simulação em 4 passos',f:'fundo',kw:'autoavaliação perda VTCD sem saber simulação 4 passos calculadora',lk:['p0','cv01','hp01','ad01'],n:true},
     {id:'ad12',title:'Antes de ligar para a Somatec: o que você deve levantar para aproveitar melhor a medição gratuita',f:'fundo',kw:'antes ligar Somatec medição gratuita o que levantar preparar',lk:['p0','cv06','ad02','hp10'],n:true},
   ]},
-
-  { id:'c31', name:'👔 CFO, CEO e Engenheiro — Linguagem por Decisor', color:'#1a1a5a', n:true, articles:[
+  { id:'c31', name:'C31 · 👔 Linguagem por Decisor (CFO/CEO/Eng.)', color:'#1a1a5a', n:true, articles:[
     {id:'ex01',title:'CFO: 3 métricas que você deveria pedir para o gerente de manutenção antes da próxima reunião de orçamento',f:'fundo',kw:'CFO métricas gerente manutenção reunião orçamento proteção elétrica',lk:['p0','cv02','hp01'],n:true},
     {id:'ex02',title:'CFO: CAPEX vs. OPEX em proteção elétrica — como o modelo comodato muda a equação contábil',f:'fundo',kw:'CFO CAPEX OPEX proteção elétrica comodato equação contábil',lk:['p0','cv02','a58','cv05'],n:true},
     {id:'ex03',title:'CFO: como queima de equipamento afeta EBITDA, depreciação e resultado líquido',f:'fundo',kw:'CFO queima equipamento EBITDA depreciação resultado líquido impacto',lk:['p0','cv02','hp03'],n:true},
@@ -548,8 +564,7 @@ const CLUSTERS = [
     {id:'ex14',title:'Diretor de Produção: como o VTCD derruba OEE, tempo de ciclo e metas de produção',f:'meio',kw:'diretor produção VTCD OEE tempo ciclo metas produção',lk:['p0','hp07','a36'],n:true},
     {id:'ex15',title:'Comprador e procurement: critérios técnicos e contratuais para especificar proteção elétrica',f:'fundo',kw:'comprador procurement critérios técnicos contratuais especificar proteção elétrica',lk:['p0','cv04','a09'],n:true},
   ]},
-
-  { id:'c32', name:'🔩 Peça Impossível — Equipamento Antigo, Importado & Obsolescência', color:'#7a4a10', n:true, articles:[
+  { id:'c32', name:'C32 · 🔩 Peça Impossível — Obsolescência', color:'#7a4a10', n:true, articles:[
     {id:'obs01',title:'Quando queima a peça que não existe mais: o pesadelo do equipamento obsoleto',f:'topo',kw:'peça reposição equipamento obsoleto descontinuado queima surto elétrico',lk:['p0','a21','a07','a90'],n:true},
     {id:'obs02',title:'Servo motor queimado no setor automotivo: por que repor um servo antigo para a linha por semanas',f:'setor',kw:'servo motor queimado reposição automotivo lead time linha parada surto',lk:['p0','a28','met05','a21'],n:true},
     {id:'obs03',title:'Máquina importada e o técnico que só vem da Europa: o custo escondido de um reparo especializado',f:'setor',kw:'máquina importada técnico estrangeiro reparo Alemanha peça têxtil tinturaria',lk:['p0','tex01','hp01','a21'],n:true},
@@ -560,8 +575,7 @@ const CLUSTERS = [
     {id:'obs08',title:'Proteger o ativo antigo sai muito mais barato que repô-lo: a conta que o financeiro precisa ver',f:'fundo',kw:'proteger ativo antigo mais barato repor ROI proteção elétrica financeiro',lk:['p0','a23','a24','a58'],n:true},
     {id:'obs09',title:'Máquina crítica insubstituível: proteção elétrica como seguro de continuidade para ativos sem reposição',f:'fundo',kw:'máquina crítica insubstituível backup proteção elétrica continuidade ativo',lk:['p0','cv03','hp01','a58'],n:true},
   ]},
-
-  { id:'c33', name:'🌾 Agronegócio & Agroindústria', color:'#4a7a10', n:true, articles:[
+  { id:'c33', name:'C33 · 🌾 Agronegócio & Agroindústria', color:'#4a7a10', n:true, articles:[
     {id:'agr01',title:'Rede rural e qualidade de energia: por que o campo tem a pior energia do Brasil',f:'topo',kw:'rede rural qualidade energia elétrica campo VTCD agronegócio',lk:['p0','a01','a05'],n:true},
     {id:'agr02',title:'Irrigação de pivô central: motor e painel queimando por surto e VTCD',f:'setor',kw:'irrigação pivô central motor painel queima surto VTCD agro',lk:['p0','a01','a21','a07'],n:true},
     {id:'agr03',title:'Silo e secador de grãos: parada elétrica na safra é prejuízo que não volta',f:'setor',kw:'silo secador grãos parada elétrica safra prejuízo agro surto',lk:['p0','a01','hp01','a07'],n:true},
@@ -569,76 +583,35 @@ const CLUSTERS = [
     {id:'agr05',title:'Avicultura e suinocultura: automação de granja e o risco de queda de energia',f:'setor',kw:'avicultura suinocultura granja automação queda energia climatização',lk:['p0','a01','a07'],n:true},
     {id:'agr06',title:'5 equipamentos do agro que mais queimam por problema elétrico',f:'lista',kw:'equipamentos agronegócio queima problema elétrico lista proteção',lk:['p0','a81','a21','agr02'],n:true},
   ]},
-
-  { id:'c34', name:'🏥 Saúde — Hospitais e Clínicas', color:'#b02060', n:true, articles:[
+  { id:'c34', name:'C34 · 🏥 Saúde — Hospitais e Clínicas', color:'#b02060', n:true, articles:[
     {id:'sau01',title:'Equipamento hospitalar crítico e VTCD: quando um surto para um CTI',f:'topo',kw:'equipamento hospitalar crítico VTCD surto CTI UTI proteção elétrica',lk:['p0','a01','a09'],n:true},
     {id:'sau02',title:'Ressonância, tomógrafo e raio-X: proteger o ativo de milhões contra transientes',f:'setor',kw:'ressonância tomógrafo raio-x proteção elétrica transiente surto hospitalar',lk:['p0','a02','a21'],n:true},
     {id:'sau03',title:'Autoclave e central de esterilização: falha elétrica que compromete o procedimento',f:'setor',kw:'autoclave esterilização hospital falha elétrica surto CLP',lk:['p0','far04','a06'],n:true},
     {id:'sau04',title:'Laboratório de análises clínicas: o surto que destrói amostras e equipamentos',f:'setor',kw:'laboratório análises clínicas surto amostras equipamentos proteção',lk:['p0','fr05','a21'],n:true},
     {id:'sau05',title:'Continuidade assistencial: proteção elétrica como gestão de risco em saúde',f:'fundo',kw:'continuidade assistencial hospital gestão risco proteção elétrica',lk:['p0','cv03','hp01'],n:true},
   ]},
-
-  { id:'c35', name:'💧 Saneamento & Utilities (água/esgoto)', color:'#106080', n:true, articles:[
+  { id:'c35', name:'C35 · 💧 Saneamento & Utilities', color:'#106080', n:true, articles:[
     {id:'san01',title:'Estação de tratamento de água e esgoto: bombas e CLPs que param a cidade',f:'setor',kw:'estação tratamento água esgoto ETA ETE bomba CLP surto proteção',lk:['p0','a01','a06','a07'],n:true},
     {id:'san02',title:'Bomba de recalque e conjunto motor: queima por surto no saneamento',f:'setor',kw:'bomba recalque conjunto motor queima surto saneamento elétrico',lk:['p0','cnd06','a21','a01'],n:true},
     {id:'san03',title:'Automação de ETA/ETE: proteção elétrica para operação 24/7',f:'setor',kw:'automação ETA ETE saneamento proteção elétrica operação contínua',lk:['p0','a36','a01'],n:true},
     {id:'san04',title:'Licitação de proteção elétrica em saneamento: como especificar corretamente',f:'meio',kw:'licitação proteção elétrica saneamento especificação técnica edital',lk:['p0','a16'],n:true},
     {id:'san05',title:'Quando falta água vira multa e crise: o custo de uma parada elétrica no saneamento',f:'fundo',kw:'falta água multa parada elétrica saneamento custo continuidade',lk:['p0','hp01','san01'],n:true},
   ]},
-
-  { id:'c36', name:'🖥️ Data Center, ISP & Telecom', color:'#205080', n:true, articles:[
+  { id:'c36', name:'C36 · 🖥️ Data Center, ISP & Telecom', color:'#205080', n:true, articles:[
     {id:'dtc01',title:'Data center e qualidade de energia: o transiente que derruba o SLA',f:'topo',kw:'data center qualidade energia transiente SLA uptime proteção',lk:['p0','a30','a02'],n:true},
     {id:'dtc02',title:'Provedor de internet regional (ISP): rack, OLT e a queima que tira a cidade do ar',f:'setor',kw:'provedor internet ISP rack OLT queima surto proteção elétrica',lk:['p0','d07','a21'],n:true},
     {id:'dtc03',title:'Torre de telecom e sites remotos: proteção elétrica em local sem manutenção',f:'setor',kw:'torre telecom site remoto proteção elétrica surto manutenção',lk:['p0','a05','a09'],n:true},
     {id:'dtc04',title:'No-break não basta no data center: por que o VTCD passa pela proteção',f:'meio',kw:'no-break data center VTCD passa proteção insuficiente surto',lk:['p0','a15','a01'],n:true},
     {id:'dtc05',title:'Uptime e proteção elétrica: o cálculo de continuidade para TI',f:'fundo',kw:'uptime proteção elétrica continuidade TI data center ROI',lk:['p0','hp01','a23'],n:true},
   ]},
-
-  { id:'c37', name:'☀️ Energia Solar em Escala (usinas/integradoras)', color:'#c08010', n:true, articles:[
+  { id:'c37', name:'C37 · ☀️ Energia Solar em Escala', color:'#c08010', n:true, articles:[
     {id:'sol01',title:'Usina solar e qualidade de energia: gerar não é o mesmo que ter energia limpa na rede',f:'topo',kw:'usina solar qualidade energia geração fotovoltaica rede limpa VTCD',lk:['p0','a18','a50'],n:true},
     {id:'sol02',title:'Inversor solar queimando por surto: o ativo caro que a integradora não protegeu',f:'setor',kw:'inversor solar queima surto integradora proteção elétrica fotovoltaico',lk:['p0','c04','a18','a21'],n:true},
     {id:'sol03',title:'String, inversor e transformador: onde o VTCD ataca a usina fotovoltaica',f:'setor',kw:'string inversor transformador usina fotovoltaica VTCD ataque proteção',lk:['p0','a18','a01'],n:true},
     {id:'sol04',title:'O&M de usina solar: proteção elétrica que reduz troca de inversor',f:'meio',kw:'O&M usina solar proteção elétrica troca inversor manutenção fotovoltaico',lk:['p0','a46','sol02'],n:true},
     {id:'sol05',title:'Integradora solar: como oferecer proteção contra surto e aumentar o ticket',f:'fundo',kw:'integradora solar oferecer proteção surto ticket venda fotovoltaico',lk:['p0','bi02','a18'],n:true},
   ]},
-
-
-  { id:'c39', name:'💎 Alto Padrão — Equipamentos Premium (residencial, com marcas)', color:'#a06a20', n:true, articles:[
-    {id:'pv01',title:'Elevador residencial (OTIS, Schindler, Kone, Atlas): proteja a eletrônica do seu ativo mais caro contra surtos',f:'resid',kw:'elevador residencial OTIS Schindler Kone proteção elétrica surto placa',lk:['p0','a01','c06','cnd03'],n:true},
-    {id:'pv02',title:'Ar-condicionado de alto padrão (Daikin, Carrier, Fujitsu, LG): por que a placa da condensadora queima e como proteger',f:'resid',kw:'ar-condicionado alto padrão Daikin Carrier Fujitsu placa condensadora queima proteção',lk:['p0','a01','c05','a21'],n:true},
-    {id:'pv03',title:'Bomba e motor de piscina (Jacuzzi, Sodramar, Dancor, WEG): proteção elétrica contra queima por surto',f:'resid',kw:'bomba motor piscina Jacuzzi Sodramar Dancor WEG queima surto proteção elétrica',lk:['p0','a01','c05','cnd06'],n:true},
-    {id:'pv04',title:'Aquecedor e trocador de calor de piscina: proteja o sistema de climatização da água contra oscilação',f:'resid',kw:'aquecedor trocador calor piscina climatização água oscilação surto proteção',lk:['p0','a01','pv03'],n:true},
-    {id:'pv05',title:'Eletrodomésticos premium (Gorenje, Elettromec, Miele, Sub-Zero): a eletrônica cara que um surto destrói',f:'resid',kw:'eletrodoméstico premium Gorenje Elettromec Miele Sub-Zero surto queima proteção',lk:['p0','a01','c05','a21'],n:true},
-    {id:'pv06',title:'Adega climatizada e cave de vinhos: proteção elétrica para não perder a coleção por uma queda de tensão',f:'resid',kw:'adega climatizada cave vinhos proteção elétrica queda tensão surto coleção',lk:['p0','a01','c05'],n:true},
-    {id:'pv07',title:'Home theater e áudio de alta fidelidade (Denon, Marantz, Bowers & Wilkins): proteção contra surtos',f:'resid',kw:'home theater áudio alta fidelidade Denon Marantz proteção surto elétrico premium',lk:['p0','a01','c03'],n:true},
-    {id:'pv08',title:'Automação residencial de luxo (KNX, Control4, Crestron, Savant): por que a qualidade de energia derruba a casa inteligente',f:'resid',kw:'automação residencial luxo KNX Control4 Crestron qualidade energia casa inteligente',lk:['p0','a01','c02'],n:true},
-    {id:'pv09',title:'Climatização central, piso térmico e cortina de ar: proteja os sistemas prediais da residência de alto padrão',f:'resid',kw:'climatização central piso térmico cortina ar residência alto padrão proteção surto',lk:['p0','a01','c06'],n:true},
-    {id:'pv10',title:'7 equipamentos de alto padrão que mais sofrem com surto — e quanto custa repor cada um',f:'lista',kw:'equipamentos alto padrão surto elétrico custo reposição lista residência luxo',lk:['p0','a21','pv01','pv05'],n:true},
-    {id:'pv11',title:'Proteção em cascata para casas de alto padrão: da entrada de energia aos equipamentos premium',f:'resid',kw:'proteção cascata casa alto padrão entrada energia equipamentos premium mansão',lk:['p0','a13','c06','c01'],n:true},
-  ]},
-
-  { id:'c40', name:'🛠️ Pequenos Fabricantes & Comércio (não industrial)', color:'#7a5a2a', n:true, articles:[
-    {id:'pf01',title:'Marcenaria e fábrica de móveis: seccionadora de MDF, coladeira de borda e CNC — proteção da eletrônica',f:'setor',kw:'marcenaria fábrica móveis seccionadora MDF coladeira borda CNC proteção elétrica surto',lk:['p0','a01','a06','a21'],n:true},
-    {id:'pf02',title:'Fábrica de salgados e panificação: forno, masseira e câmara fria — proteção elétrica contra surto',f:'setor',kw:'fábrica salgados panificação forno masseira câmara fria proteção surto elétrico',lk:['p0','a25','fr06','a01'],n:true},
-    {id:'pf03',title:'Gráfica rápida e comunicação visual: plotter, impressora de grande formato e router — proteção contra queima',f:'setor',kw:'gráfica rápida comunicação visual plotter impressora grande formato router proteção surto',lk:['p0','a72','a01','a21'],n:true},
-    {id:'pf04',title:'Serralheria e esquadrias de alumínio: solda inverter e policorte queimando por oscilação elétrica',f:'setor',kw:'serralheria esquadrias alumínio solda inverter policorte queima oscilação elétrica',lk:['p0','met02','a01','a21'],n:true},
-    {id:'pf05',title:'Marmoraria e beneficiamento de pedra: CNC, politriz e ponte rolante — proteção elétrica',f:'setor',kw:'marmoraria beneficiamento pedra CNC politriz ponte rolante proteção elétrica surto',lk:['p0','a01','a06','a21'],n:true},
-    {id:'pf06',title:'5 pequenos negócios que perdem faturamento quando a máquina queima — e como evitar',f:'lista',kw:'pequeno negócio máquina queima faturamento proteção elétrica surto lista',lk:['p0','hp01','a21','pf01'],n:true},
-  ]},
-
-  { id:'c41', name:'🏭 Máquinas Industriais por Marca (CLP, inversor, servo, CNC, robô)', color:'#50606a', n:true, articles:[
-    {id:'ind01',title:'CLP queimando ou resetando (Siemens, Allen-Bradley, Schneider, WEG, Delta): a causa costuma ser VTCD, não defeito',f:'setor',kw:'CLP queimando resetando Siemens Allen-Bradley Schneider WEG VTCD proteção',lk:['p0','a06','a36','a21'],n:true},
-    {id:'ind02',title:'Inversor de frequência queimando (WEG, Danfoss, Yaskawa, ABB, Schneider): como proteger o drive contra surto',f:'setor',kw:'inversor frequência queimando WEG Danfoss Yaskawa ABB surto proteção drive',lk:['p0','a38','a21','a01'],n:true},
-    {id:'ind03',title:'Servo motor e drive (Yaskawa, Fanuc, Mitsubishi, Siemens): por que queima por VTCD e para a linha',f:'setor',kw:'servo motor drive Yaskawa Fanuc Mitsubishi Siemens queima VTCD proteção',lk:['p0','srv01','a38','a21'],n:true},
-    {id:'ind04',title:'Comando CNC resetando no meio do ciclo (Fanuc, Siemens, Mazak, Romi, Haas): o problema é elétrico',f:'setor',kw:'comando CNC resetando Fanuc Siemens Mazak Romi ciclo problema elétrico VTCD',lk:['p0','met07','a06','a01'],n:true},
-    {id:'ind05',title:'Robô industrial parando por oscilação (ABB, KUKA, Fanuc, Yaskawa Motoman): proteção elétrica da célula',f:'setor',kw:'robô industrial ABB KUKA Fanuc Yaskawa Motoman parada oscilação proteção elétrica',lk:['p0','a37','met05','a01'],n:true},
-    {id:'ind06',title:'IHM e painel de operação travando (Siemens, Weintek, Pro-face): a qualidade de energia por trás',f:'setor',kw:'IHM painel operação Siemens Weintek Pro-face travando qualidade energia VTCD',lk:['p0','a36','a06','a01'],n:true},
-    {id:'ind07',title:'Soft-starter e relé de proteção (WEG, Siemens): o que o surto faz e como blindar',f:'setor',kw:'soft-starter relé proteção WEG Siemens surto blindar proteção elétrica',lk:['p0','a09','a38','a01'],n:true},
-    {id:'ind08',title:'Fontes chaveadas e módulos de I/O da automação queimando: proteja a eletrônica sensível',f:'setor',kw:'fonte chaveada módulo I/O automação queima proteção eletrônica surto industrial',lk:['p0','a36','a21','a02'],n:true},
-    {id:'ind09',title:'As marcas de equipamento industrial mais sensíveis a VTCD — e o que protege cada uma',f:'lista',kw:'marcas equipamento industrial sensível VTCD surto lista proteção CLP inversor servo',lk:['p0','a81','ind01','ind02'],n:true},
-  ]},
-
-  { id:'c38', name:'⚡🔋 Veículos Elétricos e Híbridos Plug-in — Não Industrial', color:'#00a060', n:true, articles:[
+  { id:'c38', name:'C38 · 🔋 Veículos Elétricos e Híbridos', color:'#00a060', n:true, articles:[
     {id:'ev01',title:'Proteção elétrica para carregador de carro elétrico (wallbox): o que a NBR 17019 exige e por que o DPS comum não basta',f:'topo',kw:'proteção elétrica wallbox carregador carro elétrico NBR 17019 DPS',lk:['p0','a09','a01','ev05'],n:true},
     {id:'ev02',title:'Surto elétrico pode danificar a bateria do meu carro elétrico? O que acontece na prática',f:'topo',kw:'surto elétrico danifica bateria carro elétrico VTCD wallbox risco',lk:['p0','a01','ev01','ev06'],n:true},
     {id:'ev03',title:'Híbrido plug-in: por que o módulo de carregamento é ainda mais sensível a oscilação de tensão',f:'topo',kw:'híbrido plug-in módulo carregamento sensível oscilação tensão VTCD',lk:['p0','a01','ev01','ev04'],n:true},
@@ -661,8 +634,39 @@ const CLUSTERS = [
     {id:'ev20',title:'Motorista de aplicativo com carro elétrico: como um surto no carregador pode custar um dia de trabalho',f:'fundo',kw:'motorista aplicativo carro elétrico surto carregador custo dia trabalho',lk:['p0','ev02','ev06','hp03'],n:true},
     {id:'ev21',title:'Inversor solar + recarga de carro elétrico: dois ativos caros na mesma rede vulnerável',f:'setor',kw:'inversor solar recarga carro elétrico rede vulnerável surto proteção residencial',lk:['p0','sol02','ev01','ev04'],n:true},
   ]},
-
-  { id:'c42', name:'📋 Normas Técnicas de Proteção Elétrica (I + NI)', color:'#3a5a8a', n:true, articles:[
+  { id:'c39', name:'C39 · 💎 Alto Padrão — Equipamentos Premium', color:'#a06a20', n:true, articles:[
+    {id:'pv01',title:'Elevador residencial (OTIS, Schindler, Kone, Atlas): proteja a eletrônica do seu ativo mais caro contra surtos',f:'resid',kw:'elevador residencial OTIS Schindler Kone proteção elétrica surto placa',lk:['p0','a01','c06','cnd03'],n:true},
+    {id:'pv02',title:'Ar-condicionado de alto padrão (Daikin, Carrier, Fujitsu, LG): por que a placa da condensadora queima e como proteger',f:'resid',kw:'ar-condicionado alto padrão Daikin Carrier Fujitsu placa condensadora queima proteção',lk:['p0','a01','c05','a21'],n:true},
+    {id:'pv03',title:'Bomba e motor de piscina (Jacuzzi, Sodramar, Dancor, WEG): proteção elétrica contra queima por surto',f:'resid',kw:'bomba motor piscina Jacuzzi Sodramar Dancor WEG queima surto proteção elétrica',lk:['p0','a01','c05','cnd06'],n:true},
+    {id:'pv04',title:'Aquecedor e trocador de calor de piscina: proteja o sistema de climatização da água contra oscilação',f:'resid',kw:'aquecedor trocador calor piscina climatização água oscilação surto proteção',lk:['p0','a01','pv03'],n:true},
+    {id:'pv05',title:'Eletrodomésticos premium (Gorenje, Elettromec, Miele, Sub-Zero): a eletrônica cara que um surto destrói',f:'resid',kw:'eletrodoméstico premium Gorenje Elettromec Miele Sub-Zero surto queima proteção',lk:['p0','a01','c05','a21'],n:true},
+    {id:'pv06',title:'Adega climatizada e cave de vinhos: proteção elétrica para não perder a coleção por uma queda de tensão',f:'resid',kw:'adega climatizada cave vinhos proteção elétrica queda tensão surto coleção',lk:['p0','a01','c05'],n:true},
+    {id:'pv07',title:'Home theater e áudio de alta fidelidade (Denon, Marantz, Bowers & Wilkins): proteção contra surtos',f:'resid',kw:'home theater áudio alta fidelidade Denon Marantz proteção surto elétrico premium',lk:['p0','a01','c03'],n:true},
+    {id:'pv08',title:'Automação residencial de luxo (KNX, Control4, Crestron, Savant): por que a qualidade de energia derruba a casa inteligente',f:'resid',kw:'automação residencial luxo KNX Control4 Crestron qualidade energia casa inteligente',lk:['p0','a01','c02'],n:true},
+    {id:'pv09',title:'Climatização central, piso térmico e cortina de ar: proteja os sistemas prediais da residência de alto padrão',f:'resid',kw:'climatização central piso térmico cortina ar residência alto padrão proteção surto',lk:['p0','a01','c06'],n:true},
+    {id:'pv10',title:'7 equipamentos de alto padrão que mais sofrem com surto — e quanto custa repor cada um',f:'lista',kw:'equipamentos alto padrão surto elétrico custo reposição lista residência luxo',lk:['p0','a21','pv01','pv05'],n:true},
+    {id:'pv11',title:'Proteção em cascata para casas de alto padrão: da entrada de energia aos equipamentos premium',f:'resid',kw:'proteção cascata casa alto padrão entrada energia equipamentos premium mansão',lk:['p0','a13','c06','c01'],n:true},
+  ]},
+  { id:'c40', name:'C40 · 🛠️ Pequenos Fabricantes & Comércio', color:'#7a5a2a', n:true, articles:[
+    {id:'pf01',title:'Marcenaria e fábrica de móveis: seccionadora de MDF, coladeira de borda e CNC — proteção da eletrônica',f:'setor',kw:'marcenaria fábrica móveis seccionadora MDF coladeira borda CNC proteção elétrica surto',lk:['p0','a01','a06','a21'],n:true},
+    {id:'pf02',title:'Fábrica de salgados e panificação: forno, masseira e câmara fria — proteção elétrica contra surto',f:'setor',kw:'fábrica salgados panificação forno masseira câmara fria proteção surto elétrico',lk:['p0','a25','fr06','a01'],n:true},
+    {id:'pf03',title:'Gráfica rápida e comunicação visual: plotter, impressora de grande formato e router — proteção contra queima',f:'setor',kw:'gráfica rápida comunicação visual plotter impressora grande formato router proteção surto',lk:['p0','a72','a01','a21'],n:true},
+    {id:'pf04',title:'Serralheria e esquadrias de alumínio: solda inverter e policorte queimando por oscilação elétrica',f:'setor',kw:'serralheria esquadrias alumínio solda inverter policorte queima oscilação elétrica',lk:['p0','met02','a01','a21'],n:true},
+    {id:'pf05',title:'Marmoraria e beneficiamento de pedra: CNC, politriz e ponte rolante — proteção elétrica',f:'setor',kw:'marmoraria beneficiamento pedra CNC politriz ponte rolante proteção elétrica surto',lk:['p0','a01','a06','a21'],n:true},
+    {id:'pf06',title:'5 pequenos negócios que perdem faturamento quando a máquina queima — e como evitar',f:'lista',kw:'pequeno negócio máquina queima faturamento proteção elétrica surto lista',lk:['p0','hp01','a21','pf01'],n:true},
+  ]},
+  { id:'c41', name:'C41 · 🔌 Máquinas Industriais por Marca', color:'#50606a', n:true, articles:[
+    {id:'ind01',title:'CLP queimando ou resetando (Siemens, Allen-Bradley, Schneider, WEG, Delta): a causa costuma ser VTCD, não defeito',f:'setor',kw:'CLP queimando resetando Siemens Allen-Bradley Schneider WEG VTCD proteção',lk:['p0','a06','a36','a21'],n:true},
+    {id:'ind02',title:'Inversor de frequência queimando (WEG, Danfoss, Yaskawa, ABB, Schneider): como proteger o drive contra surto',f:'setor',kw:'inversor frequência queimando WEG Danfoss Yaskawa ABB surto proteção drive',lk:['p0','a38','a21','a01'],n:true},
+    {id:'ind03',title:'Servo motor e drive (Yaskawa, Fanuc, Mitsubishi, Siemens): por que queima por VTCD e para a linha',f:'setor',kw:'servo motor drive Yaskawa Fanuc Mitsubishi Siemens queima VTCD proteção',lk:['p0','srv01','a38','a21'],n:true},
+    {id:'ind04',title:'Comando CNC resetando no meio do ciclo (Fanuc, Siemens, Mazak, Romi, Haas): o problema é elétrico',f:'setor',kw:'comando CNC resetando Fanuc Siemens Mazak Romi ciclo problema elétrico VTCD',lk:['p0','met07','a06','a01'],n:true},
+    {id:'ind05',title:'Robô industrial parando por oscilação (ABB, KUKA, Fanuc, Yaskawa Motoman): proteção elétrica da célula',f:'setor',kw:'robô industrial ABB KUKA Fanuc Yaskawa Motoman parada oscilação proteção elétrica',lk:['p0','a37','met05','a01'],n:true},
+    {id:'ind06',title:'IHM e painel de operação travando (Siemens, Weintek, Pro-face): a qualidade de energia por trás',f:'setor',kw:'IHM painel operação Siemens Weintek Pro-face travando qualidade energia VTCD',lk:['p0','a36','a06','a01'],n:true},
+    {id:'ind07',title:'Soft-starter e relé de proteção (WEG, Siemens): o que o surto faz e como blindar',f:'setor',kw:'soft-starter relé proteção WEG Siemens surto blindar proteção elétrica',lk:['p0','a09','a38','a01'],n:true},
+    {id:'ind08',title:'Fontes chaveadas e módulos de I/O da automação queimando: proteja a eletrônica sensível',f:'setor',kw:'fonte chaveada módulo I/O automação queima proteção eletrônica surto industrial',lk:['p0','a36','a21','a02'],n:true},
+    {id:'ind09',title:'As marcas de equipamento industrial mais sensíveis a VTCD — e o que protege cada uma',f:'lista',kw:'marcas equipamento industrial sensível VTCD surto lista proteção CLP inversor servo',lk:['p0','a81','ind01','ind02'],n:true},
+  ]},
+  { id:'c42', name:'C42 · 📋 Normas Técnicas de Proteção', color:'#3a5a8a', n:true, articles:[
     {id:'nb01',title:'NBR 5410 e proteção contra surtos: o que a norma exige e o que ela deixa em aberto',f:'topo',kw:'NBR 5410 proteção contra surtos exigência norma instalação baixa tensão',lk:['p0','a16','a09','nb07'],n:true},
     {id:'nb02',title:'NBR 5419 (SPDA): quando o DPS é obrigatório e de qual classe, conforme a zona de risco',f:'meio',kw:'NBR 5419 SPDA DPS obrigatório classe zona de risco para-raios',lk:['p0','a63','nb01','a11'],n:true},
     {id:'nb03',title:'NBR 17019: o que a norma de instalação de carregador de veículo elétrico exige em proteção',f:'topo',kw:'NBR 17019 carregador veículo elétrico wallbox proteção DPS exigência',lk:['p0','ev01','ev05','nb01'],n:true},
@@ -674,8 +678,7 @@ const CLUSTERS = [
     {id:'nb09',title:'Norma × prática: o mínimo que a NBR exige e o que o Master Block adiciona por cima',f:'fundo',kw:'norma prática mínimo NBR Master Block upgrade proteção adiciona',lk:['p0','a55','nb07','a58'],n:true},
     {id:'nb10',title:'Guia de conformidade elétrica por tipo de instalação: indústria, comércio, residência e recarga EV',f:'meio',kw:'conformidade elétrica indústria comércio residência recarga EV guia norma',lk:['p0','nb01','nb03','a84'],n:true},
   ]},
-
-  { id:'c43', name:'⛏️ Setorial — Mineração & Extração', color:'#5a4020', n:true, articles:[
+  { id:'c43', name:'C43 · ⛏️ Setorial — Mineração & Extração', color:'#5a4020', n:true, articles:[
     {id:'min01',title:'Britador, moinho e peneira: por que o VTCD para a operação contínua da mina',f:'setor',kw:'britador moinho peneira mineração VTCD parada operação contínua surto',lk:['p0','a34','a99','a01'],n:true},
     {id:'min02',title:'Correia transportadora de longa distância: inversores e o custo de uma parada por surto',f:'setor',kw:'correia transportadora mineração inversor parada surto custo VTCD',lk:['p0','a38','a99','hp01'],n:true},
     {id:'min03',title:'Automação da planta de beneficiamento: CLP e supervisório na operação 24/7 de mineração',f:'setor',kw:'automação beneficiamento mineração CLP supervisório 24/7 proteção elétrica',lk:['p0','a36','a06','min01'],n:true},
@@ -686,13 +689,58 @@ const CLUSTERS = [
 ];
 
 const PILAR = {id:'p0',title:'Qualidade de energia elétrica: guia completo para indústrias, comércios e residências',cluster:'Pilar Central',f:'pilar',kw:'qualidade de energia elétrica indústria comércio residências',lk:[]};
+/* Status/nota do pilar (fonte da verdade — atualizado pela sessão de Blog) */
+PILAR.br = {
+  arq:'clients/somatec/reports/blog/qualidade-de-energia-eletrica/artigo.md', pal:3050,
+  seo:{kwa:'qualidade de energia eletrica', mt:'Qualidade de energia eletrica: o guia completo (2026)', md:'O que e qualidade de energia, por que a energia suja queima e trava equipamentos, quais os disturbios (VTCD, transitorios, harmonicos) e como diagnosticar e proteger.'},
+  geo:['Resposta direta no topo','Fontes: ANEEL PRODIST + IEEE 1159 + ABNT','3 tabelas comparativas','FAQ 6 perguntas','JSON-LD Article+FAQPage','14 H2 em forma de pergunta'],
+  cta:'2 CTAs naturais (pos-diagnostico e pos-produto), acao unica. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=qualidade-de-energia-eletrica',
+  prova:'Metricas agregadas (92% supressao, ate -70% paradas, -80% danos) + cases Nissin/Cinpal/Stampline/Grow Up. AJUSTE PENDENTE: tirar os cases nomeados daqui e apontar pro C06 (pilar deve ser amplo: industria+comercio+residencia).',
+  lks:'Aponta para a01, a09, hp01, a08, c4 (hub setorial), a54',
+  pend:['URL real do CTA','Remover cases nomeados -> C06','Links internos sem href','Imagem hero e diagramas (Estudio)','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+};
+const PILAR_ST = 'wip'; /* conteudo APROVADO, mas nao publicado (site NOINDEX) -> "done" so no go-live */
+const PILAR_NT = 'CONTEUDO APROVADO (Leo, 27/07/2026) - v2, 3.050 palavras. Falta publicar (site NOINDEX). Arquivo: clients/somatec/reports/blog/qualidade-de-energia-eletrica/artigo.md | Card: "Pilar P0" (Em producao) | CTA com URL PLACEHOLDER (/medicao-gratuita) - trocar no go-live | Ajuste pendente: remover cases nomeados (vao pro c6) para manter o pilar amplo (industria+comercio+residencia) | JSON-LD Article+FAQPage pronto | Site NOINDEX ate go-live.';
 
+/* ── ESTADO PERSISTENTE ──────────────────────────────────────────────
+   Duas camadas:
+   1) FONTE DA VERDADE (versionada no git): campos `st` e `nt` de cada nó
+      abaixo — quem escreve é a sessão de Blog ao produzir o artigo.
+   2) RASCUNHO LOCAL: localStorage, pro Léo marcar/anotar no navegador sem
+      perder no refresh. O local sobrescreve a fonte só onde foi editado.
+   Botão "Limpar rascunho local" volta tudo pra fonte do arquivo.        */
+const LS_KEY = 'somatec-cluster-mapa-v1';
 const state = {};
-state['p0'] = {status:'todo',notes:''};
-CLUSTERS.forEach(c=>c.articles.forEach(a=>{state[a.id]={status:'todo',notes:''}}));
+state['p0'] = {status: PILAR_ST || 'todo', notes: PILAR_NT || ''};
+CLUSTERS.forEach(c=>c.articles.forEach(a=>{state[a.id]={status:a.st||'todo',notes:a.nt||''}}));
+try{
+  const saved = JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+  Object.keys(saved).forEach(id=>{ if(state[id]) state[id]={...state[id],...saved[id]}; });
+}catch(e){ console.warn('rascunho local invalido',e); }
+function persist(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){ console.warn('falha ao salvar',e); }
+}
+function limparLocal(){
+  if(!confirm('Descartar as marcacoes feitas no navegador e voltar ao que esta no arquivo?')) return;
+  localStorage.removeItem(LS_KEY); location.reload();
+}
 let cur = null;
 
 function totalArt(){let n=1;CLUSTERS.forEach(c=>n+=c.articles.length);return n;}
+
+/* Contador do cluster: mostra "feitos/emProducao/total" quando ha trabalho
+   em andamento; senao mostra so o total. Da pra ver de relance o que esta
+   sendo desenvolvido em cada cluster. */
+function progressoCluster(c){
+  const tot = c.articles.length;
+  let done=0, wip=0;
+  c.articles.forEach(a=>{ const s=state[a.id]?.status; if(s==='done')done++; else if(s==='wip')wip++; });
+  if(done===0 && wip===0) return String(tot);
+  let txt = '';
+  if(done) txt += `<span style="color:#2a9a5c">${done}✓</span>`;
+  if(wip)  txt += `${txt?' ':''}<span style="color:#d99000">${wip}◐</span>`;
+  return `${txt} <span style="opacity:.5">/${tot}</span>`;
+}
 
 function buildGrid(){
   const g = document.getElementById('grid');
@@ -708,7 +756,7 @@ function buildGrid(){
       <div class="cluster-header" onclick="toggle('${c.id}')">
         <div class="cluster-color" style="background:${c.color}"></div>
         <div class="cluster-name">${c.name}${nb}</div>
-        <div class="cluster-count">${c.articles.length}</div>
+        <div class="cluster-count" id="PC${c.id}">${progressoCluster(c)}</div>
         <div class="cluster-chevron">▼</div>
       </div>
       <div class="articles-list" id="L${c.id}">
@@ -731,7 +779,20 @@ function refresh(){
   Object.keys(state).forEach(id=>{
     const d=document.getElementById('D'+id);
     if(d) d.className='status-dot '+(state[id].status!=='todo'?state[id].status:'');
+    // marca visual de que o artigo tem nota/briefing escrito
+    const row=document.querySelector(`.article-row[data-id="${id}"] .article-title`);
+    if(row){
+      const jaTem=row.querySelector('.nota-badge');
+      if(state[id].notes && !jaTem){
+        const b=document.createElement('span');
+        b.className='nota-badge'; b.textContent='📝'; b.title='Tem nota/briefing';
+        b.style.cssText='margin-left:6px;font-size:11px;opacity:.85';
+        row.appendChild(b);
+      } else if(!state[id].notes && jaTem){ jaTem.remove(); }
+    }
   });
+  // atualiza o contador de progresso de cada cluster
+  CLUSTERS.forEach(c=>{ const el=document.getElementById('PC'+c.id); if(el) el.innerHTML=progressoCluster(c); });
   const c={todo:0,wip:0,done:0};
   Object.values(state).forEach(s=>c[s.status]++);
   document.getElementById('c-todo').textContent=c.todo;
@@ -758,13 +819,39 @@ function open_(id){
   document.getElementById('m-links').innerHTML=lks.length===0
     ?'<span style="color:var(--muted);font-size:12px">Nenhum link definido</span>'
     :lks.map(l=>{const la=find(l);return la?`<span class="linked-pill">${la.title.substring(0,46)}${la.title.length>46?'…':''}</span>`:''}).join('');
+  renderBrief(a);
   const s=state[id]?.status||'todo';
   document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
   document.getElementById('overlay').classList.add('open');
 }
 
-function setS(s){if(!cur)return;state[cur].status=s;document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===s));refresh();}
-function save(){if(!cur)return;state[cur].notes=document.getElementById('m-notes').value;closeModal();}
+/* Mostra o briefing de producao do artigo (campo `br` do no):
+   arquivo do rascunho, contagem, SEO, GEO, CTA, prova e pendencias. */
+function renderBrief(a){
+  const w=document.getElementById('m-brief-wrap'), el=document.getElementById('m-brief');
+  const b=a.br;
+  if(!b){ w.style.display='none'; el.innerHTML=''; return; }
+  const linha=(k,v)=> v ? `<div class="brief-row"><div class="brief-k">${k}</div><div class="brief-v">${v}</div></div>` : '';
+  let h='';
+  h+=linha('Rascunho', b.arq?`<code>${b.arq}</code>${b.pal?` · <b>${b.pal}</b> palavras`:''}`:'');
+  if(b.seo){
+    h+=linha('SEO', [
+      b.seo.kwa?`kw-alvo: <code>${b.seo.kwa}</code>`:'',
+      b.seo.mt?`<b>title:</b> ${b.seo.mt}`:'',
+      b.seo.md?`<b>description:</b> ${b.seo.md}`:''
+    ].filter(Boolean).join('<br>'));
+  }
+  if(b.geo&&b.geo.length) h+=linha('GEO', b.geo.map(g=>`<span class="brief-tag">${g}</span>`).join(''));
+  h+=linha('CTA', b.cta);
+  h+=linha('Prova', b.prova);
+  h+=linha('Links', b.lks);
+  if(b.pend&&b.pend.length) h+=linha('Pendências', b.pend.map(p=>`<span class="brief-pend">${p}</span>`).join(''));
+  el.innerHTML=`<div class="brief">${h}</div>`;
+  w.style.display='';
+}
+
+function setS(s){if(!cur)return;state[cur].status=s;document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===s));persist();refresh();}
+function save(){if(!cur)return;state[cur].notes=document.getElementById('m-notes').value;persist();refresh();closeModal();}
 function closeModal(){document.getElementById('overlay').classList.remove('open');cur=null;}
 function bgClose(e){if(e.target===document.getElementById('overlay'))closeModal();}
 
