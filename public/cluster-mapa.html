@@ -233,7 +233,17 @@ const CLUSTERS = [
       pend:['URL real do CTA','Links internos sem href','Imagem hero (Estudio)','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
     }},
     {id:'a02',title:'O que são transitórios elétricos na faixa de 100 kHz',f:'topo',kw:'transitório elétrico industrial 100 kHz',lk:['p0','a01','a10']},
-    {id:'a03',title:'O que é THDv — distorção harmônica de tensão e seus efeitos',f:'topo',kw:'THDv distorção harmônica tensão indústria',lk:['p0','a01']},
+    {id:'a03',title:'O que é THDv — distorção harmônica de tensão e seus efeitos',f:'topo',kw:'THDv distorção harmônica tensão indústria',lk:['p0','a01'],st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 1.743 palavras. Fecha a maior ponta solta do blog (11 citacoes). Falta publicar (site NOINDEX).',br:{
+      arq:'clients/somatec/reports/blog/o-que-e-thdv/artigo.md', pal:1743,
+      seo:{kwa:'THDv distorcao harmonica tensao industria', mt:'O que e THDv: distorcao harmonica e seus efeitos (2026)', md:'THDv mede o quanto a onda de tensao esta deformada. Veja os limites da ANEEL, por que o neutro pode conduzir mais que as fases e o que a distorcao faz com seus ativos.'},
+      geo:['Resposta direta no topo','Tabela de ordens harmonicas (3a/5a/7a/11a com frequencia e origem)','Tabela de limites normativos (8% BT, 5% AT, 3% hospitalar)','Tabela de dano por ativo','Distincao THDv x THDi e DTT x THDv','FAQ 6 perguntas','JSON-LD Article + FAQPage'],
+      recorte:'A MECANICA E OS NUMEROS do THDv (o p0 so tem o conceito): ordens harmonicas, THDv x THDi, DTT x THDv, limites da ANEEL medidos no PAC, o fenomeno do neutro e a mitigacao real.',
+      fun:'TOPO (dominante): como a distorcao se forma, ordens harmonicas, as 2 distincoes, os limites normativos. MEIO: onde o dano acontece por ativo, o caso do neutro, por que piora com o tempo. FUNDO: como medir e o que resolve + medicao sem custo.',
+      cta:'1 CTA no fecho. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=o-que-e-thdv',
+      prova:'⚠️ RIGOR TECNICO CRITICO: o artigo afirma 3x que o Master Block NAO e filtro de harmonicas - ele atua em VTCD/transitorios e o que acrescenta aqui e MONITORAMENTO do THDv. Lista a solucao real (filtro passivo/ativo, reatancia de linha, redistribuicao, revisao do neutro) mesmo nao sendo produto Somatec. Destaque tecnico: harmonicas de sequencia zero (3a e multiplas) somam ESCALARMENTE no neutro, que pode conduzir mais que as fases. Alerta sobre banco de capacitores.',
+      lks:'11 ids. lk canonico p0/a01 respeitado. Escada: topo (p0,a01,a02) -> meio (a08,a64,a36,a90,a21) -> fundo (a54,a58).',
+      pend:['URL real do CTA','Links internos sem href','Diagrama (Estudio) - sugestao: onda senoidal x onda distorcida, e as 3 fases somando no neutro','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+    }},
     {id:'a04',title:'Diferença entre surto, pico e transiente elétrico',f:'topo',kw:'diferença surto pico transiente elétrico',lk:['p0','a01','a10']},
     {id:'a05',title:'Por que raio não é o único vilão da sua rede elétrica',f:'topo',kw:'proteção contra raio indústria',lk:['p0','a01','a11']},
     {id:'a06',title:'O que acontece com um CLP durante um VTCD',f:'topo',kw:'CLP travamento VTCD oscilação tensão',lk:['p0','a01','a36']},
