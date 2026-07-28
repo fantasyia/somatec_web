@@ -62,8 +62,8 @@ export default async function OrcamentoIndustrialPage() {
             <p className="max-w-[620px] text-base leading-relaxed text-white/85 text-pretty md:text-lg">
               Remonte a árvore da sua instalação como no projeto real de uma indústria. Você vai
               colocando os números; a ferramenta monta o mapa de{' '}
-              <span className="font-semibold text-gold">proteção em cascata</span> e um representante
-              volta com a proposta de locação em até 3 horas úteis.
+              <span className="font-semibold text-gold">proteção em cascata</span> e você já sai com a
+              estimativa de locação na tela — sem esperar representante.
             </p>
             <div className="flex flex-wrap gap-6 pt-2 text-sm text-white/80">
               <span className="inline-flex items-center gap-2"><Network className="h-4 w-4 text-gold" strokeWidth={1.75} aria-hidden="true" /> Mapa em cascata</span>

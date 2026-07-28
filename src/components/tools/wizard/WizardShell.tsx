@@ -31,6 +31,12 @@ type Props = {
   children: ReactNode;
   /** id da âncora (deep-link dos CTAs). */
   id?: string;
+  /** Linha discreta abaixo da navegação, visível em TODOS os passos (ex.: a
+   *  saída pro WhatsApp de quem não quer montar o projeto sozinho). */
+  rodape?: ReactNode;
+  /** Conteúdo extra depois da mensagem de sucesso (ex.: baixar o PDF, que só
+   *  é liberado após o cadastro). */
+  sucessoExtra?: ReactNode;
 };
 
 export function WizardShell({
@@ -45,6 +51,8 @@ export function WizardShell({
   onContinuar,
   children,
   id = 'calculadora',
+  rodape,
+  sucessoExtra,
 }: Props) {
   const concluido = status === 'success';
   const ultimoPasso = passo >= totalPassos;
@@ -72,7 +80,10 @@ export function WizardShell({
 
       <div className="p-6 md:p-8">
         {concluido ? (
-          <FormStatus status="success" message={mensagem} />
+          <>
+            <FormStatus status="success" message={mensagem} />
+            {sucessoExtra && <div className="mt-6">{sucessoExtra}</div>}
+          </>
         ) : (
           <>
             {children}
@@ -106,6 +117,11 @@ export function WizardShell({
                 </button>
               )}
             </div>
+
+            {/* Saída sempre disponível — quem não quer montar nada fala direto. */}
+            {rodape && (
+              <div className="mt-6 border-t border-[rgb(var(--border))] pt-4">{rodape}</div>
+            )}
           </>
         )}
       </div>

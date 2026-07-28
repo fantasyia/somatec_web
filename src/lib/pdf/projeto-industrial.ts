@@ -160,7 +160,7 @@ export async function gerarPdfProjeto(d: DadosProjeto): Promise<void> {
   const nota = doc.splitTextToSize(
     'Estudo da rede, projeto, proposta, instalação e período de avaliação levam de 60 a 90 dias — tudo sem custo. ' +
       'A mensalidade só começa depois de toda essa jornada, e apenas se o resultado for aprovado. ' +
-      'Um representante confirma o dimensionamento e retorna em até 3 horas úteis.',
+      'Estimativa gerada a partir dos dados informados. Um representante revisa e confirma o valor final.',
     W - L * 2,
   ) as string[];
   doc.text(nota, L, y);

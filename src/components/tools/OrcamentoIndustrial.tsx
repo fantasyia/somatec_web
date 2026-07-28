@@ -233,6 +233,49 @@ export function OrcamentoIndustrial({
       podeAvancar={podeAvancar()}
       onVoltar={() => irPara(passo - 1)}
       onContinuar={() => irPara(passo + 1)}
+      rodape={
+        /* Atalho pra quem não quer montar o projeto: fala direto com o
+           representante pelo WhatsApp. Fica em todos os passos, discreto. */
+        <p className="text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+          Prefere não montar o projeto?{' '}
+          {whatsappExternal ? (
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent('calc_ind_whatsapp', { landing: landingSlug, passo })}
+              className="font-semibold text-gold underline underline-offset-2 hover:text-gold-soft"
+            >
+              Fale com um representante no WhatsApp
+            </a>
+          ) : (
+            <Link
+              href={whatsappHref}
+              onClick={() => trackEvent('calc_ind_whatsapp', { landing: landingSlug, passo })}
+              className="font-semibold text-gold underline underline-offset-2 hover:text-gold-soft"
+            >
+              Fale com um representante no WhatsApp
+            </Link>
+          )}{' '}
+          e conte sobre a sua planta — a engenharia levanta o projeto por você.
+        </p>
+      }
+      sucessoExtra={
+        /* A prévia em PDF é a isca: só libera depois do cadastro. */
+        <button
+          type="button"
+          onClick={baixarPdf}
+          disabled={gerandoPdf}
+          className="btn-primary group disabled:opacity-50"
+        >
+          {gerandoPdf ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+          )}
+          Baixar o projeto em PDF
+        </button>
+      }
     >
       <>
         {/* ── Passo 1 — Triagem grupo tarifário ──────────────── */}
@@ -450,9 +493,9 @@ export function OrcamentoIndustrial({
                   </div>
 
                   <p className="mt-4 text-xs leading-relaxed text-white/60">
-                    Estimativa pela planta que você montou. O representante confirma o dimensionamento
-                    e fecha o valor — e você só passa a pagar depois do período de avaliação, se
-                    aprovar o resultado.
+                    Esta é a sua estimativa, calculada pela planta que você montou. Um representante
+                    revisa os detalhes técnicos e confirma o valor final — e você só passa a pagar
+                    depois do período de avaliação, se aprovar o resultado.
                   </p>
                 </div>
 
@@ -469,28 +512,19 @@ export function OrcamentoIndustrial({
                   </div>
                 )}
 
-                {/* PDF do projeto — o cliente leva pro comitê de compra. */}
-                <button
-                  type="button"
-                  onClick={baixarPdf}
-                  disabled={gerandoPdf}
-                  className="inline-flex items-center gap-2 rounded-btn border border-[rgb(var(--border))] px-5 py-2.5 font-sans text-sm font-semibold text-[rgb(var(--text))] transition-colors hover:border-gold hover:text-gold disabled:opacity-50"
-                >
-                  {gerandoPdf ? (
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                  ) : (
-                    <Download className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-                  )}
-                  Baixar o projeto em PDF
-                </button>
-
                 <div>
                   <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))]">
-                    Receba a proposta de locação
+                    Quer avançar com esse projeto?
                   </h3>
                   <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">
-                    Um representante confirma o projeto tecnicamente e retorna em{' '}
-                    <span className="font-semibold text-[rgb(var(--text))]">até 3 horas úteis</span>.
+                    Deixe seus dados que um representante revisa o projeto com você em{' '}
+                    <span className="font-semibold text-[rgb(var(--text))]">até 3 horas úteis</span> — a
+                    estimativa acima já é sua.
+                  </p>
+                  {/* A prévia em PDF é a isca: fica liberada depois do cadastro. */}
+                  <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-[rgb(var(--text-muted))]">
+                    <Download className="h-4 w-4 text-cyan" strokeWidth={2} aria-hidden="true" />
+                    Você também recebe o projeto em PDF pra levar pro comitê de compra.
                   </p>
                 </div>
 
@@ -516,7 +550,7 @@ export function OrcamentoIndustrial({
                       <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                     ) : (
                       <>
-                        Receber proposta de locação
+                        Falar com um representante
                         <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
                       </>
                     )}
