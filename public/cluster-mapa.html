@@ -288,7 +288,17 @@ const CLUSTERS = [
     {id:'a66',title:'Como fazer um laudo de qualidade de energia elétrica',f:'meio',kw:'laudo qualidade energia elétrica como fazer',lk:['p0','a64','a08'],n:true},
   ]},
   { id:'c3', name:'C03 · 💵 Custo, ROI & Orçamento', color:'#c06020', articles:[
-    {id:'a21',title:'Custo real de queima de placa eletrônica industrial',f:'meio',kw:'custo queima placa eletrônica industrial',lk:['p0','a07','hp01']},
+    {id:'a21',title:'Custo real de queima de placa eletrônica industrial',f:'meio',kw:'custo queima placa eletrônica industrial',lk:['p0','a07','hp01'],st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 1.458 palavras. Abre o C03 e fecha o 5o maior gargalo de links do blog (38 entradas). Falta publicar (site NOINDEX).',br:{
+      arq:'clients/somatec/reports/blog/custo-queima-placa/artigo.md', pal:1458,
+      seo:{kwa:'custo queima placa eletronica industrial', mt:'Custo real da queima de placa eletronica industrial (2026)', md:'O preco da placa e a menor parte da conta. Veja as camadas do custo, o efeito do lead time e da obsolescencia, e por que repor sem tratar a causa sai mais caro.'},
+      geo:['Resposta direta no topo','Tabela das 4 camadas do custo','Tabela dos 3 cenarios de reposicao (nacional/importada/descontinuada)','Levantamento em 5 passos','FAQ 6 perguntas','JSON-LD Article + FAQPage'],
+      recorte:'O CUSTO DO ATIVO QUEIMADO (a placa), nao o da parada. Camadas alem do preco da peca, tempo ate o diagnostico, lead time/obsolescencia e o custo da RECORRENCIA. QA: 0 repeticoes da formula (hp01), da DRE (hp15) e do saving (a58).',
+      fun:'TOPO (curto): por que a placa queima. MEIO (dominante): as 4 camadas do custo, o tempo ate o diagnostico, os 3 cenarios de reposicao, a recorrencia, como estimar em 5 passos. FUNDO: antes de repor, descubra por que queimou + medicao.',
+      cta:'1 CTA no fecho, ligado ao padrao de queima recorrente. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=custo-queima-placa',
+      prova:'Sem numero inventado - trabalha com ordens de grandeza e cenarios. Teses proprias do artigo: (1) o tempo ate o diagnostico e a camada que ninguem contabiliza, e pecas boas sao trocadas por eliminacao no caminho; (2) repor sem tratar a causa e "comprar o mesmo problema de novo, mais caro"; (3) queima recorrente nao e azar nem lote ruim - e causa nao tratada.',
+      lks:'14 ids. lk canonico p0/a07/hp01 respeitado. Escada: topo (p0,a01,a07,a03) -> meio (hp01,hp10,obs01,obs06,a08) -> fundo (a23,a69,a58).',
+      pend:['URL real do CTA','Links internos sem href','Imagem (Estudio) - sugestao: placa com dano visivel, padrao BR','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+    }},
     {id:'a22',title:'Manutenção reativa vs. preventiva em sistemas elétricos: comparativo',f:'meio',kw:'manutenção reativa vs preventiva elétrica custo',lk:['p0','a46','a47']},
     {id:'a23',title:'Como apresentar proteção elétrica como investimento para o board',f:'fundo',kw:'ROI proteção elétrica justificar investimento',lk:['p0','hp01','a21']},
     {id:'a24',title:'Saving de proteção elétrica: como calcular e apresentar o retorno',f:'fundo',kw:'calcular ROI proteção elétrica saving',lk:['p0','a23','hp01']},
