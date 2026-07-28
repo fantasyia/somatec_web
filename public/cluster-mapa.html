@@ -264,7 +264,16 @@ const CLUSTERS = [
       lks:'16 ids. lk canonico p0/a01/a10/a11 respeitado. Escada: topo (a01,a02,a10,a11) -> meio (a13,a14,a15,a08,hp01) -> fundo (a54,a55,a58,cv06).',
       pend:['URL real do CTA','Links internos sem href','Imagem hero (Estudio) - sugestao: diagrama de faixas de atuacao','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
     }},
-    {id:'a10',title:'O que é um DPS e quais são suas limitações reais',f:'topo',kw:'o que é DPS dispositivo proteção surtos',lk:['p0','a09','a11']},
+    {id:'a10',title:'O que é um DPS e quais são suas limitações reais',f:'topo',kw:'o que é DPS dispositivo proteção surtos',lk:['p0','a09','a11'],st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 1.732 palavras. TOPO do C02 - a porta de entrada do cluster, citada por 3 dos artigos ja escritos. Falta publicar (site NOINDEX).',br:{
+      arq:'clients/somatec/reports/blog/o-que-e-dps-limitacoes/artigo.md', pal:1732,
+      seo:{kwa:'o que e DPS dispositivo protecao surtos', mt:'O que e DPS: como funciona e suas limitacoes reais (2026)', md:'O DPS protege contra surto - mas se desgasta a cada atuacao, nao cobre afundamento de tensao e pode virar curto no fim da vida. Entenda o que ele faz e o que nao faz.'},
+      geo:['Resposta direta no topo','Mecanismo do varistor MOV (2 estados de impedancia)','Tabela das 3 classes com onde instala','Tabela cobre x nao cobre (7 eventos)','6 limitacoes numeradas em H3','FAQ 6 perguntas','JSON-LD Article + FAQPage'],
+      fun:'TOPO (dominante): o que e, como funciona por dentro (varistor MOV), onde entra na instalacao. MEIO: as 6 limitacoes reais - nao cobre afundamento, faixa ate ~10kHz, degradacao cumulativa, vira curto no fim da vida, indicador passivo, precisa de cascata + tabela cobre/nao cobre. FUNDO: como verificar o DPS da sua instalacao (3 checagens) + a 4a reveladora (DPS em dia e falhas continuam = medir).',
+      cta:'1 CTA no fecho, apos a checagem reveladora. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=o-que-e-dps-limitacoes',
+      prova:'Tecnico, sem case: varistor ZnO e seus 2 estados, degradacao cumulativa medida por corrente de fuga, desconectador termico, NBR 5410 (>25 dias de trovoada/ano), IEEE 1159 (5-500 kHz). A limitacao 3 (degradacao) e a 5 (indicador passivo) sao o diferencial - quase ninguem explica.',
+      lks:'10 ids. lk canonico p0/a09/a11 respeitado. Escada: topo (a11,a02,a01) -> meio (a09,a13,a08) -> fundo (a55,a58).',
+      pend:['URL real do CTA','Links internos sem href','Imagem hero (Estudio) - sugestao: corte do varistor / indicador verde-vermelho','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+    }},
     {id:'a11',title:'Classes de DPS (I, II e III): qual protege contra o quê',f:'meio',kw:'classes DPS I II III diferença',lk:['p0','a10','a09']},
     {id:'a12',title:'Por que DPS classe I e II não bastam sozinhos',f:'meio',kw:'DPS classe I II insuficiente surtos industriais',lk:['p0','a11','a01']},
     {id:'a13',title:'O que é proteção em cascata e como implementar',f:'meio',kw:'proteção em cascata elétrica industrial',lk:['p0','a10','a09']},
