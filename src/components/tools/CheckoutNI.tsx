@@ -17,8 +17,9 @@ import { HoneypotField } from '@/components/forms/fields/HoneypotField';
 import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
-import { getAtribuicao } from '@/lib/attribution';
 import { trackEvent } from '@/lib/analytics';
+import { enviarLeadOrcamento } from '@/lib/forms/enviar-lead-orcamento';
+import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { selecionarMasterBlock, formatBRL, MB_LOAD_MAX } from '@/lib/constants/masterblock';
 
 // Aceita "40", "63 A", "1.250" → número ou 0.
@@ -183,41 +184,28 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       `[Orçamento ${setor} — compra direta] Contexto: ${contexto}. ` +
       `Quadro de entrada: ${dadosQuadro}. ${dimensionamento} ${adic}`.replace(/\s+/g, ' ').trim();
 
-    try {
-      const res = await fetch('/api/forms/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          form_type: 'b2b',
-          interest_type: 'b2b',
-          name: fd.get('name'),
-          email: fd.get('email'),
-          whatsapp: fd.get('whatsapp'),
-          company: fd.get('company') ?? '',
-          segment: `NI · ${setor}`,
-          message: resumo,
-          lgpd_consent: fd.get('lgpd_consent') === 'on',
-          source_page: `/${landingSlug}`,
-          website: fd.get('website') ?? '',
-          captcha_token: captchaToken,
-          formulario: 'calculadora',
-          ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
-        }),
-      });
-      const data = (await res.json()) as { ok: boolean; message: string };
-      if (res.ok && data.ok) {
-        setStatus('success');
-        setMessage(
-          'Recebido! Nossa equipe dimensiona o seu Master Block e te retorna com o valor — sem compromisso.',
-        );
-        trackEvent('calc_lead', { setor, landing: landingSlug });
-      } else {
-        setStatus('error');
-        setMessage(data.message ?? 'Não foi possível enviar agora. Tente novamente.');
-      }
-    } catch {
+    const r = await enviarLeadOrcamento({
+      nome: fd.get('name'),
+      email: fd.get('email'),
+      whatsapp: fd.get('whatsapp'),
+      empresa: fd.get('company'),
+      segmento: `NI · ${setor}`,
+      resumo,
+      sourcePage: `/${landingSlug}`,
+      lgpdConsent: fd.get('lgpd_consent') === 'on',
+      honeypot: fd.get('website'),
+      captchaToken,
+    });
+
+    if (r.ok) {
+      setStatus('success');
+      setMessage(
+        'Recebido! Nossa equipe dimensiona o seu Master Block e te retorna com o valor — sem compromisso.',
+      );
+      trackEvent('calc_lead', { setor, landing: landingSlug });
+    } else {
       setStatus('error');
-      setMessage('Não foi possível enviar agora. Tente novamente em instantes.');
+      setMessage(r.mensagem);
     }
   }
 
@@ -225,34 +213,19 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     'flex items-center gap-3 rounded-card border p-4 text-left font-sans text-sm font-semibold transition-colors';
 
   return (
-    <div
-      id="calculadora"
-      className="scroll-mt-28 overflow-hidden rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))]"
+    <WizardShell
+      passo={passo}
+      totalPassos={TOTAL_PASSOS}
+      nota="2 minutos · sem vendedor"
+      rotuloSucesso="Pronto"
+      status={status}
+      mensagem={message}
+      podeAvancar={podeAvancar()}
+      onVoltar={() => irPara(passo - 1)}
+      onContinuar={() => irPara(passo + 1)}
     >
-      {/* Barra de progresso */}
-      <div className="border-b border-[rgb(var(--border))] px-6 py-4 md:px-8">
-        <div className="flex items-center justify-between">
-          <span className="font-sans text-xs font-bold text-[rgb(var(--text-muted))]">
-            {status === 'success' ? 'Pronto' : `Passo ${passo} de ${TOTAL_PASSOS}`}
-          </span>
-          <span className="font-sans text-xs text-[rgb(var(--text-muted))]">
-            2 minutos · sem vendedor
-          </span>
-        </div>
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[rgb(var(--border))]">
-          <div
-            className="h-full rounded-full bg-gold transition-[width] duration-300 ease-premium"
-            style={{ width: `${(status === 'success' ? TOTAL_PASSOS : passo) / TOTAL_PASSOS * 100}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="p-6 md:p-8">
-        {status === 'success' ? (
-          <FormStatus status="success" message={message} />
-        ) : (
-          <>
-            {/* ── Passo 1 — Contexto ─────────────────────────────── */}
+      <>
+        {/* ── Passo 1 — Contexto ─────────────────────────────── */}
             {passo === 1 && (
               <div className="space-y-5">
                 <div>
@@ -566,51 +539,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
               </div>
             )}
 
-            {/* ── Navegação ──────────────────────────────────────── */}
-            {passo < TOTAL_PASSOS && (
-              <div className="mt-8 flex items-center justify-between">
-                {passo > 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => irPara(passo - 1)}
-                    className="inline-flex items-center gap-1.5 rounded-btn border border-[rgb(var(--border))] px-4 py-2 font-sans text-sm font-medium text-[rgb(var(--text-muted))] transition-colors hover:border-gold hover:text-gold"
-                  >
-                    <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-                    Voltar
-                  </button>
-                ) : (
-                  <span />
-                )}
-                <button
-                  type="button"
-                  onClick={() => irPara(passo + 1)}
-                  disabled={!podeAvancar()}
-                  className="btn-primary group disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Continuar
-                  <ChevronRight
-                    className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
-                    strokeWidth={2}
-                  />
-                </button>
-              </div>
-            )}
-
-            {passo === TOTAL_PASSOS && (
-              <div className="mt-6">
-                <button
-                  type="button"
-                  onClick={() => irPara(passo - 1)}
-                  className="inline-flex items-center gap-1.5 font-sans text-sm font-medium text-[rgb(var(--text-muted))] transition-colors hover:text-gold"
-                >
-                  <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-                  Voltar
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+      </>
+    </WizardShell>
   );
 }

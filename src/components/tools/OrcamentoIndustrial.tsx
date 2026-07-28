@@ -24,8 +24,9 @@ import { HoneypotField } from '@/components/forms/fields/HoneypotField';
 import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
-import { getAtribuicao } from '@/lib/attribution';
 import { trackEvent } from '@/lib/analytics';
+import { enviarLeadOrcamento } from '@/lib/forms/enviar-lead-orcamento';
+import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { formatBRL } from '@/lib/constants/masterblock';
 import { dimensionarLocacao, VALORES_SIMULADOS } from '@/lib/constants/locacao';
 import { DiagramaProjetoCascata } from '@/components/lp/DiagramaProjetoCascata';
@@ -158,41 +159,28 @@ export function OrcamentoIndustrial({
       `Setores/galpões (${setoresValidos.length}): ${setoresValidos.join(', ') || '—'}. ` +
       `Painéis de distribuição: ${nPaineis}. Pontos sensíveis: ${pontosResumo}.`;
 
-    try {
-      const res = await fetch('/api/forms/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          form_type: 'b2b',
-          interest_type: 'b2b',
-          name: fd.get('name'),
-          email: fd.get('email'),
-          whatsapp: fd.get('whatsapp'),
-          company: fd.get('company') ?? '',
-          segment: 'Industrial · locação',
-          message: resumo,
-          lgpd_consent: fd.get('lgpd_consent') === 'on',
-          source_page: `/${landingSlug}`,
-          website: fd.get('website') ?? '',
-          captcha_token: captchaToken,
-          formulario: 'calculadora',
-          ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
-        }),
-      });
-      const data = (await res.json()) as { ok: boolean; message: string };
-      if (res.ok && data.ok) {
-        setStatus('success');
-        setMessage(
-          'Recebido! Um representante da Somatec confirma o projeto de proteção em cascata e retorna em até 3 horas úteis.',
-        );
-        trackEvent('calc_ind_lead', { landing: landingSlug });
-      } else {
-        setStatus('error');
-        setMessage(data.message ?? 'Não foi possível enviar agora. Tente novamente.');
-      }
-    } catch {
+    const r = await enviarLeadOrcamento({
+      nome: fd.get('name'),
+      email: fd.get('email'),
+      whatsapp: fd.get('whatsapp'),
+      empresa: fd.get('company'),
+      segmento: 'Industrial · locação',
+      resumo,
+      sourcePage: `/${landingSlug}`,
+      lgpdConsent: fd.get('lgpd_consent') === 'on',
+      honeypot: fd.get('website'),
+      captchaToken,
+    });
+
+    if (r.ok) {
+      setStatus('success');
+      setMessage(
+        'Recebido! Um representante da Somatec confirma o projeto de proteção em cascata e retorna em até 3 horas úteis.',
+      );
+      trackEvent('calc_ind_lead', { landing: landingSlug });
+    } else {
       setStatus('error');
-      setMessage('Não foi possível enviar agora. Tente novamente em instantes.');
+      setMessage(r.mensagem);
     }
   }
 
@@ -235,34 +223,19 @@ export function OrcamentoIndustrial({
   }
 
   return (
-    <div
-      id="calculadora"
-      className="scroll-mt-28 overflow-hidden rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))]"
+    <WizardShell
+      passo={passo}
+      totalPassos={TOTAL_PASSOS}
+      nota="resposta do representante em ≤3h úteis"
+      rotuloSucesso="Projeto enviado"
+      status={status}
+      mensagem={message}
+      podeAvancar={podeAvancar()}
+      onVoltar={() => irPara(passo - 1)}
+      onContinuar={() => irPara(passo + 1)}
     >
-      {/* Barra de progresso */}
-      <div className="border-b border-[rgb(var(--border))] px-6 py-4 md:px-8">
-        <div className="flex items-center justify-between">
-          <span className="font-sans text-xs font-bold text-[rgb(var(--text-muted))]">
-            {status === 'success' ? 'Projeto enviado' : `Passo ${passo} de ${TOTAL_PASSOS}`}
-          </span>
-          <span className="font-sans text-xs text-[rgb(var(--text-muted))]">
-            resposta do representante em ≤3h úteis
-          </span>
-        </div>
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[rgb(var(--border))]">
-          <div
-            className="h-full rounded-full bg-gold transition-[width] duration-300 ease-premium"
-            style={{ width: `${(status === 'success' ? TOTAL_PASSOS : passo) / TOTAL_PASSOS * 100}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="p-6 md:p-8">
-        {status === 'success' ? (
-          <FormStatus status="success" message={message} />
-        ) : (
-          <>
-            {/* ── Passo 1 — Triagem grupo tarifário ──────────────── */}
+      <>
+        {/* ── Passo 1 — Triagem grupo tarifário ──────────────── */}
             {passo === 1 && (
               <div className="space-y-5">
                 <div>
@@ -552,35 +525,8 @@ export function OrcamentoIndustrial({
               </div>
             )}
 
-            {/* ── Navegação ──────────────────────────────────────── */}
-            <div className="mt-8 flex items-center justify-between">
-              {passo > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => irPara(passo - 1)}
-                  className="inline-flex items-center gap-1.5 rounded-btn border border-[rgb(var(--border))] px-4 py-2 font-sans text-sm font-medium text-[rgb(var(--text-muted))] transition-colors hover:border-gold hover:text-gold"
-                >
-                  <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" /> Voltar
-                </button>
-              ) : (
-                <span />
-              )}
-              {passo < TOTAL_PASSOS && (
-                <button
-                  type="button"
-                  onClick={() => irPara(passo + 1)}
-                  disabled={!podeAvancar()}
-                  className="btn-primary group disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Continuar
-                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
-                </button>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+      </>
+    </WizardShell>
   );
 }
 
