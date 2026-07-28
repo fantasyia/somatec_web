@@ -572,7 +572,17 @@ const CLUSTERS = [
     {id:'bi05',title:'Para distribuidoras elétricas: como um cliente com proteção adequada reduz chamados técnicos',f:'topo',kw:'distribuidora elétrica cliente proteção adequada chamado técnico redução',lk:['p0','a69','a09'],n:true},
   ]},
   { id:'c29', name:'C29 · 💰 Custo da Hora Parada', color:'#b80000', n:true, articles:[
-    {id:'hp01',title:'Quanto custa 1 hora de linha parada na sua fábrica? O cálculo que todo gestor precisa fazer',f:'meio',kw:'custo hora linha parada fábrica cálculo gestão industrial',lk:['p0','a01','cv01'],n:true},
+    {id:'hp01',title:'Quanto custa 1 hora de linha parada na sua fábrica? O cálculo que todo gestor precisa fazer',f:'meio',kw:'custo hora linha parada fábrica cálculo gestão industrial',lk:['p0','a01','cv01'],n:true,st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 1.828 palavras. Abre o C29 e resolve o 4o maior gargalo de links do blog (59 entradas; 4 dos artigos ja escritos apontavam pra ca). PRIMEIRO artigo com auditoria antirredundancia aplicada. Falta publicar (site NOINDEX).',br:{
+      arq:'clients/somatec/reports/blog/custo-hora-parada/artigo.md', pal:1828,
+      seo:{kwa:'custo hora linha parada fabrica calculo', mt:'Quanto custa 1 hora de linha parada? A formula (2026)', md:'A formula do custo da hora parada, as 5 variaveis que entram nela, onde buscar cada dado dentro da empresa e um exemplo numerico completo.'},
+      geo:['Resposta direta no topo com a formula','Formula em blockquote (extraivel)','5 variaveis em H3 com onde-buscar-o-dado','Tabela custo direto x indireto','Tabela do exemplo numerico completo','5 erros que subestimam o numero','FAQ 6 perguntas','JSON-LD Article + HowTo + FAQPage'],
+      fun:'TOPO (curto): por que esse numero nao existe como conta na maioria das empresas. MEIO (dominante): a formula, as 5 variaveis com fonte de dado interna, direto x indireto, exemplo numerico trabalhado, os 5 erros. FUNDO: o que fazer com o numero - priorizar, justificar investimento, investigar causa raiz + medicao.',
+      cta:'1 CTA no fecho, ligado a paradas "sem causa aparente". URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=custo-hora-parada',
+      prova:'Metodologia + exemplo ILUSTRATIVO declarado como tal (linha hipotetica, numeros redondos): R$ 8.497 em 2h = ~R$ 4.250/h, mostrando que a producao perdida e so 56% do total. Referencia externa de ordem de grandeza (R$135 mil/2min, R$750 mil/1h). Nenhum numero atribuido a cliente real.',
+      recorte:'A METODOLOGIA DE CALCULO. Auditoria antirredundancia: NAO repete as 4 parcelas conceituais (p0), nem quem paga o equipamento/Res. ANEEL 1.000 (p0), nem como o investimento se paga (a58) - QA confirmou 0 ocorrencias de cada.',
+      lks:'12 ids. lk canonico p0/a01/cv01 respeitado. Escada: topo (p0,a01,a07) -> meio (a21,hp10,hp03,a08) -> fundo (a23,a24,cv01,a58).',
+      pend:['URL real do CTA','Links internos sem href','Imagem (Estudio) - sugestao: a tabela do exemplo como infografico','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+    }},
     {id:'hp02',title:'Custo de parada por setor: alimentício, metalurgia, farmacêutico, têxtil — comparativo real',f:'meio',kw:'custo parada por setor indústria comparativo hora parada alimentício metalurgia',lk:['p0','hp01','a25','a27','a26','a29'],n:true},
     {id:'hp03',title:'O custo invisível da queima: além do equipamento, o que mais você perde quando a linha para',f:'meio',kw:'custo invisível queima equipamento linha para retrabalho mão de obra atraso',lk:['p0','hp01','a01'],n:true},
     {id:'hp04',title:'Parada não programada vs. manutenção preventiva: qual custa mais? Os números reais',f:'meio',kw:'parada não programada vs manutenção preventiva custo comparativo industrial',lk:['p0','a07','hp01'],n:true},
@@ -898,6 +908,7 @@ function renderBrief(a){
     ].filter(Boolean).join('<br>'));
   }
   if(b.geo&&b.geo.length) h+=linha('GEO', b.geo.map(g=>`<span class="brief-tag">${g}</span>`).join(''));
+  h+=linha('Recorte', b.recorte);
   h+=linha('Funil', b.fun);
   h+=linha('CTA', b.cta);
   h+=linha('Prova', b.prova);
