@@ -222,14 +222,15 @@ const FL = {topo:'Topo de funil',meio:'Meio de funil',fundo:'Fundo de funil',cas
 
 const CLUSTERS = [
   { id:'c1', name:'C01 · ⚡ VTCD e Fenômenos Elétricos', color:'#1a9bbf', articles:[
-    {id:'a01',title:'O que é VTCD e por que destrói equipamentos industriais',f:'topo',kw:'o que é VTCD variação de tensão de curta duração',lk:['p0','a10','a03'],st:'wip',nt:'Rascunho aguardando aprovacao do Leo. Card no quadro: "C1 A01 - O que e VTCD (o vilao invisivel)", lista Briefing.',br:{
-      arq:'clients/somatec/reports/blog/vtcd-o-que-e/artigo.md', pal:1274,
+    {id:'a01',title:'O que é VTCD e por que destrói equipamentos industriais',f:'topo',kw:'o que é VTCD variação de tensão de curta duração',lk:['p0','a10','a03'],st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 1.588 palavras. Ajustado apos as regras novas: ganhou bloco de FUNDO ("Confirmou que pode ser VTCD. E agora?") e escada de funil nos links (antes tinha 0 ids). Falta publicar (site NOINDEX). Card: "C1 A01 - O que e VTCD (o vilao invisivel)".',br:{
+      arq:'clients/somatec/reports/blog/vtcd-o-que-e/artigo.md', pal:1588,
       seo:{kwa:'o que e VTCD', mt:'O que e VTCD? Causas e efeitos na industria (2026)', md:'VTCD e a variacao de tensao de curta duracao que trava CLPs e queima equipamentos sem causa aparente. Entenda o que e, os tipos, as causas e como se proteger.'},
       geo:['Resposta direta no topo','Fonte: ANEEL PRODIST Mod. 8','Tabela AMT/ATT/EMT','FAQ 4 perguntas','JSON-LD Article+FAQPage'],
       cta:'1 CTA natural, apos ensinar a diagnosticar. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=vtcd-o-que-e',
       prova:'Case Cinpal - 92% de supressao de VTCD (2 analisadores, 80 dias) e fim de ~R$120 mil/mes. Atribuicao conferida.',
-      lks:'lk canonico p0, a10, a03 respeitado + irmaos a09, a08, a06',
-      pend:['URL real do CTA','Links internos sem href','Imagem hero (Estudio)','JSON-LD no head (sessao Site)']
+      fun:'TOPO (dominante, 4 secoes): o que e, por que acontece, por que destroi, por que nao se ve. MEIO (2): como confirmar, como se proteger. FUNDO (1+FAQ): "Confirmou que pode ser VTCD. E agora?" - historico de 12 meses, medir, ler o relatorio + risco zero.',
+      lks:'13 ids. lk canonico p0/a10/a03 respeitado. Escada de funil: topo (a03,a06,a07) -> meio (a08,a09,a10,hp01) -> fundo (cv06,cv07,a58).',
+      pend:['URL real do CTA','Links internos sem href','Imagem hero (Estudio)','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
     }},
     {id:'a02',title:'O que são transitórios elétricos na faixa de 100 kHz',f:'topo',kw:'transitório elétrico industrial 100 kHz',lk:['p0','a01','a10']},
     {id:'a03',title:'O que é THDv — distorção harmônica de tensão e seus efeitos',f:'topo',kw:'THDv distorção harmônica tensão indústria',lk:['p0','a01']},
@@ -237,7 +238,16 @@ const CLUSTERS = [
     {id:'a05',title:'Por que raio não é o único vilão da sua rede elétrica',f:'topo',kw:'proteção contra raio indústria',lk:['p0','a01','a11']},
     {id:'a06',title:'O que acontece com um CLP durante um VTCD',f:'topo',kw:'CLP travamento VTCD oscilação tensão',lk:['p0','a01','a36']},
     {id:'a07',title:'Por que máquinas industriais param "do nada"',f:'topo',kw:'máquina industrial parando sem causa',lk:['p0','a01','a08']},
-    {id:'a08',title:'Como identificar VTCD na sua fábrica',f:'meio',kw:'como identificar VTCD fábrica analisador',lk:['p0','a01','hp01']},
+    {id:'a08',title:'Como identificar VTCD na sua fábrica',f:'meio',kw:'como identificar VTCD fábrica analisador',lk:['p0','a01','hp01'],st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 1.795 palavras. O artigo de MEIO do C01: fecha a ponte entre "o que e VTCD" (a01, topo) e a decisao. Falta publicar (site NOINDEX).',br:{
+      arq:'clients/somatec/reports/blog/vtcd-como-identificar/artigo.md', pal:1795,
+      seo:{kwa:'como identificar VTCD fabrica analisador', mt:'Como identificar VTCD na fabrica: guia da medicao (2026)', md:'VTCD nao aparece na conta de luz. Veja como confirmar com analisador de qualidade de energia, por quanto tempo medir e como cruzar os eventos com as suas paradas.'},
+      geo:['Resposta direta no topo (45 palavras)','Tabela de sinais que justificam medir','Tabela do que o analisador mede','IEC 61000-4-30: classe A vs classe S','Medicao de 7 dias / 1008 registros','FAQ 6 perguntas','JSON-LD Article + HowTo + FAQPage'],
+      fun:'TOPO (curto): por que a VTCD nao se revela sozinha. MEIO (dominante): sinais que justificam medir, como funciona o analisador, classe do instrumento, passo a passo da medicao, como ler o resultado. FUNDO: "Confirmou que e VTCD. E agora?" - dimensionar custo, escolher protecao pela faixa, medir de novo + medicao sem custo.',
+      cta:'1 CTA natural no bloco de fundo. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=vtcd-como-identificar',
+      prova:'Case Cinpal com atribuicao correta: 2 analisadores em paralelo por 80 dias, 92% de supressao, ~R$120 mil/mes. Tese central do artigo: medicao sem historico de falhas gera relatorio inconclusivo - a prova vem do CRUZAMENTO das linhas do tempo.',
+      lks:'17 ids. lk canonico p0/a01/hp01 respeitado. Escada de funil: topo (a01,a06,a03) -> meio (a64,a09,hp01,hp10) -> fundo (cv07,cv06,a58).',
+      pend:['URL real do CTA','Links internos sem href','Imagem hero (Estudio)','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+    }},
     {id:'a59',title:'Afundamento e elevação de tensão: diferença e impacto na produção',f:'topo',kw:'afundamento elevação tensão elétrica industria',lk:['p0','a01','a04'],n:true},
     {id:'a60',title:'O que é flicker (cintilação) elétrico e quando ele danifica equipamentos',f:'topo',kw:'flicker cintilação elétrica equipamentos industriais',lk:['p0','a01','a03'],n:true},
     {id:'a61',title:'Ruído elétrico de alta frequência: o inimigo invisível da automação',f:'topo',kw:'ruído elétrico alta frequência automação industrial',lk:['p0','a02','a36'],n:true},
