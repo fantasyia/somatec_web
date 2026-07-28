@@ -353,7 +353,16 @@ const CLUSTERS = [
     {id:'a53',title:'Sustentabilidade e proteção elétrica: menos descarte de equipamentos industriais',f:'topo',kw:'sustentabilidade proteção elétrica descarte equipamentos',lk:['p0','a50','a51']},
   ]},
   { id:'c9', name:'C09 · 🏛️ Institucional e Autoridade', color:'#4a30a0', articles:[
-    {id:'a54',title:'O que é o Master Block e como ele funciona na prática',f:'topo',kw:'o que é Master Block como funciona',lk:['p0','a09','a13']},
+    {id:'a54',title:'O que é o Master Block e como ele funciona na prática',f:'topo',kw:'o que é Master Block como funciona',lk:['p0','a09','a13'],st:'wip',nt:'CONTEUDO APROVADO (Leo, 27/07/2026) - 1.555 palavras. TOPO do C09 - a pagina institucional do produto, escrita como explicacao de mecanismo e nao como catalogo. Falta publicar (site NOINDEX).',br:{
+      arq:'clients/somatec/reports/blog/o-que-e-master-block/artigo.md', pal:1555,
+      seo:{kwa:'o que e Master Block como funciona', mt:'O que e o Master Block: como funciona na pratica (2026)', md:'Filtro hibrido que atua em 100 kHz e em variacoes de tensao abaixo de 1 segundo. Entenda o mecanismo, os tres elementos do sistema e onde ele se encaixa na instalacao.'},
+      geo:['Resposta direta no topo','Tabela dos 3 elementos do sistema','Tabela da linha MB-01 a MB-12','Specs construtivas (IP-65, -40 a 60C, 220-690V)','FAQ 6 perguntas','JSON-LD Article + FAQPage'],
+      fun:'TOPO (dominante): o que e, como funciona o filtro hibrido (grampeamento vs filtro passivo em paralelo), os 3 elementos, a linha de produtos, como e instalado. MEIO: onde se encaixa numa instalacao que ja tem protecao - o que sobra descoberto. FUNDO: como saber se precisa (3 passos) + medicao sem custo.',
+      cta:'1 CTA no fecho. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=o-que-e-master-block',
+      prova:'So spec do brand e playbook: DPS Classe III (NBR IEC 61643-1 / NBR 5410), 100 kHz vs ~10 kHz do DPS comum, linha MB-01 (8kA) a MB-12 (100kA), IP-65, -40 a 60C, 220/380/440/575/690V, indicador mecanico frontal, 3 inspecoes/ano, planta com subestacao de 138 kV. HONESTIDADE: diz explicitamente que NAO substitui DPS/no-break/estabilizador e que o indicador mecanico tambem e passivo - o diferencial real e o software.',
+      lks:'13 ids. lk canonico p0/a09/a13 respeitado. Escada: topo (a01,a10,a02) -> meio (a09,a55,a13,a08) -> fundo (a58,cv06).',
+      pend:['URL real do CTA','Links internos sem href','Foto do produto (Estudio) - ATENCAO: LoRA do Master Block estava em retreino, validar antes de gerar','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+    }},
     {id:'a55',title:'Por que o Master Block não é um DPS comum — diferença técnica',f:'meio',kw:'Master Block vs DPS diferença técnica',lk:['p0','a10','a11','a54']},
     {id:'a56',title:'Prêmio FIESP Acelera Startup: o que esse selo representa para a indústria',f:'topo',kw:'prêmio FIESP proteção elétrica startup',lk:['p0','a57']},
     {id:'a57',title:'26 anos protegendo indústrias: a história da Somatec Blocking',f:'topo',kw:'Somatec Blocking história empresa proteção elétrica',lk:['p0','a56','a54']},
