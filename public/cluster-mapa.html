@@ -691,16 +691,17 @@ const CLUSTERS = [
 const PILAR = {id:'p0',title:'Qualidade de energia elétrica: guia completo para indústrias, comércios e residências',cluster:'Pilar Central',f:'pilar',kw:'qualidade de energia elétrica indústria comércio residências',lk:[]};
 /* Status/nota do pilar (fonte da verdade — atualizado pela sessão de Blog) */
 PILAR.br = {
-  arq:'clients/somatec/reports/blog/qualidade-de-energia-eletrica/artigo.md', pal:3050,
-  seo:{kwa:'qualidade de energia eletrica', mt:'Qualidade de energia eletrica: o guia completo (2026)', md:'O que e qualidade de energia, por que a energia suja queima e trava equipamentos, quais os disturbios (VTCD, transitorios, harmonicos) e como diagnosticar e proteger.'},
-  geo:['Resposta direta no topo','Fontes: ANEEL PRODIST + IEEE 1159 + ABNT','3 tabelas comparativas','FAQ 6 perguntas','JSON-LD Article+FAQPage','14 H2 em forma de pergunta'],
-  cta:'2 CTAs naturais (pos-diagnostico e pos-produto), acao unica. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=qualidade-de-energia-eletrica',
-  prova:'Metricas agregadas (92% supressao, ate -70% paradas, -80% danos) + cases Nissin/Cinpal/Stampline/Grow Up. AJUSTE PENDENTE: tirar os cases nomeados daqui e apontar pro C06 (pilar deve ser amplo: industria+comercio+residencia).',
-  lks:'Aponta para a01, a09, hp01, a08, c4 (hub setorial), a54',
-  pend:['URL real do CTA','Remover cases nomeados -> C06','Links internos sem href','Imagem hero e diagramas (Estudio)','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
+  arq:'clients/somatec/reports/blog/qualidade-de-energia-eletrica/artigo.md', pal:3873,
+  seo:{kwa:'qualidade de energia eletrica', mt:'Qualidade de energia eletrica: o guia completo (2026)', md:'Por que equipamentos queimam e travam sem causa aparente - na fabrica, na loja, no condominio ou em casa. Entenda VTCD, transitorios e harmonicos, e como diagnosticar e proteger.'},
+  geo:['Resposta direta no topo','Glossario extraivel (7 termos)','Tabela sintoma-causa-onde ler (11 linhas)','FAQ 10 perguntas multi-publico','Fontes: ANEEL PRODIST + Res. 1.000 + IEEE 1159 + NBR 17019','JSON-LD Article + FAQPage + HowTo','15 H2 em forma de pergunta','kw secundarias dos 4 publicos'],
+  cta:'1 CTA natural, apos ensinar a diagnosticar. URL PLACEHOLDER /medicao-gratuita?utm_source=blog&utm_medium=organic&utm_campaign=qualidade-de-energia-eletrica',
+  prova:'Somente metricas agregadas e ambiente-neutras: 92% de supressao de VTCD, ate -70% paradas, ate -80% danos. Cases NOMEADOS removidos do pilar na v3 e apontados para o cluster C06.',
+  fun:'TOPO (7 secoes): o que e, os 4 universos, mecanismo, disturbios, VTCD, harmonicos, normas. MEIO (3): sintomas por operacao, quanto custa + quem paga, cada solucao e seu ponto cego. FUNDO (3): como diagnosticar (HowTo), Master Block + risco zero, FAQ. CTA unico no fecho do bloco de fundo.',
+  lks:'Hub do blog: 30+ ids canonicos e 15 clusters citados, na secao "Mapa do blog" (por tema e por universo). Antes eram 6 links.',
+  pend:['URL real do CTA','Links internos sem href','Imagem hero e diagramas (Estudio)','JSON-LD no head (sessao Site)','Publicar so no go-live (NOINDEX)']
 };
 const PILAR_ST = 'wip'; /* conteudo APROVADO, mas nao publicado (site NOINDEX) -> "done" so no go-live */
-const PILAR_NT = 'CONTEUDO APROVADO (Leo, 27/07/2026) - v2, 3.050 palavras. Falta publicar (site NOINDEX). Arquivo: clients/somatec/reports/blog/qualidade-de-energia-eletrica/artigo.md | Card: "Pilar P0" (Em producao) | CTA com URL PLACEHOLDER (/medicao-gratuita) - trocar no go-live | Ajuste pendente: remover cases nomeados (vao pro c6) para manter o pilar amplo (industria+comercio+residencia) | JSON-LD Article+FAQPage pronto | Site NOINDEX ate go-live.';
+const PILAR_NT = 'CONTEUDO APROVADO (Leo, 27/07/2026) - v3, 3.873 palavras. Falta publicar (site NOINDEX). A v3 corrigiu a AMPLITUDE: fala com 4 universos equilibrados (industria 19 / comercio 19 / residencias-condominios 20 / veiculos eletricos+solar 51 mencoes; na v2 era 25/8/7/0). Secoes novas: "Os quatro universos" (movida para o topo), glossario extraivel, sintomas por tipo de operacao, e "quem paga o equipamento queimado" (Resolucao ANEEL 1.000). Cases nomeados removidos -> C06. Links internos 6 -> 30+. Schema ganhou HowTo. Card no quadro: "Pilar P0" (Em producao).';
 
 /* ── ESTADO PERSISTENTE ──────────────────────────────────────────────
    Duas camadas:
@@ -842,6 +843,7 @@ function renderBrief(a){
     ].filter(Boolean).join('<br>'));
   }
   if(b.geo&&b.geo.length) h+=linha('GEO', b.geo.map(g=>`<span class="brief-tag">${g}</span>`).join(''));
+  h+=linha('Funil', b.fun);
   h+=linha('CTA', b.cta);
   h+=linha('Prova', b.prova);
   h+=linha('Links', b.lks);
