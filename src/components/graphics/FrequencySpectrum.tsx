@@ -131,9 +131,11 @@ export function FrequencySpectrum({ className }: { className?: string }) {
           <tspan x={(X_10K + X1) / 2} dy={19}>onde só o Master Block age</tspan>
         </text>
 
-        {/* Curva DPS comum — segura até ~5 kHz e despenca no penhasco de 10 kHz */}
+        {/* Curva DPS comum — segura até ~5 kHz e despenca no penhasco de 10 kHz.
+            Fica BEM abaixo da azul: antes as duas quase se tocavam e o rótulo
+            "DPS comum" parecia nomear a linha do Master Block. */}
         <path
-          d={`M${X0},92 C200,93 400,97 455,108 C484,114 ${X_10K - 6},170 ${X_10K},284`}
+          d={`M${X0},124 C200,125 400,130 455,142 C484,150 ${X_10K - 6},202 ${X_10K},284`}
           fill="none"
           stroke="currentColor"
           strokeOpacity={0.45}
@@ -142,9 +144,14 @@ export function FrequencySpectrum({ className }: { className?: string }) {
           className={`draw-path ${inView ? 'is-drawn' : ''}`}
           style={{ '--path-length': '560px' } as React.CSSProperties}
         />
-        <text x={190} y={72} fontSize={16} fontWeight={600} fill="currentColor" opacity={inView ? 0.55 : 0} style={{ transition: 'opacity 0.6s ease 0.9s' }} fontFamily="var(--font-inter)">
-          DPS comum
-        </text>
+        {/* Rótulo ancorado na própria curva (ponto + haste), abaixo dela */}
+        <g opacity={inView ? 1 : 0} style={{ transition: 'opacity 0.6s ease 0.9s' }}>
+          <circle cx={210} cy={126} r={4} fill="currentColor" fillOpacity={0.45} />
+          <line x1={210} y1={126} x2={210} y2={158} stroke="currentColor" strokeOpacity={0.3} strokeWidth={1.5} />
+          <text x={210} y={176} textAnchor="middle" fontSize={16} fontWeight={600} fill="currentColor" opacity={0.55} fontFamily="var(--font-inter)">
+            DPS comum
+          </text>
+        </g>
 
         {/* Marca de onde o DPS para */}
         <g opacity={inView ? 1 : 0} style={{ transition: 'opacity 0.5s ease 1.4s' }}>
@@ -156,7 +163,7 @@ export function FrequencySpectrum({ className }: { className?: string }) {
 
         {/* Curva Master Block — atravessa a faixa cega inteira */}
         <path
-          d={`M${X0},80 C220,78 380,84 ${X_10K},90 C580,95 660,100 ${X1},104`}
+          d={`M${X0},70 C220,68 380,76 ${X_10K},84 C580,89 660,93 ${X1},96`}
           fill="none"
           stroke="#008CC8"
           strokeWidth={4.5}
@@ -165,9 +172,9 @@ export function FrequencySpectrum({ className }: { className?: string }) {
           style={{ '--path-length': '660px', transitionDelay: '0.5s' } as React.CSSProperties}
         />
         <g opacity={inView ? 1 : 0} style={{ transition: 'opacity 0.6s ease 1.8s' }}>
-          <circle cx={X1} cy={104} r={9} fill="#F39200" />
-          <circle cx={X1} cy={104} r={16} fill="#F39200" opacity={0.25} className="animate-led-pulse motion-reduce:animate-none" />
-          <text x={X1 - 6} y={76} textAnchor="end" fontSize={17} fontWeight={700} fill="#008CC8" fontFamily="var(--font-inter)">
+          <circle cx={X1} cy={96} r={9} fill="#F39200" />
+          <circle cx={X1} cy={96} r={16} fill="#F39200" opacity={0.25} className="animate-led-pulse motion-reduce:animate-none" />
+          <text x={X1 - 6} y={66} textAnchor="end" fontSize={17} fontWeight={700} fill="#008CC8" fontFamily="var(--font-inter)">
             Master Block · atua em 100 kHz
           </text>
         </g>
