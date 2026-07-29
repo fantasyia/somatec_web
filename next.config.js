@@ -81,6 +81,11 @@ const nextConfig = {
       // LPs segmentadas (/protecao-residencial + /protecao-comercial). 301 pra
       // a bifurcação da home (escolha de perfil), sem quebrar links/UTM.
       { source: '/protecao', destination: '/#bifurcacao', permanent: true },
+      // A calculadora genérica /ferramentas/orcamento atendia os 2 públicos NI
+      // e foi substituída pelas LPs segmentadas (cada uma com o CheckoutNI
+      // embutido) e pelo /orcamento-industrial. Manda pra bifurcação, que é
+      // onde o visitante escolhe o próprio perfil.
+      { source: '/ferramentas/orcamento', destination: '/#bifurcacao', permanent: true },
       // Rename institucional /a-msm -> /a-somatec (slugs limpos).
       { source: '/a-msm', destination: '/a-somatec', permanent: true },
       { source: '/a-msm/quem-somos', destination: '/a-somatec/quem-somos', permanent: true },

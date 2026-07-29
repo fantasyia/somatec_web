@@ -93,13 +93,15 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
       { label: 'Resultados e cases', href: '/resultados' },
       { label: 'Diagnóstico de VTCD', href: '/ferramentas/custo-de-parada' },
       { label: 'Seletor de modelo', href: '/ferramentas/qual-master-block' },
+      { label: 'Orçamento industrial (locação)', href: '/orcamento-industrial' },
     ],
   },
   {
     title: 'Contato',
     links: [
       { label: 'Fale com o comercial', href: '/contato' },
-      { label: 'Orçamento (comércio/residência)', href: '/ferramentas/orcamento' },
+      { label: 'Proteção pra minha casa', href: '/protecao-residencial' },
+      { label: 'Proteção pro meu negócio', href: '/protecao-comercial' },
       { label: 'Perguntas frequentes', href: '/faq' },
       { label: 'Política de privacidade', href: '/politica-de-privacidade' },
       { label: 'Termos de uso', href: '/termos-de-uso' },

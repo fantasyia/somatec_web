@@ -4,7 +4,7 @@
  * aprovar o resultado. Band navy para máximo contraste.
  */
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Network } from 'lucide-react';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { LocacaoTimeline } from '@/components/home/LocacaoTimeline';
 
@@ -38,18 +38,37 @@ export function HomeNoRisk() {
         {/* Adendo #16-A: a legenda do saving (30%) saiu daqui — o argumento
             subiu de nível e virou o módulo "Uma hora parada por mês já paga
             a conta" (HomeHoraParada), logo abaixo. */}
-        <div className="mt-10 flex flex-wrap items-center gap-3">
+        <div className="mt-10">
           <CommercialCta
             label="Solicitar diagnóstico gratuito"
             context="Modelo sem risco (home)"
             fallbackPath="/contato"
           />
-          {/* Auto-orçamento industrial: monta a planta em cascata → proposta de locação. */}
+        </div>
+
+        {/* Auto-orçamento industrial: ganhou bloco próprio (era um botão
+            fantasma que sumia ao lado do CTA laranja). Seção é CLARA
+            (tone-surface) — botão navy sólido: alto contraste sem disputar o
+            laranja, que já é do CTA de diagnóstico. */}
+        <div className="mt-8 flex flex-col gap-4 rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--bg))] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex items-start gap-3">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-btn bg-gold/15 text-gold">
+              <Network className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+            </span>
+            <div>
+              <span className="block font-sans text-base font-semibold text-[rgb(var(--text))]">
+                Monte o projeto da sua planta em 2 minutos
+              </span>
+              <span className="mt-0.5 block text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+                Você já sai com a estimativa de locação na tela — sem esperar representante.
+              </span>
+            </div>
+          </div>
           <Link
             href="/orcamento-industrial"
-            className="group inline-flex items-center gap-1.5 rounded-btn border border-white/40 px-5 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:border-gold hover:text-gold"
+            className="group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-btn bg-deep_navy px-5 py-2.5 font-sans text-sm font-semibold text-white transition-colors hover:bg-navy-700"
           >
-            Montar o projeto da minha planta
+            Montar o projeto
             <ChevronRight className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5" strokeWidth={2} />
           </Link>
         </div>
