@@ -84,6 +84,11 @@ function buildBody(p: MullerBotPayload) {
     origemCadastro: 'site',
     ...(p.formulario ? { formulario: p.formulario } : {}),
     ...(p.atribuicao ? { atribuicao: p.atribuicao } : {}),
+    // Etiquetas de público/setor. O schema do Betinna NÃO é .strict(), então
+    // enquanto o backend não aceitar o campo (card "[BETINNA] Aceitar tags no
+    // POST /public/leads") ele é descartado sem erro — e passa a valer sozinho
+    // no dia que subir, sem novo deploy do site.
+    ...(p.tags && p.tags.length > 0 ? { tags: p.tags } : {}),
   };
 }
 

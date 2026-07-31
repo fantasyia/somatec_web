@@ -1,6 +1,7 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
 import type { FormSubmitData } from '@/lib/forms/schemas';
+import { tagsDoLead, type PublicoId } from '@/lib/constants/setores';
 
 // -----------------------------------------------------------------------------
 // Builder do payload enviado ao MullerBot — adendo v1.1 §3.2
@@ -37,6 +38,9 @@ export type MullerBotPayload = {
   formulario?: FormSubmitData['formulario'];
   /** Atribuição de marketing (1º + último toque). Ausente quando não há UTM. */
   atribuicao?: FormSubmitData['atribuicao'];
+  /** Etiquetas de público/setor (lib/constants/setores.ts) — o Betinna cria a
+   *  tag e dispara LEAD_RECEBEU_TAG, que roteia o fluxo de nutrição. */
+  tags?: string[];
 };
 
 export type BuildPayloadInput = {
@@ -107,5 +111,10 @@ export function buildMullerBotPayload(input: BuildPayloadInput): MullerBotPayloa
     },
     formulario: validated.formulario,
     atribuicao: validated.atribuicao,
+    ...(() => {
+      const v = validated as unknown as { publico?: PublicoId; setor?: string };
+      const tags = tagsDoLead(v.publico ?? '', v.setor ?? '');
+      return tags.length > 0 ? { tags } : {};
+    })(),
   };
 }

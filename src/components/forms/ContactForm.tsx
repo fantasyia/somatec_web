@@ -16,6 +16,12 @@ import {
 } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
+import {
+  PUBLICOS,
+  setoresDoPublico,
+  rotuloSetor,
+  type PublicoId,
+} from '@/lib/constants/setores';
 import Link from 'next/link';
 
 export type ContactFormVariant =
@@ -43,11 +49,13 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
   const [message, setMessage] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [captchaToken, setCaptchaToken] = useState<string>('');
+  // Público define o funil/oferta; setor depende dele. Viram etiqueta no CRM.
+  const [publico, setPublico] = useState<PublicoId | ''>('');
+  const [setor, setSetor] = useState('');
 
   const showCompany = variant !== 'contato_geral'; // todos os segmentados têm empresa
   const showCityState = variant === 'food_service';
   const showOperationType = variant === 'food_service';
-  const showSegment = variant === 'b2b';
   const showProductInterest = variant === 'terceirizacao';
   const showProductType = variant === 'envase';
   const showPackagingType = variant === 'envase';
@@ -90,7 +98,13 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
       payload.state = fd.get('state') ?? '';
     }
     if (showOperationType) payload.operation_type = fd.get('operation_type') ?? '';
-    if (showSegment) payload.segment = fd.get('segment') ?? '';
+    // Público + setor viram etiqueta no Betinna; `segment` continua indo com o
+    // rótulo legível, que é o que o CRM mostra no campo "segmento".
+    if (publico) payload.publico = publico;
+    if (setor) {
+      payload.setor = setor;
+      payload.segment = rotuloSetor(publico, setor);
+    }
     if (showProductInterest) payload.product_interest = fd.get('product_interest') ?? '';
     if (showProductType) payload.product_type = fd.get('product_type') ?? '';
     if (showPackagingType) payload.packaging_type = fd.get('packaging_type') ?? '';
@@ -223,13 +237,33 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
         />
       )}
 
-      {/* B2B */}
-      {showSegment && (
-        <TextField
-          label="Segmento"
-          name="segment"
-          placeholder="Ex: rede de supermercados, atacadista, indústria de molhos"
-          maxLength={160}
+      {/* Público + setor — viram ETIQUETA no Betinna e roteiam a nutrição.
+          Substituíram o antigo campo "Segmento" de texto livre (que ainda tinha
+          exemplo da MSM): nome livre nunca casaria com a etiqueta do app. */}
+      <SelectField
+        label="Você está buscando proteção para"
+        name="publico"
+        required
+        placeholder="Selecione"
+        value={publico}
+        onChange={(e) => {
+          setPublico(e.target.value as PublicoId | '');
+          setSetor(''); // troca de público invalida o setor escolhido
+        }}
+        options={PUBLICOS.map((p) => ({ value: p.id, label: `${p.label} — ${p.descricao}` }))}
+        error={errors.publico}
+      />
+      {publico && (
+        <SelectField
+          label="Ramo de atividade"
+          name="setor"
+          required
+          placeholder="Selecione"
+          value={setor}
+          onChange={(e) => setSetor(e.target.value)}
+          options={setoresDoPublico(publico).map((s) => ({ value: s.slug, label: s.label }))}
+          hint="Não achou o seu? Escolha “Outros” — a gente registra e inclui na lista."
+          error={errors.setor}
         />
       )}
 

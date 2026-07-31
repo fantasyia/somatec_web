@@ -85,6 +85,11 @@ const baseFields = {
     .enum(['contato', 'representante', 'calculadora', 'seletor'])
     .optional(),
   atribuicao: atribuicaoSchema.optional(),
+  // Público + setor → viram ETIQUETA no Betinna (roteiam o fluxo de nutrição).
+  // Vocabulário fechado em lib/constants/setores.ts; aqui só validamos o
+  // formato pra não deixar entrar valor inventado.
+  publico: z.enum(['industria', 'comercio', 'residencia']).optional(),
+  setor: z.string().trim().max(60).optional(),
 };
 
 // -----------------------------------------------------------------------------
