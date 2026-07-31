@@ -1,8 +1,12 @@
 /**
- * Marquee "indústrias que confiam" — carrossel infinito e contínuo dos
- * logos oficiais dos clientes reais. Faixa azul (navy) com os logos em
- * versão branca monocromática. Lista duplicada + trilho -50% = loop sem
- * saltos; pausa no hover; respeita prefers-reduced-motion.
+ * Marquee "empresas que confiam" — carrossel infinito e contínuo dos logos
+ * oficiais dos clientes reais (29, todos autorizados). Lista duplicada +
+ * trilho -50% = loop sem saltos; pausa no hover; respeita
+ * prefers-reduced-motion.
+ *
+ * Título fala EMPRESAS, não "indústrias": a lista inclui varejo (Shopping
+ * Vitória) e o site atende comércio, condomínio e residência — "indústrias"
+ * era factualmente errado e jogava fora prova social pro público não-industrial.
  */
 import Image from 'next/image';
 import { Reveal } from '@/components/ui/Reveal';
@@ -25,6 +29,19 @@ const CLIENTS = [
   { src: '/clientes/kostal-w.png', name: 'Kostal' },
   { src: '/clientes/lorenzetti-w.png', name: 'Lorenzetti' },
   { src: '/clientes/moura-w.png', name: 'Moura' },
+  // +12 do site antigo (todos autorizados, confirmado 2026-07-28).
+  { src: '/clientes/penha-w.png', name: 'Penha' },
+  { src: '/clientes/nova-plast-w.png', name: 'Nova Plast' },
+  { src: '/clientes/shopping-vitoria-w.png', name: 'Shopping Vitória' },
+  { src: '/clientes/buaiz-w.png', name: 'Buaiz Alimentos' },
+  { src: '/clientes/general-w.png', name: 'General Produtos Poliméricos' },
+  { src: '/clientes/sibelco-w.png', name: 'Sibelco' },
+  { src: '/clientes/chassis-brakes-w.png', name: 'Chassis Brakes International' },
+  { src: '/clientes/ical-w.png', name: 'Ical' },
+  { src: '/clientes/tilibra-w.png', name: 'Tilibra' },
+  { src: '/clientes/ophthalmos-w.png', name: 'Ophthalmos Rohto' },
+  { src: '/clientes/new-oldany-w.png', name: 'New Oldany' },
+  { src: '/clientes/ferraz-maquinas-w.png', name: 'Ferraz Máquinas' },
 ] as const;
 
 // Lista duplicada para o loop contínuo (-50%).
@@ -34,12 +51,12 @@ export function HomeClients() {
   return (
     <section
       className="border-y border-[rgb(var(--border))] tone-surface"
-      aria-label="Indústrias que confiam na Somatec Blocking"
+      aria-label="Empresas que confiam na Somatec Blocking"
     >
       <div className="py-6 md:py-7">
         <Reveal className="space-y-5">
           <p className="text-center text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-[rgb(var(--text-muted))]">
-            Indústrias que confiam na Somatec Blocking
+            Empresas que confiam na Somatec Blocking
           </p>
 
           <div

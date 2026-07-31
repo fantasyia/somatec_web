@@ -109,7 +109,10 @@ const config: Config = {
         'fade-up': 'fade-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'shimmer': 'shimmer 2s linear infinite',
         'scroll-indicator': 'scroll-indicator 3s ease-in-out infinite',
-        'marquee': 'marquee 50s linear infinite',
+        // 85s = os 50s originais escalados de 17 → 29 logos. O keyframe anda
+        // -50% (uma lista inteira), então trilho maior com a MESMA duração
+        // deixaria os logos ~1,7× mais rápidos. Mudou a quantidade? reescale.
+        'marquee': 'marquee 85s linear infinite',
       },
     },
   },
