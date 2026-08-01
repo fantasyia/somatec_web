@@ -68,12 +68,17 @@ export function HomeClients() {
                 'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
             }}
           >
-            <ul className="flex w-max items-center animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none">
+            {/* Espaçamento: gap CONSTANTE, não slot de largura fixa. Com slot
+                fixo, logo estreita sobrava espaço dos dois lados e logo larga
+                encostava nas vizinhas — o vão entre as marcas variava. Agora
+                cada item tem a largura da própria logo e o respiro é sempre o
+                mesmo. */}
+            <ul className="flex w-max items-center gap-11 animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none md:gap-14">
               {TRACK.map((c, i) => (
                 <li
                   key={`${c.name}-${i}`}
                   aria-hidden={i >= CLIENTS.length}
-                  className="flex w-[104px] shrink-0 items-center justify-center px-2 md:w-[128px]"
+                  className="flex shrink-0 items-center justify-center"
                 >
                   <Image
                     src={c.src}
@@ -81,7 +86,7 @@ export function HomeClients() {
                     title={c.name}
                     width={500}
                     height={260}
-                    className="h-8 w-auto max-w-[92px] object-contain brightness-0 opacity-55 transition duration-300 hover:opacity-100 dark:brightness-100 dark:opacity-80 md:h-9 md:max-w-[112px]"
+                    className="h-8 w-auto max-w-[124px] object-contain brightness-0 opacity-55 transition duration-300 hover:opacity-100 dark:brightness-100 dark:opacity-80 md:h-9 md:max-w-[148px]"
                   />
                 </li>
               ))}
