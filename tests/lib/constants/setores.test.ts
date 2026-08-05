@@ -60,4 +60,49 @@ describe('taxonomia de público e setor', () => {
     expect(tagPublico('residencia')).toBe('publico:residencia');
     expect(tagSetor('autopecas')).toBe('setor:autopecas');
   });
+
+  // Lista FECHADA pela master em 2026-08-05 (icp-setores.md). Travada aqui
+  // porque o fluxo de nutrição filtra por essas strings — mexer sem alinhar do
+  // outro lado deixa o lead sem rota, e em silêncio.
+  it('bate exatamente com a lista fechada pela master', () => {
+    const slugs = (p: Parameters<typeof setoresDoPublico>[0]) =>
+      setoresDoPublico(p).map((s) => s.slug);
+
+    expect(slugs('industria')).toEqual([
+      'autopecas', 'metalurgia', 'siderurgia', 'mineracao', 'alimenticio-bebidas',
+      'farmaceutico-quimico', 'papel-celulose', 'textil-confeccao-calcados',
+      'plasticos-borracha-embalagem', 'cadeia-do-frio', 'agronegocio', 'saude',
+      'saneamento-utilities', 'energia-solar', 'data-center-telecom', 'outros',
+    ]);
+    expect(slugs('comercio')).toEqual([
+      'cadeia-do-frio', 'varejo', 'condominios', 'tecnologia-ti', 'carros-eletricos',
+      'pequenos-fabricantes', 'saude', 'energia-solar', 'outros',
+    ]);
+    expect(slugs('residencia')).toEqual([
+      'residencia-alto-padrao', 'condominios', 'carros-eletricos', 'energia-solar', 'outros',
+    ]);
+  });
+
+  it('repete de propósito os setores que chegam por mais de um público', () => {
+    // A chave do lead é o PAR público+setor. Frigorífico (indústria) e
+    // mercearia (comércio) são o mesmo setor por lados diferentes.
+    for (const slug of ['cadeia-do-frio', 'saude', 'energia-solar']) {
+      expect(setoresDoPublico('industria').map((s) => s.slug)).toContain(slug);
+      expect(setoresDoPublico('comercio').map((s) => s.slug)).toContain(slug);
+    }
+    for (const slug of ['condominios', 'carros-eletricos', 'energia-solar']) {
+      expect(setoresDoPublico('comercio').map((s) => s.slug)).toContain(slug);
+      expect(setoresDoPublico('residencia').map((s) => s.slug)).toContain(slug);
+    }
+  });
+
+  // Claim autorizado: protegemos a INSTALAÇÃO de recarga, nunca a bateria do
+  // carro (BMS do veículo cobre). O rótulo não pode sugerir o contrário.
+  it('o rótulo de carro elétrico não promete proteger a bateria', () => {
+    for (const p of ['comercio', 'residencia'] as const) {
+      const label = setoresDoPublico(p).find((s) => s.slug === 'carros-eletricos')?.label ?? '';
+      expect(label).toMatch(/recarga/i);
+      expect(label).not.toMatch(/bateria|ve[íi]culo|carro el[ée]trico protegido/i);
+    }
+  });
 });

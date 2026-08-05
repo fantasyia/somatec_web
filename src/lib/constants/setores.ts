@@ -8,9 +8,20 @@
 // ⚠️ Trocar o padrão de nome = editar SÓ este arquivo. Nenhum outro lugar
 // escreve nome de etiqueta.
 //
-// 🔲 Pendente da master: hoje nenhuma etiqueta do app usa prefixo `x:` (as que
-// existem são soltas — `triado`, `cold`, `email-mkt`, `rep-SP`). O padrão com
-// prefixo abaixo veio do card do site; se a master preferir sem, é aqui.
+// ✅ Lista FECHADA pela master em 2026-08-05 (registrada em icp-setores.md).
+//
+// Por que o prefixo `x:` mesmo com as tags de hoje sendo soltas: são coisas
+// diferentes. `triado`/`cold`/`email-mkt` são tag-FLAG (booleana: existe ou
+// não); isto aqui é tag-DIMENSÃO (uma chave com dezenas de valores). Dimensão
+// precisa de namespace por causa do filtro do fluxo — sem prefixo, um
+// contains "industria" casaria também com "agroindustria" e daria falso
+// positivo silencioso na nutrição. As duas convenções convivem de propósito.
+//
+// FAMÍLIA de nutrição (producao/frio/equipamento/dados) NÃO sai daqui: quem
+// deriva é o Betinna, a partir da etiqueta de setor. Motivo: o mapa é decisão
+// de marketing e vai mudar — derivado no fluxo, muda sem deploy do site e vale
+// retroativo; e as calculadoras não perguntam setor, então uma família mandada
+// pelo site nasceria vazia justo nos leads mais quentes.
 //
 // Lista canônica: clients/somatec/reports/prospeccao/icp-setores.md
 // =============================================================================
@@ -34,7 +45,16 @@ export const PUBLICOS: readonly Publico[] = [
 
 export type Setor = { slug: string; label: string };
 
-/** CAMPO 2 — aparece conforme o público. Lista canônica do ICP. */
+/** CAMPO 2 — aparece conforme o público. Lista FECHADA pela master (2026-08-05).
+ *
+ *  `condominios`, `carros-eletricos`, `cadeia-do-frio`, `saude` e `energia-solar`
+ *  aparecem em mais de um público de propósito: o mesmo ramo chega por lados
+ *  diferentes (frigorífico é Grupo A com cabine; clínica pequena é Grupo B). A
+ *  chave do lead é o PAR público + setor, não o setor sozinho.
+ *
+ *  ⚠️ Carro elétrico: o escopo comprovável é proteger a INSTALAÇÃO de recarga
+ *  (wallbox, eletroposto, rede da casa) — nunca a bateria do veículo, que é
+ *  coberta pelo BMS do carro. O rótulo abaixo tem que refletir isso. */
 export const SETORES: Readonly<Record<PublicoId, readonly Setor[]>> = {
   industria: [
     { slug: 'autopecas', label: 'Autopeças' },
@@ -46,24 +66,28 @@ export const SETORES: Readonly<Record<PublicoId, readonly Setor[]>> = {
     { slug: 'papel-celulose', label: 'Papel e celulose' },
     { slug: 'textil-confeccao-calcados', label: 'Têxtil, confecção e calçados' },
     { slug: 'plasticos-borracha-embalagem', label: 'Plásticos, borracha e embalagem' },
+    { slug: 'cadeia-do-frio', label: 'Cadeia do frio (frigorífico, laticínio)' },
     { slug: 'agronegocio', label: 'Agronegócio' },
-    { slug: 'saude', label: 'Saúde (hospitais e clínicas)' },
+    { slug: 'saude', label: 'Saúde (hospital)' },
     { slug: 'saneamento-utilities', label: 'Saneamento e utilities' },
-    { slug: 'energia-solar-escala', label: 'Energia solar em escala' },
-    { slug: 'data-center-isp-telecom', label: 'Data center, ISP e telecom' },
+    { slug: 'energia-solar', label: 'Energia solar em escala' },
+    { slug: 'data-center-telecom', label: 'Data center e telecom' },
   ],
   comercio: [
     { slug: 'cadeia-do-frio', label: 'Cadeia do frio (refrigeração comercial)' },
     { slug: 'varejo', label: 'Varejo (supermercado, farmácia, CDD)' },
     { slug: 'condominios', label: 'Condomínios' },
-    { slug: 'tecnologia-data-center-pequeno', label: 'Tecnologia / data center pequeno' },
-    { slug: 'carros-eletricos', label: 'Carros elétricos (recarga)' },
+    { slug: 'tecnologia-ti', label: 'Tecnologia e TI' },
+    { slug: 'carros-eletricos', label: 'Recarga de carro elétrico' },
     { slug: 'pequenos-fabricantes', label: 'Pequenos fabricantes e comércio' },
+    { slug: 'saude', label: 'Saúde (clínica, laboratório)' },
+    { slug: 'energia-solar', label: 'Energia solar' },
   ],
   residencia: [
-    { slug: 'residencias-alto-padrao', label: 'Residência de alto padrão' },
+    { slug: 'residencia-alto-padrao', label: 'Residência de alto padrão' },
     { slug: 'condominios', label: 'Condomínio' },
-    { slug: 'carros-eletricos', label: 'Carro elétrico (recarga)' },
+    { slug: 'carros-eletricos', label: 'Recarga de carro elétrico' },
+    { slug: 'energia-solar', label: 'Energia solar' },
   ],
 };
 
