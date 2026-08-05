@@ -73,6 +73,15 @@ const nextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      // Mapas internos (documento de trabalho, não conteúdo do site). Hoje eles
+      // só não são indexados porque SITE_NOINDEX bloqueia o site inteiro — no
+      // go-live essa flag cai. O X-Robots-Tag garante o noindex de forma
+      // permanente e vale pra arquivo estático, que não passa pelo metadata do
+      // Next. O cluster-mapa nem tem a meta tag no HTML.
+      ...['/cluster-mapa.html', '/mapa-visual-fluxos.html'].map((source) => ({
+        source,
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      })),
     ];
   },
   async redirects() {

@@ -11,7 +11,15 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/api', '/login'],
+        // Mapas internos entram aqui pra seguirem fora do índice depois do
+        // go-live (o X-Robots-Tag em next.config.js é a trava principal).
+        disallow: [
+          '/admin',
+          '/api',
+          '/login',
+          '/cluster-mapa.html',
+          '/mapa-visual-fluxos.html',
+        ],
       },
     ],
     sitemap: `${SITE.url}/sitemap.xml`,

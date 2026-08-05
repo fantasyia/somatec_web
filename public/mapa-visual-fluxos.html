@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Somatec — Mapa dos Fluxos</title>
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --pg:#f2f1ed; --card:#fff; --node:#faf9f6; --bd:#e0dfd8; --bd2:#cbcac2;
+    --t:#14140f; --m:#6a6a62; --soft:#93938a;
+    --trg:#0d7a6f; --trgb:#e6f5f2;
+    --ia:#2563eb;  --iab:#e8eefc;
+    --dec:#7c3aed; --decb:#f0eafd;
+    --act:#78716c; --actb:#f3f2ef;
+    --end:#a95f0a; --endb:#fbf1e3;
+    --man:#c2410c; --manb:#fceee7;
+    --new:#be185d; --newb:#fdeaf2;
+    --hub:#0369a1; --hubb:#e4f2fb;
+    --sh:0 1px 2px rgba(20,20,15,.04), 0 4px 14px rgba(20,20,15,.05);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --pg:#171716; --card:#212120; --node:#282826; --bd:#3a3a35; --bd2:#4d4d45;
+      --t:#f3f2ee; --m:#a8a89f; --soft:#84847b;
+      --trg:#5eead4; --trgb:#0f2b28;
+      --ia:#93b8fb;  --iab:#16233d;
+      --dec:#c9abfc; --decb:#241a38;
+      --act:#c4c3ba; --actb:#2c2c29;
+      --end:#f7cc63; --endb:#332711;
+      --man:#fca5a5; --manb:#361d1c;
+      --new:#f9a8d4; --newb:#33162a;
+      --hub:#7dd3fc; --hubb:#0d2739;
+      --sh:0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.22);
+    }
+  }
+  body{margin:0;padding:0 0 70px;background:var(--pg);color:var(--t);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 18px}
+
+  /* ── cabeçalho ── */
+  header{padding:40px 0 26px}
+  h1{font-size:31px;font-weight:800;letter-spacing:-.03em;margin:0 0 7px;line-height:1.15}
+  .sub{font-size:15.5px;color:var(--m);max-width:620px}
+  .upd{display:inline-block;margin-top:14px;font-size:12px;color:var(--m);
+    background:var(--card);border:1px solid var(--bd);border-radius:30px;padding:5px 14px;font-weight:600}
+
+  /* ── índice ── */
+  .toc{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;
+    margin-bottom:26px;box-shadow:var(--sh)}
+  .toc-t{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:11px}
+  .toc a{display:inline-block;font-size:13.5px;color:var(--t);text-decoration:none;
+    padding:6px 12px;margin:0 6px 6px 0;border:1px solid var(--bd);border-radius:9px;
+    background:var(--node);transition:border-color .15s}
+  .toc a:hover{border-color:var(--bd2)}
+
+  /* ── legenda ── */
+  .lg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px}
+  .lgi{font-size:11.5px;font-weight:700;letter-spacing:.02em;padding:5px 11px;border-radius:8px}
+  .l1{background:var(--trgb);color:var(--trg)}
+  .l2{background:var(--iab);color:var(--ia)}
+  .l3{background:var(--decb);color:var(--dec)}
+  .l4{background:var(--actb);color:var(--act)}
+  .l5{background:var(--endb);color:var(--end)}
+
+  /* ── grupo ── */
+  .grp{display:flex;align-items:center;gap:11px;margin:44px 0 16px;scroll-margin-top:16px}
+  .grp-ic{font-size:19px}
+  .grp-tx{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--m)}
+  .grp-ln{flex:1;height:1px;background:var(--bd)}
+
+  /* ── card de fluxo ── */
+  .flow{background:var(--card);border:1px solid var(--bd);border-radius:15px;margin-bottom:16px;
+    overflow:hidden;box-shadow:var(--sh)}
+  .flow.hb{border:2px solid var(--hub)}
+  .flow.nw{border:2px solid var(--new)}
+  .fh{padding:15px 20px 14px;border-bottom:1px solid var(--bd);display:flex;
+    justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+  .flow.hb .fh{background:var(--hubb)}
+  .flow.nw .fh{background:var(--newb)}
+  .fn{font-size:16.5px;font-weight:730;letter-spacing:-.01em}
+  .fs{font-size:11px;font-weight:750;padding:4px 10px;border-radius:30px;
+    background:var(--actb);color:var(--m);white-space:nowrap;letter-spacing:.02em}
+  .fb{padding:18px 20px 20px}
+
+  /* ── nó ── */
+  .nd{display:flex;gap:11px;background:var(--node);border:1px solid var(--bd);
+    border-left:4px solid var(--bd2);border-radius:10px;padding:11px 14px;align-items:flex-start}
+  .nd-ic{flex:0 0 auto;font-size:14px;line-height:1.35;opacity:.85}
+  .nd-bd{flex:1;min-width:0}
+  .nd b{display:block;font-size:14px;font-weight:660;letter-spacing:-.005em}
+  .nd i{font-style:normal;color:var(--m);font-size:12.5px;display:block;margin-top:2px;line-height:1.42}
+  .trg{border-left-color:var(--trg);background:var(--trgb)}
+  .ia{border-left-color:var(--ia);background:var(--iab)}
+  .dec{border-left-color:var(--dec);background:var(--decb)}
+  .end{border-left-color:var(--end);background:var(--endb)}
+  .mn{border-left-color:var(--man);background:var(--manb)}
+  .hub{border-left-color:var(--hub);background:var(--hubb)}
+
+  /* ── conector ── */
+  .cn{height:16px;margin-left:20px;border-left:2px solid var(--bd2);opacity:.55}
+
+  /* ── ramificação ── */
+  .br{margin:10px 0 0 20px;padding-left:18px;border-left:2px solid var(--bd2)}
+  .br2{margin:8px 0 0 14px;padding-left:16px;border-left:2px dashed var(--bd2)}
+  .bl{font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--dec);
+    margin:14px 0 7px;text-transform:uppercase}
+  .bl:first-child{margin-top:2px}
+  .br .nd{margin-bottom:6px}
+
+  /* ── caixa de prompt ── */
+  .pb{margin-top:11px;padding:12px 14px;background:var(--card);
+    border:1px dashed var(--ia);border-radius:10px}
+  .pn{font-size:10.5px;font-weight:850;letter-spacing:.09em;color:var(--ia);margin-bottom:8px}
+  .pb ul{margin:0;padding-left:17px}
+  .pb li{font-size:12.5px;margin-bottom:4px;line-height:1.45}
+  .pb li:last-child{margin-bottom:0}
+  .po{margin-top:9px;padding-top:8px;border-top:1px solid var(--bd);
+    font-size:11.5px;color:var(--m);font-weight:650}
+
+  /* ── avisos ── */
+  .note,.hnote{border-radius:10px;padding:12px 15px;font-size:13px;margin-top:14px;line-height:1.5}
+  .note{background:var(--newb);border-left:3px solid var(--new)}
+  .hnote{background:var(--hubb);border-left:3px solid var(--hub)}
+
+  /* ── origens ── */
+  .src{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 4px}
+  .src span{font-size:12px;padding:6px 11px;border-radius:9px;background:var(--trgb);
+    color:var(--trg);font-weight:660}
+
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--bd);
+    font-size:12.5px;color:var(--soft);line-height:1.6}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+    background:var(--actb);padding:2px 6px;border-radius:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Mapa dos fluxos</h1>
+  <div class="sub">Cada automação da Somatec Blocking: o que ela faz, qual IA atende e o que o prompt dela precisa ter.</div>
+  <div class="upd">Atualizado em 05/08/2026</div>
+</header>
+
+<nav class="toc">
+  <div class="toc-t">Ir para</div>
+  <a href="#wa1">📞 WhatsApp — Clientes</a>
+  <a href="#ind">🏭 Caminho do industrial</a>
+  <a href="#mail-i">📧 E-mail — indústria</a>
+  <a href="#mail-ni">📧 E-mail — comércio e casa</a>
+  <a href="#wa2">📞 WhatsApp — Representantes</a>
+</nav>
+
+<div class="lg">
+  <span class="lgi l1">⚡ Gatilho</span>
+  <span class="lgi l2">🤖 IA + prompt</span>
+  <span class="lgi l3">❓ Decisão</span>
+  <span class="lgi l4">Ação</span>
+  <span class="lgi l5">🏁 Destino</span>
+</div>
+
+<div class="grp" id="wa1"><span class="grp-ic">📞</span><span class="grp-tx">WhatsApp Número 1 — Clientes</span><span class="grp-ln"></span></div>
+
+<div class="flow">
+ <div class="fh"><span class="fn">Porteiro — triagem em dois níveis</span><span class="fs">T1 · pronto, desligado</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Chegou mensagem no WhatsApp</b></div></div>
+  <div class="cn"></div>
+  <div class="nd"><span class="nd-ic">📥</span><div class="nd-bd"><b>Cria o lead na Triagem</b><i>guarda de qual anúncio veio</i></div></div>
+  <div class="cn"></div>
+  <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>Nível 1 — ele quer comprar ou não?</b>
+    <div class="pb"><div class="pn">PROMPT · triagem_whatsapp</div>
+    <ul>
+      <li>Responder curto e cordial, nunca fingir ser humano</li>
+      <li>Primeiro corte: interessado em proteger/comprar <b>ou não</b></li>
+      <li>Se não for: financeiro · suporte · fornecedor/vaga/spam</li>
+      <li>Na dúvida entre comprar e descartar → <b>sempre comprar</b></li>
+      <li>Nunca falar preço, prazo ou condição</li>
+    </ul>
+    <div class="po">→ grava: interesse</div></div>
+  </div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Está interessado em proteger ou comprar?</b></div></div>
+  <div class="br">
+    <div class="bl">✅ Sim — quer se proteger</div>
+    <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>Nível 2 — que tipo de cliente ele é?</b>
+      <div class="pb"><div class="pn">PROMPT · triagem_whatsapp (2ª etapa)</div>
+      <ul>
+        <li>Descobrir: indústria · comércio · residência/condomínio</li>
+        <li>Perguntar pelo <b>local</b> ("é pra sua empresa, seu comércio ou sua casa?")</li>
+        <li>Se disser indústria, confirmar se é fábrica mesmo</li>
+        <li>⛔ Ainda não falar de oferta — só classificar</li>
+      </ul>
+      <div class="po">→ grava: tipo de cliente</div></div>
+    </div></div>
+    <div class="cn"></div>
+    <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Qual tipo?</b></div></div>
+    <div class="br2">
+      <div class="bl">🏭 Industrial</div>
+      <div class="nd hub"><span class="nd-ic">→</span><div class="nd-bd"><b>Funil "Clientes — canal reps"</b><i>segue no triador técnico, abaixo</i></div></div>
+      <div class="bl">🏪 Comercial ou residencial</div>
+      <div class="nd"><span class="nd-ic">→</span><div class="nd-bd"><b>Funil "Clientes — canal próprio"</b><i>segue no vendedor consultivo</i></div></div>
+    </div>
+    <div class="bl">❌ Não quer comprar</div>
+    <div class="nd"><span class="nd-ic">🎧</span><div class="nd-bd"><b>Já é cliente — financeiro ou suporte</b><i>transfere para o Leandro · pausa a IA · mesmo número</i></div></div>
+    <div class="nd end"><span class="nd-ic">🚫</span><div class="nd-bd"><b>Fornecedor, vaga ou spam</b><i>descarta e encerra</i></div></div>
+    <div class="nd end"><span class="nd-ic">⏳</span><div class="nd-bd"><b>Não respondeu</b><i>marca e encerra</i></div></div>
+  </div>
+ </div>
+</div>
+
+<div class="flow">
+ <div class="fh"><span class="fn">Vendedor — canal próprio</span><span class="fs">a criar</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Entrou no funil "Clientes — canal próprio"</b><i>comércio, casa ou condomínio</i></div></div>
+  <div class="cn"></div>
+  <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>IA consultiva de venda</b>
+    <div class="pb"><div class="pn">PROMPT · venda_nao_industrial</div>
+    <ul>
+      <li>Explicar o produto em linguagem de dono de comércio ou casa</li>
+      <li><b>Descobrir a corrente do quadro</b> — ele não sabe, tem que ser guiado</li>
+      <li>Perguntar o que já queimou (freezer, automação, ar, carregador)</li>
+      <li>Quem já sabe o que quer: pular direto para o link</li>
+      <li>⛔ Nunca oferecer locação · ⛔ nunca inventar preço</li>
+    </ul>
+    <div class="po">→ grava: corrente · perfil · o que proteger</div></div>
+  </div></div>
+  <div class="cn"></div>
+  <div class="nd"><span class="nd-ic">🔗</span><div class="nd-bd"><b>Monta o link da calculadora já preenchido</b></div></div>
+  <div class="cn"></div>
+  <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Calculadora → compra direta</b><i>sem passar por vendedor</i></div></div>
+ </div>
+</div>
+
+<div class="grp" id="ind"><span class="grp-ic">🏭</span><span class="grp-tx">O caminho único do industrial</span><span class="grp-ln"></span></div>
+
+<div class="flow hb">
+ <div class="fh"><span class="fn">⭐ Triador técnico — porta única</span><span class="fs">a criar</span></div>
+ <div class="fb">
+  <div class="hnote">🔀 <b>Todo lead industrial passa por aqui</b>, não importa por onde entrou. É o que garante que o representante sempre receba o lead no mesmo padrão, com as mesmas informações.</div>
+  <div class="src">
+    <span>⚡ veio do WhatsApp</span>
+    <span>⚡ converteu no cold e-mail</span>
+    <span>⚡ pediu análise na nutrição</span>
+    <span>⚡ veio da retomada</span>
+  </div>
+  <div class="cn"></div>
+  <div class="nd hub"><span class="nd-ic">📁</span><div class="nd-bd"><b>Entra no funil "Clientes — canal reps"</b></div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Aceita conversar ou já quer reunião?</b></div></div>
+  <div class="br">
+    <div class="bl">Quer reunião ou vídeo direto</div>
+    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Vai direto ao representante</b><i>pula a triagem técnica</i></div></div>
+    <div class="bl">Aceita conversar</div>
+    <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>IA levanta o técnico — as 5 perguntas</b>
+      <div class="pb"><div class="pn">PROMPT · triagem_industrial</div>
+      <ul>
+        <li><b>1.</b> Que tipo de indústria / o que produz</li>
+        <li><b>2.</b> O que está queimando ou parando</li>
+        <li><b>3.</b> Com que frequência acontece</li>
+        <li><b>4.</b> Já tem DPS ou aterramento instalado</li>
+        <li><b>5.</b> Cidade e estado (define o rep da região)</li>
+        <li>Máximo 5 — questionário longo mata a conversa</li>
+        <li>Oferta é <b>locação</b> · ⛔ nunca compra · ⛔ nunca preço</li>
+        <li>Se pedir humano a qualquer momento, encerra e passa</li>
+      </ul>
+      <div class="po">→ grava: setor · sintoma · frequência · proteção atual · região</div></div>
+    </div></div>
+    <div class="cn"></div>
+    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Representante recebe já mastigado</b><i>tarefa no quadro dele + espelho no do diretor</i></div></div>
+  </div>
+ </div>
+</div>
+
+<div class="grp" id="mail-i"><span class="grp-ic">📧</span><span class="grp-tx">E-mail — indústria</span><span class="grp-ln"></span></div>
+
+<div class="flow nw">
+ <div class="fh"><span class="fn">⭐ Retomada — quem mediu e não fechou</span><span class="fs">novo · a criar</span></div>
+ <div class="fb">
+  <div class="nd mn"><span class="nd-ic">✋</span><div class="nd-bd"><b>Base das ~200 industriais mornas</b><i>subida à mão, já com a etiqueta do sub-perfil</i></div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Em que ponto ele parou?</b></div></div>
+  <div class="br">
+    <div class="bl">Mediu, tem laudo, não fechou — o mais quente</div>
+    <div class="nd"><span class="nd-ic">📊</span><div class="nd-bd"><b>Retomar pelo dado dele</b><i>"medimos sua rede e encontramos X"</i></div></div>
+    <div class="bl">Ficou de medir e sumiu</div>
+    <div class="nd"><span class="nd-ic">📅</span><div class="nd-bd"><b>Reoferecer a medição</b><i>é agenda perdida, não objeção</i></div></div>
+    <div class="bl">Recebeu proposta e parou</div>
+    <div class="nd"><span class="nd-ic">💬</span><div class="nd-bd"><b>Atacar a objeção comercial</b><i>preço, timing ou decisor</i></div></div>
+    <div class="bl">O contato saiu da empresa</div>
+    <div class="nd"><span class="nd-ic">👤</span><div class="nd-bd"><b>Reabrir com outro decisor</b></div></div>
+  </div>
+  <div class="cn"></div>
+  <div class="nd"><span class="nd-ic">✉️</span><div class="nd-bd"><b>Sequência curta de retomada</b>
+    <div class="pb"><div class="pn">COPY · escrita pela master, por sub-perfil</div>
+    <ul>
+      <li>Reconhecer o histórico — nunca escrever como 1º contato</li>
+      <li>Trazer o dado da medição dele quando existir</li>
+      <li>O que mudou desde então (case novo, norma, produto)</li>
+      <li>⛔ Nunca tratar como frio — ofende quem já recebeu visita</li>
+    </ul></div>
+  </div></div>
+  <div class="cn"></div>
+  <div class="nd hub"><span class="nd-ic">🔀</span><div class="nd-bd"><b>Respondeu → canal reps → triador técnico</b><i>com o histórico anexado</i></div></div>
+ </div>
+</div>
+
+<div class="flow">
+ <div class="fh"><span class="fn">Prospecção fria — por setor</span><span class="fs">E2 · existe</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>A etiqueta do setor dispara a sequência</b><i>base de ~6 mil e-mails já na plataforma</i></div></div>
+  <div class="cn"></div>
+  <div class="nd"><span class="nd-ic">✉️</span><div class="nd-bd"><b>Uma sequência por setor — não uma genérica</b>
+    <div class="pb"><div class="pn">COPY · escrita pela master, uma por setor</div>
+    <ul>
+      <li>Abrir pela dor <b>específica</b> do setor (tear, injetora, forno, envase)</li>
+      <li>Case do <b>mesmo setor</b> como prova</li>
+      <li>O equipamento que queima naquele setor, com nome</li>
+      <li>Convite à análise gratuita · oferta = locação</li>
+    </ul></div>
+  </div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Como ele reagiu?</b></div></div>
+  <div class="br">
+    <div class="bl">Pediu análise ou orçamento — é a conversão</div>
+    <div class="nd hub"><span class="nd-ic">🔀</span><div class="nd-bd"><b>Canal reps → triador técnico</b><i>as 5 perguntas antes de chegar ao rep</i></div></div>
+    <div class="bl">Só perguntou</div>
+    <div class="nd"><span class="nd-ic">🌱</span><div class="nd-bd"><b>Continua sendo nutrido</b><i>ainda não vira lead comercial</i></div></div>
+    <div class="bl">Pediu para sair</div>
+    <div class="nd end"><span class="nd-ic">⛔</span><div class="nd-bd"><b>Sai da base para sempre</b></div></div>
+  </div>
+  <div class="note">🎯 É afunilado <b>por setor</b>, não genérico. Cada setor tem sua sequência, com sua dor e seu case.</div>
+ </div>
+</div>
+
+<div class="flow">
+ <div class="fh"><span class="fn">Nutrição — indústria (inbound)</span><span class="fs">E1 · existe</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Lead novo marcado como indústria</b></div></div>
+  <div class="cn"></div>
+  <div class="nd"><span class="nd-ic">✉️</span><div class="nd-bd"><b>Sequência com esperas</b><i>dor → prova → como funciona → convite</i>
+    <div class="pb"><div class="pn">COPY · escrita pela master</div>
+    <ul>
+      <li>Vocabulário de fábrica: linha parada, CLP, inversor</li>
+      <li>Prova: case com medição de campo</li>
+      <li>Oferta: <b>locação</b> — teste sem custo</li>
+      <li>⛔ Nunca oferecer compra</li>
+    </ul></div>
+  </div></div>
+  <div class="cn"></div>
+  <div class="nd hub"><span class="nd-ic">🔀</span><div class="nd-bd"><b>Pediu a análise → canal reps → triador técnico</b></div></div>
+ </div>
+</div>
+
+<div class="grp" id="mail-ni"><span class="grp-ic">📧</span><span class="grp-tx">E-mail — comércio e residência</span><span class="grp-ln"></span></div>
+
+<div class="flow">
+ <div class="fh"><span class="fn">Nutrição — comércio</span><span class="fs">a criar · 3 famílias</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Lead marcado como comércio + ramo</b><i>a etiqueta do ramo escolhe a família</i></div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Qual família?</b></div></div>
+  <div class="br">
+    <div class="bl">Cadeia do frio</div>
+    <div class="nd"><span class="nd-ic">🧊</span><div class="nd-bd"><b>padaria · açougue · mercado · restaurante · farmácia</b><i>dor: mercadoria estragada</i></div></div>
+    <div class="bl">Serviço com equipamento caro</div>
+    <div class="nd"><span class="nd-ic">💇</span><div class="nd-bd"><b>salão · clínica · academia</b><i>dor: aparelho parado = agenda cancelada</i></div></div>
+    <div class="bl">Escritório e TI</div>
+    <div class="nd"><span class="nd-ic">💻</span><div class="nd-bd"><b>coworking · contabilidade · consultório</b><i>dor: servidor e dado</i></div></div>
+  </div>
+  <div class="cn"></div>
+  <div class="nd"><span class="nd-ic">✉️</span><div class="nd-bd"><b>Sequência da família</b>
+    <div class="pb"><div class="pn">COPY · escrita pela master</div>
+    <ul>
+      <li>Dor: mercadoria perdida e dia sem faturar</li>
+      <li>Vocabulário: freezer, câmara fria, PDV, forno</li>
+      <li>Oferta: <b>compra direta</b>, garantia de 3 anos</li>
+      <li>⛔ Nunca falar CLP, linha de produção, locação</li>
+    </ul></div>
+  </div></div>
+  <div class="cn"></div>
+  <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Calculadora → compra</b></div></div>
+ </div>
+</div>
+
+<div class="flow">
+ <div class="fh"><span class="fn">Nutrição — residencial e condomínio</span><span class="fs">a criar</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Lead marcado como residência ou condomínio</b></div></div>
+  <div class="cn"></div>
+  <div class="nd"><span class="nd-ic">✉️</span><div class="nd-bd"><b>Sequência de patrimônio</b>
+    <div class="pb"><div class="pn">COPY · escrita pela master</div>
+    <ul>
+      <li>Dor: equipamento caro queimado, reposição lenta</li>
+      <li>⚠️ Não existe "dia parado" — ele não perde faturamento</li>
+      <li>Casa: automação, home theater, solar, carregador do carro</li>
+      <li>Condomínio: elevador, bomba, portão, CFTV — decide o síndico</li>
+      <li>Oferta: <b>compra direta</b>, instalação por eletricista</li>
+    </ul></div>
+  </div></div>
+  <div class="cn"></div>
+  <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Calculadora → compra</b></div></div>
+ </div>
+</div>
+
+<div class="grp" id="wa2"><span class="grp-ic">📞</span><span class="grp-tx">WhatsApp Número 2 — Representantes</span><span class="grp-ln"></span></div>
+
+<div class="flow">
+ <div class="fh"><span class="fn">Recrutar novos representantes</span><span class="fs">R1 + R2 · pausados</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Todo dia libera um lote da base</b><i>40 por dia · +24 mil contatos já na plataforma</i></div></div>
+  <div class="cn"></div>
+  <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>IA entrevista o candidato</b>
+    <div class="pb"><div class="pn">PROMPT · prospeccao_reps</div>
+    <ul>
+      <li>Apresentar a oportunidade de representação</li>
+      <li>Levantar: atuação · segmentos · porte · acesso ao decisor · região</li>
+      <li>Identificar oportunidade concreta em carteira</li>
+      <li>Detectar pedido de remoção (LGPD) e respeitar</li>
+      <li>Se for cliente e não candidato: mandar o link do Número 1</li>
+    </ul>
+    <div class="po">→ grava: classificação · perfil · e-mail · resumo</div></div>
+  </div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Que tipo de candidato é?</b></div></div>
+  <div class="br">
+    <div class="bl">Bom agora</div>
+    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Qualificação + reunião + avisa a diretoria</b></div></div>
+    <div class="bl">Sem encaixe</div>
+    <div class="nd end"><span class="nd-ic">🚫</span><div class="nd-bd"><b>Perdido</b></div></div>
+    <div class="bl">Pediu para sair (LGPD)</div>
+    <div class="nd end"><span class="nd-ic">⛔</span><div class="nd-bd"><b>Nunca mais é procurado</b></div></div>
+    <div class="bl">Não deu para classificar</div>
+    <div class="nd mn"><span class="nd-ic">✋</span><div class="nd-bd"><b>Tarefa para alguém revisar</b></div></div>
+  </div>
+  <div class="note">⛔ <b>Sem reaquecimento de reps.</b> Com 24 mil contatos novos na fila, o volume diário rende mais em gente nova.</div>
+ </div>
+</div>
+
+<footer>
+  Documento interno · Somatec Blocking · mantido pela sessão de planejamento.<br>
+  Fonte da verdade dos fluxos: <code>clients/somatec/reports/fluxos/mapa-fluxos.md</code>
+</footer>
+
+</div>
+</body>
+</html>
