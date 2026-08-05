@@ -165,6 +165,8 @@ export function OrcamentoIndustrial({
       whatsapp: fd.get('whatsapp'),
       empresa: fd.get('company'),
       segmento: 'Industrial · locação',
+      // Só chega aqui quem passou na triagem de Grupo A (o corte industrial).
+      publico: 'industria',
       resumo,
       sourcePage: `/${landingSlug}`,
       lgpdConsent: fd.get('lgpd_consent') === 'on',

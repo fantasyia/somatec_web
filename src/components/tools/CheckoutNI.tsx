@@ -190,6 +190,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       whatsapp: fd.get('whatsapp'),
       empresa: fd.get('company'),
       segmento: `NI · ${setor}`,
+      // A LP já define o público — o lead sai roteável sem perguntar de novo.
+      publico: setor === 'residencial' ? 'residencia' : 'comercio',
       resumo,
       sourcePage: `/${landingSlug}`,
       lgpdConsent: fd.get('lgpd_consent') === 'on',

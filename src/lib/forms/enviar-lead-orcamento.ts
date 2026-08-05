@@ -1,4 +1,5 @@
 import { getAtribuicao } from '@/lib/attribution';
+import type { PublicoId } from '@/lib/constants/setores';
 
 // =============================================================================
 // Envio do lead dos wizards de orçamento — o mesmo caminho pras duas trilhas
@@ -19,6 +20,10 @@ export type LeadOrcamento = {
   lgpdConsent: boolean;
   honeypot: FormDataEntryValue | null;
   captchaToken: string;
+  /** Público do lead → vira etiqueta que roteia a nutrição. Os wizards SABEM o
+   *  público (a LP define residencial/comercial; a triagem de Grupo A define
+   *  industrial), então não faz sentido perguntar de novo. */
+  publico?: PublicoId;
 };
 
 export type ResultadoEnvio = { ok: true } | { ok: false; mensagem: string };
@@ -42,6 +47,7 @@ export async function enviarLeadOrcamento(d: LeadOrcamento): Promise<ResultadoEn
         website: d.honeypot ?? '',
         captcha_token: d.captchaToken,
         formulario: 'calculadora',
+        ...(d.publico ? { publico: d.publico } : {}),
         ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
       }),
     });
