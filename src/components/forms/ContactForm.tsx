@@ -16,12 +16,8 @@ import {
 } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
-import {
-  PUBLICOS,
-  setoresDoPublico,
-  rotuloSetor,
-  type PublicoId,
-} from '@/lib/constants/setores';
+import { PublicoSetorFields } from './fields/PublicoSetorFields';
+import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
 import Link from 'next/link';
 
 export type ContactFormVariant =
@@ -240,32 +236,15 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
       {/* Público + setor — viram ETIQUETA no Betinna e roteiam a nutrição.
           Substituíram o antigo campo "Segmento" de texto livre (que ainda tinha
           exemplo da MSM): nome livre nunca casaria com a etiqueta do app. */}
-      <SelectField
-        label="Você está buscando proteção para"
-        name="publico"
-        required
-        placeholder="Selecione"
-        value={publico}
-        onChange={(e) => {
-          setPublico(e.target.value as PublicoId | '');
-          setSetor(''); // troca de público invalida o setor escolhido
-        }}
-        options={PUBLICOS.map((p) => ({ value: p.id, label: `${p.label} — ${p.descricao}` }))}
-        error={errors.publico}
+      <PublicoSetorFields
+        idPrefix="contato"
+        publico={publico}
+        setor={setor}
+        onPublicoChange={setPublico}
+        onSetorChange={setSetor}
+        erroPublico={errors.publico}
+        erroSetor={errors.setor}
       />
-      {publico && (
-        <SelectField
-          label="Ramo de atividade"
-          name="setor"
-          required
-          placeholder="Selecione"
-          value={setor}
-          onChange={(e) => setSetor(e.target.value)}
-          options={setoresDoPublico(publico).map((s) => ({ value: s.slug, label: s.label }))}
-          hint="Não achou o seu? Escolha “Outros” — a gente registra e inclui na lista."
-          error={errors.setor}
-        />
-      )}
 
       {/* Terceirização */}
       {showProductInterest && (

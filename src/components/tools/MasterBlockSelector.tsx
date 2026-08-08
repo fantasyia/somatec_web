@@ -9,6 +9,8 @@ import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
+import { PublicoSetorFields } from '@/components/forms/fields/PublicoSetorFields';
+import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
 import {
   selecionarMasterBlock,
   formatBRL,
@@ -23,19 +25,6 @@ import {
 // (form_type 'b2b'), com a seleção na mensagem. Dimensionamento indicativo —
 // o projeto final é sempre validado pela engenharia (proteção em cascata).
 // =============================================================================
-
-const SEGMENTS = [
-  'Alimentícia',
-  'Autopeças',
-  'Metalúrgica / Siderúrgica',
-  'Têxtil',
-  'Farmacêutica',
-  'Plástico / Injeção',
-  'Papel / Papelão',
-  'Mineração',
-  'Comércio / Residência',
-  'Outro',
-] as const;
 
 // Aceita "1250", "1.250", "1250 A" — retorna número ou 0.
 function parseAmp(s: string): number {
@@ -55,8 +44,9 @@ export function MasterBlockSelector({
   ctaLabel = 'Receber o dimensionamento',
 }: Props = {}) {
   const [corrente, setCorrente] = useState('');
-  const [segment, setSegment] = useState('');
-  const [segmentOutro, setSegmentOutro] = useState('');
+  // Público + setor: viram etiqueta no Betinna e roteiam a nutrição.
+  const [publico, setPublico] = useState<PublicoId | ''>('');
+  const [setor, setSetor] = useState('');
 
   const [status, setStatus] = useState<FormStatusKind>('idle');
   const [message, setMessage] = useState<string | null>(null);
@@ -91,7 +81,9 @@ export function MasterBlockSelector({
           email: fd.get('email'),
           whatsapp: fd.get('whatsapp'),
           company: fd.get('company') ?? '',
-          segment: segment === 'Outro' && segmentOutro.trim() ? segmentOutro.trim() : segment,
+          segment: rotuloSetor(publico, setor),
+          ...(publico ? { publico } : {}),
+          ...(setor ? { setor } : {}),
           message: resumo,
           lgpd_consent: fd.get('lgpd_consent') === 'on',
           source_page: sourcePage,
@@ -217,48 +209,13 @@ export function MasterBlockSelector({
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label
-              htmlFor="sel-segment"
-              className="block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
-            >
-              Segmento
-            </label>
-            <select
-              id="sel-segment"
-              value={segment}
-              onChange={(e) => setSegment(e.target.value)}
-              className="w-full rounded-btn border border-[rgb(var(--border))] bg-[rgb(var(--bg))] px-3.5 py-2.5 font-sans text-sm outline-none transition-colors focus:border-gold"
-            >
-              <option value="">Selecione…</option>
-              {SEGMENTS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-            {/* "Outro" abre campo livre — o texto digitado vira o segmento do lead. */}
-            {segment === 'Outro' && (
-              <div className="pt-1.5">
-                <label
-                  htmlFor="sel-segment-outro"
-                  className="block pb-1.5 text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
-                >
-                  Qual é o seu segmento?
-                </label>
-                <input
-                  id="sel-segment-outro"
-                  type="text"
-                  value={segmentOutro}
-                  onChange={(e) => setSegmentOutro(e.target.value)}
-                  maxLength={160}
-                  required
-                  placeholder="Ex.: gráfica, frigorífico, data center…"
-                  className="w-full rounded-btn border border-[rgb(var(--border))] bg-[rgb(var(--bg))] px-3.5 py-2.5 font-sans text-sm outline-none transition-colors focus:border-gold"
-                />
-              </div>
-            )}
-          </div>
+          <PublicoSetorFields
+            idPrefix="sel"
+            publico={publico}
+            setor={setor}
+            onPublicoChange={setPublico}
+            onSetorChange={setSetor}
+          />
 
           <label className="flex items-start gap-2.5 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
             <input type="checkbox" name="lgpd_consent" required className="mt-0.5 accent-[#F39200]" />
