@@ -76,7 +76,7 @@ describe('taxonomia de público e setor', () => {
     ]);
     expect(slugs('comercio')).toEqual([
       'cadeia-do-frio', 'varejo', 'condominios', 'tecnologia-ti', 'carros-eletricos',
-      'pequenos-fabricantes', 'saude', 'energia-solar', 'outros',
+      'pequenos-fabricantes', 'saude', 'servicos', 'energia-solar', 'outros',
     ]);
     expect(slugs('residencia')).toEqual([
       'residencia-alto-padrao', 'condominios', 'carros-eletricos', 'energia-solar', 'outros',

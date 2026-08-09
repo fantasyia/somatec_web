@@ -81,6 +81,9 @@ export const SETORES: Readonly<Record<PublicoId, readonly Setor[]>> = {
     { slug: 'carros-eletricos', label: 'Recarga de carro elétrico' },
     { slug: 'pequenos-fabricantes', label: 'Pequenos fabricantes e comércio' },
     { slug: 'saude', label: 'Saúde (clínica, laboratório)' },
+    // `saude` já cobre clínica e laboratório; sobrava salão/academia/lavanderia
+    // sem recorte — caíam em varejo ou outros (despacho 2026-08-09).
+    { slug: 'servicos', label: 'Serviços (salão, academia, lavanderia)' },
     { slug: 'energia-solar', label: 'Energia solar' },
   ],
   residencia: [
