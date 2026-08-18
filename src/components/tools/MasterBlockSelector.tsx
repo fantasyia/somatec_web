@@ -13,12 +13,16 @@ import { PublicoSetorFields } from '@/components/forms/fields/PublicoSetorFields
 import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
 import {
   selecionarMasterBlock,
-  formatBRL,
   MB_TENSAO,
   MB_LOAD_MAX,
 } from '@/lib/constants/masterblock';
 
 // =============================================================================
+// ⛔ NÃO mostrar preço aqui. Esta página é pública e sem contexto de público:
+// quem cai nela pode ser cliente INDUSTRIAL, cuja oferta é locação. Ver preço
+// de venda direta atropela o modelo comercial e queima o representante. Preço
+// só na trilha NI (CheckoutNI, dentro das LPs de casa e comércio).
+//
 // Seletor "Qual Master Block é o meu?" — o visitante informa a corrente de
 // carga do circuito (A) e vê, na hora, o modelo recomendado (Tabela de
 // Potências 2026). A captura envia o lead pro Betinna via /api/forms/submit
@@ -64,7 +68,7 @@ export function MasterBlockSelector({
 
     const fd = new FormData(e.currentTarget);
     const selecao = model
-      ? `modelo recomendado ${model.model} (${model.loadLabel}, surto ${model.surge}) — preço de venda ${formatBRL(model.preco)}`
+      ? `modelo recomendado ${model.model} (${model.loadLabel}, surto ${model.surge})`
       : `acima da linha padrão (> ${MB_LOAD_MAX} A) — requer solução dedicada`;
     const resumo =
       `[Seletor Master Block] Corrente de carga informada: ${amp} A → ${selecao}. ` +
@@ -158,15 +162,11 @@ export function MasterBlockSelector({
                 <span>Máx. surto (8/20 µs): {model.surge}</span>
                 <span>Tensão: {MB_TENSAO}</span>
               </div>
-              <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-t border-white/10 pt-4">
-                <span className="text-sm text-white/60">Preço de venda do equipamento</span>
-                <span className="font-serif text-3xl font-bold text-gold">{formatBRL(model.preco)}</span>
-              </div>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/80">
                 Indicação pela corrente de carga. O projeto final é dimensionado pela engenharia
                 em <span className="font-semibold text-white">proteção em cascata</span> (entrada,
                 quadro e equipamento crítico) + aterramento dedicado. Deixe seus dados que a Somatec
-                confirma o modelo e fecha a compra com você.
+                confirma o modelo com você.
               </p>
             </>
           ) : (

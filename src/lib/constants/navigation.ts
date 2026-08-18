@@ -8,6 +8,10 @@ export type NavItem = {
 // TODO item do nav abre o mesmo painel — nada de item "morto" no hover.
 // Regra: o `description` de cada filho é resumo da própria página de destino
 // (metadata), não claim novo.
+//
+// ⛔ NÃO colocar /ferramentas/qual-master-block no menu. O nav é o caminho do
+// comprador INDUSTRIAL, cuja oferta é locação — mandar ele pra um seletor de
+// compra direta atropela o modelo comercial e o representante.
 export const HEADER_NAV: NavItem[] = [
   {
     label: 'A Somatec',
@@ -40,14 +44,14 @@ export const HEADER_NAV: NavItem[] = [
         description: 'Supressor com filtro passivo atuante em 100 kHz — não é um DPS comum.',
       },
       {
-        label: 'Qual modelo é o meu',
-        href: '/ferramentas/qual-master-block',
-        description: 'Da corrente do circuito ao modelo indicado, em segundos.',
-      },
-      {
         label: 'Comprovação e normas',
         href: '/a-somatec/comprovacao-e-normas',
         description: '12 modelos de 8 kA a 100 kA, dentro da norma.',
+      },
+      {
+        label: 'Tecnologia e fabricação',
+        href: '/a-somatec/tecnologia-e-fabricacao',
+        description: 'Como o Master Block é projetado e fabricado.',
       },
     ],
   },
@@ -111,11 +115,6 @@ export const HEADER_NAV: NavItem[] = [
         label: 'Custo de parada',
         href: '/ferramentas/custo-de-parada',
         description: 'Coloque seus números e veja o prejuízo anual que a proteção comum não evita.',
-      },
-      {
-        label: 'Qual Master Block',
-        href: '/ferramentas/qual-master-block',
-        description: 'Da corrente do circuito ao modelo indicado, em segundos.',
       },
       {
         label: 'Projeto da sua planta',
