@@ -21,6 +21,7 @@ import { trackEvent } from '@/lib/analytics';
 import { enviarLeadOrcamento } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { selecionarMasterBlock, formatBRL, MB_LOAD_MAX } from '@/lib/constants/masterblock';
+import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
 
 // Aceita "40", "63 A", "1.250" → número ou 0.
 function parseAmp(s: string): number {
@@ -484,6 +485,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                         : 'Nossa equipe dimensiona o Master Block certo pro seu quadro e te retorna com o valor — sem compromisso, sem vendedor no seu pé.'}
                   </p>
                 </div>
+
+                {/* Frete grátis + brinde na janela de 20 min (despacho do doc). */}
+                <OfertaCheckout />
 
                 <form onSubmit={onSubmit} className="space-y-4" noValidate>
                   <div className="grid gap-4 sm:grid-cols-2">
