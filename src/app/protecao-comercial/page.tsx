@@ -7,6 +7,9 @@ import {
   Wrench,
   Building2,
   BadgeCheck,
+  Radar,
+  PowerOff,
+  RotateCw,
 } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { ProofBadges } from '@/components/ui/ProofBadges';
@@ -51,12 +54,26 @@ const SEGMENTOS: readonly { Icon: LucideIcon; titulo: string; texto: string }[] 
   { Icon: Building2, titulo: 'Condomínio', texto: 'Quando a placa do elevador queima, a conta não estava na previsão — e a assembleia quer saber por quê.' },
 ];
 
+// C3.5 — Falta de fase. Copy validada pelo Léo/Leandro (despacho 2026-08-18).
+// ⛔ Nada de detalhe de construção interna: o equipamento chega pronto e com
+// manual, então pro cliente isso é uma FUNÇÃO do produto, não uma peça.
+// ⛔ O claim é "evita que o motor queime por falta de fase", nunca "protege o
+// motor". E não se enumera tipo de fase (tri/bi/monofásico).
+// ⛔ Não replicar em /produtos: comprador industrial perguntaria "por que eu não
+// tenho isso?" — isso é conversa do representante, não conteúdo de site.
+const FALTA_DE_FASE: readonly { Icon: LucideIcon; titulo: string; texto: string }[] = [
+  { Icon: Radar, titulo: 'Detecta', texto: 'percebe no momento em que uma fase cai' },
+  { Icon: PowerOff, titulo: 'Desliga', texto: 'corta o circuito antes de o motor forçar' },
+  { Icon: RotateCw, titulo: 'Religa sozinho', texto: 'volta quando a energia normaliza, sem ninguém ir até o quadro' },
+];
+
 // C7 — FAQ (core da R7 + 2 trocas comerciais)
 const FAQ: readonly { pergunta: string; resposta: string }[] = [
   { pergunta: 'Meu negócio pode parar durante a instalação?', resposta: 'A instalação é rápida e programada pelo seu eletricista — dá pra fazer fora do horário de movimento.' },
   { pergunta: 'Sou MEI/pequeno — isso é pra mim?', resposta: 'O modelo é dimensionado pelo seu quadro, não pelo seu porte. Se o seu faturamento depende de equipamento ligado, é pra você.' },
   { pergunta: 'Já tenho DPS e estabilizador. Não basta?', resposta: 'Eles pegam uma parte. As variações mais rápidas — as que queimam placa e travam máquina — passam por eles. O Master Block existe pra essa camada.' },
   { pergunta: 'E se eu não souber tensão/corrente?', resposta: 'Toca em "não sei", manda uma foto do quadro e a gente dimensiona.' },
+  { pergunta: 'O Master Block protege contra falta de fase?', resposta: 'Sim. Quando uma das fases da rede cai, ele desliga o circuito para que os equipamentos não continuem trabalhando com alimentação incompleta — é isso que evita que o motor queime por falta de fase. Assim que a energia normaliza, ele religa sozinho, sem ninguém precisar mexer no quadro. Se cair de novo, o processo se repete. Já vem configurado assim, com manual.' },
   { pergunta: 'E se não funcionar?', resposta: 'Garantia de 3 anos, e você fala com gente — WhatsApp direto, sem robô de 0800.' },
 ];
 
@@ -184,6 +201,40 @@ export default async function ProtecaoComercialPage() {
               </div>
             </Reveal>
           </div>
+        </section>
+      </div>
+
+      {/* ── C3.5 · FALTA DE FASE (off-white) ──────────────────────── */}
+      <div className="tone-base">
+        <section className="container-msm section-y" aria-label="Proteção contra falta de fase">
+          <Reveal className="max-w-3xl space-y-4">
+            <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
+              Falta de fase: o defeito que queima o motor sem ninguém perceber
+            </h2>
+            <p className="leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
+              Câmara fria, compressor, bomba, elevador, ar-condicionado — quando uma das fases da
+              rede cai, o motor continua tentando trabalhar com o que sobrou. Ele força, esquenta e
+              queima, muitas vezes de madrugada, sem ninguém por perto. O Master Block identifica a
+              falta e desliga o circuito antes do dano. É isso que{' '}
+              <span className="font-semibold text-gold">evita que o motor queime por falta de fase</span>.
+            </p>
+          </Reveal>
+          <Reveal delay={120} className="mt-8">
+            <ul className="grid gap-5 sm:grid-cols-3">
+              {FALTA_DE_FASE.map(({ Icon, titulo, texto }) => (
+                <li
+                  key={titulo}
+                  className="flex items-start gap-3 rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5"
+                >
+                  <Icon className="mt-0.5 h-5 w-5 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
+                  <p className="text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+                    <span className="font-sans font-semibold text-[rgb(var(--text))]">{titulo}</span>{' '}
+                    — {texto}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         </section>
       </div>
 

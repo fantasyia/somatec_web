@@ -58,6 +58,7 @@ const FAQ: readonly { pergunta: string; resposta: string }[] = [
   { pergunta: 'Já tenho DPS no quadro. Não basta?', resposta: 'O DPS pega uma parte. As variações mais rápidas — as que queimam placa — passam por ele. O Master Block existe pra essa camada.' },
   { pergunta: 'E se eu não souber tensão/corrente?', resposta: 'Toca em "não sei", manda uma foto do quadro e a gente dimensiona.' },
   { pergunta: 'Funciona com energia solar?', resposta: 'Sim — inversor solar é justamente um dos equipamentos que mais recomendamos proteger.' },
+  { pergunta: 'O Master Block protege contra falta de fase?', resposta: 'Sim. Se uma das fases da rede cai, ele desliga o circuito para que os equipamentos não fiquem trabalhando com alimentação incompleta — é o que evita que o motor da bomba da piscina, do ar-condicionado central ou do portão queime por falta de fase. Quando a energia normaliza, ele religa sozinho, sem ninguém precisar ir até o quadro. Se cair de novo, o processo se repete. Já vem configurado assim, com manual.' },
   { pergunta: 'E se não funcionar?', resposta: 'Garantia de 3 anos, e você fala com gente — WhatsApp direto, sem robô de 0800.' },
 ];
 
