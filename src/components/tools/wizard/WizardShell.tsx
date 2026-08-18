@@ -25,6 +25,10 @@ type Props = {
   mensagem: string | null;
   /** Habilita o botão Continuar. */
   podeAvancar: boolean;
+  /** Por que o Continuar está travado. Botão desabilitado sem explicação faz o
+   *  usuário achar que a página quebrou — REGRA de todos os wizards: se trava,
+   *  diz o motivo. */
+  motivoBloqueio?: string | null;
   onVoltar: () => void;
   onContinuar: () => void;
   /** Miolo do passo atual. */
@@ -47,6 +51,7 @@ export function WizardShell({
   status,
   mensagem,
   podeAvancar,
+  motivoBloqueio,
   onVoltar,
   onContinuar,
   children,
@@ -103,18 +108,25 @@ export function WizardShell({
                 <span />
               )}
               {!ultimoPasso && (
-                <button
-                  type="button"
-                  onClick={onContinuar}
-                  disabled={!podeAvancar}
-                  className="btn-primary group disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Continuar
-                  <ChevronRight
-                    className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
-                    strokeWidth={2}
-                  />
-                </button>
+                <div className="flex flex-col items-end gap-1.5">
+                  <button
+                    type="button"
+                    onClick={onContinuar}
+                    disabled={!podeAvancar}
+                    className="btn-primary group disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Continuar
+                    <ChevronRight
+                      className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
+                      strokeWidth={2}
+                    />
+                  </button>
+                  {!podeAvancar && motivoBloqueio && (
+                    <p role="status" className="max-w-[26rem] text-right text-xs text-[rgb(var(--text-muted))]">
+                      {motivoBloqueio}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
 

@@ -134,11 +134,29 @@ export function OrcamentoIndustrial({
     }
   }
 
+  /** MESMA REGRA do wizard NI: linha adicionada tem de ser preenchida. Uma
+   *  linha de setor em branco era descartada em silêncio — o cliente montava a
+   *  árvore achando que tinha 3 galpões e o projeto saía com 2. */
+  const setoresEmBranco = setores.filter((s) => s.trim() === '').length;
+
   function podeAvancar(): boolean {
     if (passo === 1) return grupo === 'A' || grupo === 'naosei'; // B sai por outro caminho
     if (passo === 2) return tensaoSaida !== '';
-    if (passo === 3) return setoresValidos.length > 0;
+    if (passo === 3) return setoresValidos.length > 0 && setoresEmBranco === 0;
     return true; // passo 4 (pontos) pode seguir mesmo em 0 (fallback foto/contato)
+  }
+
+  function motivoBloqueio(): string | null {
+    if (passo === 2 && tensaoSaida === '') return 'Escolha a tensão de saída pra continuar.';
+    if (passo === 3) {
+      if (setoresValidos.length === 0) return 'Dê nome a pelo menos um setor ou galpão.';
+      if (setoresEmBranco > 0) {
+        return setoresEmBranco === 1
+          ? 'Uma linha de setor ficou em branco. Preencha ou remova.'
+          : `${setoresEmBranco} linhas de setor ficaram em branco. Preencha ou remova.`;
+      }
+    }
+    return null;
   }
 
   function setPonto(key: string, delta: number) {
@@ -234,6 +252,7 @@ export function OrcamentoIndustrial({
       status={status}
       mensagem={message}
       podeAvancar={podeAvancar()}
+      motivoBloqueio={motivoBloqueio()}
       onVoltar={() => irPara(passo - 1)}
       onContinuar={() => irPara(passo + 1)}
       rodape={

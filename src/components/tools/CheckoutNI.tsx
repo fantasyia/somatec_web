@@ -251,11 +251,32 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       ? `Entrega estimada em ${freteOpcoes[0].prazoDias} dia(s) úteis${freteOpcoes[0].transportadora ? ` — ${freteOpcoes[0].transportadora}` : ''}.`
       : `Prazo de entrega ${freteDoPedido().prazo}.`;
 
+  /** Quadros marcados que ficaram sem corrente. REGRA de todos os wizards:
+   *  item marcado sem número não passa — o cliente veria um "a dimensionar" que
+   *  ele nem sabe que pediu, e o pedido sairia com preço incompleto. Marcar é
+   *  opcional; depois de marcado, o número é obrigatório. */
+  const adicionaisSemCorrente = adicionais.filter((a) => parseAmp(a.corrente) === 0);
+
   function podeAvancar(): boolean {
     if (passo === 1) return contexto !== '';
-    if (passo === 2) return naoSei || (tensao !== '' && corrente.trim() !== '');
+    if (passo === 2) return naoSei || (tensao !== '' && parseAmp(corrente) > 0);
+    if (passo === 3) return adicionaisSemCorrente.length === 0;
     if (passo === 4) return contatoOk; // só avança pro checkout com contato
-    return true; // passo 3 (adicionais) é opcional
+    return true;
+  }
+
+  function motivoBloqueio(): string | null {
+    if (passo === 2 && !naoSei) {
+      if (tensao === '') return 'Escolha a tensão pra continuar.';
+      if (parseAmp(corrente) === 0) return 'Informe a corrente do disjuntor geral, em ampères.';
+    }
+    if (passo === 3 && adicionaisSemCorrente.length > 0) {
+      return adicionaisSemCorrente.length === 1
+        ? `Informe a corrente do quadro "${adicionaisSemCorrente[0].nome}" — ou desmarque ele.`
+        : `${adicionaisSemCorrente.length} quadros marcados estão sem a corrente. Preencha ou desmarque.`;
+    }
+    if (passo === 4 && !contatoOk) return 'Preencha nome, WhatsApp e e-mail pra continuar.';
+    return null;
   }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -338,6 +359,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       status={status}
       mensagem={message}
       podeAvancar={podeAvancar()}
+      motivoBloqueio={motivoBloqueio()}
       onVoltar={() => irPara(passo - 1)}
       onContinuar={() => irPara(passo + 1)}
     >
@@ -513,14 +535,15 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                           {q}
                         </button>
                         {/* Corrente do quadro adicional → dá o MB secundário e o
-                            preço dele. Em branco = dimensionado no contato. */}
+                            preço dele. Marcou o quadro, o número é obrigatório
+                            (senão o pedido sai com item sem preço). */}
                         {sel && (
                           <div className="px-4 pb-4">
                             <label
                               htmlFor={`${baseId}-adic-${q}`}
                               className="block pb-1.5 text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
                             >
-                              Corrente do disjuntor deste quadro (A) — opcional
+                              Corrente do disjuntor deste quadro (A)
                             </label>
                             <input
                               id={`${baseId}-adic-${q}`}
@@ -531,8 +554,14 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                               placeholder="Ex.: 25, 40…"
                               value={escolhido.corrente}
                               onChange={(e) => setCorrenteAdicional(q, soDigitos(e.target.value))}
+                              aria-invalid={parseAmp(escolhido.corrente) === 0 || undefined}
                               className="w-full rounded-btn border border-[rgb(var(--border))] bg-[rgb(var(--bg))] px-3.5 py-2 font-sans text-sm outline-none transition-colors focus:border-gold"
                             />
+                            <p className="pt-1.5 text-xs text-[rgb(var(--text-muted))]">
+                              {parseAmp(escolhido.corrente) === 0
+                                ? 'Obrigatório — sem esse número não dá pra dimensionar este quadro.'
+                                : `Só números, de 1 a ${MB_LOAD_MAX} A.`}
+                            </p>
                           </div>
                         )}
                       </div>
