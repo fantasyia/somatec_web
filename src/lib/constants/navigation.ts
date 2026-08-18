@@ -5,20 +5,52 @@ export type NavItem = {
   children?: NavItem[];
 };
 
+// TODO item do nav abre o mesmo painel — nada de item "morto" no hover.
+// Regra: o `description` de cada filho é resumo da própria página de destino
+// (metadata), não claim novo.
 export const HEADER_NAV: NavItem[] = [
   {
     label: 'A Somatec',
     href: '/a-somatec',
     children: [
-      { label: 'Quem somos', href: '/a-somatec/quem-somos' },
-      { label: 'Tecnologia e fabricação', href: '/a-somatec/tecnologia-e-fabricacao' },
+      {
+        label: 'Quem somos',
+        href: '/a-somatec/quem-somos',
+        description: 'Quem está por trás da tecnologia, desde 1998.',
+      },
+      {
+        label: 'Tecnologia e fabricação',
+        href: '/a-somatec/tecnologia-e-fabricacao',
+        description: 'Como o Master Block é projetado e fabricado.',
+      },
       {
         label: 'Comprovação e normas',
         href: '/a-somatec/comprovacao-e-normas',
+        description: 'DPS Classe III — ABNT NBR IEC 61643-1 e NBR 5410.',
       },
     ],
   },
-  { label: 'Tecnologia', href: '/produtos' },
+  {
+    label: 'Tecnologia',
+    href: '/produtos',
+    children: [
+      {
+        label: 'Master Block',
+        href: '/produtos',
+        description: 'Supressor com filtro passivo atuante em 100 kHz — não é um DPS comum.',
+      },
+      {
+        label: 'Qual modelo é o meu',
+        href: '/ferramentas/qual-master-block',
+        description: 'Da corrente do circuito ao modelo indicado, em segundos.',
+      },
+      {
+        label: 'Comprovação e normas',
+        href: '/a-somatec/comprovacao-e-normas',
+        description: '12 modelos de 8 kA a 100 kA, dentro da norma.',
+      },
+    ],
+  },
   {
     label: 'Soluções',
     href: '/solucoes',
@@ -50,9 +82,74 @@ export const HEADER_NAV: NavItem[] = [
       },
     ],
   },
-  { label: 'Resultados', href: '/resultados' },
-  { label: 'Diagnóstico', href: '/ferramentas/custo-de-parada' },
-  { label: 'Contato', href: '/contato' },
+  {
+    label: 'Resultados',
+    href: '/resultados',
+    children: [
+      {
+        label: 'Cases com número',
+        href: '/resultados',
+        description: 'Medição antes e depois da instalação do Master Block.',
+      },
+      {
+        label: 'Blog',
+        href: '/blog',
+        description: 'Proteção elétrica, VTCD e custo de parada, sem enrolação.',
+      },
+      {
+        label: 'Perguntas frequentes',
+        href: '/faq',
+        description: 'Respostas técnicas sobre Master Block, VTCD e o modelo sem risco.',
+      },
+    ],
+  },
+  {
+    label: 'Diagnóstico',
+    href: '/ferramentas/custo-de-parada',
+    children: [
+      {
+        label: 'Custo de parada',
+        href: '/ferramentas/custo-de-parada',
+        description: 'Coloque seus números e veja o prejuízo anual que a proteção comum não evita.',
+      },
+      {
+        label: 'Qual Master Block',
+        href: '/ferramentas/qual-master-block',
+        description: 'Da corrente do circuito ao modelo indicado, em segundos.',
+      },
+      {
+        label: 'Projeto da sua planta',
+        href: '/orcamento-industrial',
+        description: 'Remonte a árvore da planta e receba a proposta de proteção em cascata.',
+      },
+    ],
+  },
+  {
+    label: 'Contato',
+    href: '/contato',
+    children: [
+      {
+        label: 'Fale com o comercial',
+        href: '/contato',
+        description: 'Diagnóstico de qualidade de energia e proteção contra surtos.',
+      },
+      {
+        label: 'Proteção para minha casa',
+        href: '/protecao-residencial',
+        description: 'Automação, home theater, solar e carro elétrico na mesma rede.',
+      },
+      {
+        label: 'Proteção para meu negócio',
+        href: '/protecao-comercial',
+        description: 'Câmara fria, freezers e PDV protegidos de uma vez.',
+      },
+      {
+        label: 'Seja um representante',
+        href: '/representantes',
+        description: 'Represente ou indique as soluções da Somatec Blocking.',
+      },
+    ],
+  },
 ];
 
 export const HEADER_CTAS = {

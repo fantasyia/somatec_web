@@ -66,9 +66,9 @@ export const CASES: readonly Case[] = [
     city: 'Cascavel · PR',
     industria: 'textil',
     summary:
-      'Eliminação das queimas frequentes de equipamentos, que chegavam a parar até 4 dias por mês — mais de 13% da produção mensal.',
+      'Eliminação das queimas frequentes de equipamentos, que chegavam a parar até 4 dias por mês — 20% dos 20 dias produtivos do mês.',
     detail:
-      'Queimas frequentes de equipamentos paravam a produção em até 4 dias por mês — mais de 13% do total. Com o Master Block, as queimas foram eliminadas e a capacidade produtiva foi recuperada.',
+      'Queimas frequentes de equipamentos paravam a produção em até 4 dias por mês — 20% dos 20 dias produtivos do mês. Com o Master Block, as queimas foram eliminadas e a capacidade produtiva foi recuperada.',
   },
 ] as const;
 

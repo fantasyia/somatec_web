@@ -1,8 +1,16 @@
 /**
  * Marquee "empresas que confiam" — carrossel infinito e contínuo dos logos
  * oficiais dos clientes reais (29, todos autorizados). Lista duplicada +
- * trilho -50% = loop sem saltos; pausa no hover; respeita
- * prefers-reduced-motion.
+ * trilho -50% = loop sem saltos; respeita prefers-reduced-motion.
+ *
+ * ⚠️ NÃO voltar a usar `gap` no trilho. Com N itens duplicados o flex cria
+ * 2N-1 vãos, mas o keyframe anda -50% da largura TOTAL — ou seja, meio vão a
+ * menos. O trilho reiniciava deslocado e dava um tranco visível a cada volta.
+ * O respiro agora é margem no PRÓPRIO item: cada logo carrega o vão dela, as
+ * duas metades ficam idênticas e -50% cai exatamente no ponto certo.
+ *
+ * ⚠️ Também NÃO voltar a pausar no hover do grupo: qualquer passada de mouse
+ * pela faixa congelava o carrossel inteiro e lia como travamento.
  *
  * Título fala EMPRESAS, não "indústrias": a lista inclui varejo (Shopping
  * Vitória) e o site atende comércio, condomínio e residência — "indústrias"
@@ -73,12 +81,12 @@ export function HomeClients() {
                 encostava nas vizinhas — o vão entre as marcas variava. Agora
                 cada item tem a largura da própria logo e o respiro é sempre o
                 mesmo. */}
-            <ul className="flex w-max items-center gap-11 animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none md:gap-14">
+            <ul className="flex w-max items-center animate-marquee will-change-transform [backface-visibility:hidden] [transform:translateZ(0)] motion-reduce:animate-none">
               {TRACK.map((c, i) => (
                 <li
                   key={`${c.name}-${i}`}
                   aria-hidden={i >= CLIENTS.length}
-                  className="flex shrink-0 items-center justify-center"
+                  className="me-11 flex shrink-0 items-center justify-center md:me-14"
                 >
                   <Image
                     src={c.src}

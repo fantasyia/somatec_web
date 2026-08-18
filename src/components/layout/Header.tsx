@@ -13,18 +13,53 @@ import {
   BatteryCharging,
   ClipboardCheck,
   Wrench,
+  Building2,
+  Factory,
+  ShieldCheck,
+  Cpu,
+  Calculator,
+  Network,
+  BarChart3,
+  Newspaper,
+  HelpCircle,
+  Mail,
+  Home,
+  Store,
+  Handshake,
   type LucideIcon,
 } from 'lucide-react';
 import { HEADER_NAV, HEADER_CTAS } from '@/lib/constants/navigation';
 import { cn } from '@/lib/utils';
 
-// Ícone por solução (mapeado por href — mantém navigation.ts como dados puros).
-const SOLUTION_ICON: Record<string, LucideIcon> = {
+// Ícone por destino (mapeado por href — mantém navigation.ts como dados puros).
+// Cobre TODOS os itens do nav: todo menu abre o mesmo painel, então todo filho
+// precisa de ícone. Href repetido em menus diferentes reaproveita o ícone.
+const NAV_ICON: Record<string, LucideIcon> = {
+  // Soluções
   '/solucoes/protecao-contra-surtos': Zap,
   '/solucoes/qualidade-de-energia': Gauge,
   '/solucoes/banco-de-capacitores': BatteryCharging,
   '/solucoes/medicao-e-laudos': ClipboardCheck,
   '/solucoes/manutencao-cabine-primaria': Wrench,
+  // A Somatec
+  '/a-somatec/quem-somos': Building2,
+  '/a-somatec/tecnologia-e-fabricacao': Factory,
+  '/a-somatec/comprovacao-e-normas': ShieldCheck,
+  // Tecnologia
+  '/produtos': Cpu,
+  '/ferramentas/qual-master-block': Calculator,
+  '/orcamento-industrial': Network,
+  // Resultados
+  '/resultados': BarChart3,
+  '/blog': Newspaper,
+  '/faq': HelpCircle,
+  // Diagnóstico
+  '/ferramentas/custo-de-parada': Calculator,
+  // Contato
+  '/contato': Mail,
+  '/protecao-residencial': Home,
+  '/protecao-comercial': Store,
+  '/representantes': Handshake,
 };
 
 export function Header() {
@@ -174,11 +209,13 @@ export function Header() {
                   {item.label}
                 </Link>
 
-                {/* Mega menu — Soluções */}
-                {hasChildren && item.label === 'Soluções' && hoveredMenu === item.href && (
-                  <div
-                    className="fixed left-0 right-0 top-20 border-t border-[rgb(var(--border))] bg-[rgb(var(--bg))]/95 backdrop-blur-md shadow-premium-light dark:shadow-premium-dark animate-fade-up"
-                  >
+                {/* Painel único — TODO item do nav abre a mesma aba grande.
+                    Antes só "Soluções" tinha painel full-width e "A Somatec" um
+                    dropdown estreito; os demais não abriam nada. Agora é um só
+                    componente, e o número de colunas segue a quantidade de
+                    filhos (2 filhos não viram 3 colunas com um buraco). */}
+                {hasChildren && hoveredMenu === item.href && (
+                  <div className="fixed left-0 right-0 top-20 border-t border-[rgb(var(--border))] bg-[rgb(var(--bg))]/95 backdrop-blur-md shadow-premium-light dark:shadow-premium-dark animate-fade-up">
                     {/* Handlers no container (não no painel full-width): só a área
                         dos cards mantém o menu aberto — a lateral vazia fecha. */}
                     <div
@@ -186,12 +223,21 @@ export function Header() {
                       onMouseEnter={() => openMenu(item.href)}
                       onMouseLeave={scheduleCloseMenu}
                     >
-                      <div className="grid grid-cols-3 gap-4">
+                      <div
+                        className={cn(
+                          'grid gap-4',
+                          item.children!.length <= 2
+                            ? 'grid-cols-2'
+                            : item.children!.length === 4
+                              ? 'grid-cols-2 xl:grid-cols-4'
+                              : 'grid-cols-3',
+                        )}
+                      >
                         {item.children!.map((child) => {
-                          const Icon = SOLUTION_ICON[child.href];
+                          const Icon = NAV_ICON[child.href];
                           return (
                             <Link
-                              key={child.href}
+                              key={`${item.href}${child.href}`}
                               href={child.href}
                               className="group flex items-start gap-4 p-5 rounded-card border border-transparent hover:border-gold hover:bg-gold/5 transition-all duration-200 ease-premium"
                             >
@@ -224,26 +270,6 @@ export function Header() {
                   </div>
                 )}
 
-                {/* Dropdown vertical — A Somatec */}
-                {hasChildren && item.label === 'A Somatec' && hoveredMenu === item.href && (
-                  <div
-                    className="absolute left-1/2 -translate-x-1/2 top-full pt-3 min-w-[240px]"
-                    onMouseEnter={() => openMenu(item.href)}
-                    onMouseLeave={scheduleCloseMenu}
-                  >
-                    <div className="rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--surface))] shadow-premium-light dark:shadow-premium-dark p-2 animate-fade-up">
-                      {item.children!.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className="block px-3 py-2 rounded text-sm hover:bg-[rgb(var(--surface-elevated))] hover:text-gold transition-colors"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             );
           })}
