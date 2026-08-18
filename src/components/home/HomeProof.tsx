@@ -17,9 +17,9 @@ export function HomeProof() {
           Números reais, medidos na planta do cliente
         </h2>
         <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-          Grandes indústrias que já haviam tentado de tudo — inclusive com Weg, Siemens e
-          Schneider — só resolveram as paradas e queimas com a Somatec Blocking. Cada resultado
-          é comprovado por medição antes e depois da instalação.
+          Grandes indústrias que já haviam tentado de tudo — inclusive com outros
+          concorrentes — só resolveram as paradas e queimas com a Somatec Blocking. Cada
+          resultado é comprovado por medição antes e depois da instalação.
         </p>
       </Reveal>
 

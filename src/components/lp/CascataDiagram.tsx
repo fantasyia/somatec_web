@@ -52,19 +52,19 @@ export function CascataDiagram({ setor, entradaLabel, titulo }: Props) {
         <div className="flex shrink-0 flex-col items-center text-center">
           <span
             className={`${nodeBase} ${
-              inView ? 'border-gold bg-gold/10 text-gold' : 'border-[rgb(var(--border))] text-[rgb(var(--text-muted))]'
+              inView ? 'border-gold bg-gold/10 text-gold' : 'border-white/30 text-white/50'
             }`}
             style={{ transitionDelay: '0.1s' }}
           >
             <PlugZap className="h-6 w-6" strokeWidth={1.75} aria-hidden="true" />
           </span>
-          <span className="mt-2 max-w-[120px] font-sans text-sm font-semibold text-[rgb(var(--text))]">
+          <span className="mt-2 max-w-[120px] font-sans text-sm font-semibold text-white">
             {entradaLabel}
           </span>
         </div>
 
         {/* Trunk que preenche em direção aos secundários */}
-        <div className="relative h-0.5 w-12 shrink-0 bg-[rgb(var(--border))]" aria-hidden="true">
+        <div className="relative h-0.5 w-12 shrink-0 bg-white/20" aria-hidden="true">
           <div
             className="absolute inset-y-0 left-0 origin-left bg-gold transition-transform duration-700 ease-premium"
             style={{ width: '100%', transform: inView ? 'scaleX(1)' : 'scaleX(0)', transitionDelay: '0.35s' }}
@@ -77,13 +77,13 @@ export function CascataDiagram({ setor, entradaLabel, titulo }: Props) {
             <div key={label} className="flex flex-col items-center text-center">
               <span
                 className={`${nodeBase} ${
-                  inView ? 'border-gold bg-gold/10 text-gold' : 'border-[rgb(var(--border))] text-[rgb(var(--text-muted))]'
+                  inView ? 'border-gold bg-gold/10 text-gold' : 'border-white/30 text-white/50'
                 }`}
                 style={{ transitionDelay: `${0.6 + i * 0.3}s` }}
               >
                 <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
               </span>
-              <span className="mt-2 max-w-[120px] font-sans text-xs font-medium text-[rgb(var(--text-muted))]">
+              <span className="mt-2 max-w-[120px] font-sans text-xs font-medium text-white/75">
                 {label}
               </span>
             </div>
@@ -96,26 +96,26 @@ export function CascataDiagram({ setor, entradaLabel, titulo }: Props) {
         <div className="flex items-center gap-3">
           <span
             className={`${nodeBase} h-11 w-11 ${
-              inView ? 'border-gold bg-gold/10 text-gold' : 'border-[rgb(var(--border))] text-[rgb(var(--text-muted))]'
+              inView ? 'border-gold bg-gold/10 text-gold' : 'border-white/30 text-white/50'
             }`}
             style={{ transitionDelay: '0.1s' }}
           >
             <PlugZap className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
           </span>
-          <span className="font-sans text-sm font-semibold text-[rgb(var(--text))]">{entradaLabel}</span>
+          <span className="font-sans text-sm font-semibold text-white">{entradaLabel}</span>
         </div>
-        <div className="ml-5 space-y-4 border-l-2 border-[rgb(var(--border))] pl-6">
+        <div className="ml-5 space-y-4 border-l-2 border-white/20 pl-6">
           {pontos.map(({ Icon, label }, i) => (
             <div key={label} className="flex items-center gap-3">
               <span
                 className={`${nodeBase} h-10 w-10 ${
-                  inView ? 'border-gold bg-gold/10 text-gold' : 'border-[rgb(var(--border))] text-[rgb(var(--text-muted))]'
+                  inView ? 'border-gold bg-gold/10 text-gold' : 'border-white/30 text-white/50'
                 }`}
                 style={{ transitionDelay: `${0.4 + i * 0.25}s` }}
               >
                 <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               </span>
-              <span className="font-sans text-sm font-medium text-[rgb(var(--text))]">{label}</span>
+              <span className="font-sans text-sm font-medium text-white">{label}</span>
             </div>
           ))}
         </div>

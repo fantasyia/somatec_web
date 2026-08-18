@@ -55,31 +55,36 @@ type Props = {
   whatsappExternal?: boolean;
 };
 
-const CONTEXTOS: Record<Setor, { icon: typeof Home; label: string }[]> = {
-  residencial: [
-    { icon: Home, label: 'Minha casa' },
-    { icon: Building2, label: 'Meu apartamento' },
-  ],
-  comercial: [
-    { icon: Store, label: 'Meu comércio' },
-    { icon: Wrench, label: 'Meu pequeno negócio / oficina' },
-    { icon: Building2, label: 'Meu condomínio' },
-  ],
-};
+type ContextoId = 'casa' | 'apartamento' | 'comercio' | 'oficina' | 'condominio';
+type Contexto = { id: ContextoId; icon: typeof Home; label: string; quadros: string[] };
 
-const QUADROS_ADICIONAIS: Record<Setor, string[]> = {
+/** Os quadros adicionais saem do CONTEXTO, não do público: quem marcou
+ *  "meu condomínio" não tem câmara fria, e apartamento não tem casa de
+ *  máquinas de piscina. Mostrar preset que não existe queima a confiança. */
+const CONTEXTOS: Record<Setor, Contexto[]> = {
   residencial: [
-    'Casa de máquinas da piscina',
-    'Automação / home theater',
-    'Ar-condicionado central',
-    'Carregador do carro elétrico',
+    {
+      id: 'casa', icon: Home, label: 'Minha casa',
+      quadros: ['Casa de máquinas da piscina', 'Automação / home theater', 'Ar-condicionado central', 'Carregador do carro elétrico'],
+    },
+    {
+      id: 'apartamento', icon: Building2, label: 'Meu apartamento',
+      quadros: ['Automação / home theater', 'Ar-condicionado', 'Carregador do carro elétrico'],
+    },
   ],
   comercial: [
-    'Câmara fria',
-    'Freezers / refrigeração',
-    'PDV / servidores',
-    'Ar-condicionado',
-    'Elevador (condomínio)',
+    {
+      id: 'comercio', icon: Store, label: 'Meu comércio',
+      quadros: ['Câmara fria', 'Freezers / refrigeração', 'PDV / servidores', 'Ar-condicionado'],
+    },
+    {
+      id: 'oficina', icon: Wrench, label: 'Meu pequeno negócio / oficina',
+      quadros: ['Máquinas / compressor', 'PDV / servidores', 'Ar-condicionado'],
+    },
+    {
+      id: 'condominio', icon: Building2, label: 'Meu condomínio',
+      quadros: ['Elevador', "Bombas d'água", 'Portaria / CFTV', 'Ar-condicionado central'],
+    },
   ],
 };
 
@@ -91,7 +96,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const startedRef = useRef(false);
 
   const [passo, setPasso] = useState(1);
-  const [contexto, setContexto] = useState('');
+  const [contexto, setContexto] = useState<ContextoId | ''>('');
   const [tensao, setTensao] = useState('');
   const [corrente, setCorrente] = useState('');
   const [naoSei, setNaoSei] = useState(false);
@@ -129,6 +134,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       });
     }
   }
+
+  /** Contexto escolhido no passo 1 — dita os quadros do passo 3. */
+  const ctxAtual = CONTEXTOS[setor].find((c) => c.id === contexto);
 
   function toggleAdicional(q: string) {
     setAdicionais((prev) =>
@@ -181,7 +189,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
         `. Total dos itens dimensionados: ${formatBRL(totalCarrinho)}.`
       : 'Sem quadros adicionais indicados.';
     const resumo =
-      `[Orçamento ${setor} — compra direta] Contexto: ${contexto}. ` +
+      `[Orçamento ${setor} — compra direta] Contexto: ${ctxAtual?.label ?? '—'}. ` +
       `Quadro de entrada: ${dadosQuadro}. ${dimensionamento} ${adic}`.replace(/\s+/g, ' ').trim();
 
     const r = await enviarLeadOrcamento({
@@ -240,13 +248,16 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                   </p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {CONTEXTOS[setor].map(({ icon: Icon, label }) => {
-                    const sel = contexto === label;
+                  {CONTEXTOS[setor].map(({ id, icon: Icon, label }) => {
+                    const sel = contexto === id;
                     return (
                       <button
                         key={label}
                         type="button"
-                        onClick={() => setContexto(label)}
+                        onClick={() => {
+                          setContexto(id);
+                          setAdicionais([]); // trocar de contexto invalida os quadros
+                        }}
                         className={`${cardBtn} ${
                           sel
                             ? 'border-gold bg-gold/[0.06] text-[rgb(var(--text))]'
@@ -361,11 +372,11 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                   </h3>
                   <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">
                     Assim você protege tudo em cascata: um Master Block mais robusto na entrada + um
-                    menor em cada quadro específico. (Opcional.)
+                    menor em cada quadro específico.
                   </p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {QUADROS_ADICIONAIS[setor].map((q) => {
+                  {(ctxAtual?.quadros ?? []).map((q) => {
                     const escolhido = adicionais.find((a) => a.nome === q);
                     const sel = escolhido !== undefined;
                     return (

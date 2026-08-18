@@ -30,7 +30,7 @@ export default function ResultadosPage() {
     <>
       <PageHero
         title="Números reais, medidos na planta do cliente"
-        description="Grandes indústrias que já haviam tentado de tudo — inclusive com Weg, Siemens e Schneider — só resolveram as paradas e queimas com a Somatec Blocking. Cada resultado é comprovado por medição antes e depois da instalação."
+        description="Grandes indústrias que já haviam tentado de tudo — inclusive com outros concorrentes — só resolveram as paradas e queimas com a Somatec Blocking. Cada resultado é comprovado por medição antes e depois da instalação."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Resultados' }]}
       />
 

@@ -50,7 +50,10 @@ import { DiagramaProjetoCascata } from '@/components/lp/DiagramaProjetoCascata';
 
 type Grupo = '' | 'A' | 'B' | 'naosei';
 
-const TENSOES_ENTRADA = ['69 kV', '34,5 kV', '13,8 kV', '380 V', 'Outra', 'Não sei'] as const;
+// Tensão de SAÍDA (a que alimenta os equipamentos) — é ela que dimensiona o
+// Master Block, não a tensão de entrada da concessionária. A linha MB opera de
+// 110 V a 1100 V.
+const TENSOES_SAIDA = ['220 V', '380 V', '440 V', '480 V', '600 V', 'Outra', 'Não sei'] as const;
 
 type PontoTipo = { key: string; Icon: typeof Cpu; label: string; ajuda: string };
 const PONTOS: PontoTipo[] = [
@@ -78,8 +81,7 @@ export function OrcamentoIndustrial({
 
   const [passo, setPasso] = useState(1);
   const [grupo, setGrupo] = useState<Grupo>('');
-  const [concessionaria, setConcessionaria] = useState('');
-  const [tensaoEntrada, setTensaoEntrada] = useState('');
+  const [tensaoSaida, setTensaoSaida] = useState('');
   const [setores, setSetores] = useState<string[]>(['']);
   const [nPaineis, setNPaineis] = useState(1);
   const [pontos, setPontos] = useState<Record<string, number>>({
@@ -115,8 +117,7 @@ export function OrcamentoIndustrial({
     try {
       const { gerarPdfProjeto } = await import('@/lib/pdf/projeto-industrial');
       await gerarPdfProjeto({
-        concessionaria: concessionaria.trim(),
-        tensaoEntrada,
+        tensaoSaida,
         setores: setoresValidos,
         paineis: nPaineis,
         pontos: PONTOS.filter((p) => (pontos[p.key] ?? 0) > 0).map((p) => ({
@@ -135,7 +136,7 @@ export function OrcamentoIndustrial({
 
   function podeAvancar(): boolean {
     if (passo === 1) return grupo === 'A' || grupo === 'naosei'; // B sai por outro caminho
-    if (passo === 2) return tensaoEntrada !== '';
+    if (passo === 2) return tensaoSaida !== '';
     if (passo === 3) return setoresValidos.length > 0;
     return true; // passo 4 (pontos) pode seguir mesmo em 0 (fallback foto/contato)
   }
@@ -155,7 +156,7 @@ export function OrcamentoIndustrial({
       .join(', ') || 'não informado no wizard';
     const resumo =
       `[Orçamento industrial — locação] Grupo tarifário: ${grupo === 'A' ? 'A (média/alta tensão)' : 'não sabe'}. ` +
-      `Entrada: ${concessionaria.trim() || 'concessionária não informada'}, tensão ${tensaoEntrada}. ` +
+      `Tensão de alimentação: ${tensaoSaida}. ` +
       `Setores/galpões (${setoresValidos.length}): ${setoresValidos.join(', ') || '—'}. ` +
       `Painéis de distribuição: ${nPaineis}. Pontos sensíveis: ${pontosResumo}.`;
 
@@ -332,25 +333,18 @@ export function OrcamentoIndustrial({
                   </p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <TextField
-                    label="Concessionária (opcional)"
-                    name="concessionaria"
-                    placeholder="Ex.: Neoenergia, CPFL…"
-                    value={concessionaria}
-                    onChange={(e) => setConcessionaria(e.target.value)}
-                  />
                   <div className="space-y-1.5">
                     <label htmlFor={`${baseId}-tensao`} className="block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]">
-                      Tensão de entrada
+                      Tensão de saída (alimentação dos equipamentos)
                     </label>
                     <select
                       id={`${baseId}-tensao`}
-                      value={tensaoEntrada}
-                      onChange={(e) => setTensaoEntrada(e.target.value)}
+                      value={tensaoSaida}
+                      onChange={(e) => setTensaoSaida(e.target.value)}
                       className="w-full rounded-btn border border-[rgb(var(--border))] bg-[rgb(var(--bg))] px-3.5 py-2.5 font-sans text-sm outline-none transition-colors focus:border-gold"
                     >
                       <option value="">Selecione…</option>
-                      {TENSOES_ENTRADA.map((t) => (
+                      {TENSOES_SAIDA.map((t) => (
                         <option key={t} value={t}>{t}</option>
                       ))}
                     </select>
@@ -454,7 +448,7 @@ export function OrcamentoIndustrial({
                 <div className="rounded-card-lg bg-deep_navy p-6 text-white md:p-7">
                   <div className="text-[11px] font-sans font-bold text-white/60">Seu projeto de proteção em cascata</div>
                   <div className="mt-3 space-y-2 text-sm text-white/85">
-                    <p><span className="text-white/60">Entrada:</span> {concessionaria.trim() || 'concessionária'} · {tensaoEntrada || '—'}</p>
+                    <p><span className="text-white/60">Tensão de alimentação:</span> {tensaoSaida || '—'}</p>
                     <p><span className="text-white/60">Setores:</span> {setoresValidos.join(' · ') || '—'} <span className="text-white/50">({nPaineis} painel{nPaineis > 1 ? 'es' : ''} de distribuição)</span></p>
                     <p><span className="text-white/60">Pontos sensíveis:</span>{' '}
                       {totalPontos > 0

@@ -14,8 +14,7 @@ import { formatBRL } from '@/lib/constants/masterblock';
 import type { ProjetoLocacao } from '@/lib/constants/locacao';
 
 export type DadosProjeto = {
-  concessionaria: string;
-  tensaoEntrada: string;
+  tensaoSaida: string;
   setores: string[];
   paineis: number;
   /** [rótulo do tipo, quantidade] só dos que têm quantidade > 0. */
@@ -80,7 +79,7 @@ export async function gerarPdfProjeto(d: DadosProjeto): Promise<void> {
   };
 
   titulo('A sua planta');
-  linha('Entrada:', `${d.concessionaria || 'concessionária não informada'} · ${d.tensaoEntrada || '—'}`);
+  linha('Tensão de alimentação:', d.tensaoSaida || '—');
   linha('Setores / galpões:', d.setores.length ? d.setores.join(', ') : '—');
   linha('Painéis de distribuição:', String(d.paineis));
   linha(
