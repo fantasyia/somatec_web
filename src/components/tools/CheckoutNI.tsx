@@ -22,10 +22,27 @@ import { enviarLeadOrcamento } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { selecionarMasterBlock, formatBRL, MB_LOAD_MAX } from '@/lib/constants/masterblock';
 import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
+import {
+  GATEWAY_ATIVO, FORMAS_PAGAMENTO, freteDoPedido, enderecoVazio,
+  enderecoCompleto, enderecoEmUmaLinha,
+  type Endereco, type FormaPagamentoId,
+} from '@/lib/constants/pagamento';
 
-// Aceita "40", "63 A", "1.250" → número ou 0.
+// A corrente dimensiona o Master Block — texto ali não significa nada. O campo
+// aceita SÓ dígito (a digitação já é filtrada) e o valor é validado contra a
+// faixa real da linha: 1 A até MB_LOAD_MAX.
+function soDigitos(v: string): string {
+  return v.replace(/\D/g, '').replace(/^0+/, '').slice(0, 5);
+}
+
+/** 01310100 → 01310-100 (o estado guarda só dígito; a máscara é de exibição). */
+function mascararCep(v: string): string {
+  const d = v.replace(/\D/g, '').slice(0, 8);
+  return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
+}
+
 function parseAmp(s: string): number {
-  const n = parseFloat(s.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.'));
+  const n = parseInt(soDigitos(s), 10);
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
@@ -90,7 +107,22 @@ const CONTEXTOS: Record<Setor, Contexto[]> = {
 };
 
 const TENSOES = ['127V', '220V', '380V', '440V', 'Não sei'] as const;
-const TOTAL_PASSOS = 4;
+const PASSOS_BASE = 4; // +1 (checkout) quando há preço pra fechar
+
+function ConsentimentoLgpd() {
+  return (
+    <label className="flex items-start gap-2.5 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+      <input type="checkbox" name="lgpd_consent" required className="mt-0.5 accent-[#F39200]" />
+      <span>
+        {LGPD_PUBLIC_DEFAULT.text}{' '}
+        <Link href="/politica-de-privacidade" className="underline hover:text-gold">
+          Política de Privacidade
+        </Link>
+        .
+      </span>
+    </label>
+  );
+}
 
 export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal = false }: Props) {
   const baseId = useId();
@@ -104,6 +136,14 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   /** Quadros adicionais escolhidos + a corrente de cada um (opcional: sem ela,
    *  o secundário vai "a dimensionar no contato" em vez de já vir com preço). */
   const [adicionais, setAdicionais] = useState<{ nome: string; corrente: string }[]>([]);
+
+  // Contato vira estado (não FormData): o passo 4 desmonta ao ir pro checkout.
+  const [contato, setContato] = useState({ nome: '', whatsapp: '', email: '', empresa: '' });
+  const [endereco, setEndereco] = useState<Endereco>(enderecoVazio);
+  const [cepBuscando, setCepBuscando] = useState(false);
+  const [cepMsg, setCepMsg] = useState<string | null>(null);
+  const [pagamento, setPagamento] = useState<FormaPagamentoId | ''>('');
+  const [freteOpcoes, setFreteOpcoes] = useState<{ nome: string; transportadora: string; valor: number; prazoDias: number | null }[]>([]);
 
   const [status, setStatus] = useState<FormStatusKind>('idle');
   const [message, setMessage] = useState<string | null>(null);
@@ -123,10 +163,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       startedRef.current = true;
       trackEvent('calc_inicio', { setor, landing: landingSlug });
     }
-    const alvo = Math.min(TOTAL_PASSOS, Math.max(1, n));
+    const alvo = Math.min(totalPassos, Math.max(1, n));
     setPasso(alvo);
     trackEvent('calc_passo', { setor, landing: landingSlug, passo: alvo });
-    if (alvo === TOTAL_PASSOS) {
+    if (alvo === PASSOS_BASE) {
       trackEvent('calc_resultado', {
         setor,
         landing: landingSlug,
@@ -161,9 +201,60 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const totalCarrinho = itensCarrinho.reduce((s, i) => s + (i.modelo?.preco ?? 0), 0);
   const semPreco = itensCarrinho.filter((i) => !i.modelo).length;
 
+  /** Checkout (passo 5) só existe quando há preço fechado pra comprar. */
+  const totalPassos = temPreco ? PASSOS_BASE + 1 : PASSOS_BASE;
+  const frete = freteDoPedido();
+  const totalPedido = totalCarrinho + (Number.isFinite(frete.valor) ? frete.valor : 0);
+  const contatoOk = Boolean(contato.nome.trim() && contato.whatsapp.trim() && contato.email.trim());
+
+  async function buscarCep(valor: string) {
+    const cep = valor.replace(/\D/g, '');
+    setEndereco((e) => ({ ...e, cep }));
+    if (cep.length !== 8) return;
+    setCepBuscando(true);
+    setCepMsg(null);
+    try {
+      const r = await fetch(`/api/cep?cep=${cep}`);
+      const d = (await r.json()) as { ok: boolean; endereco?: Endereco; message?: string };
+      if (d.ok && d.endereco) {
+        // Preserva número/complemento, que o ViaCEP não tem.
+        setEndereco((e) => ({ ...e, ...d.endereco!, numero: e.numero, complemento: e.complemento }));
+      } else {
+        setCepMsg(d.message ?? 'CEP não encontrado.');
+      }
+    } catch {
+      setCepMsg('Não consegui buscar o CEP. Preencha o endereço à mão.');
+    } finally {
+      setCepBuscando(false);
+    }
+    // Frete real (Melhor Envio). Sem credencial devolve lista vazia e o
+    // checkout segue: a promoção já zera o valor, só falta o prazo.
+    try {
+      const itens = itensCarrinho
+        .filter((i) => i.modelo)
+        .map((i) => ({ model: i.modelo?.model ?? '', quantidade: 1 }));
+      const r = await fetch('/api/frete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cepDestino: cep, itens }),
+      });
+      const d = (await r.json()) as { ok: boolean; opcoes?: typeof freteOpcoes };
+      setFreteOpcoes(d.ok && d.opcoes ? d.opcoes : []);
+    } catch {
+      setFreteOpcoes([]);
+    }
+  }
+
+  /** Prazo mostrado: o real do Melhor Envio quando existe; senão o texto do config. */
+  const prazoEntrega =
+    freteOpcoes.length > 0 && freteOpcoes[0].prazoDias
+      ? `Entrega estimada em ${freteOpcoes[0].prazoDias} dia(s) úteis${freteOpcoes[0].transportadora ? ` — ${freteOpcoes[0].transportadora}` : ''}.`
+      : `Prazo de entrega ${freteDoPedido().prazo}.`;
+
   function podeAvancar(): boolean {
     if (passo === 1) return contexto !== '';
     if (passo === 2) return naoSei || (tensao !== '' && corrente.trim() !== '');
+    if (passo === 4) return contatoOk; // só avança pro checkout com contato
     return true; // passo 3 (adicionais) é opcional
   }
 
@@ -191,17 +282,23 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       : 'Sem quadros adicionais indicados.';
     const resumo =
       `[Orçamento ${setor} — compra direta] Contexto: ${ctxAtual?.label ?? '—'}. ` +
-      `Quadro de entrada: ${dadosQuadro}. ${dimensionamento} ${adic}`.replace(/\s+/g, ' ').trim();
+      `Quadro de entrada: ${dadosQuadro}. ${dimensionamento} ${adic}` +
+      (enderecoCompleto(endereco)
+        ? ` ENTREGA: ${enderecoEmUmaLinha(endereco)}. Frete: ${frete.valor === 0 ? 'grátis (promoção)' : formatBRL(frete.valor)}. ` +
+          `Pagamento escolhido: ${FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? '—'}. ` +
+          `Total do pedido: ${formatBRL(totalPedido)}.`
+        : '');
+    const resumoLimpo = resumo.replace(/\s+/g, ' ').trim();
 
     const r = await enviarLeadOrcamento({
-      nome: fd.get('name'),
-      email: fd.get('email'),
-      whatsapp: fd.get('whatsapp'),
-      empresa: fd.get('company'),
+      nome: contato.nome,
+      email: contato.email,
+      whatsapp: contato.whatsapp,
+      empresa: contato.empresa,
       segmento: `NI · ${setor}`,
       // A LP já define o público — o lead sai roteável sem perguntar de novo.
       publico: setor === 'residencial' ? 'residencia' : 'comercio',
-      resumo,
+      resumo: resumoLimpo,
       sourcePage: `/${landingSlug}`,
       lgpdConsent: fd.get('lgpd_consent') === 'on',
       honeypot: fd.get('website'),
@@ -210,10 +307,19 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
 
     if (r.ok) {
       setStatus('success');
+      const virouPedido = enderecoCompleto(endereco) && pagamento !== '';
       setMessage(
-        'Recebido! Nossa equipe dimensiona o seu Master Block e te retorna com o valor — sem compromisso.',
+        virouPedido
+          ? `Pedido registrado! Você vai receber a confirmação por e-mail e o link de pagamento (${
+              FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? 'pagamento'
+            }) no WhatsApp informado. Frete e prazo já valem como mostrado.`
+          : 'Recebido! Nossa equipe dimensiona o seu Master Block e te retorna com o valor — sem compromisso.',
       );
-      trackEvent('calc_lead', { setor, landing: landingSlug });
+      trackEvent(virouPedido ? 'checkout_pedido' : 'calc_lead', {
+        setor,
+        landing: landingSlug,
+        ...(virouPedido ? { total: totalPedido, pagamento } : {}),
+      });
     } else {
       setStatus('error');
       setMessage(r.mensagem);
@@ -226,7 +332,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   return (
     <WizardShell
       passo={passo}
-      totalPassos={TOTAL_PASSOS}
+      totalPassos={totalPassos}
       nota="2 minutos · sem vendedor"
       rotuloSucesso="Pronto"
       status={status}
@@ -323,9 +429,13 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       label="Corrente do disjuntor geral (A)"
                       name="corrente"
                       inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={5}
                       placeholder="Ex.: 40, 63, 100…"
                       value={corrente}
-                      onChange={(e) => setCorrente(e.target.value)}
+                      onChange={(e) => setCorrente(soDigitos(e.target.value))}
+                      hint={`Só números, de 1 a ${MB_LOAD_MAX} A (a faixa da linha Master Block).`}
+                      error={corrente !== '' && amp === 0 ? 'Informe a corrente em ampères.' : undefined}
                     />
                   </div>
                 )}
@@ -416,9 +526,11 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                               id={`${baseId}-adic-${q}`}
                               type="text"
                               inputMode="numeric"
+                              pattern="[0-9]*"
+                              maxLength={5}
                               placeholder="Ex.: 25, 40…"
                               value={escolhido.corrente}
-                              onChange={(e) => setCorrenteAdicional(q, e.target.value)}
+                              onChange={(e) => setCorrenteAdicional(q, soDigitos(e.target.value))}
                               className="w-full rounded-btn border border-[rgb(var(--border))] bg-[rgb(var(--bg))] px-3.5 py-2 font-sans text-sm outline-none transition-colors focus:border-gold"
                             />
                           </div>
@@ -489,62 +601,217 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                 {/* Frete grátis + brinde na janela de 20 min (despacho do doc). */}
                 <OfertaCheckout />
 
-                <form onSubmit={onSubmit} className="space-y-4" noValidate>
+                <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <TextField label="Seu nome" name="name" autoComplete="name" required />
                     <TextField
-                      label="WhatsApp"
-                      name="whatsapp"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      placeholder="(11) 99999-9999"
-                      required
+                      label="Seu nome" name="name" autoComplete="name" required
+                      value={contato.nome}
+                      onChange={(e) => setContato((c) => ({ ...c, nome: e.target.value }))}
                     />
                     <TextField
-                      label="E-mail"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
+                      label="WhatsApp" name="whatsapp" inputMode="tel" autoComplete="tel"
+                      placeholder="(11) 99999-9999" required
+                      value={contato.whatsapp}
+                      onChange={(e) => setContato((c) => ({ ...c, whatsapp: e.target.value }))}
+                    />
+                    <TextField
+                      label="E-mail" name="email" type="email" autoComplete="email" required
+                      value={contato.email}
+                      onChange={(e) => setContato((c) => ({ ...c, email: e.target.value }))}
                     />
                     <TextField
                       label={setor === 'comercial' ? 'Empresa (opcional)' : 'Cidade (opcional)'}
                       name="company"
                       autoComplete={setor === 'comercial' ? 'organization' : 'address-level2'}
+                      value={contato.empresa}
+                      onChange={(e) => setContato((c) => ({ ...c, empresa: e.target.value }))}
                     />
                   </div>
 
-                  <label className="flex items-start gap-2.5 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
-                    <input
-                      type="checkbox"
-                      name="lgpd_consent"
-                      required
-                      className="mt-0.5 accent-[#F39200]"
-                    />
-                    <span>
-                      {LGPD_PUBLIC_DEFAULT.text}{' '}
-                      <Link href="/politica-de-privacidade" className="underline hover:text-gold">
-                        Política de Privacidade
-                      </Link>
-                      .
-                    </span>
-                  </label>
+                  {/* Sem preço fechado não há o que comprar: encerra como
+                      orçamento aqui mesmo, sem passar pelo checkout. */}
+                  {!temPreco && (
+                    <form onSubmit={onSubmit} className="space-y-4" noValidate>
+                      <ConsentimentoLgpd />
+                      <HoneypotField />
+                      <TurnstileWidget onToken={setCaptchaToken} />
+                      {status === 'error' && <FormStatus status="error" message={message} />}
+                      <button type="submit" disabled={status === 'submitting'} className="btn-primary group w-full justify-center sm:w-auto">
+                        {status === 'submitting' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                        ) : (
+                          <>
+                            Solicitar meu orçamento
+                            <ChevronRight className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5" strokeWidth={2} />
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
 
+            {/* ── Passo 5 — CHECKOUT (entrega + pagamento) ───────── */}
+            {passo === 5 && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))]">
+                    Para onde enviamos?
+                  </h3>
+                  <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">
+                    Digite o CEP que o endereço se completa sozinho.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-6">
+                  <div className="sm:col-span-2">
+                    <TextField
+                      label="CEP" name="cep" inputMode="numeric" autoComplete="postal-code"
+                      placeholder="00000-000" maxLength={9} required
+                      value={mascararCep(endereco.cep)}
+                      onChange={(e) => buscarCep(e.target.value)}
+                      hint={cepBuscando ? 'Buscando…' : undefined}
+                      error={cepMsg ?? undefined}
+                    />
+                  </div>
+                  <div className="sm:col-span-4">
+                    <TextField
+                      label="Rua / logradouro" name="logradouro" autoComplete="address-line1" required
+                      value={endereco.logradouro}
+                      onChange={(e) => setEndereco((x) => ({ ...x, logradouro: e.target.value }))}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <TextField
+                      label="Número" name="numero" inputMode="numeric" required
+                      value={endereco.numero}
+                      onChange={(e) => setEndereco((x) => ({ ...x, numero: e.target.value }))}
+                    />
+                  </div>
+                  <div className="sm:col-span-4">
+                    <TextField
+                      label="Complemento (opcional)" name="complemento" autoComplete="address-line2"
+                      value={endereco.complemento}
+                      onChange={(e) => setEndereco((x) => ({ ...x, complemento: e.target.value }))}
+                    />
+                  </div>
+                  <div className="sm:col-span-3">
+                    <TextField
+                      label="Bairro" name="bairro" required
+                      value={endereco.bairro}
+                      onChange={(e) => setEndereco((x) => ({ ...x, bairro: e.target.value }))}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <TextField
+                      label="Cidade" name="cidade" autoComplete="address-level2" required
+                      value={endereco.cidade}
+                      onChange={(e) => setEndereco((x) => ({ ...x, cidade: e.target.value }))}
+                    />
+                  </div>
+                  <div className="sm:col-span-1">
+                    <TextField
+                      label="UF" name="uf" maxLength={2} autoComplete="address-level1" required
+                      value={endereco.uf}
+                      onChange={(e) => setEndereco((x) => ({ ...x, uf: e.target.value.toUpperCase().slice(0, 2) }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Resumo do pedido */}
+                <div className="rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--bg))] p-5">
+                  <div className="text-[11px] font-sans font-bold text-[rgb(var(--text-muted))]">
+                    Resumo do pedido
+                  </div>
+                  <ul className="mt-3 divide-y divide-[rgb(var(--border))]">
+                    {itensCarrinho
+                      .filter((i) => i.modelo)
+                      .map((i) => (
+                        <li key={i.quadro} className="flex items-baseline justify-between gap-4 py-2 text-sm">
+                          <span className="text-[rgb(var(--text))]">
+                            <span className="font-semibold">{i.modelo?.model}</span>
+                            <span className="ml-2 text-[rgb(var(--text-muted))]">{i.quadro}</span>
+                          </span>
+                          <span className="shrink-0 tabular-nums">{formatBRL(i.modelo?.preco ?? 0)}</span>
+                        </li>
+                      ))}
+                    <li className="flex items-baseline justify-between gap-4 py-2 text-sm">
+                      <span className="text-[rgb(var(--text))]">Frete</span>
+                      <span className="shrink-0 font-semibold text-gold">
+                        {frete.valor === 0 ? 'Grátis' : formatBRL(frete.valor)}
+                      </span>
+                    </li>
+                  </ul>
+                  <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 border-t border-[rgb(var(--border))] pt-4">
+                    <span className="text-sm text-[rgb(var(--text-muted))]">Total</span>
+                    <span className="font-serif text-3xl font-bold text-[rgb(var(--text))]">
+                      {formatBRL(totalPedido)}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs text-[rgb(var(--text-muted))]">
+                    {prazoEntrega}
+                  </p>
+                </div>
+
+                {/* Forma de pagamento */}
+                <div className="space-y-3">
+                  <span className="block font-sans text-sm font-semibold text-[rgb(var(--text))]">
+                    Como você prefere pagar?
+                  </span>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {FORMAS_PAGAMENTO.map((f) => {
+                      const sel = pagamento === f.id;
+                      return (
+                        <button
+                          key={f.id}
+                          type="button"
+                          aria-pressed={sel}
+                          onClick={() => setPagamento(f.id)}
+                          className={`rounded-card border p-4 text-left transition-colors ${
+                            sel ? 'border-gold bg-gold/[0.06]' : 'border-[rgb(var(--border))] hover:border-gold/50'
+                          }`}
+                        >
+                          <span className="block font-sans text-sm font-semibold text-[rgb(var(--text))]">
+                            {f.label}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-[rgb(var(--text-muted))]">
+                            {f.detalhe}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <OfertaCheckout />
+
+                <form onSubmit={onSubmit} className="space-y-4" noValidate>
+                  <ConsentimentoLgpd />
                   <HoneypotField />
                   <TurnstileWidget onToken={setCaptchaToken} />
-
                   {status === 'error' && <FormStatus status="error" message={message} />}
+
+                  {/* Enquanto o gateway não está ligado, o pedido não morre: vira
+                      pedido registrado + link de pagamento pelo WhatsApp. */}
+                  {!GATEWAY_ATIVO && (
+                    <p className="rounded-card border border-cyan/25 bg-cyan/[0.05] p-3 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+                      O pagamento online está em ativação. Ao confirmar, seu pedido é registrado com
+                      esses dados e a Somatec te manda o link de pagamento pelo WhatsApp — o preço e
+                      as condições acima já valem.
+                    </p>
+                  )}
 
                   <button
                     type="submit"
-                    disabled={status === 'submitting'}
-                    className="btn-primary group w-full justify-center sm:w-auto"
+                    disabled={status === 'submitting' || !enderecoCompleto(endereco) || !pagamento}
+                    className="btn-primary group w-full justify-center disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                   >
                     {status === 'submitting' ? (
                       <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                     ) : (
                       <>
-                        {temPreco ? 'Fechar meu pedido' : 'Solicitar meu orçamento'}
+                        Confirmar pedido
                         <ChevronRight
                           className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
                           strokeWidth={2}
