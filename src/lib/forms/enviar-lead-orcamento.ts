@@ -7,7 +7,17 @@ import type { PublicoId } from '@/lib/constants/setores';
 // montado por cada wizard; UTM/atribuição, honeypot e captcha são idênticos.
 // =============================================================================
 
+/** Slug da ferramenta que converteu. Obrigatório de propósito: é o que o
+ *  Betinna usa pra rotear, e um default aqui faria toda ferramenta nova nascer
+ *  com a identidade da anterior. Tem que casar com o enum de forms/schemas.ts. */
+export type FormularioOrcamento =
+  | 'orcamento-industrial'
+  | 'checkout-ni-pedido'
+  | 'checkout-ni-orcamento'
+  | 'custo-de-parada';
+
 export type LeadOrcamento = {
+  formulario: FormularioOrcamento;
   nome: FormDataEntryValue | null;
   email: FormDataEntryValue | null;
   whatsapp: FormDataEntryValue | null;
@@ -46,7 +56,7 @@ export async function enviarLeadOrcamento(d: LeadOrcamento): Promise<ResultadoEn
         source_page: d.sourcePage,
         website: d.honeypot ?? '',
         captcha_token: d.captchaToken,
-        formulario: 'calculadora',
+        formulario: d.formulario,
         ...(d.publico ? { publico: d.publico } : {}),
         ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
       }),

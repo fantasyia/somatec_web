@@ -285,6 +285,11 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     setMessage(null);
 
     const fd = new FormData(e.currentTarget);
+    // Duas jornadas OPOSTAS saem daqui: pedido fechado (esperando link de
+    // pagamento) e lead morno (esperando orçamento). Do lado do Betinna são
+    // fluxos diferentes, então saem com `formulario` diferente — não dá pra
+    // deixar o CRM adivinhar pelo texto do resumo.
+    const virouPedido = enderecoCompleto(endereco) && pagamento !== '';
     const dadosQuadro = naoSei
       ? 'não sabe os dados do quadro (pediu dimensionamento pela equipe — foto/WhatsApp)'
       : `tensão ${tensao || 'não informada'}, corrente do disjuntor geral ${corrente.trim() || 'não informada'}`;
@@ -312,6 +317,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     const resumoLimpo = resumo.replace(/\s+/g, ' ').trim();
 
     const r = await enviarLeadOrcamento({
+      formulario: virouPedido ? 'checkout-ni-pedido' : 'checkout-ni-orcamento',
       nome: contato.nome,
       email: contato.email,
       whatsapp: contato.whatsapp,
@@ -328,7 +334,6 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
 
     if (r.ok) {
       setStatus('success');
-      const virouPedido = enderecoCompleto(endereco) && pagamento !== '';
       setMessage(
         virouPedido
           ? `Pedido registrado! Você vai receber a confirmação por e-mail e o link de pagamento (${

@@ -179,6 +179,7 @@ export function OrcamentoIndustrial({
       `Painéis de distribuição: ${nPaineis}. Pontos sensíveis: ${pontosResumo}.`;
 
     const r = await enviarLeadOrcamento({
+      formulario: 'orcamento-industrial',
       nome: fd.get('name'),
       email: fd.get('email'),
       whatsapp: fd.get('whatsapp'),

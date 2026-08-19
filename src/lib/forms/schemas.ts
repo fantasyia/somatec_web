@@ -79,10 +79,25 @@ const baseFields = {
   source_page: z.string().max(200).optional().default('/contato'),
   website: honeypotSchema, // honeypot
   captcha_token: turnstileSchema,
-  // Qual dos formulários do site converteu (intenção difere: calculadora=topo,
-  // representante=outro tipo de contato).
+  // Qual FERRAMENTA do site converteu. Um slug por ferramenta, estável — é por
+  // ele que o Betinna roteia o fluxo. Antes, três ferramentas com jornadas
+  // opostas mandavam o mesmo 'calculadora' e a única coisa que as separava era
+  // o `segment`, que é TEXTO LIVRE: condição de fluxo comparando texto livre
+  // quebra em silêncio no dia que alguém troca um hífen.
+  //
+  // ⚠️ Ao acrescentar ferramenta, o slug entra AQUI e a master precisa saber —
+  // valor fora da lista é recusado no envio, não descartado calado.
   formulario: z
-    .enum(['contato', 'representante', 'calculadora', 'seletor'])
+    .enum([
+      'contato',
+      'representante',
+      'orcamento-industrial',
+      // O CheckoutNI produz DUAS jornadas opostas: pedido esperando link de
+      // pagamento × lead morno esperando orçamento. Slugs separados.
+      'checkout-ni-pedido',
+      'checkout-ni-orcamento',
+      'custo-de-parada',
+    ])
     .optional(),
   atribuicao: atribuicaoSchema.optional(),
   // Público + setor → viram ETIQUETA no Betinna (roteiam o fluxo de nutrição).

@@ -80,7 +80,7 @@ export function CostCalculator() {
           source_page: '/ferramentas/custo-de-parada',
           website: fd.get('website') ?? '',
           captcha_token: captchaToken,
-          formulario: 'calculadora',
+          formulario: 'custo-de-parada',
           ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
         }),
       });
