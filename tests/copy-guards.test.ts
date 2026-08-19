@@ -88,3 +88,153 @@ describe('trilha NI — vocabulário de cliente no corpo das LPs', () => {
     },
   );
 });
+
+// =============================================================================
+// GUARDA — Regra de ouro NI: a trilha não-industrial é COMPRA DIRETA.
+//
+// A oferta de locação/comodato ("você só paga quando o resultado for
+// comprovado") é exclusiva do industrial. Se o público NI topar com ela, vai
+// exigir a mesma condição — foi a objeção do Leandro que tirou o bloco de
+// locação da home e reorganizou a arquitetura do site.
+//
+// Por que virou teste: escrever "paga só quando funcionar" numa LP NI é um bom
+// argumento no funil errado, e não daria erro nenhum. Apareceria semanas depois
+// como cliente de padaria exigindo comodato, sem ninguém saber de onde veio.
+// =============================================================================
+
+const LOCACAO = [/loca[çc][ãa]o/i, /comodato/i, /paga s[óo]\b/i, /s[óo] paga\b/i, /resultado comprovado/i];
+
+/** Arquivos que são 100% NI — o arquivo inteiro é território de compra direta. */
+const NI_ARQUIVO_INTEIRO = [
+  'src/app/protecao-residencial/page.tsx',
+  'src/app/protecao-comercial/page.tsx',
+  'src/components/home/HomeNiPaineis.tsx',
+  'src/components/tools/CheckoutNI.tsx',
+];
+
+/** Arquivos MISTOS: o industrial e o NI dividem o mesmo array (cards do
+ *  bifurcador, slides do hero). Aqui a checagem é por BLOCO — recortar por
+ *  `id:` é mais honesto que abrir exceção pro arquivo todo, que é a porta pela
+ *  qual a regra volta a evaporar. */
+const NI_POR_BLOCO: { arquivo: string; ni: string[]; industrial: string }[] = [
+  { arquivo: 'src/components/home/HomeBifurcacao.tsx', ni: ['comercio', 'residencial'], industrial: 'industria' },
+  { arquivo: 'src/components/home/HomeHero.tsx', ni: ['comercio', 'nao-industrial'], industrial: 'tese' },
+];
+
+/** Recorta o objeto que começa em `id: '<alvo>'` e vai até o próximo `id:`. */
+function bloco(fonte: string, alvo: string): string {
+  const ini = fonte.indexOf(`id: '${alvo}'`);
+  if (ini === -1) return '';
+  const prox = fonte.indexOf("id: '", ini + 5);
+  return fonte.slice(ini, prox === -1 ? fonte.length : prox);
+}
+
+describe('regra de ouro — NI nunca vê locação', () => {
+  it.each(NI_ARQUIVO_INTEIRO)('%s não oferece locação/comodato', (arquivo) => {
+    const fonte = lerCopy(arquivo);
+    for (const padrao of LOCACAO) {
+      expect(fonte, `"${padrao}" é oferta industrial e não pode estar em ${arquivo}`).not.toMatch(padrao);
+    }
+  });
+
+  it.each(NI_POR_BLOCO)('$arquivo — os blocos NI não oferecem locação', ({ arquivo, ni, industrial }) => {
+    const fonte = lerCopy(arquivo);
+
+    // Âncora: se o recorte parar de achar o bloco industrial (rename de id,
+    // refactor do array), o teste dos blocos NI passaria vazio e em silêncio.
+    const alvoIndustrial = bloco(fonte, industrial);
+    expect(alvoIndustrial, `não achei o bloco '${industrial}' em ${arquivo} — o recorte por id quebrou`).not.toBe('');
+
+    for (const id of ni) {
+      const trecho = bloco(fonte, id);
+      expect(trecho, `não achei o bloco '${id}' em ${arquivo}`).not.toBe('');
+      for (const padrao of LOCACAO) {
+        expect(trecho, `"${padrao}" apareceu no bloco NI '${id}' de ${arquivo}`).not.toMatch(padrao);
+      }
+    }
+  });
+});
+
+// =============================================================================
+// GUARDA — marca de equipamento de terceiro nunca perto de verbo de falha.
+//
+// Citar a marca é uso nominativo e é defensável: "seu elevador OTIS", "o
+// ar-condicionado Daikin" — o enquadramento é "esse equipamento é caro e
+// sensível, proteja a eletrônica dele". Sugerir que a marca falha, é ruim ou
+// tem defeito, não: não temos autorização dessas marcas.
+//
+// ⚠️ NÃO confundir com marca de CLIENTE (Nissin, Cinpal, Stampline, Grow Up,
+// Acrilex, Bosch, Philips, Colgate…): esses são cases autorizados pelo Léo e
+// podem ser citados à vontade, inclusive junto do problema que resolveram.
+//
+// Vale no site INTEIRO, industrial incluído: "o cliente já tentou de tudo,
+// inclusive Siemens e Schneider" é frase de conversa de vendas e não migra
+// pro site.
+// =============================================================================
+
+const MARCAS_EQUIPAMENTO = [
+  'OTIS', 'Schindler', 'Kone', 'Daikin', 'Carrier', 'Jacuzzi', 'Sodramar', 'Gorenje',
+  'Elettromec', 'Miele', 'Sub-Zero', 'KNX', 'Control4', 'Siemens', 'WEG', 'Fanuc',
+  'ABB', 'Schneider',
+];
+const VERBOS_FALHA = [
+  'queima', 'falha', 'falho', 'defeito', 'pifa', 'estraga', 'ruim', 'problema',
+  'não aguenta', 'frágil',
+];
+/** Raio em caracteres. Se algum texto legítimo cair aqui, ajuste o raio — NÃO
+ *  crie exceção por arquivo. */
+const RAIO = 120;
+
+function arquivosDeCopy(): string[] {
+  const { readdirSync, statSync } = require('node:fs') as typeof import('node:fs');
+  const out: string[] = [];
+  const anda = (dir: string) => {
+    for (const nome of readdirSync(resolve(process.cwd(), dir))) {
+      const rel = `${dir}/${nome}`;
+      if (statSync(resolve(process.cwd(), rel)).isDirectory()) anda(rel);
+      else if (/\.tsx?$/.test(nome)) out.push(rel);
+    }
+  };
+  anda('src/app');
+  anda('src/components');
+  return out;
+}
+
+describe('marca de equipamento de terceiro — citar sim, desmerecer não', () => {
+  // String.raw de propósito: com template normal, o `\b` da fronteira de
+  // palavra vira o caractere backspace e a varredura não casa NADA — o teste
+  // passa verde sem olhar nada. Foi exatamente o que aconteceu na 1ª versão.
+  const escapar = (m: string) => m.replace(/[.*+?^${}()|[\]\\-]/g, (c) => `\\${c}`);
+  const marcaRe = new RegExp(String.raw`\b(${MARCAS_EQUIPAMENTO.map(escapar).join('|')})\b`, 'gi');
+  const verboRe = new RegExp(VERBOS_FALHA.join('|'), 'i');
+
+  it('a própria varredura funciona (a regex casa uma marca de verdade)', () => {
+    // Âncora contra o bug acima: sem isto, todo o resto passa em silêncio.
+    expect('o inversor Siemens do painel').toMatch(marcaRe);
+    expect('queima primeiro').toMatch(verboRe);
+    expect('nada aqui').not.toMatch(marcaRe);
+  });
+
+  it('nenhuma marca aparece perto de verbo de falha em src/app e src/components', () => {
+    const violacoes: string[] = [];
+    for (const arquivo of arquivosDeCopy()) {
+      const fonte = lerCopy(arquivo);
+      for (const m of fonte.matchAll(marcaRe)) {
+        const i = m.index ?? 0;
+        const janela = fonte.slice(Math.max(0, i - RAIO), i + m[0].length + RAIO);
+        const verbo = janela.match(verboRe);
+        if (verbo) {
+          violacoes.push(`${arquivo}: "${m[0]}" a menos de ${RAIO} caracteres de "${verbo[0]}" → …${janela.replace(/\s+/g, ' ').trim()}…`);
+        }
+      }
+    }
+    expect(violacoes, violacoes.join('\n')).toHaveLength(0);
+  });
+
+  it('a varredura está mesmo olhando o site (âncora anti-falso-verde)', () => {
+    // Se o glob quebrar e devolver zero arquivo, tudo acima passa vazio.
+    const arquivos = arquivosDeCopy();
+    expect(arquivos.length).toBeGreaterThan(50);
+    expect(arquivos).toContain('src/components/home/HomeHero.tsx');
+  });
+});
