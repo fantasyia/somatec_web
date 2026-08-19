@@ -9,9 +9,9 @@ export type NavItem = {
 // Regra: o `description` de cada filho é resumo da própria página de destino
 // (metadata), não claim novo.
 //
-// ⛔ NÃO colocar /ferramentas/qual-master-block no menu. O nav é o caminho do
-// comprador INDUSTRIAL, cuja oferta é locação — mandar ele pra um seletor de
-// compra direta atropela o modelo comercial e o representante.
+// ⛔ NÃO recriar o seletor "descubra seu modelo". A jornada do cliente é
+// LP → calculadora; um atalho pra escolher modelo solto fura essa trilha e
+// entrega dimensionamento (e antes até preço) sem contexto de público.
 export const HEADER_NAV: NavItem[] = [
   {
     label: 'A Somatec',
@@ -188,7 +188,6 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
       { label: 'Blog', href: '/blog' },
       { label: 'Resultados e cases', href: '/resultados' },
       { label: 'Diagnóstico de VTCD', href: '/ferramentas/custo-de-parada' },
-      { label: 'Seletor de modelo', href: '/ferramentas/qual-master-block' },
       { label: 'Orçamento industrial (locação)', href: '/orcamento-industrial' },
     ],
   },

@@ -95,6 +95,10 @@ const nextConfig = {
       // embutido) e pelo /orcamento-industrial. Manda pra bifurcação, que é
       // onde o visitante escolhe o próprio perfil.
       { source: '/ferramentas/orcamento', destination: '/#bifurcacao', permanent: true },
+      // O seletor "qual Master Block é o meu" foi removido: a jornada do
+      // cliente é LP → calculadora, e um seletor solto entregava
+      // dimensionamento (e preço de venda) sem saber com quem estava falando.
+      { source: '/ferramentas/qual-master-block', destination: '/produtos', permanent: true },
       // Rename institucional /a-msm -> /a-somatec (slugs limpos).
       { source: '/a-msm', destination: '/a-somatec', permanent: true },
       { source: '/a-msm/quem-somos', destination: '/a-somatec/quem-somos', permanent: true },

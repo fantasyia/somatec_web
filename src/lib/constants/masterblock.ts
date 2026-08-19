@@ -1,6 +1,6 @@
 /**
  * Fonte ÚNICA dos dados da linha Master Block (MB-01 a MB-12).
- * Consumida por /produtos (tabela) e /ferramentas/qual-master-block (seletor),
+ * Consumida por /produtos (tabela) e pelo CheckoutNI (dimensionamento das LPs),
  * pra as duas nunca divergirem.
  *
  * Corrente de carga (loadLabel/loadMax): Tabela de Potências Master Block 2026 (Leandro).

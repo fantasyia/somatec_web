@@ -47,7 +47,6 @@ const NAV_ICON: Record<string, LucideIcon> = {
   '/a-somatec/comprovacao-e-normas': ShieldCheck,
   // Tecnologia
   '/produtos': Cpu,
-  '/ferramentas/qual-master-block': Calculator,
   '/orcamento-industrial': Network,
   // Resultados
   '/resultados': BarChart3,

@@ -239,23 +239,17 @@ export default function ProdutosPage() {
             Qual MasterBlock a sua planta precisa?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Descubra o modelo pela corrente do seu circuito, ou calcule quanto as paradas e queimas
-            custam por ano na sua operação — cada um em 2 minutos. Ou fale direto com a engenharia da
-            Somatec para um projeto de mitigação de surtos e transientes sob medida.
+            Calcule quanto as paradas e queimas custam por ano na sua operação — em 2 minutos. Ou
+            fale direto com a engenharia da Somatec para um projeto de mitigação de surtos e
+            transientes sob medida.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link href="/ferramentas/qual-master-block" className="btn-primary group">
-              Descobrir meu modelo
+            <Link href="/ferramentas/custo-de-parada" className="btn-primary group">
+              Calcular meu prejuízo
               <ChevronRight
                 className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
                 strokeWidth={2}
               />
-            </Link>
-            <Link
-              href="/ferramentas/custo-de-parada"
-              className="inline-flex items-center rounded-btn border border-[rgb(var(--border))] px-5 py-2.5 font-sans text-sm font-medium text-[rgb(var(--text))] transition-colors hover:border-gold hover:text-gold"
-            >
-              Calcular meu prejuízo
             </Link>
             <CommercialCta
               label="Falar com a engenharia"
