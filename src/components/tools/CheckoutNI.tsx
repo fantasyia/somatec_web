@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight,
@@ -109,6 +109,41 @@ const CONTEXTOS: Record<Setor, Contexto[]> = {
 const TENSOES = ['127V', '220V', '380V', '440V', 'Não sei'] as const;
 const PASSOS_BASE = 4; // +1 (checkout) quando há preço pra fechar
 
+/** De onde veio a corrente que a IA do WhatsApp (fluxo C1) apurou. Só
+ *  'estimativa' muda alguma coisa na tela: número chutado merece conferência
+ *  antes de virar pedido. */
+type OrigemCorrente = 'disjuntor' | 'conta' | 'estimativa';
+
+export type Semente = { corrente: string; tensao: string; origem: OrigemCorrente | null };
+
+/** Lê `?corrente=63&tensao=220&origem=estimativa`.
+ *
+ *  O valor da URL é SUGESTÃO, nunca trava: entra no campo e a pessoa corrige à
+ *  vontade. Valor sujo (texto, zero, acima da linha) é simplesmente ignorado —
+ *  o wizard abre em branco, sem erro na cara de quem só clicou num link.
+ *
+ *  Aceita '220' e '220V' na tensão, porque quem monta o link é a IA e cobrar
+ *  formato exato aqui só produziria link que não semeia nada. */
+export function lerSemente(busca: string): Semente {
+  const q = new URLSearchParams(busca);
+
+  // Exige dígito puro (aceita só o "A" que a IA às vezes escreve junto). Sem
+  // isso, `soDigitos` transformaria "-40" em 40 — inventar o número de outra
+  // pessoa a partir de um parâmetro sujo é pior que abrir em branco.
+  const cru = (q.get('corrente') ?? '').trim().replace(/\s|A$/gi, '');
+  const amp = /^\d+$/.test(cru) ? parseInt(cru, 10) : NaN;
+  const corrente = Number.isFinite(amp) && amp > 0 && amp <= MB_LOAD_MAX ? String(amp) : '';
+
+  const bruta = (q.get('tensao') ?? '').trim().toUpperCase().replace(/\s|VOLTS?$/g, '');
+  const alvo = bruta.endsWith('V') ? bruta : `${bruta}V`;
+  const tensao = (TENSOES as readonly string[]).includes(alvo) ? alvo : '';
+
+  const o = (q.get('origem') ?? '').toLowerCase();
+  const origem = o === 'disjuntor' || o === 'conta' || o === 'estimativa' ? o : null;
+
+  return { corrente, tensao, origem };
+}
+
 function ConsentimentoLgpd() {
   return (
     <label className="flex items-start gap-2.5 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
@@ -133,6 +168,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [tensao, setTensao] = useState('');
   const [corrente, setCorrente] = useState('');
   const [naoSei, setNaoSei] = useState(false);
+  /** Sinaliza que os campos vieram do link do WhatsApp — muda só a microcópia. */
+  const [origemUrl, setOrigemUrl] = useState<OrigemCorrente | null>(null);
+  const [veioDeLink, setVeioDeLink] = useState(false);
   /** Quadros adicionais escolhidos + a corrente de cada um (opcional: sem ela,
    *  o secundário vai "a dimensionar no contato" em vez de já vir com preço). */
   const [adicionais, setAdicionais] = useState<{ nome: string; corrente: string }[]>([]);
@@ -148,6 +186,25 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [status, setStatus] = useState<FormStatusKind>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState('');
+
+  // A corrente pode chegar pronta pelo link que a IA manda no WhatsApp
+  // (fluxo C1): ela já fez o trabalho difícil de descobrir o disjuntor, então
+  // pedir o número de novo é atrito puro.
+  //
+  // Lido no MOUNT, do window, e não com useSearchParams: as LPs são estáticas
+  // (revalidate 3600) e o hook forçaria Suspense/render dinâmico — pagar
+  // performance em toda visita por causa de um parâmetro que quase nunca vem.
+  useEffect(() => {
+    const s = lerSemente(window.location.search);
+    if (!s.corrente && !s.tensao) return;
+    // A URL só existe no client; semear no mount (e não no useState) é o que
+    // evita mismatch de hidratação.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mesma convenção de HomeHero/CookieBanner: valor que só existe no client, semeado uma vez no mount
+    if (s.corrente) setCorrente(s.corrente);
+    if (s.tensao) setTensao(s.tensao);
+    setOrigemUrl(s.origem);
+    setVeioDeLink(true);
+  }, []);
 
   // Dimensionamento LIVE (Tabela de Potências 2026 + preço de venda direta): a
   // corrente do quadro de entrada → modelo MB + preço. Fallback só quando o
@@ -461,7 +518,13 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       placeholder="Ex.: 40, 63, 100…"
                       value={corrente}
                       onChange={(e) => setCorrente(soDigitos(e.target.value))}
-                      hint={`Só números, de 1 a ${MB_LOAD_MAX} A (a faixa da linha Master Block).`}
+                      hint={
+                        veioDeLink && corrente !== ''
+                          ? origemUrl === 'estimativa'
+                            ? 'Veio da nossa conversa como estimativa — confirme no disjuntor antes de fechar.'
+                            : 'Já preenchemos com o número da nossa conversa. Dá pra corrigir.'
+                          : `Só números, de 1 a ${MB_LOAD_MAX} A (a faixa da linha Master Block).`
+                      }
                       error={corrente !== '' && amp === 0 ? 'Informe a corrente em ampères.' : undefined}
                     />
                   </div>

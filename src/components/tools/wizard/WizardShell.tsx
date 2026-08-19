@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 
@@ -61,6 +61,29 @@ export function WizardShell({
 }: Props) {
   const concluido = status === 'success';
   const ultimoPasso = passo >= totalPassos;
+
+  // Link EXTERNO com âncora (ex.: o que a IA manda no WhatsApp,
+  // `/protecao-comercial#calculadora`) não estava rolando até aqui: o
+  // `scroll-behavior: smooth` global faz o navegador ANIMAR o salto inicial, e
+  // a animação é atropelada pela hidratação — a página termina no topo, com a
+  // pessoa tendo que rolar a LP inteira depois de já ter pedido pra comprar.
+  // Clique em CTA interno sempre funcionou, então o defeito só aparecia em
+  // quem chega de fora, que é justamente o caso do link do WhatsApp.
+  //
+  // Rola à mão, sem animação. `scrollIntoView` respeita o scroll-margin-top da
+  // casca, então não fica embaixo do header fixo. Repetimos no 'load' porque
+  // imagem que ainda não chegou muda a altura acima da calculadora.
+  useEffect(() => {
+    if (window.location.hash !== `#${id}`) return;
+    const rolar = () => document.getElementById(id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    // 2 rAF: espera o layout assentar antes de medir.
+    const raf = requestAnimationFrame(() => requestAnimationFrame(rolar));
+    window.addEventListener('load', rolar, { once: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('load', rolar);
+    };
+  }, [id]);
 
   return (
     <div
