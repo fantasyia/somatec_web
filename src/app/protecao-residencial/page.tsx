@@ -35,7 +35,7 @@ const SLUG = 'protecao-residencial';
 export const metadata: Metadata = {
   title: { absolute: 'Proteção contra surtos para casa de alto padrão | Master Block' },
   description:
-    'Automação, home theater, inversor solar e carro elétrico na mesma rede. Um surto pode levar tudo junto. Monte sua proteção em minutos, sem precisar de vendedor.',
+    'Automação, home theater, inversor solar e carro elétrico na mesma rede. Basta um pico de energia para levar tudo junto. Monte sua proteção em minutos, sem precisar de vendedor.',
   alternates: { canonical: `/${SLUG}` },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
@@ -55,7 +55,7 @@ const PROBLEMAS: readonly { Icon: LucideIcon; titulo: string; texto: string }[] 
 // R7 — FAQ (copy do spec)
 const FAQ: readonly { pergunta: string; resposta: string }[] = [
   { pergunta: 'Preciso de eletricista especial?', resposta: 'Não — qualquer eletricista de confiança instala com o manual. Suporte nosso à distância se ele quiser.' },
-  { pergunta: 'Já tenho DPS no quadro. Não basta?', resposta: 'O DPS pega uma parte. As variações mais rápidas — as que queimam placa — passam por ele. O Master Block existe pra essa camada.' },
+  { pergunta: 'O eletricista já instalou um DPS no meu quadro. Não basta?', resposta: 'O DPS pega uma parte. As oscilações mais rápidas — as que queimam placa — passam por ele. O Master Block existe pra essa camada.' },
   { pergunta: 'E se eu não souber tensão/corrente?', resposta: 'Toca em "não sei", manda uma foto do quadro e a gente dimensiona.' },
   { pergunta: 'Funciona com energia solar?', resposta: 'Sim — inversor solar é justamente um dos equipamentos que mais recomendamos proteger.' },
   { pergunta: 'O Master Block protege contra falta de fase?', resposta: 'Sim. Se uma das fases da rede cai, ele desliga o circuito para que os equipamentos não fiquem trabalhando com alimentação incompleta — é o que evita que o motor da bomba da piscina, do ar-condicionado central ou do portão queime por falta de fase. Quando a energia normaliza, ele religa sozinho, sem ninguém precisar ir até o quadro. Se cair de novo, o processo se repete. Já vem configurado assim, com manual.' },
@@ -112,7 +112,7 @@ export default async function ProtecaoResidencialPage() {
             </h1>
             <p className="max-w-[560px] text-base leading-relaxed text-white/90 text-pretty md:text-lg">
               Automação, home theater, ar-condicionado, inversor solar — e o carro na garagem. Está
-              tudo na mesma rede elétrica, e um só surto pode levar tudo junto. O seguro cobre
+              tudo na mesma rede, e basta um pico de energia para levar tudo junto. O seguro cobre
               incêndio; ninguém te avisou sobre a energia.
             </p>
             <div className="pt-2">
@@ -130,7 +130,7 @@ export default async function ProtecaoResidencialPage() {
         <section className="container-msm section-y" aria-label="O problema">
           <Reveal className="max-w-3xl space-y-4">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-              O que a energia suja faz dentro da sua casa
+              O que acontece dentro da sua casa quando a energia oscila
             </h2>
           </Reveal>
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -146,9 +146,10 @@ export default async function ProtecaoResidencialPage() {
           </div>
           <Reveal className="mx-auto mt-10 max-w-3xl">
             <p className="text-base leading-relaxed text-[rgb(var(--text))] text-pretty">
-              E o detalhe que ninguém conta: o DPS do quadro e o no-break{' '}
-              <span className="font-semibold text-gold">não pegam</span> as variações mais rápidas —
-              as que travam e queimam placa eletrônica.
+              E o detalhe que ninguém conta: aquele dispositivo que o eletricista instalou no seu
+              quadro (o DPS){' '}
+              <span className="font-semibold text-gold">não pega</span> as oscilações mais rápidas —
+              justamente as que queimam placa eletrônica.
             </p>
           </Reveal>
         </section>
@@ -163,7 +164,7 @@ export default async function ProtecaoResidencialPage() {
                 A proteção de uma fábrica inteira — do tamanho de uma caixa no seu quadro.
               </h2>
               <p className="leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
-                O Master Block é um bloqueador de surtos brasileiro, patenteado, que há 26 anos
+                O Master Block é um equipamento brasileiro, patenteado, que há 26 anos
                 protege linhas de produção onde uma placa queimada custa a fábrica parada. É uma
                 caixa compacta instalada no seu quadro de energia —{' '}
                 <span className="font-semibold text-[rgb(var(--text))]">pelo seu eletricista de confiança</span>,
@@ -239,7 +240,7 @@ export default async function ProtecaoResidencialPage() {
               <p className="leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
                 O wallbox e o sistema de carga do carro são eletrônicos caros ligados à rede{' '}
                 <span className="font-semibold text-[rgb(var(--text))]">por horas, de madrugada, sem ninguém por perto</span>{' '}
-                — exatamente o cenário onde um surto trabalha em silêncio. E quem tem carro elétrico
+                — exatamente o cenário onde um pico de energia age sem ninguém ver. E quem tem carro elétrico
                 costuma ter inversor solar: dupla exposição, mesma rede. Um Master Block no circuito do
                 carregador protege o conjunto.
               </p>
@@ -319,7 +320,7 @@ export default async function ProtecaoResidencialPage() {
         <div className="container-msm section-y-lg">
           <div className="mx-auto max-w-2xl space-y-6 text-center">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-              Um surto não avisa. Sua proteção pode estar montada em 2 minutos.
+              A rede não avisa quando vai oscilar. Sua proteção pode estar montada em 2 minutos.
             </h2>
             <div className="flex justify-center">
               <LpCta label="Montar minha proteção" event="final_cta" setor="residencial" landing={SLUG} />

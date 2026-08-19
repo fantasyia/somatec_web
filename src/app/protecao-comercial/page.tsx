@@ -38,7 +38,7 @@ const SLUG = 'protecao-comercial';
 export const metadata: Metadata = {
   title: { absolute: 'Proteção elétrica para comércio — câmara fria, PDV e freezers | Master Block' },
   description:
-    'Um surto derruba a câmara fria, o forno e o PDV de uma vez: estoque perdido + venda parada + conserto. Monte a proteção do seu negócio em minutos.',
+    'Um pico de energia derruba a câmara fria, o forno e o PDV de uma vez: estoque perdido + venda parada + conserto. Monte a proteção do seu negócio em minutos.',
   alternates: { canonical: `/${SLUG}` },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
@@ -47,7 +47,7 @@ export const revalidate = 3600;
 
 // C2 — problema por segmento (o visitante se acha no dele)
 const SEGMENTOS: readonly { Icon: LucideIcon; titulo: string; texto: string }[] = [
-  { Icon: UtensilsCrossed, titulo: 'Padaria / restaurante', texto: 'Forno, câmara fria e PDV no mesmo quadro. Um surto = produção parada + estoque perdido + fila que vai embora.' },
+  { Icon: UtensilsCrossed, titulo: 'Padaria / restaurante', texto: 'Forno, câmara fria e PDV no mesmo quadro. Um pico de energia = produção parada + estoque perdido + fila que vai embora.' },
   { Icon: ShoppingCart, titulo: 'Mercado / açougue', texto: 'Freezers e câmaras trabalham 24h. A placa queima de madrugada; você descobre pelo cheiro.' },
   { Icon: Pill, titulo: 'Farmácia', texto: 'Geladeira de medicamento tem lote que não volta — e vigilância sanitária não aceita "foi a energia".' },
   { Icon: Wrench, titulo: 'Oficina / pequena indústria', texto: 'Máquina com placa eletrônica parada = diária dos funcionários paga pra olhar pro teto.' },
@@ -71,7 +71,7 @@ const FALTA_DE_FASE: readonly { Icon: LucideIcon; titulo: string; texto: string 
 const FAQ: readonly { pergunta: string; resposta: string }[] = [
   { pergunta: 'Meu negócio pode parar durante a instalação?', resposta: 'A instalação é rápida e programada pelo seu eletricista — dá pra fazer fora do horário de movimento.' },
   { pergunta: 'Sou MEI/pequeno — isso é pra mim?', resposta: 'O modelo é dimensionado pelo seu quadro, não pelo seu porte. Se o seu faturamento depende de equipamento ligado, é pra você.' },
-  { pergunta: 'Já tenho DPS e estabilizador. Não basta?', resposta: 'Eles pegam uma parte. As variações mais rápidas — as que queimam placa e travam máquina — passam por eles. O Master Block existe pra essa camada.' },
+  { pergunta: 'Já tenho DPS e estabilizador. Não basta?', resposta: 'Eles pegam uma parte. As oscilações mais rápidas — as que queimam placa e travam máquina — passam por eles. O Master Block existe pra essa camada.' },
   { pergunta: 'E se eu não souber tensão/corrente?', resposta: 'Toca em "não sei", manda uma foto do quadro e a gente dimensiona.' },
   { pergunta: 'O Master Block protege contra falta de fase?', resposta: 'Sim. Quando uma das fases da rede cai, ele desliga o circuito para que os equipamentos não continuem trabalhando com alimentação incompleta — é isso que evita que o motor queime por falta de fase. Assim que a energia normaliza, ele religa sozinho, sem ninguém precisar mexer no quadro. Se cair de novo, o processo se repete. Já vem configurado assim, com manual.' },
   { pergunta: 'E se não funcionar?', resposta: 'Garantia de 3 anos, e você fala com gente — WhatsApp direto, sem robô de 0800.' },
@@ -139,10 +139,10 @@ export default async function ProtecaoComercialPage() {
 
       {/* ── C2 · O PROBLEMA POR SEGMENTO (branco) ─────────────────── */}
       <div className="tone-surface">
-        <section className="container-msm section-y" aria-label="Onde o surto pega o seu negócio">
+        <section className="container-msm section-y" aria-label="Onde o pico de energia pega o seu negócio">
           <Reveal className="max-w-3xl space-y-4">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-              Onde o surto pega o seu negócio
+              Onde o pico de energia pega o seu negócio
             </h2>
           </Reveal>
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -158,8 +158,8 @@ export default async function ProtecaoComercialPage() {
           </div>
           <Reveal className="mx-auto mt-10 max-w-3xl">
             <p className="text-base leading-relaxed text-[rgb(var(--text))] text-pretty">
-              O DPS e o estabilizador que você já tem{' '}
-              <span className="font-semibold text-gold">não seguram</span> as variações mais rápidas
+              O DPS que o eletricista instalou e o estabilizador que você já tem{' '}
+              <span className="font-semibold text-gold">não seguram</span> as oscilações mais rápidas
               da rede — as que queimam placa e travam máquina.
             </p>
           </Reveal>
@@ -176,7 +176,7 @@ export default async function ProtecaoComercialPage() {
               </h2>
               <p className="leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
                 O Master Block protege há 26 anos fábricas onde 40 minutos de parada custam caro
-                demais pra arriscar. É o mesmo bloqueador, dimensionado pro quadro do seu negócio,
+                demais pra arriscar. É o mesmo equipamento, dimensionado pro quadro do seu negócio,
                 instalado pelo seu eletricista, com manual e suporte.
               </p>
               <ul className="space-y-2.5">
