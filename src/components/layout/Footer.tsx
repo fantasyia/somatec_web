@@ -45,7 +45,7 @@ export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
               className="h-10 w-auto"
             />
             <p className="text-sm leading-relaxed text-white/70 max-w-sm">
-              {SITE.description}
+              {SITE.tagline}
             </p>
 
             {SOCIAL_LINKS.length > 0 && (

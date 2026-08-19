@@ -1,8 +1,15 @@
 export const SITE = {
   name: 'Somatec',
   fullName: 'Somatec Blocking',
+  // Meta description — campo de BUSCA, segue técnica. O público, porém, não
+  // pode ser só "a indústria": o site atende comércio e residência.
   description:
-    'Proteção contra surtos e qualidade de energia para a indústria. MasterBlock — supressor com atuação em 100 kHz.',
+    'Proteção contra surtos e qualidade de energia para indústria, comércio e residências. MasterBlock — supressor com atuação em 100 kHz.',
+  // Linha LIDA no rodapé, em toda página — inclusive nas LPs de casa e de
+  // comércio. Dizer "para a indústria" ali ensinava o dono de casa que a
+  // empresa não é pra ele, logo depois de a página inteira dizer que é.
+  tagline:
+    'Proteção elétrica e qualidade de energia — para indústria, comércio e residências.',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://somatecblocking.com.br',
   locale: 'pt-BR',
   ogImage: '/og-default.jpg',

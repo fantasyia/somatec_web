@@ -31,9 +31,13 @@ const PAINEIS: readonly Painel[] = [
     foto: '/home/ni-carro-eletrico.webp',
     href: '/protecao-residencial',
     alt: 'Carro elétrico carregando na garagem com carregador de parede',
+    // ⛔ GUARDA (icp-setores.md): o escopo comprovável é a INSTALAÇÃO de
+    // recarga — wallbox, eletroposto, rede da casa. A bateria e a eletrônica do
+    // veículo são cobertas pelo BMS do próprio carro. Nunca afirmar, nem
+    // implicar, que o Master Block protege o CARRO.
     texto:
-      'Plugado à rede por horas, de madrugada e sem ninguém por perto: um surto danifica o carregador e o carro.',
-    foco: 'o carregador e o carro',
+      'Plugado à rede por horas, de madrugada e sem ninguém por perto: um pico de energia danifica o carregador e a instalação de recarga.',
+    foco: 'o carregador e a instalação',
     cta: { label: 'Proteger meu carregador', estilo: 'solido' },
   },
   {

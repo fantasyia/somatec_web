@@ -91,7 +91,7 @@ export function HomeHero({ data }: Props) {
     },
     {
       id: 'comercio',
-      title: 'No comércio, um surto leva a câmara fria, o forno e o PDV de uma vez.',
+      title: 'No comércio, um pico de energia leva a câmara fria, o forno e o PDV de uma vez.',
       subtitle:
         'A mesma tecnologia que blinda a indústria mantém sua refrigeração, seus servidores/PDV e o ar-condicionado de pé — sem parada de venda e sem estoque estragado.',
       // Comércio = compra direta → LP comercial (âncora da calculadora).
@@ -104,8 +104,12 @@ export function HomeHero({ data }: Props) {
     {
       id: 'nao-industrial',
       title: 'Proteção também para casas e apartamentos de alto padrão',
+      // Não repetir a abertura do slide 2 ("A mesma tecnologia que blinda a
+      // indústria…"): em slides seguidos, a paridade com a indústria deixa de
+      // ser argumento e vira eco. Ela segue viva no slide 2 e no "A solução"
+      // das LPs.
       subtitle:
-        'O mesmo que blinda a indústria protege a automação, o home theater, o ar-condicionado e o inversor solar — todo o patrimônio eletrônico da casa, na mesma rede.',
+        'Automação, home theater, ar-condicionado e inversor solar dividem a mesma rede — e basta um pico de energia para levar tudo junto.',
       // LP residencial — deep-link na âncora da calculadora embutida mantém o
       // verbo "calcular" com o clique de alta intenção.
       ctas: [{ label: 'Calcular a minha proteção', href: '/protecao-residencial#calculadora', primary: true }],
