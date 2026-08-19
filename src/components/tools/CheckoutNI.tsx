@@ -11,6 +11,11 @@ import {
   Store,
   Wrench,
   Camera,
+  ShieldCheck,
+  HardHat,
+  BadgeCheck,
+  MessageCircle,
+  Wrench as Chave,
 } from 'lucide-react';
 import { TextField } from '@/components/forms/fields/TextField';
 import { HoneypotField } from '@/components/forms/fields/HoneypotField';
@@ -142,6 +147,54 @@ export function lerSemente(busca: string): Semente {
   const origem = o === 'disjuntor' || o === 'conta' || o === 'estimativa' ? o : null;
 
   return { corrente, tensao, origem };
+}
+
+/** Blocos de confiança do passo 5 (checkout-ni-spec.md).
+ *
+ *  É a tela onde a pessoa decide gastar dinheiro sem falar com ninguém — as
+ *  perguntas que ela faria a um vendedor precisam estar respondidas ali.
+ *
+ *  ⚠️ Só fato já comprovável e já publicado no site: garantia, instalação pelo
+ *  próprio eletricista, 26 anos sem acidente + FIESP, patente. Nada de número
+ *  novo aqui. Fica ABAIXO do botão e em cinza — quem já decidiu não é
+ *  interrompido; quem travou encontra a resposta. */
+function ConfiancaCheckout({ href, externo }: { href: string; externo: boolean }) {
+  const itens = [
+    { Icon: ShieldCheck, titulo: 'Garantia de 3 anos', texto: '+1 ano se você mandar um depoimento.' },
+    { Icon: Chave, titulo: 'Instale com seu eletricista', texto: 'Vai com manual. Não precisa de técnico da Somatec.' },
+    { Icon: HardHat, titulo: '26 anos sem um acidente', texto: 'Prêmio FIESP Acelera Startup 2015.' },
+    { Icon: BadgeCheck, titulo: 'Produto patenteado', texto: 'Fabricação exclusiva no Brasil.' },
+  ];
+
+  return (
+    <div className="border-t border-[rgb(var(--border))] pt-5">
+      <ul className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+        {itens.map(({ Icon, titulo, texto }) => (
+          <li key={titulo} className="flex items-start gap-2.5">
+            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
+            <p className="text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+              <span className="font-sans font-semibold text-[rgb(var(--text))]">{titulo}</span>
+              {' — '}
+              {texto}
+            </p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 flex items-center gap-2 text-xs text-[rgb(var(--text-muted))]">
+        <MessageCircle className="h-4 w-4 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
+        Ficou alguma dúvida antes de fechar?{' '}
+        {externo ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" className="font-semibold text-gold underline">
+            Fale com a gente no WhatsApp
+          </a>
+        ) : (
+          <Link href={href} className="font-semibold text-gold underline">
+            Fale com a gente no WhatsApp
+          </Link>
+        )}
+      </p>
+    </div>
+  );
 }
 
 function ConsentimentoLgpd() {
@@ -917,6 +970,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                     )}
                   </button>
                 </form>
+
+                <ConfiancaCheckout href={whatsappHref} externo={whatsappExternal} />
               </div>
             )}
 
