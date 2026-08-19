@@ -9,6 +9,37 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { getBlogPosts, getPostBySlug, type BlogPost } from '@/lib/constants/blog';
 import { getArticleContent } from '@/lib/constants/blog-content';
 import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
+import { publicoDoCluster } from '@/lib/constants/publico-clusters';
+
+// 🔒 REGRA DE OURO NI + regra do custo de parada (Léo, 19/08).
+//
+// Este template servia os MESMOS dois CTAs industriais em TODO artigo — os de
+// casa e de comércio inclusive: "Você só paga se o resultado for comprovado"
+// (oferta de LOCAÇÃO, exclusiva do industrial) e "Calcular meu prejuízo" →
+// custo de parada, que é ferramenta industrial. Dono de casa lendo sobre home
+// theater levava a oferta industrial duas vezes na mesma página.
+//
+// O público sai do CLUSTER (config única em publico-clusters.ts), a mesma que
+// as LPs já usam. Copy de cada variante é a MESMA já aprovada no CTA final da
+// LP do público — nada escrito aqui.
+const CTA_NI = {
+  residencial: {
+    href: '/protecao-residencial#calculadora',
+    titulo: 'A rede não avisa quando vai oscilar. Sua proteção pode estar montada em 2 minutos.',
+    label: 'Montar minha proteção',
+    lateralTitulo: 'Monte a sua proteção',
+    lateralTexto: 'Você mesmo dimensiona a proteção da sua casa em minutos, sem depender de vendedor.',
+    lateralLabel: 'Proteger minha casa',
+  },
+  comercial: {
+    href: '/protecao-comercial#calculadora',
+    titulo: 'Seu concorrente não vai parar de vender quando a rede oscilar. Você também não precisa.',
+    label: 'Proteger meu negócio',
+    lateralTitulo: 'Monte a sua proteção',
+    lateralTexto: 'Você mesmo dimensiona a proteção do seu negócio em minutos, sem depender de vendedor.',
+    lateralLabel: 'Proteger meu comércio',
+  },
+} as const;
 
 export const dynamicParams = false;
 
@@ -47,10 +78,22 @@ function formatDate(iso: string): string {
   });
 }
 
+/** Relacionados NUNCA cruzam a fronteira de público.
+ *
+ *  O preenchimento "pega qualquer artigo pra fechar 3" trazia artigo industrial
+ *  pra dentro de artigo de casa — e cada card carrega o CTA do PRÓPRIO artigo,
+ *  então o leitor residencial acabava com "Calcular o custo da minha parada"
+ *  (ferramenta industrial) na página. Além da regra, é relevância: quem lê
+ *  sobre home theater não quer "1 hora de linha parada na sua fábrica".
+ *
+ *  Antes de 3 relacionados fora do público, é melhor mostrar menos. */
 function getRelated(post: BlogPost): BlogPost[] {
-  const others = getBlogPosts().filter((p) => p.slug !== post.slug);
-  const sameCluster = others.filter((p) => p.cluster === post.cluster);
-  return [...sameCluster, ...others.filter((p) => p.cluster !== post.cluster)].slice(0, 3);
+  const alvo = publicoDoCluster(post.cluster); // null = industrial
+  const mesmoPublico = getBlogPosts().filter(
+    (p) => p.slug !== post.slug && publicoDoCluster(p.cluster) === alvo,
+  );
+  const mesmoCluster = mesmoPublico.filter((p) => p.cluster === post.cluster);
+  return [...mesmoCluster, ...mesmoPublico.filter((p) => p.cluster !== post.cluster)].slice(0, 3);
 }
 
 export const revalidate = 3600;
@@ -62,6 +105,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   const content = getArticleContent(slug);
   const related = getRelated(post);
+  /** null = artigo industrial → segue com os CTAs industriais de sempre. */
+  const publicoNi = publicoDoCluster(post.cluster);
+  const ctaNi = publicoNi ? CTA_NI[publicoNi] : null;
   const tocItems = content?.secoes.map((s) => ({ id: s.id, titulo: s.titulo })) ?? [];
   const absUrl = `${SITE.url}/blog/${post.slug}`;
 
@@ -278,17 +324,19 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   <Zap className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                 </span>
                 <span className="font-sans text-sm font-bold text-[rgb(var(--text))]">
-                  Diagnóstico sem custo
+                  {ctaNi ? ctaNi.lateralTitulo : 'Diagnóstico sem custo'}
                 </span>
               </div>
               <p className="mt-2 text-[13px] leading-relaxed text-[rgb(var(--text-muted))]">
-                Meça a VTCD na sua rede. Você só paga se o resultado for comprovado na sua planta.
+                {ctaNi
+                  ? ctaNi.lateralTexto
+                  : 'Meça a VTCD na sua rede. Você só paga se o resultado for comprovado na sua planta.'}
               </p>
               <Link
-                href="/ferramentas/custo-de-parada"
+                href={ctaNi ? ctaNi.href : '/ferramentas/custo-de-parada'}
                 className="mt-3 inline-flex items-center gap-1 font-sans text-sm font-semibold text-cyan transition-colors hover:text-cyan/80"
               >
-                Calcular meu prejuízo
+                {ctaNi ? ctaNi.lateralLabel : 'Calcular meu prejuízo'}
                 <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               </Link>
             </div>
@@ -301,26 +349,30 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         <div className="container-msm py-14 text-center md:py-20">
           <div className="mx-auto max-w-2xl space-y-4">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-              Descubra se a sua planta sofre com VTCD
+              {ctaNi ? ctaNi.titulo : 'Descubra se a sua planta sofre com VTCD'}
             </h2>
-            <p className="leading-relaxed text-white/80">
-              A medição na sua rede é sem custo. Você só passa a pagar se o resultado for comprovado
-              na sua própria operação.
-            </p>
+            {!ctaNi && (
+              <p className="leading-relaxed text-white/80">
+                A medição na sua rede é sem custo. Você só passa a pagar se o resultado for
+                comprovado na sua própria operação.
+              </p>
+            )}
             <div className="flex flex-wrap justify-center gap-3 pt-2">
-              <Link href="/ferramentas/custo-de-parada" className="btn-primary group">
-                Calcular meu prejuízo
+              <Link href={ctaNi ? ctaNi.href : '/ferramentas/custo-de-parada'} className="btn-primary group">
+                {ctaNi ? ctaNi.label : 'Calcular meu prejuízo'}
                 <ChevronRight
                   className="h-4 w-4 transition-transform duration-200 ease-premium group-hover:translate-x-0.5"
                   strokeWidth={2}
                 />
               </Link>
-              <Link
-                href="/contato"
-                className="inline-flex items-center rounded-btn border border-white/40 px-5 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:border-gold hover:text-gold"
-              >
-                Solicitar diagnóstico
-              </Link>
+              {!ctaNi && (
+                <Link
+                  href="/contato"
+                  className="inline-flex items-center rounded-btn border border-white/40 px-5 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:border-gold hover:text-gold"
+                >
+                  Solicitar diagnóstico
+                </Link>
+              )}
             </div>
           </div>
         </div>

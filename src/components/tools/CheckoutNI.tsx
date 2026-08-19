@@ -446,9 +446,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       setStatus('success');
       setMessage(
         virouPedido
-          ? `Pedido registrado! Você vai receber a confirmação por e-mail e o link de pagamento (${
+          ? `Pedido registrado! Você vai receber a confirmação por e-mail e nossa equipe finaliza o pedido com você (${
               FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? 'pagamento'
-            }) no WhatsApp informado. Frete e prazo já valem como mostrado.`
+            }). Frete e prazo já valem como mostrado.`
           : 'Recebido! Nossa equipe dimensiona o seu Master Block e te retorna com o valor — sem compromisso.',
       );
       trackEvent(virouPedido ? 'checkout_pedido' : 'calc_lead', {
@@ -942,13 +942,16 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                   <TurnstileWidget onToken={setCaptchaToken} />
                   {status === 'error' && <FormStatus status="error" message={message} />}
 
-                  {/* Enquanto o gateway não está ligado, o pedido não morre: vira
-                      pedido registrado + link de pagamento pelo WhatsApp. */}
+                  {/* 🔒 REGRA (Léo, 19/08): a compra é SEMPRE no site. O WhatsApp
+                      ajuda a identificar o modelo, nunca fecha. Enquanto o gateway
+                      não liga, o pedido não morre — mas o texto NÃO pode prometer
+                      link de pagamento por WhatsApp: terceiriza o fechamento pro
+                      canal que a regra proíbe e cria promessa que só humano cumpre.
+                      Sem prometer canal nem prazo. */}
                   {!GATEWAY_ATIVO && (
                     <p className="rounded-card border border-cyan/25 bg-cyan/[0.05] p-3 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
-                      O pagamento online está em ativação. Ao confirmar, seu pedido é registrado com
-                      esses dados e a Somatec te manda o link de pagamento pelo WhatsApp — o preço e
-                      as condições acima já valem.
+                      O pagamento online está em ativação. Confirme seus dados e nossa equipe
+                      finaliza o pedido com você — o preço e as condições acima já valem.
                     </p>
                   )}
 

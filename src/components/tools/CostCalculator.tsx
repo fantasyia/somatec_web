@@ -33,8 +33,13 @@ export function CostCalculator() {
   const [horasMes, setHorasMes] = useState('');
   const [queimasAno, setQueimasAno] = useState('');
   const [custoEquip, setCustoEquip] = useState('');
-  // Público + setor: viram etiqueta no Betinna e roteiam a nutrição.
-  const [publico, setPublico] = useState<PublicoId | ''>('');
+  // 🔒 REGRA (Léo, 19/08): custo de parada é ferramenta INDUSTRIAL — "não tem
+  // nada a ver com NI". A premissa da página é prejuízo de PRODUÇÃO PARADA, que
+  // não existe pra casa nem pra padaria. Perguntar o público aqui só produzia
+  // lead que a regra diz que não devia existir (e o S1 do Betinna roteia tudo
+  // que vem por essa porta pro Canal Reps, sem olhar o público).
+  // O equivalente NI é a calculadora de proteção das LPs, não esta.
+  const publico: PublicoId = 'industria';
   const [setor, setSetor] = useState('');
 
   const [status, setStatus] = useState<FormStatusKind>('idle');
@@ -189,9 +194,10 @@ export function CostCalculator() {
 
           <PublicoSetorFields
             idPrefix="calc"
+            publicoFixo="industria"
             publico={publico}
             setor={setor}
-            onPublicoChange={setPublico}
+            onPublicoChange={() => {}}
             onSetorChange={setSetor}
           />
 

@@ -104,6 +104,11 @@ describe('trilha NI — vocabulário de cliente no corpo das LPs', () => {
 
 const LOCACAO = [/loca[çc][ãa]o/i, /comodato/i, /paga s[óo]\b/i, /s[óo] paga\b/i, /resultado comprovado/i];
 
+/** Superfícies MISTAS que o teste de arquivo inteiro não cobre. O template de
+ *  artigo do blog serve industrial E NI no mesmo arquivo — o que precisa valer
+ *  é que a oferta industrial esteja atrás de `ctaNi`, nunca solta. */
+const BLOG_ARTIGO = 'src/app/blog/[slug]/page.tsx';
+
 /** Arquivos que são 100% NI — o arquivo inteiro é território de compra direta. */
 const NI_ARQUIVO_INTEIRO = [
   'src/app/protecao-residencial/page.tsx',
@@ -128,6 +133,34 @@ function bloco(fonte: string, alvo: string): string {
   const prox = fonte.indexOf("id: '", ini + 5);
   return fonte.slice(ini, prox === -1 ? fonte.length : prox);
 }
+
+describe('template de artigo do blog — a oferta industrial é condicional', () => {
+  // Servia os MESMOS dois CTAs industriais em todo artigo, inclusive os de casa
+  // e comércio: "você só paga se o resultado for comprovado" (locação) e
+  // "Calcular meu prejuízo" (custo de parada, ferramenta industrial). Quem lia
+  // sobre home theater levava a oferta industrial duas vezes.
+  const fonte = () => lerCopy(BLOG_ARTIGO);
+
+  it('deriva o público do cluster, como as LPs', () => {
+    expect(fonte()).toContain('publicoDoCluster');
+  });
+
+  it('todo custo-de-parada do template está atrás do ternário de público', () => {
+    for (const linha of fonte().split('\n')) {
+      if (!linha.includes('/ferramentas/custo-de-parada')) continue;
+      expect(linha, `CTA industrial solto: ${linha.trim()}`).toMatch(/ctaNi/);
+    }
+  });
+
+  it('a promessa de locação não fica solta no template', () => {
+    // Ela pode existir (artigo industrial), mas só dentro de um bloco `!ctaNi`.
+    const f = fonte();
+    const i = f.indexOf('só paga');
+    if (i === -1) return;
+    // 400 caracteres antes: tem de haver a guarda de público por perto.
+    expect(f.slice(Math.max(0, i - 400), i)).toMatch(/ctaNi/);
+  });
+});
 
 describe('regra de ouro — NI nunca vê locação', () => {
   it.each(NI_ARQUIVO_INTEIRO)('%s não oferece locação/comodato', (arquivo) => {

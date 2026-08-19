@@ -18,6 +18,10 @@ import { PUBLICOS, setoresDoPublico, type PublicoId } from '@/lib/constants/seto
 
 type Props = {
   publico: PublicoId | '';
+  /** Trava o público e ESCONDE o seletor — pra ferramenta que atende um público
+   *  só (custo de parada é industrial). Perguntar "pra quem é?" numa página que
+   *  serve a um público só produz lead que a regra diz que não devia existir. */
+  publicoFixo?: PublicoId;
   setor: string;
   onPublicoChange: (p: PublicoId | '') => void;
   onSetorChange: (slug: string) => void;
@@ -30,6 +34,7 @@ type Props = {
 
 export function PublicoSetorFields({
   publico,
+  publicoFixo,
   setor,
   onPublicoChange,
   onSetorChange,
@@ -38,8 +43,11 @@ export function PublicoSetorFields({
   erroPublico,
   erroSetor,
 }: Props) {
+  const efetivo = publicoFixo ?? publico;
+
   return (
     <>
+      {!publicoFixo && (
       <SelectField
         id={`${idPrefix}-publico`}
         label="Você está buscando proteção para"
@@ -54,7 +62,8 @@ export function PublicoSetorFields({
         options={PUBLICOS.map((p) => ({ value: p.id, label: `${p.label} — ${p.descricao}` }))}
         error={erroPublico}
       />
-      {publico && (
+      )}
+      {efetivo && (
         <SelectField
           id={`${idPrefix}-setor`}
           label="Ramo de atividade"
@@ -63,7 +72,7 @@ export function PublicoSetorFields({
           placeholder="Selecione"
           value={setor}
           onChange={(e) => onSetorChange(e.target.value)}
-          options={setoresDoPublico(publico).map((s) => ({ value: s.slug, label: s.label }))}
+          options={setoresDoPublico(efetivo).map((s) => ({ value: s.slug, label: s.label }))}
           hint="Não achou o seu? Escolha “Outros” — a gente registra e inclui na lista."
           error={erroSetor}
         />
