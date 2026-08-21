@@ -68,9 +68,12 @@ export function HomeBifurcacao() {
   return (
     <section
       aria-label="Uma engenharia, três frentes de proteção"
-      // ~100svh no desktop (altura DEFINIDA — h-full dos cards resolve);
-      // no mobile os cards empilham com altura própria.
-      className="flex flex-col md:h-[100svh] md:min-h-[720px]"
+      // ⛔ NÃO amarrar a altura na tela. Era `md:h-[100svh]`, e como o
+      // container trava em 1400px os cards ficam sempre com ~460px de largura:
+      // num monitor de 1990px de altura eles viravam tiras de 460×1800. A
+      // altura agora sai do ASPECTO do próprio card (abaixo), que é o que
+      // define se a foto fica proporcional.
+      className="flex flex-col"
     >
       <div className="container-msm pt-14 pb-8 md:pt-20 md:pb-10">
         <Reveal>
@@ -83,12 +86,12 @@ export function HomeBifurcacao() {
       <div className="container-msm flex-1 pb-10 md:pb-14">
         {/* Painéis com borda UNIFORME de 1px e cantos arredondados nas 4
             pontas cada um (feedback do Léo), separados pela costura mínima. */}
-        <div className="grid h-full grid-cols-1 gap-1 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-1 md:grid-cols-3">
           {CARDS.map(({ id, foto, alt, titulo, modelo, resto, cta, fotoPos }, i) => (
             <Reveal
               key={id}
               delay={i * 90}
-              className="group relative min-h-[420px] overflow-hidden rounded-card-lg border border-white/25 md:min-h-0"
+              className="group relative min-h-[420px] overflow-hidden rounded-card-lg border border-white/25 md:aspect-[3/4] md:min-h-[520px] md:max-h-[680px]"
             >
               {/* Foto vertical full-bleed + Ken Burns; sem foto ainda =
                   placeholder no mesmo slot. (O painel industrial deixou de

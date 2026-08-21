@@ -86,7 +86,7 @@ export default async function ProtecaoResidencialPage() {
 
       {/* ── R1 · HERO (navy sobre imagem) ─────────────────────────── */}
       <section
-        className="relative isolate flex min-h-[76svh] items-center overflow-hidden bg-deep_navy pt-20 text-white"
+        className="relative isolate flex min-h-[min(76svh,max(520px,48vw))] items-center overflow-hidden bg-deep_navy pt-20 text-white"
         aria-label="Proteção para casa de alto padrão"
       >
         <div className="absolute inset-0 -z-20" aria-hidden="true">
