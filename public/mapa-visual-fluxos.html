@@ -142,16 +142,19 @@
 <header>
   <h1>Mapa dos fluxos</h1>
   <div class="sub">Cada automação da Somatec Blocking: o que ela faz, qual IA atende e o que o prompt dela precisa ter.</div>
-  <div class="upd">Atualizado em 05/08/2026</div>
+  <div class="upd">Atualizado em 20/08/2026</div>
 </header>
 
 <nav class="toc">
   <div class="toc-t">Ir para</div>
   <a href="#wa1">📞 WhatsApp — Clientes</a>
   <a href="#ind">🏭 Caminho do industrial</a>
+  <a href="#site">🌐 Quem chega pelo site</a>
   <a href="#mail-i">📧 E-mail — indústria</a>
   <a href="#mail-ni">📧 E-mail — comércio e casa</a>
   <a href="#wa2">📞 WhatsApp — Representantes</a>
+  <a href="#rb">⏱️ Quem travou no meio</a>
+  <a href="#rt">↩️ Quem sumiu e voltou</a>
 </nav>
 
 <div class="lg">
@@ -164,114 +167,155 @@
 
 <div class="grp" id="wa1"><span class="grp-ic">📞</span><span class="grp-tx">WhatsApp Número 1 — Clientes</span><span class="grp-ln"></span></div>
 
-<div class="flow">
- <div class="fh"><span class="fn">Porteiro — triagem em dois níveis</span><span class="fs">T1 · pronto, desligado</span></div>
+<div class="flow nw">
+ <div class="fh"><span class="fn">Porteiro — quem chegou e o que ele quer</span><span class="fs">T1 · 38 blocos · pronto, desligado</span></div>
  <div class="fb">
-  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Chegou mensagem no WhatsApp</b></div></div>
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Chegou mensagem no WhatsApp da empresa</b><i>só no número da empresa — mensagem no celular pessoal de um rep é ignorada</i></div></div>
   <div class="cn"></div>
-  <div class="nd"><span class="nd-ic">📥</span><div class="nd-bd"><b>Cria o lead na Triagem</b><i>guarda de qual anúncio veio</i></div></div>
+  <div class="nd"><span class="nd-ic">📥</span><div class="nd-bd"><b>Cria (ou reencontra) o lead na Triagem</b><i>guarda de qual anúncio veio, se veio de um</i></div></div>
   <div class="cn"></div>
-  <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>Nível 1 — ele quer comprar ou não?</b>
-    <div class="pb"><div class="pn">PROMPT · triagem_whatsapp</div>
+  <div class="nd dec"><span class="nd-ic">🚪</span><div class="nd-bd"><b>Essa pessoa já foi triada antes?</b><i>se já foi, para aqui — a IA não recomeça a conversa do zero a cada mensagem</i></div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">🔄</span><div class="nd-bd"><b>É alguém voltando?</b><i>quem foi descartado por não se explicar, ou sumiu sem responder, volta pro começo: limpa as marcações, religa a IA e é triado de novo</i></div></div>
+  <div class="cn"></div>
+  <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>A IA conversa e classifica</b>
+    <div class="pb"><div class="pn">PROMPT · T1 — Triagem WhatsApp (v14)</div>
     <ul>
-      <li>Responder curto e cordial, nunca fingir ser humano</li>
-      <li>Primeiro corte: interessado em proteger/comprar <b>ou não</b></li>
-      <li>Se não for: financeiro · suporte · fornecedor/vaga/spam</li>
-      <li>Na dúvida entre comprar e descartar → <b>sempre comprar</b></li>
-      <li>Nunca falar preço, prazo ou condição</li>
+      <li>Se apresenta como Somatec logo de cara — quem escreve não sabe onde caiu</li>
+      <li><b>Direito a UMA pergunta na conversa inteira.</b> Se a resposta não resolver, encerra — nunca insiste</li>
+      <li>Descobre <b>o que a pessoa quer</b> (6 possibilidades) e, se for compra, <b>o que ela quer proteger</b> — é o equipamento que revela o porte</li>
+      <li>Na dúvida entre comprador e descarte → <b>sempre comprador</b></li>
+      <li>Nunca fala preço, prazo, condição ou especificação técnica</li>
     </ul>
-    <div class="po">→ grava: interesse</div></div>
+    <div class="po">→ grava duas coisas: o que quer · o porte</div></div>
   </div></div>
-  <div class="cn"></div>
-  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Está interessado em proteger ou comprar?</b></div></div>
+  <div class="hnote">🔑 <b>Ele pergunta o EQUIPAMENTO, não o porte.</b> Perguntar "é indústria ou comércio?" pede pra pessoa se autoclassificar, e é o pior sinal possível — dono de metalúrgica pequena responde "comércio" com naturalidade. Perguntar <i>o que você quer proteger</i> resolve as duas coisas de uma vez: <b>"uma injetora e dois CNCs"</b> não deixa dúvida sobre o porte, e a resposta ainda é aproveitada pelo robô seguinte, que lê a conversa em vez de perguntar de novo.</div>
   <div class="br">
-    <div class="bl">✅ Sim — quer se proteger</div>
-    <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>Nível 2 — que tipo de cliente ele é?</b>
-      <div class="pb"><div class="pn">PROMPT · triagem_whatsapp (2ª etapa)</div>
-      <ul>
-        <li>Descobrir: indústria · comércio · residência/condomínio</li>
-        <li>Perguntar pelo <b>local</b> ("é pra sua empresa, seu comércio ou sua casa?")</li>
-        <li>Se disser indústria, confirmar se é fábrica mesmo</li>
-        <li>⛔ Ainda não falar de oferta — só classificar</li>
-      </ul>
-      <div class="po">→ grava: tipo de cliente</div></div>
-    </div></div>
-    <div class="cn"></div>
-    <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Qual tipo?</b></div></div>
+
+    <div class="bl">🛒 Quer comprar / se proteger</div>
+    <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Que porte é o local?</b><i>o corte é indústria de verdade (com subestação própria) contra o resto</i></div></div>
     <div class="br2">
       <div class="bl">🏭 Industrial</div>
-      <div class="nd hub"><span class="nd-ic">→</span><div class="nd-bd"><b>Funil "Clientes — canal reps"</b><i>segue no triador técnico, abaixo</i></div></div>
-      <div class="bl">🏪 Comercial ou residencial</div>
-      <div class="nd"><span class="nd-ic">→</span><div class="nd-bd"><b>Funil "Clientes — canal próprio"</b><i>segue no vendedor consultivo</i></div></div>
+      <div class="nd hub"><span class="nd-ic">→</span><div class="nd-bd"><b>Funil dos representantes — o consultivo industrial assume</b><i>o porteiro não chama ninguém nem entrega pro rep: ele só coloca a pessoa no corredor certo. Quem conversa e prepara o dossiê é o robô seguinte</i></div></div>
+      <div class="bl">🏪 Comércio ou casa</div>
+      <div class="nd"><span class="nd-ic">→</span><div class="nd-bd"><b>Funil de venda direta — o consultivo de comércio assume</b><i>também sem tarefa: o robô seguinte pega a conversa em seguida</i></div></div>
+      <div class="bl">🟠 Não deu pra saber o porte</div>
+      <div class="nd mn"><span class="nd-ic">✋</span><div class="nd-bd"><b>Fica parado na Triagem + tarefa pra confirmar na mão</b><i>não entra em funil de cliente nenhum: industrial não pode ver compra direta, e comércio não pode ver locação. "Não sei" não é resposta</i></div></div>
     </div>
-    <div class="bl">❌ Não quer comprar</div>
-    <div class="nd"><span class="nd-ic">🎧</span><div class="nd-bd"><b>Já é cliente — financeiro ou suporte</b><i>transfere para o Leandro · pausa a IA · mesmo número</i></div></div>
-    <div class="nd end"><span class="nd-ic">🚫</span><div class="nd-bd"><b>Fornecedor, vaga ou spam</b><i>descarta e encerra</i></div></div>
-    <div class="nd end"><span class="nd-ic">⏳</span><div class="nd-bd"><b>Não respondeu</b><i>marca e encerra</i></div></div>
+
+    <div class="bl">🤝 É um representante se oferecendo</div>
+    <div class="nd"><span class="nd-ic">→</span><div class="nd-bd"><b>Vai pro funil de recrutamento + tarefa</b><i>a tarefa avisa que o fluxo de abordagem está desligado — sem ela, ninguém saberia que chegou alguém</i></div></div>
+
+    <div class="bl">🎧 Já é cliente — financeiro ou suporte</div>
+    <div class="nd"><span class="nd-ic">👤</span><div class="nd-bd"><b>Transfere pra uma pessoa E desliga o robô</b><i>o robô só volta quando o atendente religar no botão — não volta sozinho no meio do atendimento</i></div></div>
+
+    <div class="bl">🚫 Não é lead (fornecedor, vaga, spam)</div>
+    <div class="nd end"><span class="nd-ic">🗑️</span><div class="nd-bd"><b>Descarta em definitivo e desliga o robô</b><i>é o único caminho sem volta do fluxo</i></div></div>
+
+    <div class="bl">🤷 Não deu pra entender o que quer</div>
+    <div class="nd end"><span class="nd-ic">💤</span><div class="nd-bd"><b>Descarta, mas com volta</b><i>robô segue ligado e sem a marca de "já triado" — se a pessoa voltar dizendo o que quer, é triada de novo</i></div></div>
+
+    <div class="bl">⚠️ A IA devolveu algo fora do previsto</div>
+    <div class="nd mn"><span class="nd-ic">🐞</span><div class="nd-bd"><b>Lead fica intocado + tarefa pra hoje</b><i>isso é defeito nosso, não erro da pessoa — ela não é descartada. A tarefa manda classificar na mão e conferir o prompt</i></div></div>
+
+    <div class="bl">⏳ Ficou 24h sem responder</div>
+    <div class="nd end"><span class="nd-ic">🌙</span><div class="nd-bd"><b>Marca e encerra</b><i>se voltar a escrever depois, é religada e triada de novo</i></div></div>
   </div>
+
+  <div class="note"><b>O que muda pra quem opera:</b> todo destino que vale dinheiro — industrial, comércio/casa e representante — gera uma <b>tarefa</b>. Antes só o ruído avisava alguém; a venda entrava no funil e ficava esperando alguém abrir o quadro por conta própria.</div>
+  <div class="hnote"><b>Antes de ligar:</b> o financeiro/suporte e as tarefas de comércio ainda apontam pro <b>Léo</b> — é configuração de teste. No go-live, passam pro <b>Leandro</b>.</div>
  </div>
 </div>
 
 <div class="flow">
- <div class="fh"><span class="fn">Vendedor — canal próprio</span><span class="fs">a criar</span></div>
+ <div class="fh"><span class="fn">Consultivo comércio/casa — canal próprio</span><span class="fs">pronto · desligado</span></div>
  <div class="fb">
-  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Entrou no funil "Clientes — canal próprio"</b><i>comércio, casa ou condomínio</i></div></div>
+  <div class="hnote">🔗 <b>Continua a conversa da triagem, não recomeça.</b> A IA lê tudo o que já foi dito e emenda de onde a triagem parou — o cliente não é reapresentado a um robô novo nem responde a mesma pergunta duas vezes.</div>
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Entrou no funil "Clientes — canal próprio"</b><i>comércio, casa ou condomínio — quem a triagem mandou pra cá</i></div></div>
+  <div class="cn"></div>
+  <div class="nd"><span class="nd-ic">📍</span><div class="nd-bd"><b>Move pra "Em conversa"</b><i>enquanto conversa, o lead fica visível nessa etapa — se parar no meio, dá pra ver onde parou</i></div></div>
   <div class="cn"></div>
   <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>IA consultiva de venda</b>
     <div class="pb"><div class="pn">PROMPT · venda_nao_industrial</div>
     <ul>
+      <li>Não se reapresenta, não repete pergunta já feita</li>
+      <li><b>Descobrir a corrente do quadro</b> — é o único dado que falta, e o cliente não sabe de cor: guiar até o disjuntor geral</li>
       <li>Explicar o produto em linguagem de dono de comércio ou casa</li>
-      <li><b>Descobrir a corrente do quadro</b> — ele não sabe, tem que ser guiado</li>
-      <li>Perguntar o que já queimou (freezer, automação, ar, carregador)</li>
       <li>Quem já sabe o que quer: pular direto para o link</li>
-      <li>⛔ Nunca oferecer locação · ⛔ nunca inventar preço</li>
+      <li>🏭 Se aparecer que é <b>fábrica</b>: para na hora, não mostra preço nem carrinho</li>
+      <li>⛔ Nunca oferecer locação · ⛔ nunca inventar preço · ⛔ nunca inventar link</li>
     </ul>
-    <div class="po">→ grava: corrente · perfil · o que proteger</div></div>
+    <div class="po">→ grava: desfecho · corrente · perfil · o que proteger · <b>de onde saiu a corrente</b></div></div>
   </div></div>
   <div class="cn"></div>
-  <div class="nd"><span class="nd-ic">🔗</span><div class="nd-bd"><b>Monta o link da calculadora já preenchido</b></div></div>
-  <div class="cn"></div>
-  <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Calculadora → compra direta</b><i>sem passar por vendedor</i></div></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Como a conversa terminou?</b></div></div>
+  <div class="br">
+    <div class="bl">✅ Entregou o link da calculadora</div>
+    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Calculadora → compra direta + tarefa de acompanhar</b><i>a bola fica com o cliente; a tarefa manda conferir se a corrente bate — e se ela veio de <b>estimativa</b>, confirmar antes de deixar comprar: modelo menor que o necessário não protege, e isso só aparece quando queima</i></div></div>
+
+    <div class="bl">🏭 Descobriu que é indústria — a triagem errou</div>
+    <div class="nd"><span class="nd-ic">🔄</span><div class="nd-bd"><b>Volta pro canal dos representantes</b><i>a IA encerra sem mostrar preço nem checkout e o lead é movido pro funil certo, onde o consultivo industrial assume — mostrar carrinho pra uma fábrica é oferecer a coisa errada pra quem tem modelo de locação</i></div></div>
+    <div class="nd mn"><span class="nd-ic">🔍</span><div class="nd-bd"><b>Tarefa de diagnóstico, não de resgate</b><i>o lead já se corrigiu sozinho. A tarefa manda ver <b>o que a pessoa disse na triagem</b> que levou ao erro — se o sinal estava lá e passou batido, ele entra na lista de sinais da triagem. É o que faz a triagem melhorar com o uso em vez de errar calada</i></div></div>
+
+    <div class="bl">🗣️ Pediu pra falar com uma pessoa</div>
+    <div class="nd mn"><span class="nd-ic">👤</span><div class="nd-bd"><b>Fica em "Em conversa" + tarefa pra amanhã</b><i>a IA prometeu que alguém daria sequência — essa expectativa foi criada e precisa ser cumprida</i></div></div>
+
+    <div class="bl">⏳ Ficou 24h sem responder</div>
+    <div class="nd mn"><span class="nd-ic">🌙</span><div class="nd-bd"><b>Marca e abre tarefa de retomada</b><i>ficou em "Em conversa", ou seja, <b>não</b> chegou a receber a calculadora. Onde a maioria trava é na pergunta da corrente</i></div></div>
+  </div>
+  <div class="hnote">🔗 <b>São dois links, escolhidos pelo lugar:</b> um pra <b>comércio</b> (loja, escritório, clínica, condomínio, eletroposto) e um pra <b>residência</b> (casa, apartamento, carregador de carro em casa). Condomínio vai no comercial — o que se protege ali é elevador, bomba, portão. Carro elétrico vai pelo <b>local do carregador</b>, não pelo carro. <i>URLs provisórias de teste; quando o domínio final entrar, mudam dentro do prompt.</i></div>
+  <div class="hnote">✅ <b>O link já vai preenchido.</b> A IA monta o endereço com a corrente dentro, e a página abre rolada na calculadora com o campo semeado — a pessoa não digita de novo o que deu trabalho pra descobrir. Se a corrente foi <b>estimada</b>, o link avisa a página, que pede pra conferir no disjuntor antes de fechar — e a IA repete isso na mensagem, porque nem todo mundo lê aviso de tela.</div>
  </div>
 </div>
-
 <div class="grp" id="ind"><span class="grp-ic">🏭</span><span class="grp-tx">O caminho único do industrial</span><span class="grp-ln"></span></div>
 
 <div class="flow hb">
- <div class="fh"><span class="fn">⭐ Triador técnico — porta única</span><span class="fs">a criar</span></div>
+ <div class="fh"><span class="fn">Consultivo industrial — leva ao representante</span><span class="fs">C2 · 20 blocos · pronto, desligado</span></div>
  <div class="fb">
   <div class="hnote">🔀 <b>Todo lead industrial passa por aqui</b>, não importa por onde entrou. É o que garante que o representante sempre receba o lead no mesmo padrão, com as mesmas informações.</div>
   <div class="src">
-    <span>⚡ veio do WhatsApp</span>
-    <span>⚡ converteu no cold e-mail</span>
-    <span>⚡ pediu análise na nutrição</span>
-    <span>⚡ veio da retomada</span>
+    <span>⚡ veio da triagem do WhatsApp</span>
+    <span>⚡ veio do comércio, e era indústria</span>
+    <span>⚡ usou a calculadora de custo de parada</span>
   </div>
   <div class="cn"></div>
-  <div class="nd hub"><span class="nd-ic">📁</span><div class="nd-bd"><b>Entra no funil "Clientes — canal reps"</b></div></div>
+  <div class="nd hub"><span class="nd-ic">📁</span><div class="nd-bd"><b>Entra no funil "Clientes — canal reps" e vai pra Qualificando</b><i>fica visível nessa etapa enquanto conversa; se parar no meio, dá pra ver onde parou</i></div></div>
   <div class="cn"></div>
-  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Aceita conversar ou já quer reunião?</b></div></div>
+  <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>IA faz o levantamento técnico</b>
+    <div class="pb"><div class="pn">PROMPT · consultivo_industrial</div>
+    <ul>
+      <li>Não se reapresenta e não repete pergunta já feita</li>
+      <li><b>1.</b> O que para ou queima</li>
+      <li><b>2.</b> <b>Com que frequência, e se piora em dia de chuva</b> — a pergunta que vira o jogo</li>
+      <li><b>3.</b> O que já tem instalado (mostra que já investiu e não resolveu)</li>
+      <li><b>4.</b> O tamanho do estrago</li>
+      <li><b>5.</b> Cidade e estado — único obrigatório, define o rep</li>
+      <li>Máximo 5. Questionário longo mata a conversa</li>
+      <li>Oferece a <b>medição sem custo</b> · pode dizer que é locação · ⛔ nunca confirma valor</li>
+      <li>⛔ nunca compra direta · ⛔ nenhum concorrente pelo nome</li>
+    </ul>
+    <div class="po">→ grava: setor · o que para · frequência · proteção atual · impacto · região</div></div>
+  </div></div>
+  <div class="hnote">💡 <b>Ele não vende, ele conecta sintoma à causa.</b> O industrial sabe que tem problema e não sabe que é energia — culpa equipamento ruim, azar, fornecedor. A conversa vira quando ele percebe que <b>queima sempre em tempo fechado</b>: aí o diagnóstico deixa de ser argumento de vendedor e vira observação dele.</div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Como a conversa terminou?</b></div></div>
   <div class="br">
-    <div class="bl">Quer reunião ou vídeo direto</div>
-    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Vai direto ao representante</b><i>pula a triagem técnica</i></div></div>
-    <div class="bl">Aceita conversar</div>
-    <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>IA levanta o técnico — as 5 perguntas</b>
-      <div class="pb"><div class="pn">PROMPT · triagem_industrial</div>
-      <ul>
-        <li><b>1.</b> Que tipo de indústria / o que produz</li>
-        <li><b>2.</b> O que está queimando ou parando</li>
-        <li><b>3.</b> Com que frequência acontece</li>
-        <li><b>4.</b> Já tem DPS ou aterramento instalado</li>
-        <li><b>5.</b> Cidade e estado (define o rep da região)</li>
-        <li>Máximo 5 — questionário longo mata a conversa</li>
-        <li>Oferta é <b>locação</b> · ⛔ nunca compra · ⛔ nunca preço</li>
-        <li>Se pedir humano a qualquer momento, encerra e passa</li>
-      </ul>
-      <div class="po">→ grava: setor · sintoma · frequência · proteção atual · região</div></div>
-    </div></div>
-    <div class="cn"></div>
-    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Representante recebe já mastigado</b><i>tarefa no quadro dele + espelho no do diretor</i></div></div>
+    <div class="bl">✅ Levantamento completo</div>
+    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Vai pro representante com o dossiê + robô desligado</b><i>a tarefa manda LER o levantamento antes de ligar — chegar perguntando o que ele já respondeu é o jeito mais rápido de perder a conversa</i></div></div>
+
+    <div class="bl">🔥 Já quer falar com alguém</div>
+    <div class="nd end"><span class="nd-ic">📞</span><div class="nd-bd"><b>Pula o levantamento e vai pro rep HOJE</b><i>submeter quem já quer conversar a questionário é o jeito mais fácil de perder um lead quente. Confirma só a região e passa</i></div></div>
+
+    <div class="bl">🏪 Descobriu que NÃO é indústria</div>
+    <div class="nd"><span class="nd-ic">🔄</span><div class="nd-bd"><b>Volta pro comércio/casa</b><i>encerra sem oferecer medição nem locação e devolve pro consultivo de compra direta. É o espelho exato da rota do outro lado</i></div></div>
+
+    <div class="bl">🚫 Sem interesse</div>
+    <div class="nd end"><span class="nd-ic">🗑️</span><div class="nd-bd"><b>Perdido</b><i>robô segue ligado: recusa comercial não é pedido pra parar de ser contatado</i></div></div>
+
+    <div class="bl">⏳ Ficou 24h sem responder</div>
+    <div class="nd mn"><span class="nd-ic">🌙</span><div class="nd-bd"><b>Marca e abre tarefa</b><i>fica em Qualificando SEM representante — ninguém foi acionado ainda</i></div></div>
   </div>
+  <div class="hnote">🔇 <b>Nos dois caminhos que vão pro representante, o robô é desligado.</b> A conversa passa a ser dele, e ninguém responde por cima de quem está negociando. A tarefa avisa isso e diz como religar.</div>
  </div>
 </div>
 
@@ -406,6 +450,42 @@
  </div>
 </div>
 
+<div class="grp" id="site"><span class="grp-ic">🌐</span><span class="grp-tx">Quem chega pelo site</span><span class="grp-ln"></span></div>
+
+<div class="flow hb">
+ <div class="fh"><span class="fn">Porteiro do site — cada formulário pro seu lugar</span><span class="fs">S · 21 blocos · pronto, desligado</span></div>
+ <div class="fb">
+  <div class="hnote">⚠️ <b>Sem este fluxo, quem preenche formulário no site fica parado.</b> O porteiro do WhatsApp só acorda com mensagem, e formulário não manda mensagem nenhuma. A pessoa preenche, recebe a promessa na tela, e ninguém do outro lado é avisado.</div>
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Nasceu um lead vindo do site</b></div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">🚪</span><div class="nd-bd"><b>Qual ferramenta ela usou?</b><i>o site marca cada formulário com um nome próprio — foi isso que permitiu separar os caminhos</i></div></div>
+  <div class="br">
+
+    <div class="bl">🏭 Montou o projeto industrial e baixou o PDF</div>
+    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Vai direto pro representante + WhatsApp + robô desligado</b><i><b>não passa por robô consultivo de propósito</b>: quem preencheu o assistente já respondeu grupo tarifário, tensão, setores e painéis. Conversar de novo seria refazer o que ela já fez</i></div></div>
+
+    <div class="bl">🛒 Fechou o pedido no site</div>
+    <div class="nd end"><span class="nd-ic">💳</span><div class="nd-bd"><b>Confirma por WhatsApp + robô desligado + tarefa pra hoje</b><i>a mensagem confirma o pedido e diz que avisa quando o pagamento for confirmado. ⛔ Não promete link de pagamento — a compra é no site, o WhatsApp não vende e não cobra</i></div></div>
+
+    <div class="bl">🧮 Usou a calculadora mas não fechou</div>
+    <div class="nd"><span class="nd-ic">→</span><div class="nd-bd"><b>Vira lead do consultivo de comércio</b><i>ela clicou "não sei os dados" e espera alguém dimensionar — que é literalmente o trabalho daquele robô. Reaproveita em vez de criar caminho paralelo</i></div></div>
+
+    <div class="bl">📉 Calculou o custo de parada</div>
+    <div class="nd"><span class="nd-ic">→</span><div class="nd-bd"><b>Vira lead do consultivo industrial</b><i>essa ferramenta é industrial por definição — a premissa dela é produção parada</i></div></div>
+
+    <div class="bl">🤝 Quer ser representante</div>
+    <div class="nd"><span class="nd-ic">→</span><div class="nd-bd"><b>Entra na fila de prospecção de reps</b></div></div>
+
+    <div class="bl">✉️ Formulário de contato genérico</div>
+    <div class="nd mn"><span class="nd-ic">✋</span><div class="nd-bd"><b>Fica na Triagem + tarefa pra ler</b><i>sem calculadora e sem projeto, não dá pra saber o que a pessoa quer sem ler o que ela escreveu</i></div></div>
+
+    <div class="bl">⚠️ Formulário que este fluxo não conhece</div>
+    <div class="nd mn"><span class="nd-ic">🐞</span><div class="nd-bd"><b>Tarefa avisando que o site criou ferramenta nova</b><i>o lead não é descartado. Os dois lados precisam andar juntos: o site aceita o nome novo, aqui ainda não existe caminho pra ele</i></div></div>
+  </div>
+  <div class="note"><b>É um fluxo só, não cinco.</b> O gatilho do site filtra por <b>de onde o lead veio</b>, não por qual formulário ele preencheu — fluxos separados disparariam todos a cada lead, e quatro deles só pra descobrir que a vez não era deles.</div>
+ </div>
+</div>
+
 <div class="grp" id="wa2"><span class="grp-ic">📞</span><span class="grp-tx">WhatsApp Número 2 — Representantes</span><span class="grp-ln"></span></div>
 
 <div class="flow">
@@ -414,21 +494,33 @@
   <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>Todo dia libera um lote da base</b><i>40 por dia · +24 mil contatos já na plataforma</i></div></div>
   <div class="cn"></div>
   <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>IA entrevista o candidato</b>
-    <div class="pb"><div class="pn">PROMPT · prospeccao_reps</div>
+    <div class="pb"><div class="pn">PROMPT · R1 — Primeira abordagem (v2.0)</div>
     <ul>
       <li>Apresentar a oportunidade de representação</li>
-      <li>Levantar: atuação · segmentos · porte · acesso ao decisor · região</li>
-      <li>Identificar oportunidade concreta em carteira</li>
-      <li>Detectar pedido de remoção (LGPD) e respeitar</li>
-      <li>Se for cliente e não candidato: mandar o link do Número 1</li>
+      <li>O eixo são dois dados: <b>que acesso ele tem à indústria</b> e <b>se topa representar</b></li>
+      <li>Levantar: atuação · segmentos · acesso ao decisor · região · sinal de dor</li>
+      <li>Identificar oportunidade concreta na carteira dele — é o que o Diretor pode agir sem esperar reunião</li>
+      <li>Detectar pedido de remoção (LGPD) e respeitar na hora</li>
     </ul>
-    <div class="po">→ grava: classificação · perfil · e-mail · resumo</div></div>
+    <div class="po">→ grava: classificação · trilho · perfil · e-mail · resumo</div></div>
   </div></div>
+  <div class="cn"></div>
+  <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>Não respondeu em 24h → UMA retomada</b>
+    <div class="pb"><div class="pn">PROMPT · R1-FU — Follow-up único</div>
+    <ul>
+      <li><b>Uma mensagem só.</b> Não respondeu de novo, silêncio — o fluxo arquiva sozinho</li>
+      <li>Não se reapresenta, não repete a oferta, não cobra</li>
+      <li>⛔ Sem urgência inventada, sem "última vaga", sem condição especial</li>
+      <li>Se a pessoa responder, retoma a entrevista de onde parou</li>
+    </ul>
+    <div class="po">→ grava o mesmo que a abordagem, marcando que veio da retomada</div></div>
+  </div></div>
+  <div class="hnote">💡 <b>Por que a retomada tem prompt próprio.</b> Esse bloco fala <b>sem ninguém ter falado</b> — quem aciona é o relógio. Usando o mesmo texto da abordagem, cuja instrução mais forte é "primeira mensagem padrão", o caminho mais provável era a Betinna se reapresentar do zero pra quem já tinha recebido a mensagem dela. É a cara de robô que o próprio prompt manda evitar.</div>
   <div class="cn"></div>
   <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Que tipo de candidato é?</b></div></div>
   <div class="br">
     <div class="bl">Bom agora</div>
-    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Qualificação + reunião + avisa a diretoria</b></div></div>
+    <div class="nd end"><span class="nd-ic">🏁</span><div class="nd-bd"><b>Qualificação + avisa a diretoria + robô desligado</b><i>a Betinna prometeu que o Diretor entra em contato, então a conversa passa a ser dele — ninguém responde por cima</i></div></div>
     <div class="bl">Sem encaixe</div>
     <div class="nd end"><span class="nd-ic">🚫</span><div class="nd-bd"><b>Perdido</b></div></div>
     <div class="bl">Pediu para sair (LGPD)</div>
@@ -437,6 +529,77 @@
     <div class="nd mn"><span class="nd-ic">✋</span><div class="nd-bd"><b>Tarefa para alguém revisar</b></div></div>
   </div>
   <div class="note">⛔ <b>Sem reaquecimento de reps.</b> Com 24 mil contatos novos na fila, o volume diário rende mais em gente nova.</div>
+ </div>
+</div>
+
+<div class="grp" id="rb"><span class="grp-ic">⏱️</span><span class="grp-tx">Quando alguém trava no meio do funil</span><span class="grp-ln"></span></div>
+
+<div class="flow hb">
+ <div class="fh"><span class="fn">Reabordagem de pipeline parado</span><span class="fs">RB · 18 blocos · travado no dev</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>O prazo da etapa estourou</b><i>não é robô varrendo o funil de hora em hora. Cada etapa já tem o prazo dela, e é ele que acende isto — Qualificando 5 dias, Proposta 7, Em avaliação 10</i></div></div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Esse cliente já tem um representante cuidando dele?</b></div></div>
+  <div class="br">
+    <div class="bl">Tem dono</div>
+    <div class="nd mn"><span class="nd-ic">📋</span><div class="nd-bd"><b>Tarefa para o próprio representante</b><i>e mais nada. A Betinna <b>não escreve para esse cliente</b> — ele é do rep, e ninguém fala por cima de quem está negociando</i></div></div>
+    <div class="bl">Sem dono</div>
+    <div class="nd ia"><span class="nd-ic">🤖</span><div class="nd-bd"><b>Uma retomada, e só uma</b>
+      <div class="pb"><div class="pn">PROMPT · RB — Reabordagem de pipeline parado</div>
+      <ul>
+        <li><b>Uma pergunta só, ainda faz sentido?</b></li>
+        <li>⛔ Não repropõe, não explica o produto de novo, não fala de preço nem de prazo</li>
+        <li>⛔ Sem cobrança, sem urgência inventada, sem desconto pra reengajar</li>
+        <li>Não diz que "o sistema avisou" que a pessoa está parada</li>
+        <li>Quem não quiser mais nada é aceito na primeira, sem tentativa de contorno</li>
+      </ul>
+      <div class="po">→ grava: quer retomar · ainda avaliando · sem interesse</div></div>
+    </div></div>
+  </div>
+  <div class="hnote">💡 <b>Por que ele não faz oferta nenhuma.</b> Quem sumiu há meses viu uma condição que pode não valer mais. Se a Betinna repropusesse, ela repetiria um preço vencido pra alguém que ainda lembra dele. Então ela só pergunta, e devolve pro atendimento consultivo, que é quem tem a oferta atual na mão.</div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>O que a pessoa respondeu?</b></div></div>
+  <div class="br">
+    <div class="bl">Quer retomar</div>
+    <div class="nd end"><span class="nd-ic">↩️</span><div class="nd-bd"><b>Volta pro atendimento consultivo</b><i>indústria vai pro consultivo industrial, comércio e casa vão pro de orçamento — o mesmo que atende quem chega novo</i></div></div>
+    <div class="bl">Ainda avaliando</div>
+    <div class="nd end"><span class="nd-ic">🟡</span><div class="nd-bd"><b>Marca e deixa quieto</b><i>não é não. E não fica ninguém marcado pra ligar depois — se essa pessoa voltar a falar um dia, quem pega é a retomada de conversa</i></div></div>
+    <div class="bl">Sem interesse</div>
+    <div class="nd end"><span class="nd-ic">🚫</span><div class="nd-bd"><b>Perdido</b><i>quem pediu pra não ser mais procurado ainda tem o robô desligado junto</i></div></div>
+    <div class="bl">Não respondeu em 48h</div>
+    <div class="nd end"><span class="nd-ic">🔇</span><div class="nd-bd"><b>Silêncio</b><i>marca e para. Não existe segunda mensagem</i></div></div>
+  </div>
+  <div class="note">🔴 <b>Ainda não pode ser ligado.</b> Faltam duas peças no app: o prazo estourado carimba a etiqueta mas <b>não avisa ninguém</b>, e o fluxo <b>não enxerga quem é o representante do cliente</b> — sem isso ele acharia que todo mundo está sem dono e escreveria justamente pra quem já está sendo atendido. Está com o dev.</div>
+ </div>
+</div>
+
+<div class="grp" id="rt"><span class="grp-ic">↩️</span><span class="grp-tx">Quando alguém some e volta a falar</span><span class="grp-ln"></span></div>
+
+<div class="flow">
+ <div class="fh"><span class="fn">Retomada de conversa</span><span class="fs">RT · 14 blocos · pronto, desligado</span></div>
+ <div class="fb">
+  <div class="nd trg"><span class="nd-ic">⚡</span><div class="nd-bd"><b>O porteiro reconheceu alguém que já passou por ali</b><i>quem já foi atendido, sumiu e voltou a escrever. Antes essa pessoa falava sozinha, o porteiro parava nela e nenhum atendimento assumia</i></div></div>
+  <div class="hnote">💡 <b>Por que é um fluxo separado e não mais um pedaço do porteiro.</b> O porteiro já tem 38 blocos e é o maior de todos. Ele passa a bola aqui com uma marquinha, e a decisão de quem atende quem continua num lugar só — se fossem dois, uma hora as duas listas de regra iam discordar e ninguém ia perceber.</div>
+  <div class="cn"></div>
+  <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>Essa pessoa já tem um representante cuidando dela?</b></div></div>
+  <div class="br">
+    <div class="bl">Tem dono</div>
+    <div class="nd mn"><span class="nd-ic">📋</span><div class="nd-bd"><b>Tarefa para HOJE, pro próprio representante, e o robô é desligado</b><i>a Betinna não responde nada e não reabre atendimento. A tarefa avisa em destaque que, <b>enquanto ninguém abrir, a pessoa fica sem resposta</b> — desligar o robô sem avisar isso seria pior que não desligar</i></div></div>
+    <div class="bl">Sem dono</div>
+    <div class="nd dec"><span class="nd-ic">❓</span><div class="nd-bd"><b>De onde essa pessoa é?</b></div></div>
+  </div>
+  <div class="cn"></div>
+  <div class="br">
+    <div class="bl">Indústria</div>
+    <div class="nd end"><span class="nd-ic">🏭</span><div class="nd-bd"><b>Volta pro atendimento industrial</b><i>o mesmo que atende quem chega novo</i></div></div>
+    <div class="bl">Comércio ou casa</div>
+    <div class="nd end"><span class="nd-ic">🏪</span><div class="nd-bd"><b>Volta pro atendimento de orçamento</b></div></div>
+    <div class="bl">Já comprou (pedido, pago, entregue)</div>
+    <div class="nd mn"><span class="nd-ic">💰</span><div class="nd-bd"><b>Tarefa para HOJE com gente, e o robô é desligado</b><i>quem já comprou e volta a falar quase nunca quer ser vendido de novo. Quer nota, prazo, rastreio, instalação, ou tem problema</i></div></div>
+    <div class="bl">Fora dos funis de cliente</div>
+    <div class="nd mn"><span class="nd-ic">❓</span><div class="nd-bd"><b>Tarefa pra alguém olhar</b><i>não move e <b>não desliga o robô</b> — aqui eu não sei qual é o atendimento certo, e calar o robô deixaria a pessoa falando sozinha</i></div></div>
+  </div>
+  <div class="note">🤝 <b>Ele e a reabordagem são um par.</b> Quando a reabordagem ouve "ainda estou avaliando", ela marca e deixa quieto, sem agendar cutucada nenhuma. Se essa pessoa reaparecer meses depois, é este fluxo que atende. Um quebra o silêncio nosso, o outro atende o silêncio quebrado por ela.</div>
  </div>
 </div>
 
