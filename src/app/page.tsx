@@ -63,8 +63,25 @@ export default async function HomePage() {
           transparente sobreposto + carrossel full-bleed + faixa de logos
           ancorada na base. svh (não vh) por causa da barra do navegador
           mobile. Ritmo de tom segue abaixo da dobra: navy só nas âncoras;
-          miolo alterna branco (.tone-surface) ↔ off-white (.tone-base). */}
-      <div className="flex h-[100svh] flex-col">
+          miolo alterna branco (.tone-surface) ↔ off-white (.tone-base).
+
+          TETO PROPORCIONAL À LARGURA: as fotos do hero são 1920×1010 (aspecto
+          1,90) e cobrem o espaço com object-cover. Em monitor ALTO — retrato,
+          4:3 — o hero ficava quase quadrado e a foto era ampliada até 2×,
+          mostrando só METADE da largura (medido em 1780×1990: 50% visível,
+          zoom 1,99×).
+
+          O teto é `62vw` porque o que quebra a foto é o ASPECTO da caixa, não
+          a altura em px: limitando a altura a 62% da largura, a caixa nunca
+          fica mais estreita que ~1,6:1 e a lateral da foto nunca sai. Teto fixo
+          em px não serve — testei 820px e encolhia o hero nas telas normais
+          (1920×1080 caía de 950 pra 690).
+
+          O `max(560px, …)` é o piso, pra tablet em pé não virar uma tira.
+          Em tela de proporção normal o `min()` não age e a primeira tela
+          continua exatamente 100svh, como o despacho #7 pede. No mobile fica
+          100svh puro: lá a foto é retrato e a regra não se aplica. */}
+      <div className="flex h-[100svh] md:h-[min(100svh,max(560px,62vw))] flex-col">
         <HomeHero data={hero} />
         <HomeClients />
       </div>
