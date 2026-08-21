@@ -57,13 +57,20 @@ export const getWhatsAppButtonConfig = unstable_cache(
       if (!row) return WHATSAPP_BUTTON_DEFAULT;
       const parsed = whatsAppButtonSchema.safeParse(row.value);
       if (!parsed.success) return WHATSAPP_BUTTON_DEFAULT;
-      // Linha SEM número = nunca configurada (é o default antigo, que nasceu
-      // com number:'' e enabled:false e ficou salvo). Isso não é "o admin
+      // Linha SEM número = NUNCA configurada (é o default antigo, que nasceu
+      // com number:'' e enabled:false e ficou salvo). Isso não é "alguém
       // desligou": é o botão nunca ter sido ligado. Cai no default.
-      // Desligar de propósito continua possível — basta enabled:false com o
-      // número preenchido, que é o que a tela /admin/whatsapp grava.
       if (!parsed.data.number) return WHATSAPP_BUTTON_DEFAULT;
-      return parsed.data;
+      // ⛔ O NÚMERO salvo é IGNORADO de propósito. Produção tinha o número
+      // ANTIGO gravado aqui e seguiu publicando ele mesmo depois de o número
+      // novo entrar no código — o site mentia e ninguém via. O número da
+      // empresa é um fato só (CONTACT), não config por ambiente.
+      // Do banco vale o que é decisão de operação: LIGAR/DESLIGAR e a MENSAGEM.
+      return {
+        enabled: parsed.data.enabled,
+        number: CONTACT.whatsappDigits,
+        message: parsed.data.message || WHATSAPP_BUTTON_DEFAULT.message,
+      };
     } catch (err) {
       log.warn('getWhatsAppButtonConfig failed', undefined, err);
       return WHATSAPP_BUTTON_DEFAULT;
@@ -79,10 +86,7 @@ export const getWhatsAppButtonConfig = unstable_cache(
  */
 export function buildWhatsAppUrl(config: WhatsAppButtonConfig): string | null {
   if (!config.enabled) return null;
-  // Config salva sem número não pode apagar o botão: cai no número comercial.
-  // Desligar de propósito é `enabled: false`, que segue respeitado.
-  const numero = config.number || CONTACT.whatsappDigits;
-  if (!numero) return null;
+  const numero = CONTACT.whatsappDigits;
   const params = new URLSearchParams();
   if (config.message) params.set('text', config.message);
   const qs = params.toString();
@@ -92,6 +96,9 @@ export function buildWhatsAppUrl(config: WhatsAppButtonConfig): string | null {
 type CommercialCtaOptions = {
   /** Contexto que enriquece a mensagem (nome do produto/marca/etc). */
   context?: string;
+  /** Substitui a mensagem inteira — pra CTA que precisa rotear o atendimento
+   *  (ex.: "quero falar com a engenharia" → trilha industrial). */
+  mensagem?: string;
   /** Fallback quando WhatsApp desabilitado. Default: '/contato'. */
   fallbackPath?: string;
 };
@@ -116,14 +123,14 @@ export function buildCommercialCtaHref(
 ): string {
   const fallback = options.fallbackPath ?? '/contato';
   if (!config.enabled) return fallback;
-  const numero = config.number || CONTACT.whatsappDigits;
-  if (!numero) return fallback;
+  const numero = CONTACT.whatsappDigits;
 
-  // Mensagem base do admin + context (se houver)
-  const parts = [config.message.trim()];
-  if (options.context) {
-    parts.push(`Interessei em: ${options.context}.`);
-  }
+  // `mensagem` troca o texto todo (ex.: "quero falar com a engenharia", que faz
+  // o atendimento cair direto no trilho industrial). Sem ela, mensagem do admin
+  // + o contexto do que a pessoa estava lendo.
+  const parts = options.mensagem
+    ? [options.mensagem.trim()]
+    : [config.message.trim(), ...(options.context ? [`Interessei em: ${options.context}.`] : [])];
   const text = parts.filter(Boolean).join(' ');
 
   const params = new URLSearchParams();

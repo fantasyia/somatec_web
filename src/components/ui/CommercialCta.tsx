@@ -13,6 +13,9 @@ type Props = {
   label: string;
   /** Contexto enriquecedor da mensagem (nome do produto, marca, etc). */
   context?: string;
+  /** Substitui a mensagem inteira. Use quando o CTA precisa ROTEAR o
+   *  atendimento — ex.: "falar com a engenharia" cai na trilha industrial. */
+  mensagem?: string;
   /** Path interno usado quando WhatsApp está desabilitado. Default: '/contato'. */
   fallbackPath?: string;
   /** Estilo visual. Default: 'primary'. */
@@ -33,13 +36,14 @@ type Props = {
 export async function CommercialCta({
   label,
   context,
+  mensagem,
   fallbackPath,
   variant = 'primary',
   withArrow = true,
   className,
 }: Props) {
   const config = await getWhatsAppButtonConfig();
-  const href = buildCommercialCtaHref(config, { context, fallbackPath });
+  const href = buildCommercialCtaHref(config, { context, mensagem, fallbackPath });
   const external = isExternalCtaHref(href);
 
   const baseClass = variant === 'primary' ? 'btn-primary' : 'btn-secondary';

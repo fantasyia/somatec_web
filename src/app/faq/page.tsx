@@ -111,6 +111,7 @@ export default function FaqPage() {
           </p>
           <CommercialCta
             label="Falar com a engenharia"
+              mensagem="Olá! Vim pelo site da Somatec Blocking e quero falar direto com a ENGENHARIA sobre a minha planta."
             context="Página FAQ"
             fallbackPath="/contato"
             className="inline-flex"

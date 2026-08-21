@@ -56,13 +56,17 @@ export function CascadeDiagram() {
         {/* Fio condutor */}
         <line x1={16} x2={W - 16} y1={wireY} y2={wireY} stroke="rgba(255,255,255,0.25)" strokeWidth={2.5} />
 
-        {/* Rede (origem) */}
-        <text x={22} y={wireY - 52} fontFamily={FONT} fontSize={12} fontWeight={600} fill={MUTED}>
+        {/* Rede (origem) — ABAIXO do fio.
+            Estava acima, em cima do raio de entrada: o raio ocupa x 46..82 e
+            y 23..101, e o rótulo caía dentro dessa caixa. Na tela lia como
+            "Surto" e "Rede elétrica" colados um no outro. Aqui embaixo o
+            rótulo diz de onde a energia vem sem disputar espaço com o raio. */}
+        <text x={16} y={wireY + 48} fontFamily={FONT} fontSize={12} fontWeight={600} fill={MUTED}>
           Rede elétrica
         </text>
 
         {/* Surto entrando — grande, pulsando */}
-        <Bolt x={64} y={wireY - 34} scale={1.5} className="animate-pulse" />
+        <Bolt x={64} y={wireY - 28} scale={1.5} className="animate-pulse" />
 
         {/* Estágio 1 */}
         <MbBlock x={190} y={wireY} label="Entrada da instalação" />
@@ -90,7 +94,7 @@ export function CascadeDiagram() {
 
         {/* Legenda de atenuação */}
         <g fontFamily={FONT} fontSize={12.5} fontWeight={600}>
-          <text x={64} y={wireY - 74} textAnchor="middle" fill={TXT}>Surto</text>
+          <text x={64} y={wireY - 76} textAnchor="middle" fill={TXT}>Surto</text>
           <text x={300} y={wireY - 62} textAnchor="middle" fill={MUTED}>atenuado</text>
           <text x={492} y={wireY - 48} textAnchor="middle" fill={MUTED}>residual</text>
         </g>

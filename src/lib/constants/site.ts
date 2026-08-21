@@ -29,13 +29,17 @@ export const DEFAULT_OG_IMAGES = [
 // WhatsApp. Ligação só acontece via representante, e isso é combinado depois,
 // não é canal de entrada do site. Por isso não há `tel:` em lugar nenhum.
 export const CONTACT = {
+  // ⛔ NADA de env var nem de linha no banco pra estes três. O telefone, o
+  // e-mail e o endereço da empresa são UM fato só, igual em todo ambiente.
+  // Quando eram sobrescrevíveis, produção ficou com valores velhos no Railway e
+  // no site_settings e seguiu publicando o número e o e-mail antigos mesmo
+  // depois do deploy — o site mentia e ninguém via.
   /** Só dígitos, E.164 sem '+'. É o formato que o wa.me exige. */
-  whatsappDigits: process.env.NEXT_PUBLIC_CONTACT_WHATSAPP ?? '5511917644757',
+  whatsappDigits: '5511917644757',
   /** Como o número aparece na tela. */
   whatsappDisplay: '+55 11 91764-4757',
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'comercial@somatecblocking.com.br',
+  email: 'comercial@somatecblocking.com.br',
   address:
-    process.env.NEXT_PUBLIC_CONTACT_ADDRESS ??
     'Edifício Austin Office Center — Av. Fagundes Filho, 145, Conj. 72 — Vila Monte Alegre, São Paulo - SP, 04304-000',
   /** Partes do endereço pro JSON-LD (schema.org PostalAddress). */
   endereco: {

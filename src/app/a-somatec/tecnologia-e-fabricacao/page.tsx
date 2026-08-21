@@ -111,6 +111,7 @@ export default function TecnologiaFabricacaoPage() {
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <CommercialCta
               label="Falar com a engenharia"
+              mensagem="Olá! Vim pelo site da Somatec Blocking e quero falar direto com a ENGENHARIA sobre a minha planta."
               context="Tecnologia e fabricação"
               fallbackPath="/contato"
             />
