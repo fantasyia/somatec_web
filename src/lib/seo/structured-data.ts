@@ -28,9 +28,10 @@ export function organizationSchema() {
     areaServed: 'BR',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Rua XV de Novembro, 743 — Centro',
-      addressLocality: 'Dracena',
-      addressRegion: 'SP',
+      streetAddress: CONTACT.endereco.logradouro,
+      addressLocality: CONTACT.endereco.cidade,
+      addressRegion: CONTACT.endereco.uf,
+      postalCode: CONTACT.endereco.cep,
       addressCountry: 'BR',
     },
     knowsAbout: [
@@ -47,7 +48,7 @@ export function organizationSchema() {
           contactPoint: {
             '@type': 'ContactPoint',
             email: CONTACT.email,
-            ...(CONTACT.whatsapp ? { telephone: CONTACT.whatsapp } : {}),
+            ...(CONTACT.whatsappDigits ? { telephone: CONTACT.whatsappDisplay } : {}),
             contactType: 'sales',
             areaServed: 'BR',
             availableLanguage: ['Portuguese'],

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { unstable_cache } from 'next/cache';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createLogger } from '@/lib/logger';
+import { CONTACT } from '@/lib/constants/site';
 
 const log = createLogger('whatsapp-button');
 
@@ -23,9 +24,13 @@ export const whatsAppButtonSchema = z.object({
 
 export type WhatsAppButtonConfig = z.infer<typeof whatsAppButtonSchema>;
 
+// LIGADO por padrão, com o número comercial real (Léo, 21/08). Antes vinha
+// desligado e sem número, então o botão flutuante simplesmente nunca aparecia —
+// dependia de alguém lembrar de configurar em /admin/whatsapp. O admin continua
+// mandando: se existir config salva, ela vence.
 export const WHATSAPP_BUTTON_DEFAULT: WhatsAppButtonConfig = {
-  enabled: false,
-  number: '',
+  enabled: true,
+  number: CONTACT.whatsappDigits,
   message: 'Olá! Vim pelo site da Somatec Blocking e gostaria de saber mais.',
 };
 
@@ -51,7 +56,14 @@ export const getWhatsAppButtonConfig = unstable_cache(
       const row = data as unknown as { value: unknown } | null;
       if (!row) return WHATSAPP_BUTTON_DEFAULT;
       const parsed = whatsAppButtonSchema.safeParse(row.value);
-      return parsed.success ? parsed.data : WHATSAPP_BUTTON_DEFAULT;
+      if (!parsed.success) return WHATSAPP_BUTTON_DEFAULT;
+      // Linha SEM número = nunca configurada (é o default antigo, que nasceu
+      // com number:'' e enabled:false e ficou salvo). Isso não é "o admin
+      // desligou": é o botão nunca ter sido ligado. Cai no default.
+      // Desligar de propósito continua possível — basta enabled:false com o
+      // número preenchido, que é o que a tela /admin/whatsapp grava.
+      if (!parsed.data.number) return WHATSAPP_BUTTON_DEFAULT;
+      return parsed.data;
     } catch (err) {
       log.warn('getWhatsAppButtonConfig failed', undefined, err);
       return WHATSAPP_BUTTON_DEFAULT;
@@ -66,11 +78,15 @@ export const getWhatsAppButtonConfig = unstable_cache(
  * Retorna null se desabilitado ou sem número.
  */
 export function buildWhatsAppUrl(config: WhatsAppButtonConfig): string | null {
-  if (!config.enabled || !config.number) return null;
+  if (!config.enabled) return null;
+  // Config salva sem número não pode apagar o botão: cai no número comercial.
+  // Desligar de propósito é `enabled: false`, que segue respeitado.
+  const numero = config.number || CONTACT.whatsappDigits;
+  if (!numero) return null;
   const params = new URLSearchParams();
   if (config.message) params.set('text', config.message);
   const qs = params.toString();
-  return `https://wa.me/${config.number}${qs ? `?${qs}` : ''}`;
+  return `https://wa.me/${numero}${qs ? `?${qs}` : ''}`;
 }
 
 type CommercialCtaOptions = {
@@ -99,7 +115,9 @@ export function buildCommercialCtaHref(
   options: CommercialCtaOptions = {},
 ): string {
   const fallback = options.fallbackPath ?? '/contato';
-  if (!config.enabled || !config.number) return fallback;
+  if (!config.enabled) return fallback;
+  const numero = config.number || CONTACT.whatsappDigits;
+  if (!numero) return fallback;
 
   // Mensagem base do admin + context (se houver)
   const parts = [config.message.trim()];
@@ -111,7 +129,7 @@ export function buildCommercialCtaHref(
   const params = new URLSearchParams();
   if (text) params.set('text', text);
   const qs = params.toString();
-  return `https://wa.me/${config.number}${qs ? `?${qs}` : ''}`;
+  return `https://wa.me/${numero}${qs ? `?${qs}` : ''}`;
 }
 
 /**

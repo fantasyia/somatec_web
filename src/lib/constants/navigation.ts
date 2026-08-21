@@ -1,3 +1,5 @@
+import { whatsappHref } from '@/lib/constants/site';
+
 export type NavItem = {
   label: string;
   href: string;
@@ -151,9 +153,16 @@ export const HEADER_NAV: NavItem[] = [
   },
 ];
 
+// "Fale com o Comercial" abre o WhatsApp DIRETO (Léo, 21/08) — quem clica ali
+// quer falar com gente, não preencher formulário. O formulário de /contato
+// continua existindo pra quem prefere escrever.
 export const HEADER_CTAS = {
   representative: { label: 'Área do Representante', href: '/login' },
-  commercial: { label: 'Fale com o Comercial', href: '/contato' },
+  commercial: {
+    label: 'Fale com o Comercial',
+    href: whatsappHref('Olá! Vim pelo site da Somatec Blocking e gostaria de falar com o comercial.'),
+    externo: true,
+  },
 } as const;
 
 export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [

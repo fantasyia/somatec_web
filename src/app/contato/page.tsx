@@ -1,40 +1,39 @@
 import type { Metadata } from 'next';
-import { Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
+import { Mail, MapPin, MessageCircle } from 'lucide-react';
 import { ContactForm } from '@/components/forms/ContactForm';
 import Link from 'next/link';
+import { CONTACT, whatsappHref } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
   title: 'Contato — Somatec Blocking',
   description:
-    'Fale com a engenharia da Somatec Blocking. Diagnóstico de qualidade de energia e proteção contra surtos (Master Block) para a indústria. Dracena-SP.',
+    'Fale com a engenharia da Somatec Blocking. Diagnóstico de qualidade de energia e proteção contra surtos (Master Block) para a indústria. São Paulo-SP.',
   alternates: { canonical: '/contato' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
 
+// Tudo sai de lib/constants/site.ts — antes esses valores estavam escritos à
+// mão aqui, no JSON-LD e no rodapé, e trocar um deixava os outros mentindo.
 const CONTACTS = [
   {
     Icon: MessageCircle,
     label: 'WhatsApp',
-    value: '(18) 98138-5088',
-    href: 'https://wa.me/5518981385088',
-  },
-  {
-    Icon: Phone,
-    label: 'Telefone',
-    value: '(11) 91764-4757',
-    href: 'tel:+5511917644757',
+    value: CONTACT.whatsappDisplay,
+    href: whatsappHref('Olá! Vim pelo site da Somatec Blocking e gostaria de falar com o comercial.'),
   },
   {
     Icon: Mail,
     label: 'E-mail',
-    value: 'somatec@somatecblocking.com.br',
-    href: 'mailto:somatec@somatecblocking.com.br',
+    value: CONTACT.email,
+    href: `mailto:${CONTACT.email}`,
   },
   {
     Icon: MapPin,
     label: 'Endereço',
-    value: 'Rua XV de Novembro, 743 — Centro, Dracena-SP',
-    href: 'https://maps.google.com/?q=Rua+XV+de+Novembro,+743,+Centro,+Dracena-SP',
+    value: CONTACT.address,
+    href: `https://maps.google.com/?q=${encodeURIComponent(
+      `${CONTACT.endereco.logradouro}, ${CONTACT.endereco.bairro}, ${CONTACT.endereco.cidade} - ${CONTACT.endereco.uf}, ${CONTACT.endereco.cep}`,
+    )}`,
   },
 ] as const;
 

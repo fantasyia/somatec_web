@@ -21,11 +21,37 @@ export const DEFAULT_OG_IMAGES = [
   { url: SITE.ogImage, width: 1200, height: 630, alt: SITE.fullName },
 ] as const;
 
+// FONTE ÚNICA dos dados de contato (Léo, 21/08). Antes o telefone, o e-mail e o
+// endereço estavam escritos à mão em /contato, no JSON-LD e no rodapé — mudar um
+// deles deixava os outros mentindo. Agora tudo sai daqui.
+//
+// ⛔ NÃO existe atendimento por telefone neste contato (Léo, 21/08) — só
+// WhatsApp. Ligação só acontece via representante, e isso é combinado depois,
+// não é canal de entrada do site. Por isso não há `tel:` em lugar nenhum.
 export const CONTACT = {
-  whatsapp: process.env.NEXT_PUBLIC_CONTACT_WHATSAPP ?? '',
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'somatec@somatecblocking.com.br',
-  address: process.env.NEXT_PUBLIC_CONTACT_ADDRESS ?? '',
+  /** Só dígitos, E.164 sem '+'. É o formato que o wa.me exige. */
+  whatsappDigits: process.env.NEXT_PUBLIC_CONTACT_WHATSAPP ?? '5511917644757',
+  /** Como o número aparece na tela. */
+  whatsappDisplay: '+55 11 91764-4757',
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? 'comercial@somatecblocking.com.br',
+  address:
+    process.env.NEXT_PUBLIC_CONTACT_ADDRESS ??
+    'Edifício Austin Office Center — Av. Fagundes Filho, 145, Conj. 72 — Vila Monte Alegre, São Paulo - SP, 04304-000',
+  /** Partes do endereço pro JSON-LD (schema.org PostalAddress). */
+  endereco: {
+    logradouro: 'Av. Fagundes Filho, 145, Conj. 72 — Edifício Austin Office Center',
+    bairro: 'Vila Monte Alegre',
+    cidade: 'São Paulo',
+    uf: 'SP',
+    cep: '04304-000',
+  },
 } as const;
+
+/** Link do WhatsApp comercial. `texto` vira a mensagem já digitada pro cliente. */
+export function whatsappHref(texto?: string): string {
+  const qs = texto ? `?text=${encodeURIComponent(texto)}` : '';
+  return `https://wa.me/${CONTACT.whatsappDigits}${qs}`;
+}
 
 export const SOCIALS = {
   linkedin: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN ?? '',

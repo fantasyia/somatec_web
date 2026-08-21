@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
         // A doc do Melhor Envio EXIGE User-Agent identificando a aplicação.
-        'User-Agent': process.env.MELHOR_ENVIO_UA ?? 'Somatec Blocking (contato@somatecblocking.com.br)',
+        'User-Agent': process.env.MELHOR_ENVIO_UA ?? 'Somatec Blocking (comercial@somatecblocking.com.br)',
       },
       body: JSON.stringify({
         from: { postal_code: origem.replace(/\D/g, '') },

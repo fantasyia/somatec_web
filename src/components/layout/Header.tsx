@@ -300,10 +300,16 @@ export function Header() {
           >
             {HEADER_CTAS.representative.label}
           </Link>
-          <Link href={HEADER_CTAS.commercial.href} className="hidden md:inline-flex btn-primary">
+          {/* Destino é wa.me: <a> com target/rel, não <Link> (rota externa). */}
+          <a
+            href={HEADER_CTAS.commercial.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-flex btn-primary"
+          >
             {HEADER_CTAS.commercial.label}
             <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
-          </Link>
+          </a>
           {/* Mobile menu trigger */}
           <button
             type="button"
@@ -383,9 +389,14 @@ export function Header() {
                 <Link href={HEADER_CTAS.representative.href} className="btn-secondary w-full text-[rgb(var(--text))]">
                   {HEADER_CTAS.representative.label}
                 </Link>
-                <Link href={HEADER_CTAS.commercial.href} className="btn-primary w-full">
+                <a
+                  href={HEADER_CTAS.commercial.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary w-full justify-center"
+                >
                   {HEADER_CTAS.commercial.label}
-                </Link>
+                </a>
               </div>
             </nav>
           </div>
