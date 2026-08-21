@@ -30,8 +30,20 @@ export const BR_STATES = [
 
 // Valores mantidos iguais aos literais validados em schemas.ts / mullerbot;
 // apenas os rótulos foram adaptados ao contexto Somatec (proteção/energia).
+// Este campo separa CLIENTE de CANDIDATO A REPRESENTANTE — não separa público.
+// Quem é o visitante sai do campo seguinte ("Você está buscando proteção
+// para": indústria / comércio / residência).
+//
+// ⛔ O rótulo do cliente dizia "Diagnóstico para a minha indústria" e brigava
+// com o campo de baixo: quem ia marcar "Comércio" ou "Residência" tinha de
+// declarar antes que era indústria. E "diagnóstico" é a oferta INDUSTRIAL
+// (medição na planta) — oferecê-la a dono de casa fura a regra de ouro.
+//
+// A frase agora diz o que a pessoa QUER, não em que categoria ela se encaixa —
+// mesma regra das mensagens de WhatsApp. O `value` continua 'b2b' de
+// propósito: é contrato com a API e com o roteamento do Betinna.
 export const INTEREST_TYPE_OPTIONS = [
-  { value: 'b2b', label: 'Diagnóstico para a minha indústria' },
+  { value: 'b2b', label: 'Quero proteger meus equipamentos' },
   { value: 'representante', label: 'Quero ser representante / parceiro' },
 ] as const;
 

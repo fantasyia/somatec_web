@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { CONTACT, whatsappHref } from '@/lib/constants/site';
 import { HEADER_CTAS } from '@/lib/constants/navigation';
+import { INTEREST_TYPE_OPTIONS } from '@/lib/constants/form-options';
 import { WHATSAPP_BUTTON_DEFAULT, buildWhatsAppUrl, buildCommercialCtaHref } from '@/lib/whatsapp-button';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -133,5 +134,28 @@ describe('a mensagem pré-preenchida é a FALA do cliente', () => {
       .filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//'))
       .join('\n');
     expect(fonte).not.toContain('Interessei em');
+  });
+});
+
+describe('formulário de contato — os dois selects não podem se contradizer', () => {
+  // "Tipo de interesse" separa CLIENTE de CANDIDATO A REPRESENTANTE.
+  // Quem é o visitante sai do campo seguinte (público: indústria/comércio/
+  // residência). O rótulo do cliente dizia "para a minha indústria" e obrigava
+  // quem ia marcar "Comércio" a declarar antes que era indústria.
+  it('o rótulo do cliente não declara público nenhum', () => {
+    const cliente = INTEREST_TYPE_OPTIONS.find((o) => o.value === 'b2b');
+    expect(cliente).toBeDefined();
+    expect(cliente!.label).not.toMatch(/ind[úu]stria|com[ée]rcio|resid[êe]ncia/i);
+  });
+
+  it('e não oferece o diagnóstico, que é oferta industrial', () => {
+    // Medição na planta é a oferta do industrial; num campo que atende os três
+    // públicos, ela fura a regra de ouro.
+    const cliente = INTEREST_TYPE_OPTIONS.find((o) => o.value === 'b2b')!;
+    expect(cliente.label).not.toMatch(/diagn[óo]stico/i);
+  });
+
+  it('o `value` segue "b2b" — é contrato com a API e com o Betinna', () => {
+    expect(INTEREST_TYPE_OPTIONS.map((o) => o.value)).toEqual(['b2b', 'representante']);
   });
 });
