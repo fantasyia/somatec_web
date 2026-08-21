@@ -77,7 +77,7 @@ export default function SolucoesPage() {
           </p>
           <CommercialCta
             label="Falar com a engenharia"
-              mensagem="Olá! Vim pelo site da Somatec Blocking e quero falar direto com a ENGENHARIA sobre a minha planta."
+            mensagem="Olá! Vim pelo site e queria entender qual solução da Somatec serve pra minha operação."
             fallbackPath="/contato"
             className="inline-flex"
             withArrow={false}

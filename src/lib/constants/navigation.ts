@@ -160,7 +160,7 @@ export const HEADER_CTAS = {
   representative: { label: 'Área do Representante', href: '/login' },
   commercial: {
     label: 'Fale com o Comercial',
-    href: whatsappHref('Olá! Vim pelo site da Somatec Blocking e gostaria de falar com o comercial.'),
+    href: whatsappHref('Olá! Vim pelo site da Somatec e queria falar com o comercial.'),
     externo: true,
   },
 } as const;

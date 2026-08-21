@@ -11,10 +11,10 @@ type Variant = 'primary' | 'secondary';
 type Props = {
   /** Texto do botão. Ex: "Solicitar proposta", "Falar com a equipe". */
   label: string;
-  /** Contexto enriquecedor da mensagem (nome do produto, marca, etc). */
-  context?: string;
-  /** Substitui a mensagem inteira. Use quando o CTA precisa ROTEAR o
-   *  atendimento — ex.: "falar com a engenharia" cai na trilha industrial. */
+  /** A FRASE INTEIRA que o cliente envia, em primeira pessoa, dizendo o que
+   *  ele quer. Sem ela, cai na mensagem genérica do admin.
+   *
+   *  ⛔ Vai na BOCA do cliente: nada de nome interno de página nem de URL. */
   mensagem?: string;
   /** Path interno usado quando WhatsApp está desabilitado. Default: '/contato'. */
   fallbackPath?: string;
@@ -27,15 +27,13 @@ type Props = {
 };
 
 /**
- * CTA comercial server-side: vai pro WhatsApp (com mensagem enriquecida por
- * `context`) quando o admin habilitou o botão, senão cai no formulário em
- * `/contato`. Usar em produtos, marcas, receitas, soluções, etc.
+ * CTA comercial server-side: vai pro WhatsApp com a frase de `mensagem`
+ * quando o botão está habilitado, senão cai no formulário em `/contato`.
  *
  * Para CTAs formais (representante, trabalhe conosco), prefira `<Link>` direto.
  */
 export async function CommercialCta({
   label,
-  context,
   mensagem,
   fallbackPath,
   variant = 'primary',
@@ -43,7 +41,7 @@ export async function CommercialCta({
   className,
 }: Props) {
   const config = await getWhatsAppButtonConfig();
-  const href = buildCommercialCtaHref(config, { context, mensagem, fallbackPath });
+  const href = buildCommercialCtaHref(config, { mensagem, fallbackPath });
   const external = isExternalCtaHref(href);
 
   const baseClass = variant === 'primary' ? 'btn-primary' : 'btn-secondary';

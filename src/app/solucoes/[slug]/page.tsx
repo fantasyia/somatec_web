@@ -101,8 +101,7 @@ export default async function SolucaoPage({
           </p>
           <CommercialCta
             label="Falar com a engenharia"
-              mensagem="Olá! Vim pelo site da Somatec Blocking e quero falar direto com a ENGENHARIA sobre a minha planta."
-            context={s.title}
+            mensagem={`Olá! Vim pelo site e queria falar sobre ${s.title} pra minha operação.`}
             fallbackPath="/contato"
             className="inline-flex"
           />

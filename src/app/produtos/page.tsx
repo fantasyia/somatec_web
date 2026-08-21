@@ -253,8 +253,7 @@ export default function ProdutosPage() {
             </Link>
             <CommercialCta
               label="Falar com a engenharia"
-              mensagem="Olá! Vim pelo site da Somatec Blocking e quero falar direto com a ENGENHARIA sobre a minha planta."
-              context="Linha MasterBlock (MB-01 a MB-12)"
+              mensagem="Olá! Vim pelo site, vi a linha Master Block e queria ajuda pra saber qual modelo serve pro meu caso."
               fallbackPath="/contato"
               variant="secondary"
               className="inline-flex"

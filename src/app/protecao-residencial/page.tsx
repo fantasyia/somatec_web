@@ -65,7 +65,7 @@ const FAQ: readonly { pergunta: string; resposta: string }[] = [
 export default async function ProtecaoResidencialPage() {
   const config = await getWhatsAppButtonConfig();
   const zapHref = buildCommercialCtaHref(config, {
-    context: 'LP Residencial (/protecao-residencial)',
+    mensagem: 'Olá! Vim pelo site e quero proteger os equipamentos lá de casa.',
     fallbackPath: '/contato',
   });
   const zapExternal = isExternalCtaHref(zapHref);

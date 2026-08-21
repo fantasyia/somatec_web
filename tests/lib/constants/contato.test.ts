@@ -95,31 +95,43 @@ describe('o número da empresa não pode vir de config por ambiente', () => {
   it('o CTA comercial também ignora o número salvo', () => {
     const href = buildCommercialCtaHref(
       { enabled: true, number: '5518981385088', message: 'oi' },
-      { context: 'Master Block' },
+      { mensagem: 'Olá! Quero proteger a minha fábrica.' },
     );
     expect(href).toContain('wa.me/5511917644757');
     expect(href).not.toContain('5518981385088');
   });
 });
 
-describe('CTA que roteia o atendimento', () => {
-  it('`mensagem` substitui o texto todo — é o que joga pro trilho industrial', () => {
-    const href = buildCommercialCtaHref(
-      { enabled: true, number: '5511917644757', message: 'mensagem padrão do admin' },
-      { context: 'Linha MasterBlock', mensagem: 'quero falar direto com a ENGENHARIA' },
+describe('a mensagem pré-preenchida é a FALA do cliente', () => {
+  // URLSearchParams codifica espaço como '+', que decodeURIComponent não desfaz.
+  const ler = (href: string) => decodeURIComponent(href).replace(/\+/g, ' ');
+
+  it('`mensagem` SUBSTITUI a base do admin — não soma', () => {
+    // Prefixar as duas faria o cliente mandar "gostaria de saber mais" antes
+    // de dizer o que quer.
+    const texto = ler(
+      buildCommercialCtaHref(
+        { enabled: true, number: '5511917644757', message: 'Olá! …gostaria de saber mais.' },
+        { mensagem: 'Olá! Vim pelo site e quero proteger os equipamentos do meu comércio.' },
+      ),
     );
-    const texto = decodeURIComponent(href);
-    expect(texto).toContain('ENGENHARIA');
-    expect(texto).not.toContain('mensagem padrão do admin');
-    expect(texto).not.toContain('Interessei em');
+    expect(texto).toContain('quero proteger os equipamentos do meu comércio');
+    expect(texto).not.toContain('gostaria de saber mais');
   });
 
-  it('sem `mensagem`, segue a do admin + contexto', () => {
-    // URLSearchParams codifica espaço como '+', que decodeURIComponent não desfaz.
-    const texto = decodeURIComponent(
-      buildCommercialCtaHref({ enabled: true, number: '5511917644757', message: 'Olá!' }, { context: 'Master Block' }),
-    ).replace(/\+/g, ' ');
-    expect(texto).toContain('Olá!');
-    expect(texto).toContain('Interessei em: Master Block.');
+  it('sem `mensagem`, vale a base do admin (header, /contato)', () => {
+    const texto = ler(
+      buildCommercialCtaHref({ enabled: true, number: '5511917644757', message: 'Olá! Base do admin.' }, {}),
+    );
+    expect(texto).toContain('Olá! Base do admin.');
+  });
+
+  it('⛔ o template "Interessei em:" não existe mais no código', () => {
+    // Enquanto ele existir, qualquer texto novo volta a sair como rótulo.
+    const fonte = readFileSync(resolve(process.cwd(), 'src/lib/whatsapp-button.ts'), 'utf-8')
+      .split('\n')
+      .filter((l) => !l.trim().startsWith('*') && !l.trim().startsWith('//'))
+      .join('\n');
+    expect(fonte).not.toContain('Interessei em');
   });
 });

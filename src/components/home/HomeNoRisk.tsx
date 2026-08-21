@@ -41,7 +41,7 @@ export function HomeNoRisk() {
         <div className="mt-10">
           <CommercialCta
             label="Solicitar diagnóstico gratuito"
-            context="Modelo sem risco (home)"
+            mensagem="Olá! Vim pelo site e quero o diagnóstico gratuito da rede da minha fábrica."
             fallbackPath="/contato"
           />
         </div>

@@ -42,7 +42,7 @@ const EXEMPLO = [
 export default async function OrcamentoIndustrialPage() {
   const config = await getWhatsAppButtonConfig();
   const zapHref = buildCommercialCtaHref(config, {
-    context: 'Auto-orçamento industrial (/orcamento-industrial)',
+    mensagem: 'Olá! Vim pelo site e quero um orçamento de proteção pra linha de produção da minha fábrica.',
     fallbackPath: '/contato',
   });
   const zapExternal = isExternalCtaHref(zapHref);

@@ -94,28 +94,37 @@ export function buildWhatsAppUrl(config: WhatsAppButtonConfig): string | null {
 }
 
 type CommercialCtaOptions = {
-  /** Contexto que enriquece a mensagem (nome do produto/marca/etc). */
-  context?: string;
-  /** Substitui a mensagem inteira — pra CTA que precisa rotear o atendimento
-   *  (ex.: "quero falar com a engenharia" → trilha industrial). */
+  /** A FRASE INTEIRA que o cliente envia — primeira pessoa, dizendo o que ele
+   *  quer. Sem ela, cai na mensagem genérica do admin.
+   *
+   *  ⛔ Não é rótulo de origem. Isto vai na BOCA do cliente: nada de nome
+   *  interno de página nem caminho de URL. */
   mensagem?: string;
   /** Fallback quando WhatsApp desabilitado. Default: '/contato'. */
   fallbackPath?: string;
 };
 
 /**
- * Constrói href de CTA comercial (Solicitar proposta, Falar com a equipe, etc).
+ * Constrói href de CTA comercial. O `text` do wa.me é a PRIMEIRA FALA do
+ * cliente — então tem de dizer o que ele quer, na voz dele.
  *
- * - WhatsApp habilitado + tem número → URL wa.me com mensagem enriquecida pelo context
- * - WhatsApp desabilitado ou sem número → fallback para /contato (form tradicional)
+ * ⛔ O template antigo era `<base do admin> + "Interessei em: " + <context>`,
+ * e o `context` era o nome interno da página. O cliente acabava mandando
+ * "Interessei em: LP Comercial (/protecao-comercial)" — nome de arquivo e
+ * caminho de URL na boca dele, sem dizer nada do que queria. Pior: as páginas
+ * que MAIS sabem quem é a pessoa (a industrial sabe que é fábrica, a
+ * residencial sabe que é casa) mandavam a mesma frase vazia, e a triagem
+ * gastava as duas perguntas dela redescobrindo o que a página já sabia.
  *
- * Use em CTAs cliente-final onde a conversão direta no zap aproveita o lead
- * mais rápido. Para fluxos formais (representantes, trabalhe conosco), prefira
- * o formulário tradicional direto.
+ * A frase agora diz O QUE A PESSOA QUER PROTEGER, não em que categoria ela se
+ * encaixa: pedir autoclassificação é palpite (dono de metalúrgica pequena
+ * responde "comércio" com naturalidade), e "linha de produção" entrega o
+ * Grupo A com mais segurança que "sou indústria".
  *
- * Ex:
- *   const href = buildCommercialCtaHref(config, { context: `Molho de Tomate ${brandName}` });
- *   // → https://wa.me/55...?text=Olá!%20Vim%20pelo%20site...%20Interessei%20em%20Molho%20de%20Tomate%20Cocina.
+ * ⚠️ Troca consciente: sem o nome da página, perde-se saber de onde a pessoa
+ * veio (wa.me não carrega referrer nem UTM). Se atribuição por página virar
+ * necessidade, a resposta é Click-to-WhatsApp com ctwa_clid ou formulário —
+ * prefill é fala do cliente, não telemetria.
  */
 export function buildCommercialCtaHref(
   config: WhatsAppButtonConfig,
@@ -125,13 +134,10 @@ export function buildCommercialCtaHref(
   if (!config.enabled) return fallback;
   const numero = CONTACT.whatsappDigits;
 
-  // `mensagem` troca o texto todo (ex.: "quero falar com a engenharia", que faz
-  // o atendimento cair direto no trilho industrial). Sem ela, mensagem do admin
-  // + o contexto do que a pessoa estava lendo.
-  const parts = options.mensagem
-    ? [options.mensagem.trim()]
-    : [config.message.trim(), ...(options.context ? [`Interessei em: ${options.context}.`] : [])];
-  const text = parts.filter(Boolean).join(' ');
+  // A frase da página SUBSTITUI a base do admin — não soma. Prefixar as duas
+  // faria o cliente mandar "gostaria de saber mais" antes de dizer o que quer.
+  // A base do admin segue valendo onde não há frase própria (header, /contato).
+  const text = (options.mensagem?.trim() || config.message.trim()).trim();
 
   const params = new URLSearchParams();
   if (text) params.set('text', text);

@@ -112,7 +112,7 @@ export default function ComprovacaoNormasPage() {
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <CommercialCta
               label="Solicitar diagnóstico"
-              context="Comprovação, normas e segurança"
+              mensagem="Olá! Vim pelo site, vi a parte de normas e ensaios, e queria falar com a engenharia sobre a minha planta."
               fallbackPath="/contato"
             />
             <Link href="/faq" className="btn-secondary text-[rgb(var(--text))]">

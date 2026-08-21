@@ -80,7 +80,7 @@ const FAQ: readonly { pergunta: string; resposta: string }[] = [
 export default async function ProtecaoComercialPage() {
   const config = await getWhatsAppButtonConfig();
   const zapHref = buildCommercialCtaHref(config, {
-    context: 'LP Comercial (/protecao-comercial)',
+    mensagem: 'Olá! Vim pelo site e quero proteger os equipamentos do meu comércio.',
     fallbackPath: '/contato',
   });
   const zapExternal = isExternalCtaHref(zapHref);

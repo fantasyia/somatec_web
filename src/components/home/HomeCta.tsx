@@ -71,7 +71,12 @@ function resolveCardHref(
   fallback: string,
 ): { href: string; external: boolean } {
   if (interestType && COMMERCIAL_INTERESTS.has(interestType)) {
-    const href = buildCommercialCtaHref(config, { context: title, fallbackPath: fallback });
+    // O título do card vem do admin e é nome de SEGMENTO ("Alimentício",
+    // "Metalurgia") — vira frase, não rótulo colado na fala do cliente.
+    const href = buildCommercialCtaHref(config, {
+      mensagem: `Olá! Vim pelo site e queria falar sobre ${title} pra minha operação.`,
+      fallbackPath: fallback,
+    });
     return { href, external: isExternalCtaHref(href) };
   }
   return { href: fallback, external: false };
