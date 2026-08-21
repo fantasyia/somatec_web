@@ -29,6 +29,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { HEADER_NAV, HEADER_CTAS } from '@/lib/constants/navigation';
+import { ehRotaNi, semIndustriaisSeNi, DESTINOS_INDUSTRIAIS } from '@/lib/constants/rotas-ni';
 import { cn } from '@/lib/utils';
 
 // Ícone por destino (mapeado por href — mantém navigation.ts como dados puros).
@@ -63,6 +64,18 @@ const NAV_ICON: Record<string, LucideIcon> = {
 
 export function Header() {
   const pathname = usePathname();
+
+  // 🔒 Nas rotas NI o menu esconde as ferramentas industriais (decisão do Léo,
+  // 21/08). O item "Diagnóstico" inteiro some — os dois filhos dele (custo de
+  // parada e projeto da planta) só fazem sentido pra quem tem linha de
+  // produção. Some do MENU, não do site: o comprador industrial continua
+  // achando tudo pelo caminho dele.
+  const navVisivel = ehRotaNi(pathname)
+    ? HEADER_NAV.filter((i) => !DESTINOS_INDUSTRIAIS.includes(i.href)).map((i) => ({
+        ...i,
+        children: i.children ? semIndustriaisSeNi(i.children, pathname) : undefined,
+      }))
+    : HEADER_NAV;
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
@@ -164,7 +177,7 @@ export function Header() {
           className="hidden lg:flex items-center gap-8"
           onMouseLeave={scheduleCloseMenu}
         >
-          {HEADER_NAV.map((item) => {
+          {navVisivel.map((item) => {
             const isActive =
               pathname === item.href ||
               (item.href !== '/' && pathname.startsWith(item.href));
@@ -343,7 +356,7 @@ export function Header() {
               </button>
             </div>
             <nav aria-label="Navegação mobile" className="px-6 py-6 space-y-1">
-              {HEADER_NAV.map((item) => (
+              {navVisivel.map((item) => (
                 <div key={item.href} className="py-1">
                   <Link
                     href={item.href}

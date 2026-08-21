@@ -5,6 +5,7 @@ import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
 import { SITE, SOCIALS as ENV_SOCIALS } from '@/lib/constants/site';
 import { type Socials, type Certification } from '@/lib/data/site-settings';
 import { PROOFS } from '@/components/ui/ProofBadges';
+import { FooterColumns } from '@/components/layout/FooterColumns';
 
 type FooterLink = { label: string; href: string };
 type FooterColumnData = { title: string; links: FooterLink[] };
@@ -68,27 +69,9 @@ export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
 
           {/* Columns */}
           <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8">
-            {columns.map((col) => (
-              <div key={col.title}>
-                {/* Marca: laranja é exclusivo de CTA/Master Block — cabeçalho de
-                    coluna usa branco. */}
-                <h3 className="text-sm font-semibold text-white mb-4">
-                  {col.title}
-                </h3>
-                <ul className="space-y-2.5">
-                  {col.links.map((link) => (
-                    <li key={`${col.title}-${link.label}-${link.href}`}>
-                      <Link
-                        href={link.href}
-                        className="text-sm text-white/70 hover:text-gold transition-colors"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {/* Client: precisa da rota pra esconder as ferramentas industriais
+                nas páginas NI. O resto do rodapé segue no servidor. */}
+            <FooterColumns columns={columns} />
           </div>
         </div>
 
