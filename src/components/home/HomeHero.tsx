@@ -33,7 +33,6 @@ const semExt = (src: string) => src.replace(/\.webp$/, '');
 const srcSetDe = (f: Foto) =>
   [...f.widths.map((w) => `${semExt(f.src)}-${w}.webp ${w}w`), `${f.src} ${f.orig}w`].join(', ');
 /** Camada de fundo borrada: a menor variante basta (sai blur + scale por cima). */
-const menorDe = (f: Foto) => `${semExt(f.src)}-${f.widths[0]}.webp`;
 
 type Slide = {
   id: string;
@@ -243,36 +242,28 @@ export function HomeHero({ data }: Props) {
               />
             </>
           ) : slide.fullFoto ? (
-            <>
-              {/* Camada de fundo (fill): cópia borrada, 100% da largura,
-                  object-cover + scale (esconde a borda do blur). Só aparece
-                  em telas MAIS LARGAS que a camada nítida. */}
-              <img
-                src={menorDe(slide.fullFoto)}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
-                loading={i === 0 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-              {/* Camada nítida: object-cover CAPADA em max-w e centralizada
-                  (margin-inline auto). Em telas ≤ max-w cobre tudo (blur
-                  escondido); acima, centraliza e o blur aparece IGUAL dos dois
-                  lados. */}
-              <div className="absolute inset-0 mx-auto max-w-[1600px] overflow-hidden">
-                <img
-                  src={slide.fullFoto.src}
-                  srcSet={srcSetDe(slide.fullFoto)}
-                  sizes="100vw"
-                  alt={slide.alt}
-                  style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
-                  className="h-full w-full object-cover"
-                  fetchPriority={i === 0 ? 'high' : undefined}
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  decoding="async"
-                />
-              </div>
-            </>
+            /* FULL-BLEED, sem cap.
+             *
+             * Antes a foto era capada em 1600px e o resto virava faixa borrada.
+             * Em monitor de 2560 isso dava 480px de borrão de CADA lado (37%
+             * da tela) e em 3440 dava 920px (53%) — a página inteira lia como
+             * "não é responsiva", que foi o que o Léo viu. A faixa era pra
+             * evitar esticar a foto (o original tem 1920px), mas 480px de
+             * borrão é pior que 1,33× de upscale numa foto atrás de scrim.
+             *
+             * É também o que os heros das duas LPs já faziam — a home é que
+             * estava fora do padrão. */
+            <img
+              src={slide.fullFoto.src}
+              srcSet={srcSetDe(slide.fullFoto)}
+              sizes="100vw"
+              alt={slide.alt}
+              style={slide.fullFoto.pos ? { objectPosition: slide.fullFoto.pos } : undefined}
+              className="absolute inset-0 h-full w-full object-cover"
+              fetchPriority={i === 0 ? 'high' : undefined}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
           ) : slide.images ? (
           <picture>
             <source media="(min-width: 1024px)" srcSet={slide.images.wide} />
