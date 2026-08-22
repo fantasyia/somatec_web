@@ -80,20 +80,45 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Hover-intent: abre na hora; fecha com um pequeno atraso para o cursor
-  // conseguir cruzar o vão entre o item do nav e o submenu (mega-menu é `fixed`,
-  // portanto fica fora da caixa do <nav> — sem o atraso, `onMouseLeave` fecharia
-  // o painel antes do mouse chegar nele).
+  // HOVER-INTENT.
+  //
+  // Abrir NA HORA era o problema: atravessando o nav pra chegar em "Contato",
+  // o cursor passa por cima de 4 itens e os 4 painéis piscavam um atrás do
+  // outro. Agora o painel só abre se o cursor PARAR em cima do item.
+  //
+  // Dois atrasos diferentes, de propósito:
+  //  · nada aberto  → 160ms. É o filtro do "só passando por aqui".
+  //  · já tem painel aberto → 70ms. Quem já está navegando o menu quer
+  //    resposta rápida; esperar 160ms de novo pareceria travado.
+  //
+  // O atraso pra FECHAR (140ms) é outra coisa e continua: o mega-menu é
+  // `fixed`, fica fora da caixa do <nav>, e sem ele o painel sumia antes de o
+  // mouse conseguir atravessar o vão até ele.
   const openMenu = (href: string) => {
     if (closeTimer.current) {
       clearTimeout(closeTimer.current);
       closeTimer.current = null;
     }
-    setHoveredMenu(href);
+    if (hoveredMenu === href) return;
+    if (openTimer.current) clearTimeout(openTimer.current);
+    openTimer.current = setTimeout(() => {
+      setHoveredMenu(href);
+      openTimer.current = null;
+    }, hoveredMenu ? 70 : 160);
+  };
+
+  /** Cancela uma abertura que ainda não aconteceu (cursor só passou reto). */
+  const cancelOpen = () => {
+    if (openTimer.current) {
+      clearTimeout(openTimer.current);
+      openTimer.current = null;
+    }
   };
 
   const scheduleCloseMenu = () => {
+    cancelOpen();
     if (closeTimer.current) clearTimeout(closeTimer.current);
     closeTimer.current = setTimeout(() => {
       setHoveredMenu(null);
@@ -104,6 +129,7 @@ export function Header() {
   useEffect(() => {
     return () => {
       if (closeTimer.current) clearTimeout(closeTimer.current);
+      if (openTimer.current) clearTimeout(openTimer.current);
     };
   }, []);
 
@@ -188,6 +214,7 @@ export function Header() {
                 key={item.href}
                 className="relative"
                 onMouseEnter={() => (hasChildren ? openMenu(item.href) : scheduleCloseMenu())}
+                onMouseLeave={cancelOpen}
                 onFocus={hasChildren ? () => openMenu(item.href) : undefined}
                 onBlur={
                   hasChildren

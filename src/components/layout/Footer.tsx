@@ -92,13 +92,6 @@ export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
               </li>
             ))}
           </ul>
-          <p className="max-w-3xl text-xs leading-relaxed text-white/55">
-            Entre os clientes atendidos:{' '}
-            <span className="font-semibold text-white/80">
-              BASF, Akzo Nobel / Tintas Coral, Acrilex, Extrafarma, Nissin Foods
-            </span>{' '}
-            e outras indústrias de referência.
-          </p>
         </div>
 
         {/* Divider */}
