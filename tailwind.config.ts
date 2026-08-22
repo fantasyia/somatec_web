@@ -92,6 +92,13 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // Troca de conteúdo DENTRO do mega-menu já aberto: só opacidade, sem
+        // deslocamento. Replay do fade-up ali dava a impressão de o painel
+        // reabrir do zero a cada item.
+        'fade-suave': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
         'shimmer': {
           '0%': { backgroundPosition: '-1000px 0' },
           '100%': { backgroundPosition: '1000px 0' },
@@ -107,6 +114,7 @@ const config: Config = {
       },
       animation: {
         'fade-up': 'fade-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both',
+        'fade-suave': 'fade-suave 220ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'shimmer': 'shimmer 2s linear infinite',
         'scroll-indicator': 'scroll-indicator 3s ease-in-out infinite',
         // 85s = os 50s originais escalados de 17 → 29 logos. O keyframe anda

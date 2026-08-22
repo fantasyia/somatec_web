@@ -109,6 +109,18 @@ export function Header() {
     }, hoveredMenu ? 70 : 160);
   };
 
+  /** Item cujo painel está aberto agora (null = fechado). */
+  const itemAberto = navVisivel.find((i) => i.href === hoveredMenu && i.children?.length) ?? null;
+  /** O painel é ÚNICO e fica sempre montado, pra ter animação de saída também.
+   *  Enquanto ele some, precisa continuar mostrando o último conteúdo — senão
+   *  o texto sumia antes do painel e dava um flash branco. */
+  const [ultimoAberto, setUltimoAberto] = useState<(typeof navVisivel)[number] | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- guarda o último conteúdo pra sobreviver ao fade de saída
+    if (itemAberto) setUltimoAberto(itemAberto);
+  }, [itemAberto]);
+  const conteudo = itemAberto ?? ultimoAberto;
+
   /** Cancela uma abertura que ainda não aconteceu (cursor só passou reto). */
   const cancelOpen = () => {
     if (openTimer.current) {
@@ -248,70 +260,83 @@ export function Header() {
                   {item.label}
                 </Link>
 
-                {/* Painel único — TODO item do nav abre a mesma aba grande.
-                    Antes só "Soluções" tinha painel full-width e "A Somatec" um
-                    dropdown estreito; os demais não abriam nada. Agora é um só
-                    componente, e o número de colunas segue a quantidade de
-                    filhos (2 filhos não viram 3 colunas com um buraco). */}
-                {hasChildren && hoveredMenu === item.href && (
-                  <div className="fixed left-0 right-0 top-20 border-t border-[rgb(var(--border))] bg-[rgb(var(--bg))]/95 backdrop-blur-md shadow-premium-light dark:shadow-premium-dark animate-fade-up">
-                    {/* Handlers no container (não no painel full-width): só a área
-                        dos cards mantém o menu aberto — a lateral vazia fecha. */}
-                    <div
-                      className="container-msm py-10"
-                      onMouseEnter={() => openMenu(item.href)}
-                      onMouseLeave={scheduleCloseMenu}
-                    >
-                      <div
-                        className={cn(
-                          'grid gap-4',
-                          item.children!.length <= 2
-                            ? 'grid-cols-2'
-                            : item.children!.length === 4
-                              ? 'grid-cols-2 xl:grid-cols-4'
-                              : 'grid-cols-3',
-                        )}
-                      >
-                        {item.children!.map((child) => {
-                          const Icon = NAV_ICON[child.href];
-                          return (
-                            <Link
-                              key={`${item.href}${child.href}`}
-                              href={child.href}
-                              className="group flex items-start gap-4 p-5 rounded-card border border-transparent hover:border-gold hover:bg-gold/5 transition-all duration-200 ease-premium"
-                            >
-                              {Icon && (
-                                <Icon
-                                  className="h-8 w-8 flex-shrink-0 text-gold"
-                                  strokeWidth={1.5}
-                                  aria-hidden="true"
-                                />
-                              )}
-                              <div className="min-w-0">
-                                <h3 className="font-sans font-semibold text-[17px] leading-snug group-hover:text-gold transition-colors">
-                                  {child.label}
-                                </h3>
-                                {child.description && (
-                                  <p className="mt-1 text-sm text-[rgb(var(--text-muted))] leading-relaxed">
-                                    {child.description}
-                                  </p>
-                                )}
-                                <span className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-gold opacity-0 group-hover:opacity-100 transition-opacity">
-                                  Saiba mais
-                                  <ChevronRight className="h-3 w-3" strokeWidth={2} />
-                                </span>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
               </div>
             );
           })}
+
+          {/* PAINEL ÚNICO, sempre montado.
+              Antes cada item montava e desmontava o SEU painel, e cada troca
+              replayava o fade-up de 600ms (com deslocamento) — parecia que o
+              menu reabria do zero a cada item, e ao fechar ele simplesmente
+              sumia, sem saída. Agora a casca faz opacidade+deslocamento na
+              abertura e no fechamento, e só o MIOLO troca, com um fade curto
+              de opacidade pura. */}
+          <div
+            aria-hidden={!itemAberto}
+            className={cn(
+              'fixed left-0 right-0 top-20 border-t border-[rgb(var(--border))] bg-[rgb(var(--bg))]/95 backdrop-blur-md shadow-premium-light dark:shadow-premium-dark',
+              'transition-[opacity,transform] duration-300 ease-premium motion-reduce:transition-none',
+              itemAberto
+                ? 'pointer-events-auto translate-y-0 opacity-100'
+                : 'pointer-events-none -translate-y-2 opacity-0',
+            )}
+          >
+            {/* Handlers no container (não no painel full-width): só a área dos
+                cards mantém o menu aberto — a lateral vazia fecha. */}
+            <div
+              className="container-msm py-10"
+              onMouseEnter={() => itemAberto && openMenu(itemAberto.href)}
+              onMouseLeave={scheduleCloseMenu}
+            >
+              {conteudo && (
+                <div
+                  key={conteudo.href}
+                  className={cn(
+                    'grid gap-4 animate-fade-suave',
+                    conteudo.children!.length <= 2
+                      ? 'grid-cols-2'
+                      : conteudo.children!.length === 4
+                        ? 'grid-cols-2 xl:grid-cols-4'
+                        : 'grid-cols-3',
+                  )}
+                >
+                  {conteudo.children!.map((child) => {
+                    const Icon = NAV_ICON[child.href];
+                    return (
+                      <Link
+                        key={`${conteudo.href}${child.href}`}
+                        href={child.href}
+                        tabIndex={itemAberto ? undefined : -1}
+                        className="group flex items-start gap-4 p-5 rounded-card border border-transparent hover:border-gold hover:bg-gold/5 transition-all duration-200 ease-premium"
+                      >
+                        {Icon && (
+                          <Icon
+                            className="h-8 w-8 flex-shrink-0 text-gold"
+                            strokeWidth={1.5}
+                            aria-hidden="true"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <h3 className="font-sans font-semibold text-[17px] leading-snug group-hover:text-gold transition-colors">
+                            {child.label}
+                          </h3>
+                          {child.description && (
+                            <p className="mt-1 text-sm text-[rgb(var(--text-muted))] leading-relaxed">
+                              {child.description}
+                            </p>
+                          )}
+                          <span className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-gold opacity-0 group-hover:opacity-100 transition-opacity">
+                            Saiba mais
+                            <ChevronRight className="h-3 w-3" strokeWidth={2} />
+                          </span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </nav>
 
         {/* CTAs + Theme toggle */}
