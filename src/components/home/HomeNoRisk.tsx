@@ -12,21 +12,23 @@ export function HomeNoRisk() {
   return (
     <section aria-label="Investimento sem risco">
       <div className="container-msm section-y">
+        {/* O chip "Locação · Indústria" SAIU: eyebrow/kicker não é padrão da
+            marca. O público agora é sinalizado pela própria copy — "Na
+            indústria…", "na sua planta", "a sua operação" são vocabulário que
+            só o industrial usa, e dizem público + oferta como frase, não como
+            rótulo. */}
         <div className="max-w-3xl space-y-4">
-          {/* Rótulo do modelo (despacho #15) — chip, não eyebrow. */}
-          <span className="inline-flex items-center rounded-full bg-cyan/10 px-3 py-1 font-sans text-xs font-semibold text-cyan">
-            Locação · Indústria
-          </span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Você só paga quando o resultado é comprovado
+            Instalamos na sua planta. Você só paga se os dados comprovarem.
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Estudo, projeto, proposta, instalação e período de avaliação: tudo{' '}
-            <span className="font-semibold text-[rgb(var(--text))]">sem custo</span>. O período de
-            avaliação — de 60 a 90 dias — é definido pela análise do software, que mede até ter
-            dados suficientes pra comprovar (ou não) o resultado na sua operação. Você só passa a
-            pagar a mensalidade se aprovar o resultado. Se não houver, retiramos os equipamentos —
-            sem custo algum.
+            Na indústria, o Master Block trabalha por locação — e a conta só começa depois da
+            prova. Estudo da rede, projeto, proposta, instalação e período de avaliação: as cinco
+            primeiras etapas{' '}
+            <span className="font-semibold text-[rgb(var(--text))]">não têm custo</span>. Durante 60
+            a 90 dias, o software mede a sua operação até ter dado suficiente para comprovar — ou
+            não — o resultado. Comprovou, começa a mensalidade. Não comprovou, retiramos os
+            equipamentos, sem custo algum.
           </p>
         </div>
 
