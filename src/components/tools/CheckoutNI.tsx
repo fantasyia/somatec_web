@@ -119,25 +119,54 @@ const PASSOS_BASE = 4; // +1 (checkout) quando há preço pra fechar
  *  antes de virar pedido. */
 type OrigemCorrente = 'disjuntor' | 'conta' | 'estimativa';
 
-export type Semente = { corrente: string; tensao: string; origem: OrigemCorrente | null };
+export type Semente = {
+  corrente: string;
+  tensao: string;
+  origem: OrigemCorrente | null;
+  contexto: ContextoId | '';
+  /** Quadros adicionais que o bot já levantou, cada um com a corrente dele. */
+  quadros: { nome: string; corrente: string }[];
+};
 
-/** Lê `?corrente=63&tensao=220&origem=estimativa`.
- *
- *  O valor da URL é SUGESTÃO, nunca trava: entra no campo e a pessoa corrige à
- *  vontade. Valor sujo (texto, zero, acima da linha) é simplesmente ignorado —
- *  o wizard abre em branco, sem erro na cara de quem só clicou num link.
- *
- *  Aceita '220' e '220V' na tensão, porque quem monta o link é a IA e cobrar
- *  formato exato aqui só produziria link que não semeia nada. */
-export function lerSemente(busca: string): Semente {
-  const q = new URLSearchParams(busca);
+/** Compara rótulo de quadro sem depender de acento, caixa ou pontuação:
+ *  "camara fria", "Câmara Fria" e "CÂMARA-FRIA" viram a mesma chave. Quem monta
+ *  o link é a IA, e cobrar o rótulo exato só produziria link que não semeia. */
+const chaveDe = (t: string) =>
+  t
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '') // marcas de acento
+    .replace(/[^a-z0-9]/g, '');
 
+/** Corrente válida pra linha Master Block, ou '' se o parâmetro estiver sujo. */
+function correnteValida(bruto: string): string {
   // Exige dígito puro (aceita só o "A" que a IA às vezes escreve junto). Sem
   // isso, `soDigitos` transformaria "-40" em 40 — inventar o número de outra
   // pessoa a partir de um parâmetro sujo é pior que abrir em branco.
-  const cru = (q.get('corrente') ?? '').trim().replace(/\s|A$/gi, '');
+  const cru = bruto.trim().replace(/\s|A$/gi, '');
   const amp = /^\d+$/.test(cru) ? parseInt(cru, 10) : NaN;
-  const corrente = Number.isFinite(amp) && amp > 0 && amp <= MB_LOAD_MAX ? String(amp) : '';
+  return Number.isFinite(amp) && amp > 0 && amp <= MB_LOAD_MAX ? String(amp) : '';
+}
+
+/** Lê `?contexto=comercio&corrente=63&tensao=220&origem=disjuntor&quadros=...`.
+ *
+ *  O valor da URL é SUGESTÃO, nunca trava: entra no campo e a pessoa corrige à
+ *  vontade. Valor sujo (texto, zero, acima da linha, contexto que não existe
+ *  nesta LP) é simplesmente ignorado — o wizard para no passo daquele dado, sem
+ *  erro na cara de quem só clicou num link.
+ *
+ *  `quadros` é uma lista `rótulo:corrente` separada por vírgula, ex.:
+ *  `quadros=camara fria:40,PDV / servidores:25`. Só entra o quadro que existe
+ *  NO CONTEXTO informado e que veio com corrente válida — quadro marcado sem
+ *  número é justamente o que o passo 3 proíbe.
+ *
+ *  `setor` é obrigatório pra validar contexto e quadros: os presets mudam entre
+ *  a LP residencial e a comercial, e semear "câmara fria" numa casa seria
+ *  inventar. Sem ele, esses dois campos voltam vazios. */
+export function lerSemente(busca: string, setor?: Setor): Semente {
+  const q = new URLSearchParams(busca);
+
+  const corrente = correnteValida(q.get('corrente') ?? '');
 
   const bruta = (q.get('tensao') ?? '').trim().toUpperCase().replace(/\s|VOLTS?$/g, '');
   const alvo = bruta.endsWith('V') ? bruta : `${bruta}V`;
@@ -146,7 +175,37 @@ export function lerSemente(busca: string): Semente {
   const o = (q.get('origem') ?? '').toLowerCase();
   const origem = o === 'disjuntor' || o === 'conta' || o === 'estimativa' ? o : null;
 
-  return { corrente, tensao, origem };
+  // Contexto só vale se existir NESTA LP: 'casa' não existe na comercial nem
+  // 'câmara fria' na residencial.
+  const ctxBruto = chaveDe(q.get('contexto') ?? '');
+  const daLp = setor ? CONTEXTOS[setor] : [];
+  const contexto = (daLp.find((c) => chaveDe(c.id) === ctxBruto)?.id ?? '') as ContextoId | '';
+
+  const presets = contexto ? (daLp.find((c) => c.id === contexto)?.quadros ?? []) : [];
+  const quadros = (q.get('quadros') ?? '')
+    .split(',')
+    .map((par) => {
+      const i = par.lastIndexOf(':');
+      if (i === -1) return null;
+      const nome = presets.find((n) => chaveDe(n) === chaveDe(par.slice(0, i)));
+      const amp = correnteValida(par.slice(i + 1));
+      return nome && amp ? { nome, corrente: amp } : null;
+    })
+    .filter((x): x is { nome: string; corrente: string } => x !== null);
+
+  return { corrente, tensao, origem, contexto, quadros };
+}
+
+/** Primeiro passo que a semente NÃO conseguiu preencher.
+ *
+ *  Nunca pula por cima de campo vazio, e nunca passa do 4: o passo 4 é nome,
+ *  WhatsApp e e-mail — dado da pessoa, que o bot está proibido de coletar.
+ *  Abrir o checkout com contato que ninguém confirmou seria pior que o atrito
+ *  que este atalho resolve. */
+export function passoDaSemente(s: Semente): number {
+  if (!s.contexto) return 1;
+  if (!s.corrente || !s.tensao) return 2;
+  return 4;
 }
 
 /** Blocos de confiança do passo 5 (checkout-ni-spec.md).
@@ -248,16 +307,22 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   // (revalidate 3600) e o hook forçaria Suspense/render dinâmico — pagar
   // performance em toda visita por causa de um parâmetro que quase nunca vem.
   useEffect(() => {
-    const s = lerSemente(window.location.search);
-    if (!s.corrente && !s.tensao) return;
+    const s = lerSemente(window.location.search, setor);
+    if (!s.corrente && !s.tensao && !s.contexto && s.quadros.length === 0) return;
     // A URL só existe no client; semear no mount (e não no useState) é o que
     // evita mismatch de hidratação.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mesma convenção de HomeHero/CookieBanner: valor que só existe no client, semeado uma vez no mount
+    if (s.contexto) setContexto(s.contexto);
     if (s.corrente) setCorrente(s.corrente);
     if (s.tensao) setTensao(s.tensao);
+    if (s.quadros.length) setAdicionais(s.quadros);
     setOrigemUrl(s.origem);
     setVeioDeLink(true);
-  }, []);
+    // Abre no primeiro passo que a semente NÃO preencheu, pra pessoa não
+    // refazer no site o que acabou de responder no WhatsApp. Nunca passa do 4:
+    // o 5 exigiria o contato, que o bot está proibido de coletar.
+    setPasso(passoDaSemente(s));
+  }, [setor]);
 
   // Dimensionamento LIVE (Tabela de Potências 2026 + preço de venda direta): a
   // corrente do quadro de entrada → modelo MB + preço. Fallback só quando o
@@ -479,6 +544,20 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       onContinuar={() => irPara(passo + 1)}
     >
       <>
+        {/* Sem isto a pessoa não entende por que o wizard abriu no meio — e
+            precisa saber que pode corrigir tudo que veio de lá. */}
+        {veioDeLink && (
+          <div className="mb-6 flex items-start gap-2.5 rounded-card border border-cyan/25 bg-cyan/[0.05] p-3.5 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+            <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
+            <span>
+              <span className="font-sans font-semibold text-[rgb(var(--text))]">
+                Já preenchemos com os dados do seu atendimento.
+              </span>{' '}
+              Confira e corrija o que precisar — dá pra voltar em qualquer passo.
+            </span>
+          </div>
+        )}
+
         {/* ── Passo 1 — Contexto ─────────────────────────────── */}
             {passo === 1 && (
               <div className="space-y-5">
