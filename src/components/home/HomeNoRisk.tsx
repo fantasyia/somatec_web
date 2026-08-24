@@ -42,8 +42,8 @@ export function HomeNoRisk() {
             a conta" (HomeHoraParada), logo abaixo. */}
         <div className="mt-10">
           <CommercialCta
-            label="Solicitar diagnóstico gratuito"
-            mensagem="Olá! Vim pelo site e quero o diagnóstico gratuito da rede da minha fábrica."
+            label="Quero avaliar na minha planta"
+            mensagem="Olá! Vim pelo site e quero avaliar o Master Block na minha fábrica."
             fallbackPath="/contato"
           />
         </div>

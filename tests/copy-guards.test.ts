@@ -13,13 +13,31 @@ import { resolve } from 'node:path';
 
 /** Lê o arquivo SEM comentários: a guarda escrita no código cita justamente a
  *  frase proibida ("nunca dizer que protege o carro") e faria o teste acusar a
- *  própria guarda. O que vale é o que chega na tela. */
+ *  própria guarda. O que vale é o que chega na tela.
+ *
+ *  ⚠️ A ORDEM IMPORTA, e ela já esteve errada. Tirar os BLOCOS primeiro fazia
+ *  um comentário de LINHA contendo `/ferramentas/` seguido de asterisco abrir
+ *  um bloco falso, que engolia tudo até o próximo fecha-bloco — 1016
+ *  caracteres de CÓDIGO REAL no StickyCta, a oferta industrial inteira junto.
+ *  A guarda passava verde sobre um trecho que ela nem chegava a ler.
+ *  Linha primeiro, bloco depois. */
 function lerCopy(rel: string): string {
   return readFileSync(resolve(process.cwd(), rel), 'utf-8')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
     .split('\n')
     .filter((l) => !l.trim().startsWith('//'))
-    .join('\n');
+    .join('\n')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+}
+
+/** Mesmo que `lerCopy`, mas com o espaço em branco COLAPSADO.
+ *
+ *  Frase de JSX quebra em várias linhas por causa do formatador, e o `.` do
+ *  regex não atravessa quebra de linha: "diagnóstico da sua planta,\n sem
+ *  custo" passava incólume por `/diagnóstico.{0,25}sem custo/`. Quem escreve a
+ *  copy não controla onde a linha quebra — a guarda é que tem de ler o texto
+ *  como ele chega na tela, numa linha só. */
+function lerCopyCorrida(rel: string): string {
+  return lerCopy(rel).replace(/\s+/g, ' ');
 }
 
 /** Superfícies que falam do carro elétrico pro público final. */
@@ -269,5 +287,78 @@ describe('marca de equipamento de terceiro — citar sim, desmerecer não', () =
     const arquivos = arquivosDeCopy();
     expect(arquivos.length).toBeGreaterThan(50);
     expect(arquivos).toContain('src/components/home/HomeHero.tsx');
+  });
+});
+
+// =============================================================================
+// GUARDA — não existe mais medição ANTES do contrato.
+//
+// Mudança comercial (Leandro, 20/08): a Somatec parou de medir na pré-venda.
+// A prova virou o software do Master Block, medindo antes e depois DURANTE o
+// período de avaliação de 60 a 90 dias, com contrato já fechado.
+//
+// Por que virou teste: "diagnóstico gratuito" é uma isca boa demais pra não
+// voltar sozinha. Ela some da tela, mas volta no primeiro CTA novo que alguém
+// escrever — e aí a empresa promete um deslocamento que não faz mais, o cliente
+// cobra, e ninguém liga o CTA à mudança comercial que aconteceu meses antes.
+//
+// ⚠️ Medição como PROVA pós-instalação continua legítima e não é alvo daqui:
+// "medição antes e depois", o case Cinpal, os gráficos. O que não pode é
+// OFERECER medição/diagnóstico de graça como porta de entrada.
+// =============================================================================
+
+const MEDICAO_PREVIA = [
+  /medi[çc][ãa]o gratuita/i,
+  /medi[çc][ãa]o sem custo/i,
+  /medi[çc][ãa]o na sua planta/i,
+  /medi[çc][ãa]o na sua rede/i,
+  /diagn[óo]stico gratuito/i,
+  /diagn[óo]stico.{0,20}sem custo/i,
+];
+
+describe('oferta de entrada industrial — nada de medição antes do contrato', () => {
+  /** Só o que chega na tela: arquivos de página e de componente. */
+  function superficiesDeCopy(): string[] {
+    const { readdirSync, statSync } = require('node:fs') as typeof import('node:fs');
+    const out: string[] = [];
+    const anda = (dir: string) => {
+      for (const nome of readdirSync(resolve(process.cwd(), dir))) {
+        const rel = `${dir}/${nome}`;
+        if (rel.includes('/admin')) continue; // painel interno, não é copy pública
+        if (statSync(resolve(process.cwd(), rel)).isDirectory()) anda(rel);
+        else if (/\.tsx?$/.test(nome)) out.push(rel);
+      }
+    };
+    anda('src/app');
+    anda('src/components');
+    anda('src/lib/constants');
+    return out;
+  }
+
+  it('nenhuma superfície oferece medição ou diagnóstico prévio de graça', () => {
+    const violacoes: string[] = [];
+    for (const arquivo of superficiesDeCopy()) {
+      const fonte = lerCopyCorrida(arquivo);
+      for (const padrao of MEDICAO_PREVIA) {
+        const m = fonte.match(padrao);
+        if (m) violacoes.push(`${arquivo}: "${m[0]}"`);
+      }
+    }
+    expect(violacoes, violacoes.join('\n')).toHaveLength(0);
+  });
+
+  it('a varredura está mesmo olhando o site (âncora anti-falso-verde)', () => {
+    const arquivos = superficiesDeCopy();
+    expect(arquivos.length).toBeGreaterThan(50);
+    expect(arquivos).toContain('src/components/layout/StickyCta.tsx');
+    expect(arquivos).toContain('src/components/tools/VtcdQuiz.tsx');
+  });
+
+  it('medição como PROVA pós-instalação segue permitida', () => {
+    // A guarda não pode ser tão larga que apague o argumento que vende.
+    for (const padrao of MEDICAO_PREVIA) {
+      expect('o software mostra a medição antes e depois').not.toMatch(padrao);
+      expect('92% de supressão de VTCD, medida em campo').not.toMatch(padrao);
+    }
   });
 });

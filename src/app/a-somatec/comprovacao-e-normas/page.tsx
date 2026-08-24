@@ -107,7 +107,7 @@ export default function ComprovacaoNormasPage() {
             Quer ver a prova na sua planta?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Solicite um diagnóstico de qualidade de energia, sem custo, e veja a medição antes e depois.
+            Instale sem custo e veja a medição antes e depois: você só paga se o resultado for comprovado.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <CommercialCta

@@ -96,8 +96,8 @@ export default async function SolucaoPage({
             {s.cta}
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Fale com a engenharia da Somatec Blocking e receba um diagnóstico da sua planta,
-            sem custo.
+            Fale com a engenharia da Somatec Blocking: as cinco primeiras etapas não têm custo e
+            você só paga se o resultado for comprovado.
           </p>
           <CommercialCta
             label="Falar com a engenharia"

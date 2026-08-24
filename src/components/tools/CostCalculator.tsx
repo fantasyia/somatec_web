@@ -93,7 +93,7 @@ export function CostCalculator() {
       if (res.ok && data.ok) {
         setStatus('success');
         setMessage(
-          'Recebido! Nossa engenharia vai analisar seus números e falar com você pelo WhatsApp — a medição na sua planta é sem custo.',
+          'Recebido! Nossa engenharia vai analisar seus números e falar com você pelo WhatsApp.',
         );
       } else {
         setStatus('error');
@@ -170,7 +170,7 @@ export function CostCalculator() {
             <span className="font-semibold text-white">
               você só paga se o resultado for comprovado na sua própria planta
             </span>
-            . Deixe seus dados e receba a análise da engenharia com a medição sem custo.
+            . Deixe seus dados e receba a análise da engenharia sobre o seu caso.
           </p>
         </div>
       )}

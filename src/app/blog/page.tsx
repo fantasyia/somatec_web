@@ -63,8 +63,8 @@ export default function BlogPage() {
               Já desconfia que a sua rede tem VTCD?
             </h2>
             <p className="leading-relaxed text-white/80">
-              A medição na sua planta é sem custo. Você só passa a pagar se o resultado for
-              comprovado na sua própria operação.
+              As cinco primeiras etapas não têm custo — estudo, projeto, proposta, instalação e
+              período de avaliação. Você só passa a pagar se o resultado for comprovado.
             </p>
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               <Link href="/ferramentas/custo-de-parada" className="btn-primary group">

@@ -51,7 +51,7 @@ export const SOLUCOES: readonly Solucao[] = [
       { title: 'Inspeções periódicas', description: 'Três visitas por ano avaliam as condições físicas do Master Block e da instalação.' },
       { title: 'Plano de ação preventivo', description: 'O sistema antecipa riscos com base na idade do ativo e nos níveis de THDv.' },
     ],
-    cta: 'Quero medir a energia da minha rede',
+    cta: 'Quero avaliar na minha planta',
   },
   {
     slug: 'banco-de-capacitores',

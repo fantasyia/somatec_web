@@ -36,8 +36,12 @@ export const BR_STATES = [
 //
 // ⛔ O rótulo do cliente dizia "Diagnóstico para a minha indústria" e brigava
 // com o campo de baixo: quem ia marcar "Comércio" ou "Residência" tinha de
-// declarar antes que era indústria. E "diagnóstico" é a oferta INDUSTRIAL
-// (medição na planta) — oferecê-la a dono de casa fura a regra de ouro.
+// declarar antes que era indústria. E "diagnóstico" era a oferta INDUSTRIAL —
+// oferecê-la a dono de casa furava a regra de ouro.
+//
+// ⛔ Desde 20/08 a oferta industrial NÃO é mais diagnóstico/medição na planta:
+// é PERÍODO DE AVALIAÇÃO sem risco (60 a 90 dias), com a prova medida pelo
+// software depois do contrato fechado. Não existe medição antes do contrato.
 //
 // A frase agora diz o que a pessoa QUER, não em que categoria ela se encaixa —
 // mesma regra das mensagens de WhatsApp. O `value` continua 'b2b' de

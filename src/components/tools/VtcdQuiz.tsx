@@ -33,21 +33,21 @@ const LEVELS: Level[] = [
     label: 'Risco alto de VTCD',
     Icon: ShieldAlert,
     tone: 'text-gold',
-    text: 'Esse conjunto de sintomas é o quadro clássico de VTCD e transientes de alta frequência — exatamente a faixa em que a proteção convencional não atua. Cada mês sem tratar é prejuízo recorrente: vale medir agora.',
+    text: 'Esse conjunto de sintomas é o quadro clássico de VTCD e transientes de alta frequência — exatamente a faixa em que a proteção convencional não atua. Cada mês sem tratar é prejuízo recorrente — e no período de avaliação você vê o antes e o depois antes de pagar.',
   },
   {
     min: 2,
     label: 'Risco moderado — vale investigar',
     Icon: AlertTriangle,
     tone: 'text-cyan',
-    text: 'Alguns sintomas já apontam distúrbios de alta frequência na sua rede. Uma medição com analisador identifica a causa antes que os prejuízos escalem.',
+    text: 'Alguns sintomas já apontam distúrbios de alta frequência na sua rede. Com o Master Block instalado, o software identifica a causa e mostra a redução — antes de você pagar qualquer coisa.',
   },
   {
     min: 0,
     label: 'Risco baixo pelos sintomas informados',
     Icon: CheckCircle2,
     tone: 'text-cyan',
-    text: 'Os sinais clássicos de VTCD não apareceram — mas distúrbios de alta frequência muitas vezes passam despercebidos até a primeira queima. Se quiser certeza, a medição é sem custo.',
+    text: 'Os sinais clássicos de VTCD não apareceram — mas distúrbios de alta frequência muitas vezes passam despercebidos até a primeira queima. Se quiser certeza, o período de avaliação é sem custo: instalamos, o software mede, e você só paga se o resultado aparecer.',
   },
 ];
 

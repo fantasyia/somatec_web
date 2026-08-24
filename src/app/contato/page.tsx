@@ -49,7 +49,7 @@ export default function ContatoPage() {
             </h1>
             <p className="text-base md:text-lg leading-relaxed text-white/80 max-w-xl text-pretty">
               Conte o que acontece na sua operação — paradas, queimas, travamentos — e nossa
-              equipe retorna com o próximo passo. O diagnóstico inicial é sem custo.
+              equipe retorna com o próximo passo. Você só paga se o resultado for comprovado.
             </p>
           </div>
         </div>

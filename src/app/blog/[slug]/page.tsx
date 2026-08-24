@@ -324,13 +324,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   <Zap className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                 </span>
                 <span className="font-sans text-sm font-bold text-[rgb(var(--text))]">
-                  {ctaNi ? ctaNi.lateralTitulo : 'Diagnóstico sem custo'}
+                  {ctaNi ? ctaNi.lateralTitulo : 'Avaliação sem risco'}
                 </span>
               </div>
               <p className="mt-2 text-[13px] leading-relaxed text-[rgb(var(--text-muted))]">
                 {ctaNi
                   ? ctaNi.lateralTexto
-                  : 'Meça a VTCD na sua rede. Você só paga se o resultado for comprovado na sua planta.'}
+                  : '60 a 90 dias de avaliação na sua planta. Você só paga se o resultado for comprovado.'}
               </p>
               <Link
                 href={ctaNi ? ctaNi.href : '/ferramentas/custo-de-parada'}
@@ -353,8 +353,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             </h2>
             {!ctaNi && (
               <p className="leading-relaxed text-white/80">
-                A medição na sua rede é sem custo. Você só passa a pagar se o resultado for
-                comprovado na sua própria operação.
+                As cinco primeiras etapas não têm custo — estudo, projeto, proposta, instalação e
+                período de avaliação. Você só passa a pagar se o resultado for comprovado.
               </p>
             )}
             <div className="flex flex-wrap justify-center gap-3 pt-2">

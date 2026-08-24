@@ -72,8 +72,8 @@ export default function SolucoesPage() {
             Não sabe por onde começar?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Comece pelo diagnóstico da sua rede — sem custo. A partir dele, a engenharia
-            da Somatec indica a solução certa para a sua operação.
+            A engenharia da Somatec indica a solução certa para a sua operação — e, na indústria,
+            você só paga se o resultado for comprovado.
           </p>
           <CommercialCta
             label="Falar com a engenharia"

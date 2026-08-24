@@ -120,8 +120,8 @@ export default function ResultadosPage() {
               O próximo número comprovado pode ser o da sua planta
             </h2>
             <p className="text-white/80 leading-relaxed">
-              A medição na sua rede é sem custo. Você só passa a pagar se o resultado for comprovado
-              na sua própria operação.
+              As cinco primeiras etapas não têm custo — estudo, projeto, proposta, instalação e
+              período de avaliação. Você só passa a pagar se o resultado for comprovado.
             </p>
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               <Link href="/ferramentas/custo-de-parada" className="btn-primary group">
