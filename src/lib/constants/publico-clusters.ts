@@ -6,10 +6,15 @@
 // aqui, sem tocar em nenhum componente. Elimina o risco de esquecerem de
 // preencher um campo no front-matter.
 //
-// Aceita as DUAS formas de identificar o cluster: o código do cluster-mapa
-// (c14, c38…) e o rótulo exibido no site (`BlogPost.cluster`, ex.: 'Residencial').
-// Quando a integração com o WP chegar e os artigos trouxerem o código, ele já
-// resolve — sem migração.
+// Aceita as DUAS formas de identificar o cluster: o id do cluster-mapa e o
+// rótulo exibido no site (`BlogPost.cluster`, ex.: 'Residencial'). Quando a
+// integração com o CMS chegar e os artigos trouxerem o id, ele já resolve —
+// sem migração.
+//
+// ⚠️ 2026-08-05 — os clusters foram consolidados de 42 para 24 e os ids
+// deixaram de ser códigos (c14, c38…) e viraram SLUGS. Este arquivo foi
+// atualizado conforme `leo-Skills-master/clients/somatec/reports/site/lp-ni-spec.md`.
+// Os códigos velhos não existem mais em lugar nenhum e saíram daqui.
 // =============================================================================
 
 export type PublicoNI = 'residencial' | 'comercial';
@@ -17,24 +22,24 @@ export type PublicoNI = 'residencial' | 'comercial';
 /** cluster (código do cluster-mapa OU rótulo do site) → público. */
 export const CLUSTER_PUBLICO: Readonly<Record<string, PublicoNI>> = {
   // ── Residencial ──────────────────────────────────────────────────────
-  c14: 'residencial', // Residências Alto Padrão
-  'Residências Alto Padrão': 'residencial',
+  residencial: 'residencial', // absorveu os antigos c14 + c39
   Residencial: 'residencial',
-  c38: 'residencial', // Veículos Elétricos
-  'Veículos Elétricos': 'residencial',
-  c39: 'residencial', // Alto Padrão Premium
+  'Residências Alto Padrão': 'residencial',
   'Alto Padrão Premium': 'residencial',
+  'carro-eletrico': 'residencial', // ex-c38
+  'Carro Elétrico': 'residencial',
+  'Veículos Elétricos': 'residencial',
 
   // ── Comercial (comércio, condomínio, pequeno fabricante) ─────────────
-  c13: 'comercial', // Comércio / Varejo / Serviços
-  'Comércio / Varejo / Serviços': 'comercial',
+  comercio: 'comercial', // absorveu os antigos c13 + c40
   Comércio: 'comercial',
-  c18: 'comercial', // Condomínios
-  Condomínios: 'comercial',
-  c25: 'comercial', // Cadeia do Frio
-  'Cadeia do Frio': 'comercial',
-  c40: 'comercial', // Pequenos Fabricantes & Comércio
+  'Comércio / Varejo / Serviços': 'comercial',
   'Pequenos Fabricantes & Comércio': 'comercial',
+  condominios: 'comercial', // ex-c18
+  Condomínios: 'comercial',
+  frio: 'comercial', // ex-c25
+  'Cadeia Fria': 'comercial',
+  'Cadeia do Frio': 'comercial',
 
   // Todo o resto = industrial → não entra nas LPs NI (basta não estar aqui).
 };
