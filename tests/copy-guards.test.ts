@@ -362,3 +362,59 @@ describe('oferta de entrada industrial — nada de medição antes do contrato',
     }
   });
 });
+
+
+describe('medição e laudos — não é linha de serviço avulsa', () => {
+  // Decisão do Léo (24/08): medição e laudos não existem fora da instalação
+  // do produto completo. A página /solucoes/medicao-e-laudos foi removida —
+  // esta guarda impede que a rota volte por link, menu, sitemap ou ícone.
+  const ROTA_MORTA = /\/solucoes\/medicao-e-laudos/;
+
+  function fontesDoSite(): string[] {
+    const { readdirSync, statSync } = require('node:fs') as typeof import('node:fs');
+    const out: string[] = [];
+    const anda = (dir: string) => {
+      for (const nome of readdirSync(resolve(process.cwd(), dir))) {
+        const rel = `${dir}/${nome}`;
+        if (statSync(resolve(process.cwd(), rel)).isDirectory()) anda(rel);
+        else if (/\.tsx?$/.test(nome)) out.push(rel);
+      }
+    };
+    anda('src');
+    return out;
+  }
+
+  it('nenhum arquivo do site aponta pra rota removida', () => {
+    const violacoes: string[] = [];
+    for (const arquivo of fontesDoSite()) {
+      // aqui NÃO se filtra comentário: link em comentário também é rastro
+      const fonte = readFileSync(resolve(process.cwd(), arquivo), 'utf-8');
+      if (ROTA_MORTA.test(fonte)) violacoes.push(arquivo);
+    }
+    expect(violacoes, violacoes.join('\n')).toHaveLength(0);
+  });
+
+  it('a solução não existe mais no catálogo', () => {
+    const catalogo = readFileSync(resolve(process.cwd(), 'src/lib/constants/solucoes.ts'), 'utf-8');
+    expect(catalogo).not.toMatch(/slug:\s*'medicao-e-laudos'/);
+    expect(catalogo).not.toMatch(/Quero um diagnóstico da minha rede/);
+  });
+
+  it('o redirect 301 existe e não leva pra rota morta', () => {
+    const config = readFileSync(resolve(process.cwd(), 'next.config.js'), 'utf-8');
+    // a URL estava no sitemap: precisa de destino, não de 404
+    expect(config).toMatch(/source:\s*'\/solucoes\/medicao-e-laudos',\s*destination:\s*'\/solucoes'/);
+    // e nenhum OUTRO redirect pode ter a rota morta como destino
+    const destinos = [...config.matchAll(/destination:\s*'([^']+)'/g)].map((m) => m[1]);
+    expect(destinos).not.toContain('/solucoes/medicao-e-laudos');
+  });
+
+  it('a varredura enxerga o site de verdade (âncora anti-falso-verde)', () => {
+    const arquivos = fontesDoSite();
+    expect(arquivos.length).toBeGreaterThan(50);
+    expect(arquivos).toContain('src/lib/constants/navigation.ts');
+    expect(arquivos).toContain('src/app/sitemap.ts');
+    // e o regex tem de pegar a rota quando ela aparece de fato
+    expect(ROTA_MORTA.test("href: '/solucoes/medicao-e-laudos'")).toBe(true);
+  });
+});

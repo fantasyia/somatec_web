@@ -34,7 +34,7 @@ const sections = [
     eyebrow: 'Resultados',
     title: 'Comprovação e garantia',
     description:
-      'Laudos, medições e um modelo de investimento sem risco: o cliente só investe quando o resultado é comprovado na própria planta.',
+      'Um modelo de investimento sem risco: o cliente só passa a pagar quando o resultado é comprovado na própria planta, medido pelo software durante o período de avaliação.',
   },
   {
     href: '/solucoes',
@@ -42,7 +42,7 @@ const sections = [
     eyebrow: 'Portfólio',
     title: 'Produtos e serviços',
     description:
-      'Sistema Master Block — supressor com software de gestão de energia on-line — e Banco de Capacitores, além de medições, laudos e manutenção de cabine primária.',
+      'Sistema Master Block — supressor com software de gestão de energia on-line — e Banco de Capacitores, além de manutenção de cabine primária.',
   },
 ];
 

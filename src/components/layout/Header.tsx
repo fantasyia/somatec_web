@@ -11,7 +11,6 @@ import {
   Zap,
   Gauge,
   BatteryCharging,
-  ClipboardCheck,
   Wrench,
   Building2,
   Factory,
@@ -40,7 +39,6 @@ const NAV_ICON: Record<string, LucideIcon> = {
   '/solucoes/protecao-contra-surtos': Zap,
   '/solucoes/qualidade-de-energia': Gauge,
   '/solucoes/banco-de-capacitores': BatteryCharging,
-  '/solucoes/medicao-e-laudos': ClipboardCheck,
   '/solucoes/manutencao-cabine-primaria': Wrench,
   // A Somatec
   '/a-somatec/quem-somos': Building2,

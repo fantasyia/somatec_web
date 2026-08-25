@@ -1,4 +1,4 @@
-import { Zap, Gauge, BatteryCharging, ClipboardCheck, Wrench } from 'lucide-react';
+import { Zap, Gauge, BatteryCharging, Wrench } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 /**
@@ -69,23 +69,6 @@ export const SOLUCOES: readonly Solucao[] = [
       { title: 'Projeto sob medida', description: 'Dimensionado conforme a carga e o perfil de consumo da planta.' },
     ],
     cta: 'Quero corrigir meu fator de potência',
-  },
-  {
-    slug: 'medicao-e-laudos',
-    Icon: ClipboardCheck,
-    eyebrow: 'Serviço',
-    title: 'Medição e Laudos',
-    tagline: 'Diagnóstico técnico da qualidade da sua energia',
-    intro: [
-      'Relatórios de medição com análise de energia para conhecer a real situação da rede elétrica da empresa — uma forma de evitar desperdícios e danos elétricos e de comprovar a eficiência dos transformadores.',
-      'É o ponto de partida de qualquer projeto: a medição mostra a presença das perturbações às quais as falhas podem ser atribuídas e serve de base para o dimensionamento da proteção.',
-    ],
-    highlights: [
-      { title: 'Análise de qualidade de energia', description: 'Identificação de VTCD, harmônicos e demais perturbações da rede.' },
-      { title: 'Laudos técnicos', description: 'Documentação conforme as normas, útil inclusive para evitar multas na fatura.' },
-      { title: 'Base para o projeto', description: 'A medição orienta o dimensionamento da proteção em cascata.' },
-    ],
-    cta: 'Quero um diagnóstico da minha rede',
   },
   {
     slug: 'manutencao-cabine-primaria',

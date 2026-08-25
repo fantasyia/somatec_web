@@ -9,7 +9,7 @@ import { SOLUCOES } from '@/lib/constants/solucoes';
 export const metadata: Metadata = {
   title: 'Soluções — Somatec Blocking',
   description:
-    'Proteção contra surtos (Master Block), gestão da qualidade de energia, banco de capacitores, medição e laudos e manutenção de cabine primária para a indústria.',
+    'Proteção contra surtos (Master Block), gestão da qualidade de energia, banco de capacitores e manutenção de cabine primária para a indústria.',
   alternates: { canonical: '/solucoes' },
   openGraph: {
     title: 'Soluções — Somatec Blocking',

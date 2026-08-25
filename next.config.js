@@ -108,9 +108,13 @@ const nextConfig = {
       { source: '/solucoes/food-service', destination: '/solucoes/protecao-contra-surtos', permanent: true },
       { source: '/solucoes/b2b', destination: '/solucoes/qualidade-de-energia', permanent: true },
       { source: '/solucoes/distribuicao', destination: '/solucoes/banco-de-capacitores', permanent: true },
-      { source: '/solucoes/terceirizacao-de-producao', destination: '/solucoes/medicao-e-laudos', permanent: true },
+      { source: '/solucoes/terceirizacao-de-producao', destination: '/solucoes', permanent: true },
       { source: '/solucoes/envase', destination: '/solucoes/manutencao-cabine-primaria', permanent: true },
       { source: '/solucoes/marcas-proprias', destination: '/solucoes', permanent: true },
+      // Medição e laudos saiu do catálogo (decisão do Léo, 24/08): não existe
+      // fora da instalação do produto completo. A URL estava no sitemap, então
+      // vai pro índice de soluções em vez de 404.
+      { source: '/solucoes/medicao-e-laudos', destination: '/solucoes', permanent: true },
       // Seções food removidas (não existem no negócio Somatec).
       { source: '/marcas', destination: '/produtos', permanent: true },
       { source: '/marcas/:slug', destination: '/produtos', permanent: true },

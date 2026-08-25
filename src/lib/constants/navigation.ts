@@ -77,11 +77,6 @@ export const HEADER_NAV: NavItem[] = [
         description: 'Correção do fator de potência e fim das multas por reativo.',
       },
       {
-        label: 'Medição e laudos',
-        href: '/solucoes/medicao-e-laudos',
-        description: 'Diagnóstico técnico da qualidade da sua energia.',
-      },
-      {
         label: 'Manutenção de cabine',
         href: '/solucoes/manutencao-cabine-primaria',
         description: 'Confiabilidade elétrica sem paradas não programadas.',
@@ -187,7 +182,6 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
       { label: 'Proteção contra surtos', href: '/solucoes/protecao-contra-surtos' },
       { label: 'Qualidade de energia', href: '/solucoes/qualidade-de-energia' },
       { label: 'Banco de capacitores', href: '/solucoes/banco-de-capacitores' },
-      { label: 'Medição e laudos', href: '/solucoes/medicao-e-laudos' },
       { label: 'Manutenção de cabine', href: '/solucoes/manutencao-cabine-primaria' },
     ],
   },
