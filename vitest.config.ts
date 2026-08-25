@@ -13,7 +13,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: false,
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
     // tests/e2e sobe `next start` e depende de um build pronto — roda em
     // `npm run test:e2e` (vitest.e2e.config.ts), não aqui.
     exclude: ['tests/e2e/**'],

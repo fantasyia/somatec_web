@@ -7,7 +7,10 @@ import { ArticleToc } from '@/components/blog/ArticleToc';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { type BlogPost } from '@/lib/constants/blog';
-import { lerConteudo, lerPost, lerPosts } from '@/lib/blog/fonte';
+import { lerAssinatura, lerConteudo, lerHtmlBruto, lerPost, lerPosts } from '@/lib/blog/fonte';
+import { extrairJsonLd } from '@/lib/blog/html-para-artigo';
+import { AuthorBox, BylineArtigo } from '@/components/blog/AssinaturaArtigo';
+import { autorDoArtigo, revisorDoArtigo } from '@/lib/blog/schema-autor';
 import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { publicoDoCluster } from '@/lib/constants/publico-clusters';
 
@@ -116,11 +119,18 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   const content = await lerConteudo(slug);
   const related = await getRelated(post);
+  const assinatura = await lerAssinatura(slug);
+  // A redação escreve um JSON-LD no fim do artigo; ele é retirado do corpo
+  // visível e emitido aqui no lugar certo.
+  const schemaDaRedacao = extrairJsonLd((await lerHtmlBruto(slug)) ?? '');
   /** null = artigo industrial → segue com os CTAs industriais de sempre. */
   const publicoNi = publicoDoCluster(post.cluster);
   const ctaNi = publicoNi ? CTA_NI[publicoNi] : null;
   const tocItems = content?.secoes.map((s) => ({ id: s.id, titulo: s.titulo })) ?? [];
   const absUrl = `${SITE.url}/blog/${post.slug}`;
+
+  const autorSchema = autorDoArtigo(assinatura);
+  const revisorSchema = revisorDoArtigo(assinatura);
 
   const jsonLd = [
     {
@@ -131,7 +141,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       image: post.heroUrl ? `${SITE.url}${post.heroUrl}` : SITE.ogImage,
       datePublished: post.publicadoEm,
       dateModified: content?.atualizadoEm ?? post.publicadoEm,
-      author: { '@type': 'Organization', name: SITE.fullName },
+      author: autorSchema,
+      ...(revisorSchema ? { reviewedBy: revisorSchema } : {}),
       publisher: {
         '@type': 'Organization',
         name: SITE.fullName,
@@ -161,6 +172,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           },
         ]
       : []),
+    // O schema que a redação escreveu no corpo do artigo. Vinha sendo
+    // descartado — agora sai do texto visível e é emitido aqui.
+    ...schemaDaRedacao,
   ];
 
   return (
@@ -219,6 +233,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 ? ` · atualizado em ${formatDate(content.atualizadoEm)}`
                 : ''}
             </span>
+          </div>
+
+          {/* Quem escreveu e quem revisou — YMYL exige autor visível. */}
+          <div className="mt-3">
+            <BylineArtigo assinatura={assinatura} />
           </div>
 
           {/* Resposta rápida (featured snippet) */}
@@ -324,6 +343,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 </div>
               </div>
             )}
+
+            <AuthorBox assinatura={assinatura} />
           </article>
 
           {/* Lateral: TOC + CTA discreto */}

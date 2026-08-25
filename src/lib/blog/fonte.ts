@@ -46,11 +46,29 @@ type LinhaCms = {
   published_at: string | null;
   updated_at: string | null;
   is_featured: boolean | null;
+  author_name: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  expert_name: string | null;
+  expert_role: string | null;
+  expert_bio: string | null;
+  expert_credentials: string | null;
   silos: { name: string | null } | null;
 };
 
+/** Assinatura do artigo — quem escreveu e quem revisou tecnicamente.
+ *  Em conteúdo YMYL (segurança elétrica + dinheiro) o Google cobra isso, e o
+ *  que dá peso é a pessoa, não a empresa. */
+export type Assinatura = {
+  autor: string | null;
+  revisor: string | null;
+  revisadoEm: string | null;
+  especialista: { nome: string; papel: string | null; bio: string | null; credencial: string | null } | null;
+};
+
 const CAMPOS =
-  'slug,title,excerpt,meta_description,content_html,hero_image_url,cover_image,published_at,updated_at,is_featured,silos:silo_id(name)';
+  'slug,title,excerpt,meta_description,content_html,hero_image_url,cover_image,published_at,updated_at,is_featured,' +
+  'author_name,reviewed_by,reviewed_at,expert_name,expert_role,expert_bio,expert_credentials,silos:silo_id(name)';
 
 /** Minutos de leitura a partir do texto — o CMS não guarda esse campo.
  *  200 palavras/min é a média de leitura técnica em português. */
@@ -108,6 +126,7 @@ export type Acervo = {
   /** De onde veio — aparece no /status e nos testes. */
   origem: 'cms' | 'arquivo';
   corpos: Map<string, string>;
+  assinaturas: Map<string, Assinatura>;
 };
 
 /** O acervo publicado. Banco primeiro; arquivo se o banco não tiver nada. */
@@ -118,16 +137,33 @@ export async function lerAcervo(): Promise<Acervo> {
     const posts = [...BLOG_POSTS]
       .filter((p) => conteudoDeArquivo(p.slug) !== undefined)
       .sort((a, b) => (a.publicadoEm < b.publicadoEm ? 1 : -1));
-    return { posts: posts as BlogPost[], origem: 'arquivo', corpos: new Map() };
+    return { posts: posts as BlogPost[], origem: 'arquivo', corpos: new Map(), assinaturas: new Map() };
   }
 
   const corpos = new Map<string, string>();
-  for (const l of linhas) if (l.content_html) corpos.set(l.slug, l.content_html);
+  const assinaturas = new Map<string, Assinatura>();
+  for (const l of linhas) {
+    if (l.content_html) corpos.set(l.slug, l.content_html);
+    assinaturas.set(l.slug, {
+      autor: l.author_name,
+      revisor: l.reviewed_by,
+      revisadoEm: l.reviewed_at,
+      especialista: l.expert_name
+        ? {
+            nome: l.expert_name,
+            papel: l.expert_role,
+            bio: l.expert_bio,
+            credencial: l.expert_credentials,
+          }
+        : null,
+    });
+  }
 
   return {
     posts: linhas.map(paraBlogPost),
     origem: 'cms',
     corpos,
+    assinaturas,
   };
 }
 
@@ -148,6 +184,12 @@ export async function lerConteudo(slug: string): Promise<ArticleContent | undefi
   if (!html) return undefined;
   const post = acervo.posts.find((p) => p.slug === slug);
   return htmlParaArtigo(html, { atualizadoEm: post?.publicadoEm });
+}
+
+/** Quem assina o artigo. Vazio quando o acervo vem do arquivo — os posts
+ *  antigos não têm autoria cadastrada. */
+export async function lerAssinatura(slug: string): Promise<Assinatura | undefined> {
+  return (await lerAcervo()).assinaturas.get(slug);
 }
 
 /** HTML cru — só pra quem precisa do schema embutido. */

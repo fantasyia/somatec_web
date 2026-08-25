@@ -99,12 +99,17 @@ function desescapar(v: string): string {
     .replace(/&amp;/gi, '&');
 }
 
-export function extrairJsonLd(html: string): unknown[] {
-  const saida: unknown[] = [];
+export function extrairJsonLd(html: string): Record<string, unknown>[] {
+  const saida: Record<string, unknown>[] = [];
   for (const re of RE_SCRIPT_LD) {
     for (const m of String(html || '').matchAll(re)) {
       try {
-        saida.push(JSON.parse(desescapar(m[1]).trim()));
+        const parseado = JSON.parse(desescapar(m[1]).trim());
+        // Só objeto entra: string ou número solto no <script> não é schema,
+        // e emitir isso no <head> quebra o parser do Google.
+        if (parseado && typeof parseado === 'object' && !Array.isArray(parseado)) {
+          saida.push(parseado as Record<string, unknown>);
+        }
       } catch {
         // schema quebrado não derruba a página — só não é emitido
       }
