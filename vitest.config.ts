@@ -25,7 +25,6 @@ export default defineConfig({
         'src/lib/mullerbot/**/*.ts',
         'src/lib/turnstile/**/*.ts',
         'src/lib/webhook-queue/**/*.ts',
-        'src/lib/admin/schemas.ts',
         'src/lib/logger.ts',
         'src/lib/error-reporter.ts',
       ],

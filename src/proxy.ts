@@ -18,7 +18,7 @@ export async function proxy(request: NextRequest) {
     pathname.includes('.');
 
   // DB redirect lookup (skip for static assets and /api to avoid latency)
-  if (!isStatic && !pathname.startsWith('/api') && !pathname.startsWith('/admin')) {
+  if (!isStatic && !pathname.startsWith('/api')) {
     const redirects = await getRedirects();
     const match = redirects.get(pathname);
     if (match) {

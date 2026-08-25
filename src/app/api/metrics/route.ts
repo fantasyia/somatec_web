@@ -26,8 +26,6 @@ const METADATA = {
   msm_errors_total: { help: 'Total de erros loggados (log.error chamadas), agrupados por scope.', type: 'counter' as const },
   msm_csp_violations_total: { help: 'Total de violações CSP reportadas pelo browser, agrupadas por directive.', type: 'counter' as const },
   msm_alerts_total: { help: 'Total de alertas avaliados pelo health monitor, por severity e key.', type: 'counter' as const },
-  msm_audit_archive_deleted_total: { help: 'Total de registros admin_activity_log apagados pelo cron de archive.', type: 'counter' as const },
-  msm_audit_log_rows: { help: 'Total atual de registros em admin_activity_log.', type: 'gauge' as const },
   msm_slow_operations_total: { help: 'Operações withTiming acima de SLOW_QUERY_MS (default 500ms).', type: 'counter' as const },
   msm_critical_operations_total: { help: 'Operações withTiming acima de CRITICAL_QUERY_MS (default 5000ms).', type: 'counter' as const },
   msm_queue_processed_total: { help: 'Total de mensagens processadas pelo cron process-webhook-queue, agrupadas por outcome (sent/client_error/server_error/network_error/not_configured).', type: 'counter' as const },

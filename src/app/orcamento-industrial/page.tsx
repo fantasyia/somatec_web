@@ -74,6 +74,40 @@ export default async function OrcamentoIndustrialPage() {
         </div>
       </section>
 
+      {/* ── COMO FUNCIONA ─────────────────────────────────────────────
+          Os 14 artigos do blog trazem pra cá o CTA "Avalie o Master Block na
+          sua planta: 60 a 90 dias, e você só paga se o resultado for
+          comprovado". Quem chega precisa reencontrar ESSA promessa — antes
+          daqui a página falava só em estimativa de locação, e o leitor caía
+          numa oferta diferente da que clicou.
+
+          Texto conforme a redação aprovada dos artigos (25/08). ⛔ Não vira
+          medição prévia nem oferta de software avulso: a medição acontece
+          DEPOIS do contrato, dentro da avaliação. */}
+      <div className="tone-surface">
+        <section className="container-msm section-y" aria-label="Como funciona a avaliação">
+          <Reveal>
+            <div className="mx-auto max-w-3xl rounded-card-lg border border-cyan/30 bg-cyan/5 p-6 md:p-8">
+              <p className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">
+                Avaliação na sua planta
+              </p>
+              <h2 className="mt-2 font-serif text-2xl font-semibold text-[rgb(var(--text))] md:text-[1.75rem]">
+                Você só paga se o resultado for comprovado.
+              </h2>
+              <p className="mt-3 text-[17px] leading-[1.8] text-[rgb(var(--text))]">
+                As cinco primeiras etapas são sem custo: levantamento técnico da rede, projeto,
+                proposta, instalação e a própria avaliação. O resultado é medido na sua planta, ao
+                longo de <span className="font-semibold">60 a 90 dias</span>, com o software do
+                Master Block mostrando o antes e o depois em tempo real.
+              </p>
+              <p className="mt-3 text-[17px] leading-[1.8] text-[rgb(var(--text))]">
+                Se o resultado não for comprovado, os equipamentos são retirados sem custo.
+              </p>
+            </div>
+          </Reveal>
+        </section>
+      </div>
+
       {/* ── WIZARD + EXEMPLO ──────────────────────────────────────── */}
       <div className="tone-base">
         <section className="container-msm section-y" aria-label="Montar projeto">

@@ -17,7 +17,7 @@ import { X, GaugeCircle, Calculator, type LucideIcon } from 'lucide-react';
 // a trilha NI é compra direta, sem vendedor.
 // =============================================================================
 
-const HIDDEN_PREFIXES = ['/contato', '/ferramentas', '/admin', '/login'];
+const HIDDEN_PREFIXES = ['/contato', '/ferramentas', '/login'];
 
 type Oferta = {
   Icon: LucideIcon;

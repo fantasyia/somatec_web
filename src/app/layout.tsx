@@ -9,7 +9,6 @@ import { Footer } from '@/components/layout/Footer';
 import { CookieBanner, type CookieBannerText } from '@/components/layout/CookieBanner';
 import { WhatsAppButton } from '@/components/layout/WhatsAppButton';
 import { StickyCta } from '@/components/layout/StickyCta';
-import { PublicOnly } from '@/components/layout/PublicOnly';
 import { SITE } from '@/lib/constants/site';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -177,21 +176,18 @@ export default async function RootLayout({
         </a>
         {/* Captura de atribuição (UTM/gclid/fbclid) na chegada — cookie funcional. */}
         <AttributionTracker />
-        <PublicOnly>
-          <Header slugsNi={slugsNi} />
-        </PublicOnly>
+        <Header slugsNi={slugsNi} />
         <main id="conteudo" className="flex-1">
           {children}
         </main>
-        <PublicOnly>
-          <Footer columns={footerColumns} socials={socials} certifications={certifications} slugsNi={slugsNi} />
-          <CookieBanner text={cookieBannerText} />
-          {whatsAppUrl && <WhatsAppButton href={whatsAppUrl} />}
-          <StickyCta />
-        </PublicOnly>
+        <Footer columns={footerColumns} socials={socials} certifications={certifications} slugsNi={slugsNi} />
+        <CookieBanner text={cookieBannerText} />
+        {whatsAppUrl && <WhatsAppButton href={whatsAppUrl} />}
+        <StickyCta />
 
-        {/* Google Analytics — só carrega quando admin cadastrou GA ID em
-            /admin/seo. Usa strategy=afterInteractive (não bloqueia LCP). */}
+        {/* Google Analytics — só carrega quando há GA ID em site_settings
+            (escrito direto no Supabase pela sessão do site; o painel saiu em
+            25/08). Usa strategy=afterInteractive (não bloqueia LCP). */}
         {gaId && (
           <>
             <Script
