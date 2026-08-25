@@ -104,6 +104,14 @@ export const revalidate = 300;
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await lerPost(slug);
+  // ⚠️ NÃO coloque `loading.tsx` em nenhum segmento acima desta página.
+  //
+  // `loading.tsx` vira um <Suspense> em volta da rota: o Next manda o shell do
+  // HTML na hora, com status 200, e só depois faz o stream do conteúdo. Quando
+  // o `notFound()` estoura, os headers já foram. Sai a página "não encontrada"
+  // certinha com HTTP 200 — soft 404, que o Google trata como página de baixa
+  // qualidade e usa pra segurar URL morta no índice. Foi o que um
+  // `src/app/loading.tsx` fazia até 25/08. Coberto por tests/e2e/soft-404.test.ts.
   if (!post) notFound();
 
   const content = await lerConteudo(slug);

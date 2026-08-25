@@ -58,3 +58,14 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
           SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+
+      # Depois do build de propósito: sobe `next start` de verdade e confere o
+      # status HTTP. O soft 404 (página "não encontrada" servida com 200) só
+      # aparece no servidor de produção — nenhum teste unitário pega.
+      - name: Testes e2e (404 duro em rota dinâmica)
+        run: npm run test:e2e
+        env:
+          NEXT_PUBLIC_SITE_URL: https://msm.com.br
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key

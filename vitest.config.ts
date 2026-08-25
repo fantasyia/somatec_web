@@ -14,6 +14,9 @@ export default defineConfig({
     environment: 'node',
     globals: false,
     include: ['tests/**/*.test.ts'],
+    // tests/e2e sobe `next start` e depende de um build pronto — roda em
+    // `npm run test:e2e` (vitest.e2e.config.ts), não aqui.
+    exclude: ['tests/e2e/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json-summary'],
