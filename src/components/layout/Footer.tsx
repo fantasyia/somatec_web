@@ -16,9 +16,11 @@ type Props = {
   socials?: Socials;
   /** Vem de site_settings.certifications (admin). Cai no fallback se vazio. */
   certifications?: Certification[];
+  /** Rotas /blog/... do público não-industrial, resolvidas no servidor. */
+  slugsNi?: string[];
 };
 
-export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
+export function Footer({ columns = FOOTER_COLUMNS, socials, slugsNi = [] }: Props) {
   const year = new Date().getFullYear();
 
   // Prioridade: prop (site_settings) → env var → vazio
@@ -71,7 +73,7 @@ export function Footer({ columns = FOOTER_COLUMNS, socials }: Props) {
           <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8">
             {/* Client: precisa da rota pra esconder as ferramentas industriais
                 nas páginas NI. O resto do rodapé segue no servidor. */}
-            <FooterColumns columns={columns} />
+            <FooterColumns columns={columns} slugsNi={slugsNi} />
           </div>
         </div>
 

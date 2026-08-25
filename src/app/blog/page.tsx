@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { BlogIndex } from '@/components/blog/BlogIndex';
-import { getBlogPosts } from '@/lib/constants/blog';
+import { lerPosts } from '@/lib/blog/fonte';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
@@ -21,10 +21,13 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 3600;
+// Cinco minutos: o artigo passa a vir do CMS, e o índice tem de refletir
+// publicação sem esperar deploy. A revalidação sob demanda (/api/blog/revalidar)
+// encurta isso pra segundos quando o CMS está ligado.
+export const revalidate = 300;
 
-export default function BlogPage() {
-  const posts = getBlogPosts();
+export default async function BlogPage() {
+  const posts = await lerPosts();
 
   return (
     <>

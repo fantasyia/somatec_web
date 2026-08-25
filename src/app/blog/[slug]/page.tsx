@@ -6,8 +6,8 @@ import { ChevronRight, Clock, Zap } from 'lucide-react';
 import { ArticleToc } from '@/components/blog/ArticleToc';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { getBlogPosts, getPostBySlug, type BlogPost } from '@/lib/constants/blog';
-import { getArticleContent } from '@/lib/constants/blog-content';
+import { type BlogPost } from '@/lib/constants/blog';
+import { lerConteudo, lerPost, lerPosts } from '@/lib/blog/fonte';
 import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { publicoDoCluster } from '@/lib/constants/publico-clusters';
 
@@ -41,10 +41,13 @@ const CTA_NI = {
   },
 } as const;
 
-export const dynamicParams = false;
+// ⚠️ true, e não false: com o artigo vindo do CMS, um post publicado DEPOIS
+// do build precisa renderizar sem esperar deploy. Com `false` ele daria 404 e
+// o botão "Publicar" do painel viraria mentira.
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return getBlogPosts().map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  return (await lerPosts()).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -53,7 +56,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await lerPost(slug);
   if (!post) return {};
   return {
     title: `${post.titulo} | Blog Somatec`,
@@ -87,24 +90,24 @@ function formatDate(iso: string): string {
  *  sobre home theater não quer "1 hora de linha parada na sua fábrica".
  *
  *  Antes de 3 relacionados fora do público, é melhor mostrar menos. */
-function getRelated(post: BlogPost): BlogPost[] {
+async function getRelated(post: BlogPost): Promise<BlogPost[]> {
   const alvo = publicoDoCluster(post.cluster); // null = industrial
-  const mesmoPublico = getBlogPosts().filter(
+  const mesmoPublico = (await lerPosts()).filter(
     (p) => p.slug !== post.slug && publicoDoCluster(p.cluster) === alvo,
   );
   const mesmoCluster = mesmoPublico.filter((p) => p.cluster === post.cluster);
   return [...mesmoCluster, ...mesmoPublico.filter((p) => p.cluster !== post.cluster)].slice(0, 3);
 }
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await lerPost(slug);
   if (!post) notFound();
 
-  const content = getArticleContent(slug);
-  const related = getRelated(post);
+  const content = await lerConteudo(slug);
+  const related = await getRelated(post);
   /** null = artigo industrial → segue com os CTAs industriais de sempre. */
   const publicoNi = publicoDoCluster(post.cluster);
   const ctaNi = publicoNi ? CTA_NI[publicoNi] : null;

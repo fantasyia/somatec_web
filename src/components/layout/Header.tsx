@@ -60,7 +60,7 @@ const NAV_ICON: Record<string, LucideIcon> = {
   '/representantes': Handshake,
 };
 
-export function Header() {
+export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
   const pathname = usePathname();
 
   // 🔒 Nas rotas NI o menu esconde as ferramentas industriais (decisão do Léo,
@@ -68,10 +68,10 @@ export function Header() {
   // parada e projeto da planta) só fazem sentido pra quem tem linha de
   // produção. Some do MENU, não do site: o comprador industrial continua
   // achando tudo pelo caminho dele.
-  const navVisivel = ehRotaNi(pathname)
+  const navVisivel = ehRotaNi(pathname, slugsNi)
     ? HEADER_NAV.filter((i) => !DESTINOS_INDUSTRIAIS.includes(i.href)).map((i) => ({
         ...i,
-        children: i.children ? semIndustriaisSeNi(i.children, pathname) : undefined,
+        children: i.children ? semIndustriaisSeNi(i.children, pathname, slugsNi) : undefined,
       }))
     : HEADER_NAV;
   const [scrolled, setScrolled] = useState(false);

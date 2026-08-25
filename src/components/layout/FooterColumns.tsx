@@ -18,11 +18,17 @@ import { semIndustriaisSeNi } from '@/lib/constants/rotas-ni';
 type FooterLink = { label: string; href: string };
 type FooterColumnData = { title: string; links: FooterLink[] };
 
-export function FooterColumns({ columns }: { columns: FooterColumnData[] }) {
+export function FooterColumns({
+  columns,
+  slugsNi = [],
+}: {
+  columns: FooterColumnData[];
+  slugsNi?: string[];
+}) {
   const pathname = usePathname();
 
   const visiveis = columns
-    .map((col) => ({ ...col, links: semIndustriaisSeNi(col.links, pathname) }))
+    .map((col) => ({ ...col, links: semIndustriaisSeNi(col.links, pathname, slugsNi) }))
     .filter((col) => col.links.length > 0);
 
   return (

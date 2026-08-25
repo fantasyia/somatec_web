@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { BlogCard } from '@/components/blog/BlogCard';
-import { getTeaserPosts } from '@/lib/constants/blog';
+import { lerTeaser } from '@/lib/blog/fonte';
 
 /**
  * Bloco 11 da home — teaser do blog. Válvula de escape de quem ainda NÃO está
@@ -9,8 +9,8 @@ import { getTeaserPosts } from '@/lib/constants/blog';
  * Data-driven (getTeaserPosts). Renderizado só quando BLOG_TEASER_ENABLED (page.tsx).
  * Disciplina de marca: zero laranja aqui — laranja é exclusivo de MB/CTA de diagnóstico.
  */
-export function HomeBlogTeaser() {
-  const posts = getTeaserPosts();
+export async function HomeBlogTeaser() {
+  const posts = await lerTeaser();
   if (posts.length < 3) return null;
   const [featured, ...rest] = posts;
 

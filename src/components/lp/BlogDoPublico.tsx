@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { Reveal } from '@/components/ui/Reveal';
-import { getPostsDoPublico } from '@/lib/constants/blog';
+import { lerPostsDoPublico } from '@/lib/blog/fonte';
 import type { PublicoNI } from '@/lib/constants/publico-clusters';
 
 /**
@@ -25,8 +25,8 @@ type Props = {
   subtitulo: string;
 };
 
-export function BlogDoPublico({ publico, titulo, subtitulo }: Props) {
-  const posts = getPostsDoPublico(publico);
+export async function BlogDoPublico({ publico, titulo, subtitulo }: Props) {
+  const posts = await lerPostsDoPublico(publico);
   if (posts.length === 0) return null;
 
   return (

@@ -1,4 +1,4 @@
-import { getBlogPosts } from '@/lib/constants/blog';
+import { BLOG_POSTS } from '@/lib/constants/blog';
 import { publicoDoCluster } from '@/lib/constants/publico-clusters';
 
 // =============================================================================
@@ -19,18 +19,24 @@ const LPS_NI = ['/protecao-residencial', '/protecao-comercial'];
 
 /** Artigos de casa/comércio. O público sai do CLUSTER (config única), a mesma
  *  fonte que as LPs e o template de artigo já usam — não há segunda lista pra
- *  alguém esquecer de atualizar quando publicar artigo novo. */
-function slugsNi(): string[] {
-  return getBlogPosts()
-    .filter((p) => publicoDoCluster(p.cluster) !== null)
-    .map((p) => `/blog/${p.slug}`);
+ *  alguém esquecer de atualizar quando publicar artigo novo.
+ *
+ *  ⚠️ Esta lista vem do ARQUIVO, não do banco, e é de propósito: o menu e o
+ *  rodapé são client components e não podem fazer consulta assíncrona. Quem
+ *  conhece o acervo do CMS é o layout (server) — ele passa a lista por
+ *  `slugsExtras`. Sem isso, o menu ficaria travado no que existia no build. */
+function slugsNiDoArquivo(): string[] {
+  return BLOG_POSTS.filter((p) => publicoDoCluster(p.cluster) !== null).map(
+    (p) => `/blog/${p.slug}`,
+  );
 }
 
 /** true quando quem está lendo a página é comércio ou residência. */
-export function ehRotaNi(pathname: string | null): boolean {
+export function ehRotaNi(pathname: string | null, slugsExtras?: string[]): boolean {
   if (!pathname) return false;
   if (LPS_NI.includes(pathname)) return true;
-  return slugsNi().includes(pathname);
+  if (slugsExtras?.includes(pathname)) return true;
+  return slugsNiDoArquivo().includes(pathname);
 }
 
 /** Destinos que só fazem sentido pra quem tem linha de produção. Some das
@@ -38,7 +44,11 @@ export function ehRotaNi(pathname: string | null): boolean {
 export const DESTINOS_INDUSTRIAIS = ['/ferramentas/custo-de-parada', '/orcamento-industrial'];
 
 /** Remove os links industriais quando a rota é NI (senão devolve como veio). */
-export function semIndustriaisSeNi<T extends { href: string }>(itens: T[], pathname: string | null): T[] {
-  if (!ehRotaNi(pathname)) return itens;
+export function semIndustriaisSeNi<T extends { href: string }>(
+  itens: T[],
+  pathname: string | null,
+  slugsExtras?: string[],
+): T[] {
+  if (!ehRotaNi(pathname, slugsExtras)) return itens;
   return itens.filter((i) => !DESTINOS_INDUSTRIAIS.includes(i.href));
 }

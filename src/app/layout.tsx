@@ -4,6 +4,7 @@ import { Source_Sans_3, Poppins } from 'next/font/google';
 import { unstable_cache } from 'next/cache';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
+import { lerSlugsNi } from '@/lib/blog/fonte';
 import { Footer } from '@/components/layout/Footer';
 import { CookieBanner, type CookieBannerText } from '@/components/layout/CookieBanner';
 import { WhatsAppButton } from '@/components/layout/WhatsAppButton';
@@ -150,14 +151,18 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [cookieBannerText, footerColumns, whatsAppConfig, socials, seo, certifications] = await Promise.all([
-    getCookieBannerText(),
-    getFooterData(),
-    getWhatsAppButtonConfig(),
-    getSocials(),
-    getSeoSettings(),
-    getCertifications(),
-  ]);
+  const [cookieBannerText, footerColumns, whatsAppConfig, socials, seo, certifications, slugsNi] =
+    await Promise.all([
+      getCookieBannerText(),
+      getFooterData(),
+      getWhatsAppButtonConfig(),
+      getSocials(),
+      getSeoSettings(),
+      getCertifications(),
+      // O menu e o rodapé escondem ferramenta industrial nas rotas NI. Eles são
+      // client components e não sabem o que o CMS publicou — quem sabe é aqui.
+      lerSlugsNi(),
+    ]);
   const whatsAppUrl = buildWhatsAppUrl(whatsAppConfig);
   const gaId = seo.google_analytics_id;
   return (
@@ -173,13 +178,13 @@ export default async function RootLayout({
         {/* Captura de atribuição (UTM/gclid/fbclid) na chegada — cookie funcional. */}
         <AttributionTracker />
         <PublicOnly>
-          <Header />
+          <Header slugsNi={slugsNi} />
         </PublicOnly>
         <main id="conteudo" className="flex-1">
           {children}
         </main>
         <PublicOnly>
-          <Footer columns={footerColumns} socials={socials} certifications={certifications} />
+          <Footer columns={footerColumns} socials={socials} certifications={certifications} slugsNi={slugsNi} />
           <CookieBanner text={cookieBannerText} />
           {whatsAppUrl && <WhatsAppButton href={whatsAppUrl} />}
           <StickyCta />
