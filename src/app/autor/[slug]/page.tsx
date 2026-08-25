@@ -38,7 +38,9 @@ export async function generateMetadata({
     title: `${autor.nome} | Blog Somatec`,
     description: descricao,
     alternates: { canonical: `/autor/${autor.slug}` },
-    robots: { index: false, follow: true },
+    // Página de autor é sinal de E-E-A-T: precisa entrar no índice junto
+    // com o blog, não ficar pra trás.
+    robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
     openGraph: {
       title: autor.nome,
       description: descricao,

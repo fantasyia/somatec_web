@@ -10,8 +10,11 @@ export const metadata: Metadata = {
   description:
     'Artigos técnicos diretos sobre proteção contra surtos, transientes de 100 kHz, VTCD e o custo real das paradas na indústria.',
   alternates: { canonical: '/blog' },
-  // Site em NOINDEX até o go-live de SEO — mantém o blog fora do índice por ora.
-  robots: { index: false, follow: true },
+  // Mesma chave do resto do site. Estava CRAVADO em false: virar o
+  // SITE_NOINDEX no go-live abriria o site inteiro e deixaria o blog de fora
+  // — justamente o motor de SEO, e ninguém perceberia até estranhar que o
+  // tráfego orgânico não veio.
+  robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
   openGraph: {
     title: 'Blog Somatec — conteúdo técnico pra quem cuida da planta',
     description: 'Proteção elétrica, VTCD e custo de parada, sem enrolação.',

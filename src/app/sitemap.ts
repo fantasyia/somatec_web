@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { SITE } from '@/lib/constants/site';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { lerPosts } from '@/lib/blog/fonte';
+import { autoresComPagina } from '@/lib/constants/autores';
 
 // Sempre fresco: o cache de build persistente do Railway (.next/cache) já
 // serviu sitemap com dados velhos do banco (URLs /a-msm removidas). Sitemap é
@@ -50,7 +52,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/faq`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/contato`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/representantes`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${base}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
   ];
+
+  // ── BLOG ─────────────────────────────────────────────────────────────
+  // O sitemap não conhecia o blog: nem o índice, nem um artigo sequer. Ele
+  // listava só as páginas institucionais e a tabela `pages` (do admin que
+  // saiu, e vazia). No go-live isso deixaria o motor de SEO inteiro fora do
+  // arquivo que o Google usa pra descobrir URL — e a falha é muda.
+  //
+  // Sai da MESMA fonte que renderiza o blog, então artigo publicado no CMS
+  // entra aqui sozinho. Se o banco não responder, `lerPosts` cai no arquivo e
+  // o sitemap sai com o que houver, em vez de quebrar.
+  let blogEntries: MetadataRoute.Sitemap = [];
+  let autorEntries: MetadataRoute.Sitemap = [];
+  try {
+    const posts = await lerPosts();
+    blogEntries = posts.map((post) =>
+      toEntry(`${base}/blog/${post.slug}`, post.publicadoEm || new Date().toISOString(), {
+        priority: 0.7,
+        freq: 'monthly',
+      }),
+    );
+    // Página de autor só entra se a pessoa tem artigo publicado — perfil sem
+    // conteúdo é página fina, e página fina no sitemap atrapalha em vez de
+    // ajudar.
+    if (posts.length > 0) {
+      autorEntries = autoresComPagina().map((a) =>
+        toEntry(`${base}/autor/${a.slug}`, new Date().toISOString(), {
+          priority: 0.4,
+          freq: 'monthly',
+        }),
+      );
+    }
+  } catch {
+    // sitemap sem o blog é ruim, sitemap quebrado é pior
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
   const hasValidConfig = supabaseUrl.startsWith('https://') && supabaseUrl.includes('.supabase.');
@@ -77,7 +114,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   // Destinos de redirects 301 (URLs canônicas) — dedup contra entries já conhecidas.
-  const knownUrls = new Set([...staticEntries, ...dynamicEntries].map((e) => e.url));
+  const knownUrls = new Set(
+    [...staticEntries, ...dynamicEntries, ...blogEntries, ...autorEntries].map((e) => e.url),
+  );
   const redirectEntries: MetadataRoute.Sitemap = redirects301
     .map((r) => {
       const url = r.to_path.startsWith('http') ? r.to_path : `${base}${r.to_path}`;
@@ -87,5 +126,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
     .filter((e): e is MetadataRoute.Sitemap[0] => e !== null);
 
-  return [...staticEntries, ...dynamicEntries, ...redirectEntries];
+  return [...staticEntries, ...blogEntries, ...autorEntries, ...dynamicEntries, ...redirectEntries];
 }

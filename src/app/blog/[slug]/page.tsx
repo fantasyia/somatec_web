@@ -65,7 +65,8 @@ export async function generateMetadata({
     title: `${post.titulo} | Blog Somatec`,
     description: post.excerpt,
     alternates: { canonical: `/blog/${post.slug}` },
-    robots: { index: false, follow: true },
+    // Env, não hardcoded — ver comentário em src/app/blog/page.tsx.
+    robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
     openGraph: {
       title: post.titulo,
       description: post.excerpt,
