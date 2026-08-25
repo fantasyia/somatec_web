@@ -47,9 +47,10 @@ function safeUrl(url: string, fallback = 'https://somatecblocking.com.br') {
 }
 
 /**
- * Metadata gerado dinamicamente — lê de site_settings (editável em
- * /admin/seo) com fallback para constantes em lib/constants/site.ts.
- * Cache via unstable_cache no loader; invalida quando admin salva.
+ * Metadata gerado dinamicamente — lê de site_settings (escrito direto no
+ * Supabase pela sessão do site) com fallback para constantes em
+ * lib/constants/site.ts. Cache via unstable_cache no loader (revalidate 1h);
+ * pra valer na hora: POST /api/revalidate?tag=site_settings.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoSettings();

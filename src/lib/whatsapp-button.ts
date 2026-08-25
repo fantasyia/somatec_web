@@ -12,7 +12,8 @@ const log = createLogger('whatsapp-button');
 //
 // Chave persistente: site_settings['whatsapp_button']
 // Lido no root layout via unstable_cache (tag: 'whatsapp_button').
-// Atualizado via /admin/whatsapp → revalidateTag('whatsapp_button').
+// Escrito direto no Supabase pela sessão do site (o painel /admin saiu em
+// 25/08). Pra valer na hora: POST /api/revalidate?tag=whatsapp_button.
 // =============================================================================
 
 export const whatsAppButtonSchema = z.object({
@@ -26,8 +27,8 @@ export type WhatsAppButtonConfig = z.infer<typeof whatsAppButtonSchema>;
 
 // LIGADO por padrão, com o número comercial real (Léo, 21/08). Antes vinha
 // desligado e sem número, então o botão flutuante simplesmente nunca aparecia —
-// dependia de alguém lembrar de configurar em /admin/whatsapp. O admin continua
-// mandando: se existir config salva, ela vence.
+// dependia de alguém lembrar de configurar no painel. A tabela continua
+// mandando: se existir config salva em site_settings, ela vence.
 export const WHATSAPP_BUTTON_DEFAULT: WhatsAppButtonConfig = {
   enabled: true,
   number: CONTACT.whatsappDigits,
@@ -41,7 +42,8 @@ function hasValidSupabaseConfig(): boolean {
 
 /**
  * Lê a config do WhatsApp button. Falha silenciosa retorna default (button off).
- * Cached por tag — invalidação via revalidateTag('whatsapp_button') após save.
+ * Cached por tag (+ revalidate de 1h) — pra valer na hora depois de escrever
+ * no Supabase: POST /api/revalidate?tag=whatsapp_button.
  */
 export const getWhatsAppButtonConfig = unstable_cache(
   async (): Promise<WhatsAppButtonConfig> => {

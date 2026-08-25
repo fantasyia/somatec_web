@@ -48,7 +48,6 @@ async function getComponents(): Promise<ComponentStatus[]> {
     return [
       { name: 'Site', status: 'operational', description: 'Páginas carregam normalmente.' },
       { name: 'Formulários', status: 'down', description: 'Configuração de backend ausente.' },
-      { name: 'Painel admin', status: 'down', description: 'Configuração de backend ausente.' },
     ];
   }
 
@@ -81,16 +80,10 @@ async function getComponents(): Promise<ComponentStatus[]> {
   }
   const forms: ComponentStatus = { name: 'Formulários de contato', status: formsStatus, description: formsDesc };
 
-  // Painel admin: depende do Supabase
-  const admin: ComponentStatus = {
-    name: 'Painel administrativo',
-    status: supabase.ok ? 'operational' : 'down',
-    description: supabase.ok
-      ? 'Login e edição de conteúdo disponíveis.'
-      : 'Banco de dados temporariamente indisponível.',
-  };
-
-  return [site, forms, admin];
+  // O painel administrativo saiu do site em 25/08 — não é mais um componente
+  // desta página. O conteúdo passou a ser editado pela sessão do site, direto
+  // no Supabase; o blog tem o seu próprio painel, fora daqui.
+  return [site, forms];
 }
 
 function overall(components: ComponentStatus[]): ComponentStatus['status'] {

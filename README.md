@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/fantasyia/site-msm/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fantasyia/site-msm/actions/workflows/ci.yml)
 
-Site institucional + CMS para a MSM Alimentos, com formulários integrados ao MullerBot, painel administrativo completo e deploy na Railway.
+Site institucional para a MSM Alimentos, com formulários integrados ao MullerBot e deploy na Railway. O painel `/admin` saiu em 25/08: o blog é editado no Mini WordPress e o resto do conteúdo vai por código ou escrita direta no Supabase.
 
 ## Stack
 
@@ -76,12 +76,6 @@ SENTRY_DSN=https://<key>@<host>/<project>
 Quando setado, todos os `log.error(...)` viram automaticamente eventos no Sentry (fire-and-forget, ~0 overhead). Ausente vira no-op.
 
 Opcional para retenção de audit log (default 90 dias):
-
-```
-AUDIT_RETENTION_DAYS=90
-```
-
-`/api/cron/audit-archive` apaga `admin_activity_log.created_at < now() - AUDIT_RETENTION_DAYS` em batches de 1000. Roda 1x/dia (`30 3 * * *`). Para LGPD: minimização de dados, sem requisito legal de manter logs administrativos de CMS interno por longo prazo. Dry-run: `?dry-run=true`.
 
 Opcional para alertas de health monitoring:
 
@@ -187,10 +181,9 @@ Inclui `010-demo-content.sql` que popula o site com **conteúdo realista de demo
 26 tabelas, 49 RLS policies, 23 triggers `set_updated_at`. Estrutura aplicada via `scripts/apply-migrations.mjs` (idempotente).
 
 Tabelas críticas:
-- `admin_profiles` — quem pode acessar `/admin`
 - `webhook_retry_queue` — fila técnica de envio para MullerBot (não é interface de leads)
-- `admin_activity_log` — audit log de mudanças no CMS
-- `site_settings` — chaves JSON versionadas (cookie banner, LGPD, etc.)
+- `site_settings` — chaves JSON versionadas (cookie banner, LGPD, SEO, botão WhatsApp)
+- `admin_profiles` / `admin_activity_log` — órfãs desde 25/08 (o painel que as usava saiu); ainda existem no banco, sem leitor nem escritor
 - `redirects` — gerenciados pelo middleware com cache em memória 5min
 
 ## Deploy
@@ -202,13 +195,12 @@ Tabelas críticas:
 3. **Não defina `PORT` manualmente** — Railway injeta automaticamente
 4. Em **Settings → Networking**, verifique a Target Port (deve bater com a `PORT` injetada — checar nos Deploy Logs com `Local: http://...:XXXX`)
 5. O `railway.json` configura builder NIXPACKS + startCommand `npm start`
-6. Configure os 3 **Cron Jobs** no Railway (cada um como service separado ou via Railway Cron) com header `Authorization: Bearer $CRON_SECRET`:
+6. Configure os 2 **Cron Jobs** no Railway (cada um como service separado ou via Railway Cron) com header `Authorization: Bearer $CRON_SECRET`:
 
 | Schedule | Endpoint | Função |
 |---|---|---|
 | `*/5 * * * *` | `/api/cron/process-webhook-queue` | Drena fila de retry MullerBot |
 | `*/5 * * * *` | `/api/cron/health-monitor` | Avalia thresholds e envia webhook se algo passa |
-| `30 3 * * *` | `/api/cron/audit-archive` | Apaga `admin_activity_log` > retention (90 dias) |
 
 ### Gotchas conhecidas
 - **`output: 'standalone'` no Next.js + Nixpacks** dá problemas de assets — usar `npm start` simples
@@ -240,32 +232,25 @@ Também é possível colar o conteúdo em [editor.swagger.io](https://editor.swa
 | `/api/csp-report` | Receptor de violações CSP (level 2 + 3). Loga + incrementa `msm_csp_violations_total{directive}` |
 | `/api/webhooks/mullerbot` | Receiver de callbacks inbound do MullerBot (auth HMAC, idempotente). Persiste em `mullerbot_callbacks` |
 | `/api/cron/health-monitor` | Avalia thresholds e dispara webhook se algo passa (auth `CRON_SECRET`, dedup Redis) |
-| `/api/cron/audit-archive` | Apaga `admin_activity_log` > retention (default 90 dias). Suporta `?dry-run=true` |
-| `/api/admin/audit-trail` | Export do audit log com filtros (date range, user, action, table); JSON ou CSV (`?format=csv`) |
-| `/api/admin/audit-stats` | Agregações: top actions/tables/users + série diária. Auth admin |
 | `/api/revalidate` | POST com `Authorization: Bearer $REVALIDATE_SECRET` + `?path=/x` ou `?tag=foo` para purgar cache |
 | `/api/cron/process-webhook-queue` | Cron processador da fila MullerBot (auth via `Authorization: Bearer $CRON_SECRET`) |
 | `/api-docs` | Swagger UI interativo do OpenAPI 3.1 |
-| `/status` | Página pública de status (Site / Formulários / Painel admin) |
-| `/admin/login` | Painel administrativo |
+| `/status` | Página pública de status (Site / Formulários) |
 
 ## Arquitetura
 
 ```
 src/
 ├── app/                      # rotas Next App Router
-│   ├── admin/                # CMS (14 módulos)
 │   ├── api/                  # rotas server
 │   ├── (institucional)/      # páginas públicas
 │   └── layout.tsx            # root layout (footer/cookie banner do DB)
 ├── components/
 │   ├── home/                 # seções da home
 │   ├── layout/               # Header, Footer, PageHero, CookieBanner
-│   ├── forms/                # forms com Turnstile + Zod
-│   └── admin/                # UI do admin
+│   └── forms/                # forms com Turnstile + Zod
 ├── lib/
 │   ├── supabase/             # clients (client, server, admin, middleware)
-│   ├── admin/                # auth, audit, CRUD genérico
 │   ├── forms/                # schemas Zod
 │   ├── mullerbot/            # payload + cliente HTTP
 │   ├── webhook-queue/        # fila de retry
@@ -337,11 +322,10 @@ Headers expostos (visíveis ao JS do browser via `getResponseHeader`):
 
 ### Idempotência
 
-Endpoints públicos e admin aceitam header `Idempotency-Key: <8-128 chars alfanuméricos>`:
+Endpoints públicos aceitam header `Idempotency-Key: <8-128 chars alfanuméricos>`:
 
 - `POST /api/forms/submit`
 - `POST /api/lgpd/consent`
-- `POST/PUT/DELETE /api/admin/*` (todos os 13 endpoints CRUD genéricos)
 
 Comportamento:
 - Primeira chamada: processa normalmente e cacheia resposta (24h em Redis)
@@ -349,7 +333,6 @@ Comportamento:
 
 Útil para:
 - Forms: evitar submissão duplicada em retries (rede instável, refresh acidental)
-- Admin: prevenir inserts/updates duplos por double-click ou PJAX retry
 
 Se Upstash não estiver configurado, vira no-op (sem validação de duplicação).
 
@@ -383,12 +366,11 @@ Alertas sugeridos em Grafana/Prometheus:
 
 ### Rate limiting
 
-3 camadas em `/admin/login`:
-- Burst: 5/min por IP
-- Janela: 10/15min por IP
-- Por email: 5/h (anti credential stuffing)
+Forms públicos: 5/h por IP.
 
-Forms públicos: 5/h por IP. Respostas 429 incluem `Retry-After`, `X-RateLimit-Remaining` e `X-RateLimit-Reset` (RFC 7231).
+As 3 camadas de login (burst 5/min por IP, janela 10/15min por IP, 5/h por email)
+continuam em `src/lib/ratelimit/upstash.ts`, mas ficaram sem chamador quando o
+`/admin/login` saiu. Respostas 429 incluem `Retry-After`, `X-RateLimit-Remaining` e `X-RateLimit-Reset` (RFC 7231).
 
 ## Licença
 

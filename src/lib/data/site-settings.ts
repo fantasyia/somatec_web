@@ -8,12 +8,14 @@ const log = createLogger('site-settings-runtime');
 // =============================================================================
 // Loader unificado de site_settings consumido pelo runtime do site público.
 //
-// Mantém o admin (BLOCO F) com efeito real: o que você edita em
-// /admin/configuracoes e /admin/seo passa a refletir no <head>, footer,
-// analytics, etc.
+// O que está na tabela site_settings reflete no <head>, footer, analytics etc.
+// O painel /admin saiu em 25/08: quem escreve agora é a sessão do site, direto
+// no Supabase.
 //
-// Cache: unstable_cache com tag 'site_settings' — invalida quando o admin
-// salva (já é o caso em /api/admin/settings/route.ts).
+// Cache: unstable_cache com tag 'site_settings' E revalidate de 1h. Depois de
+// escrever, ou você espera a hora, ou força na hora:
+//
+//   POST /api/revalidate?tag=site_settings   (Bearer REVALIDATE_SECRET)
 // =============================================================================
 
 export type Socials = {

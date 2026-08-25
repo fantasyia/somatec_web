@@ -65,8 +65,11 @@
 ## Não coberto nesta passagem
 Variações de templates já validados — listagens filtradas (produtos por categoria/marca/aplicação; receitas por categoria/produto), página de blog ("em breve"), política de cookies. Usam os mesmos componentes (PageHero, grid de cards, accordion) já checados.
 
-## Fase 2 — Admin (pendente)
-Passe visual nos módulos do `/admin` (só navegação/leitura, sem alterar dados) — requer login. Quando quiser, é só logar no Chrome conectado e avisar.
+## Fase 2 — Admin (cancelada)
+> **25/08:** o painel `/admin` saiu do site. Esta fase não vai acontecer — fica registrada
+> só como histórico do que estava planejado quando o relatório foi escrito.
+
+Passe visual nos módulos do `/admin` (só navegação/leitura, sem alterar dados) — requer login.
 
 ---
 

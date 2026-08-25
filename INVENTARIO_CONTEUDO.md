@@ -506,6 +506,10 @@ Biblioteca: **lucide-react** (Lucide). Usados nos componentes principais:
 
 ### 1.5 — Painel admin (19 módulos implementados)
 
+> **25/08 — histórico.** O painel `/admin` foi removido do site. O que está descrito
+> abaixo (módulos, auth, AdminShell, upload de mídia em `/admin/midias`) não existe mais.
+> Conteúdo agora: blog no Mini WordPress, resto por código ou escrita direta no Supabase.
+
 #### Infraestrutura
 
 - **Auth:** Supabase Auth + tabela `admin_profiles` (active=true required)

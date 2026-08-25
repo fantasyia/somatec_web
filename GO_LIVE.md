@@ -38,23 +38,14 @@ exige login web (config persistente sensível). É ação sua.
 
 ---
 
-## 2. 🔴 Supabase Auth — Site URL + Redirect (reset de senha)  *(pendência #14)*
+## 2. ✅ Supabase Auth — Site URL + Redirect (reset de senha)  *(pendência #14 — caiu)*
 
-O fluxo "esqueci minha senha" do admin manda um e-mail com link de redirect. Sem a
-**Site URL** e os **Redirect URLs** configurados no Supabase, o link aponta pro lugar
-errado (ou `localhost`) e o reset não funciona em produção.
+Item **cancelado em 25/08**: o painel `/admin` saiu do site, e com ele o login e o fluxo
+de "esqueci minha senha". Não há mais link de reset pra apontar pra lugar nenhum, então
+não é preciso configurar Redirect URL nem SMTP no Supabase por causa disto.
 
-**Por que não fiz:** é config no **painel do Supabase** (não tenho acesso) e depende da
-URL definitiva (ver item 6).
-
-- [ ] Supabase → *Authentication → URL Configuration*:
-  - **Site URL** = a URL pública do site (provisória: `https://site-msm-production.up.railway.app`)
-  - **Redirect URLs** → adicione `https://<sua-url>/admin/redefinir-senha` (e a versão
-    com a URL definitiva quando tiver)
-- [ ] **SMTP próprio** (recomendado): Supabase → *Project Settings → Auth → SMTP Settings*.
-  O SMTP padrão do Supabase tem limite baixo e baixa entregabilidade — para reset de senha
-  confiável, configure um provedor (Resend, SendGrid, SES, Brevo…). Precisa de host/porta/
-  usuário/senha do provedor (credenciais suas).
+O blog é editado no Mini WordPress (fora deste site) e o restante do conteúdo vai por
+código ou escrita direta no Supabase pela sessão do site.
 
 ---
 
@@ -77,7 +68,8 @@ projeto separado, precisa rodar lá.
     ```
     Connection string em: Supabase (projeto de prod) → *Project Settings → Database →
     Connection string → URI*.
-- [ ] Conferir: admin → `/admin/configuracoes → Certificações` deve listar os 4 selos.
+- [ ] Conferir os 4 selos: `select value from site_settings where key = 'certifications';`
+  (o painel que mostrava isso saiu em 25/08 — a conferência agora é no Supabase).
 
 ---
 
@@ -119,7 +111,8 @@ arquivos de uso.
 
 - [ ] Obter os SVGs/PNGs oficiais (ou só os que a MSM realmente possui).
 - [ ] Opção A: substituir os arquivos em `public/certifications/` mantendo os mesmos nomes.
-- [ ] Opção B: subir no admin → `/admin/configuracoes → Certificações` (editar label + URL).
+- [ ] Opção B: editar a chave `certifications` em `site_settings` (label + URL) direto no
+  Supabase e depois `POST /api/revalidate?tag=site_settings` pra valer na hora.
 - [ ] **Importante:** exiba apenas selos que a MSM efetivamente possui (risco legal/reputação).
 
 ---
