@@ -29,31 +29,10 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Páginas de auth públicas do admin: precisam ser acessíveis SEM sessão
-  // (login + recuperação de senha). O resto de /admin/* é protegido.
-  const isPublicAdminPath =
-    pathname === '/admin/login' ||
-    pathname === '/admin/esqueci-senha' ||
-    pathname === '/admin/redefinir-senha';
-
-  // Protect /admin/* routes (except the public auth pages above)
-  if (pathname.startsWith('/admin') && !isPublicAdminPath) {
-    const response = await updateSession(request);
-
-    // requireAdmin() in the layout is the real guard; this early check avoids
-    // rendering the admin shell for clearly unauthenticated requests.
-    const hasSession =
-      request.cookies.getAll().some((c) => c.name.includes('auth-token')) ||
-      request.cookies.getAll().some((c) => c.name.startsWith('sb-'));
-
-    if (!hasSession) {
-      const loginUrl = new URL('/admin/login', request.url);
-      loginUrl.searchParams.set('next', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    return response;
-  }
+  // O /admin do site saiu (decisão do Léo, 25/08): o painel do blog é o Mini
+  // WordPress, e o resto do que ele editava passa a ser mexido por código.
+  // A proteção de rota que existia aqui virou desnecessária — sem as páginas,
+  // /admin/* é 404 como qualquer outra rota inexistente.
 
   return await updateSession(request);
 }
