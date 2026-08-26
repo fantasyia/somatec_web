@@ -152,6 +152,10 @@ export const HEADER_NAV: NavItem[] = [
 // quer falar com gente, não preencher formulário. O formulário de /contato
 // continua existindo pra quem prefere escrever.
 export const HEADER_CTAS = {
+  // Discreto de propósito: link de texto, não botão. Quem já comprou volta ao
+  // site atrás de UMA coisa — onde está o pedido — e precisa achar rápido.
+  // Mas é minoria do tráfego, e não pode competir com o CTA de venda.
+  pedido: { label: 'Acompanhar pedido', href: '/pedido' },
   representative: { label: 'Área do Representante', href: '/login' },
   commercial: {
     label: 'Fale com o Comercial',

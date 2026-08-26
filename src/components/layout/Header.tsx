@@ -25,6 +25,7 @@ import {
   Home,
   Store,
   Handshake,
+  PackageSearch,
   type LucideIcon,
 } from 'lucide-react';
 import { HEADER_NAV, HEADER_CTAS } from '@/lib/constants/navigation';
@@ -339,6 +340,24 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
 
         {/* CTAs + Theme toggle */}
         <div className="flex items-center gap-3">
+          {/* Link de texto, não botão: quem já comprou acha, e quem ainda não
+              comprou não é puxado pra longe do CTA de venda. */}
+          <Link
+            href={HEADER_CTAS.pedido.href}
+            className={cn(
+              'hidden lg:inline-flex items-center gap-1.5 font-sans text-sm transition-colors',
+              isTransparent
+                // Sobre o hero o link fica em cima de FOTO, e a foto tem parte
+                // clara: texto branco solto some ali. Os dois botões ao lado
+                // sobrevivem porque têm borda e preenchimento — este precisa
+                // de um fundo próprio, senão é discreto até desaparecer.
+                ? 'rounded-btn bg-black/25 px-2.5 py-1.5 text-white/90 backdrop-blur-sm hover:bg-black/35 hover:text-white'
+                : 'text-[rgb(var(--text-muted))] hover:text-cyan',
+            )}
+          >
+            <PackageSearch className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+            {HEADER_CTAS.pedido.label}
+          </Link>
           <Link
             href={HEADER_CTAS.representative.href}
             className={cn(
@@ -436,6 +455,13 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
                 </div>
               ))}
               <div className="pt-6 mt-6 border-t border-[rgb(var(--border))] space-y-3">
+                <Link
+                  href={HEADER_CTAS.pedido.href}
+                  className="flex items-center gap-2 py-1 font-sans text-sm text-[rgb(var(--text-muted))] transition-colors hover:text-cyan"
+                >
+                  <PackageSearch className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                  {HEADER_CTAS.pedido.label}
+                </Link>
                 <Link href={HEADER_CTAS.representative.href} className="btn-secondary w-full text-[rgb(var(--text))]">
                   {HEADER_CTAS.representative.label}
                 </Link>
