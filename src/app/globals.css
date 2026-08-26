@@ -294,3 +294,26 @@
 .draw-path.is-drawn {
   stroke-dashoffset: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RODAPÉ COLADO QUANDO A PÁGINA TERMINA EM BANDA ESCURA.
+
+   O rodapé tem `mt-10 md:mt-20`, que serve pra respirar depois de uma
+   seção clara. Mas quando a última seção é navy, essa margem vira uma
+   FAIXA CLARA de 80px entre dois blocos escuros — o fundo do body
+   aparecendo no meio.
+
+   No `band-navy-end` é pior ainda: ele existe justamente pra ser o
+   "bookend" contínuo com o rodapé, no mesmo navy. A margem quebrava o
+   único motivo de ele existir.
+
+   `:has()` não é suportado em navegador antigo — lá a regra é ignorada
+   e volta o espaçamento de hoje. Degradar pro comportamento atual é
+   aceitável; o contrário não seria.
+   ═════════════════════════════════════════════════════════════════ */
+main:has(> :last-child.band-navy) + footer,
+main:has(> :last-child.band-navy-end) + footer,
+main:has(> :last-child > .band-navy:last-child) + footer,
+main:has(> :last-child > .band-navy-end:last-child) + footer {
+  margin-top: 0;
+}
