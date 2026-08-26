@@ -131,9 +131,9 @@ export default async function PedidoDetalhePage({
             Não achamos esse número
           </h1>
           <p className="mt-4 text-[17px] leading-[1.8] text-[rgb(var(--text-muted))]">
-            Confira se o número está igual ao do e-mail de confirmação — ele tem o formato{' '}
-            <span className="font-semibold text-[rgb(var(--text))]">SB-0000-XXXXXX</span>. Você
-            digitou{' '}
+            Confira se o número está igual ao do e-mail de confirmação — são 12 caracteres,
+            começando com <span className="font-semibold text-[rgb(var(--text))]">SB</span>, sem
+            espaço nem traço. Você digitou{' '}
             <span className="font-semibold text-[rgb(var(--text))]">
               {normalizarNumero(decodeURIComponent(numero))}
             </span>

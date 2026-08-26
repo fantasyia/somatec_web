@@ -51,7 +51,9 @@ describe.runIf(temAmbiente)('pedidos — número', () => {
     const r = await novoPedido();
     expect(r.ok, JSON.stringify(r)).toBe(true);
     if (!r.ok) return;
-    expect(r.numero).toMatch(/^SB-\d{4}-[23456789ABCDEFGHJKMNPQRSTVWXYZ]{6}$/);
+    expect(r.numero).toMatch(/^SB\d{4}[23456789ABCDEFGHJKMNPQRSTVWXYZ]{6}$/);
+    // sem hifen, sem espaco, sem nada que nao seja letra ou numero
+    expect(r.numero).not.toMatch(/[^A-Z0-9]/);
   });
 
   it('nunca repete — 30 pedidos seguidos, 30 números distintos', async () => {
@@ -69,7 +71,7 @@ describe.runIf(temAmbiente)('pedidos — número', () => {
   it('o número não carrega caractere que o cliente confunde', async () => {
     // I, L, O, U, 0 e 1 ficam de fora: são os que erram ao ditar no telefone
     for (const n of criados) {
-      expect(n.slice(8), n).not.toMatch(/[ILOU01]/);
+      expect(n.slice(6), n).not.toMatch(/[ILOU01]/);
     }
   });
 
@@ -118,7 +120,9 @@ describe.runIf(temAmbiente)('pedidos — consulta', () => {
   it('tolera o que o cliente digita de verdade', async () => {
     const { consultarPedido } = await lib();
     const alvo = criados[0];
-    for (const variante of [alvo.toLowerCase(), alvo.replace(/-/g, ''), `  ${alvo}  `]) {
+    // inclusive com hifen: alguem vai digitar assim de qualquer jeito
+    const comHifen = `${alvo.slice(0, 2)}-${alvo.slice(2, 6)}-${alvo.slice(6)}`;
+    for (const variante of [alvo.toLowerCase(), comHifen, `  ${alvo}  `, alvo.split('').join(' ')]) {
       const p = await consultarPedido(variante);
       expect(p?.numero, `variante "${variante}"`).toBe(alvo);
     }
@@ -141,7 +145,7 @@ describe.runIf(temAmbiente)('pedidos — consulta', () => {
     // Responder diferente pra "não existe" e "formato inválido" entregaria
     // quais números valem a pena tentar.
     const { consultarPedido } = await lib();
-    for (const v of ['SB-2608-ZZZZZZ', 'qualquer coisa', '', 'SB-2608-IIIIII', "' or 1=1--"]) {
+    for (const v of ['SB2608ZZZZZZ', 'qualquer coisa', '', 'SB2608IIIIII', "' or 1=1--"]) {
       expect(await consultarPedido(v), `entrada: "${v}"`).toBeUndefined();
     }
   });
@@ -199,7 +203,7 @@ describe.runIf(temAmbiente)('pedidos — status e rastreio', () => {
 
   it('pedido inexistente é recusado', async () => {
     const { atualizarStatus } = await lib();
-    const r = await atualizarStatus({ numero: 'SB-2608-ZZZZZZ', status: 'enviado' });
+    const r = await atualizarStatus({ numero: 'SB2608ZZZZZZ', status: 'enviado' });
     expect(r.ok).toBe(false);
   });
 });

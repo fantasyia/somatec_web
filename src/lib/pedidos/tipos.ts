@@ -81,19 +81,23 @@ export type PedidoPublico = {
   uf: string | null;
 };
 
-/** SB-2608-K7M2QX — o alfabeto exclui I, L, O, U, 0 e 1, que são os que o
- *  cliente confunde ao ditar por telefone ou copiar de uma nota. */
-export const PADRAO_NUMERO = /^SB-\d{4}-[23456789ABCDEFGHJKMNPQRSTVWXYZ]{6}$/;
+/** SB2608K7M2QX — SÓ letra e número, sem hífen nem separador.
+ *
+ *  Decisão do Léo (26/08): o número é ditado e digitado por gente, muitas
+ *  vezes no WhatsApp. Hífen é caractere que se erra, se troca por traço
+ *  longo, some no copiar-colar e ainda vira dúvida ("tem traço mesmo?").
+ *
+ *  O alfabeto também exclui I, L, O, U, 0 e 1 — os que se confundem entre si
+ *  ao ditar ou ao ler de uma nota. */
+export const PADRAO_NUMERO = /^SB\d{4}[23456789ABCDEFGHJKMNPQRSTVWXYZ]{6}$/;
 
-/** Aceita o que o cliente digita de verdade: minúsculo, com espaço, sem os
- *  hífens, colado do e-mail com espaço no fim. */
+/** Aceita o que o cliente digita de verdade: minúsculo, com espaço, com hífen
+ *  (porque alguém vai colocar), colado do e-mail com espaço no fim. Tudo que
+ *  não é letra ou número simplesmente sai. */
 export function normalizarNumero(bruto: string): string {
-  const limpo = String(bruto || '')
+  return String(bruto || '')
     .toUpperCase()
     .replace(/[^0-9A-Z]/g, '');
-  // "SB2608K7M2QX" -> "SB-2608-K7M2QX"
-  const m = limpo.match(/^SB(\d{4})([0-9A-Z]{6})$/);
-  return m ? `SB-${m[1]}-${m[2]}` : String(bruto || '').trim().toUpperCase();
 }
 
 export function numeroValido(bruto: string): boolean {

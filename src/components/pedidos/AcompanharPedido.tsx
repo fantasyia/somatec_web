@@ -24,11 +24,9 @@ export function AcompanharPedido({ inicial = '' }: { inicial?: string }) {
   const [indo, setIndo] = useState(false);
 
   function aoDigitar(bruto: string) {
-    const limpo = bruto.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 12);
-    let formatado = limpo;
-    if (limpo.length > 2) formatado = `${limpo.slice(0, 2)}-${limpo.slice(2)}`;
-    if (limpo.length > 6) formatado = `${limpo.slice(0, 2)}-${limpo.slice(2, 6)}-${limpo.slice(6)}`;
-    setValor(formatado);
+    // Só letra e número. Se a pessoa colar com hífen ou espaço, some sozinho
+    // em vez de acusar erro — o número não tem separador nenhum.
+    setValor(bruto.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 12));
     if (erro) setErro(null);
   }
 
@@ -36,7 +34,7 @@ export function AcompanharPedido({ inicial = '' }: { inicial?: string }) {
     e.preventDefault();
     const numero = normalizarNumero(valor);
     if (!numeroValido(numero)) {
-      setErro('Confira o número. Ele tem o formato SB-0000-XXXXXX e está no e-mail de confirmação do pedido.');
+      setErro('Confira o número. Ele tem 12 caracteres, começa com SB e está no e-mail de confirmação do pedido.');
       return;
     }
     setIndo(true);
@@ -49,7 +47,7 @@ export function AcompanharPedido({ inicial = '' }: { inicial?: string }) {
         Número do pedido
       </label>
       <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">
-        Está no e-mail de confirmação, no formato <span className="font-semibold">SB-0000-XXXXXX</span>.
+        Está no e-mail de confirmação. São 12 caracteres, sem espaço nem traço.
       </p>
 
       <div className="mt-3 flex flex-col gap-3 sm:flex-row">
@@ -58,7 +56,7 @@ export function AcompanharPedido({ inicial = '' }: { inicial?: string }) {
           name="numero"
           value={valor}
           onChange={(e) => aoDigitar(e.target.value)}
-          placeholder="SB-2608-K7M2QX"
+          placeholder="SB2608K7M2QX"
           autoComplete="off"
           autoCapitalize="characters"
           spellCheck={false}
