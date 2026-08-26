@@ -198,6 +198,9 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
     title: 'Contato',
     links: [
       { label: 'Fale com o comercial', href: '/contato' },
+      // Quem já comprou volta ao site atrás de UMA coisa: onde está o pedido.
+      // Se não achar em 5 segundos, vira mensagem no WhatsApp.
+      { label: 'Acompanhar pedido', href: '/pedido' },
       { label: 'Proteção pra minha casa', href: '/protecao-residencial' },
       { label: 'Proteção pro meu negócio', href: '/protecao-comercial' },
       { label: 'Perguntas frequentes', href: '/faq' },

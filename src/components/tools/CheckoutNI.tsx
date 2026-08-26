@@ -297,6 +297,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
 
   const [status, setStatus] = useState<FormStatusKind>('idle');
   const [message, setMessage] = useState<string | null>(null);
+  /** Número do pedido, quando o checkout virou pedido de verdade. */
+  const [numeroDoPedido, setNumeroPedido] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState('');
 
   // A corrente pode chegar pronta pelo link que a IA manda no WhatsApp
@@ -491,6 +493,47 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
         : '');
     const resumoLimpo = resumo.replace(/\s+/g, ' ').trim();
 
+    // ── NÚMERO DO PEDIDO ──────────────────────────────────────────────
+    // Só pedido fechado ganha número. Orçamento é lead morno, ainda não
+    // existe pedido pra acompanhar — dar número aí prometeria uma tela de
+    // rastreio que não teria o que mostrar.
+    //
+    // Vem ANTES do lead de propósito: se o registro falhar, o cliente não
+    // recebe um "pedido confirmado" sem ter como consultar depois.
+    let numeroPedido: string | null = null;
+    if (virouPedido) {
+      try {
+        const resp = await fetch('/api/pedidos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: contato.nome,
+            email: contato.email,
+            whatsapp: contato.whatsapp,
+            empresa: contato.empresa || null,
+            itens: itensCarrinho.map((i) => ({
+              descricao: i.quadro,
+              modelo: i.modelo?.model ?? null,
+              quantidade: 1,
+              precoCentavos: Math.round((i.modelo?.preco ?? 0) * 100),
+            })),
+            totalCentavos: Math.round(totalPedido * 100),
+            freteCentavos: Math.round((Number.isFinite(frete.valor) ? frete.valor : 0) * 100),
+            formaPagamento: FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? pagamento,
+            endereco,
+            setor,
+            origem: `site:${landingSlug}`,
+          }),
+        });
+        const j = (await resp.json()) as { ok?: boolean; numero?: string | null };
+        if (j?.ok && j.numero) numeroPedido = j.numero;
+      } catch {
+        // Registro do pedido falhou. O lead ainda vai pro CRM logo abaixo, e
+        // a equipe fecha na mão — a venda não se perde. O que muda é a
+        // mensagem final, que não promete acompanhamento que não existe.
+      }
+    }
+
     const r = await enviarLeadOrcamento({
       formulario: virouPedido ? 'checkout-ni-pedido' : 'checkout-ni-orcamento',
       nome: contato.nome,
@@ -500,7 +543,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       segmento: `NI · ${setor}`,
       // A LP já define o público — o lead sai roteável sem perguntar de novo.
       publico: setor === 'residencial' ? 'residencia' : 'comercio',
-      resumo: resumoLimpo,
+      resumo: numeroPedido ? `[Pedido ${numeroPedido}] ${resumoLimpo}` : resumoLimpo,
       sourcePage: `/${landingSlug}`,
       lgpdConsent: fd.get('lgpd_consent') === 'on',
       honeypot: fd.get('website'),
@@ -509,6 +552,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
 
     if (r.ok) {
       setStatus('success');
+      setNumeroPedido(numeroPedido);
       setMessage(
         virouPedido
           ? `Pedido registrado! Você vai receber a confirmação por e-mail e nossa equipe finaliza o pedido com você (${
@@ -519,7 +563,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       trackEvent(virouPedido ? 'checkout_pedido' : 'calc_lead', {
         setor,
         landing: landingSlug,
-        ...(virouPedido ? { total: totalPedido, pagamento } : {}),
+        ...(virouPedido ? { total: totalPedido, pagamento, pedido: numeroPedido ?? 'sem-numero' } : {}),
       });
     } else {
       setStatus('error');
@@ -538,6 +582,28 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       rotuloSucesso="Pronto"
       status={status}
       mensagem={message}
+      sucessoExtra={
+        numeroDoPedido ? (
+          <div className="rounded-card-lg border border-cyan/30 bg-cyan/5 p-5">
+            <p className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">
+              Número do pedido
+            </p>
+            <p className="mt-1.5 font-serif text-2xl font-semibold tracking-wide text-[rgb(var(--text))]">
+              {numeroDoPedido}
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+              Guarde este número — é com ele que você acompanha a entrega. Ele também vai no
+              e-mail de confirmação.
+            </p>
+            <a
+              href={`/pedido/${numeroDoPedido}`}
+              className="mt-4 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan transition-opacity hover:opacity-80"
+            >
+              Acompanhar meu pedido →
+            </a>
+          </div>
+        ) : null
+      }
       podeAvancar={podeAvancar()}
       motivoBloqueio={motivoBloqueio()}
       onVoltar={() => irPara(passo - 1)}

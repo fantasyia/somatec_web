@@ -402,6 +402,41 @@ export interface Database {
     Views: Record<string, never>;
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      // Pedidos: a tabela tem RLS sem políticas (invisível pra chave anon), e
+      // todo acesso passa por estas funções SECURITY DEFINER.
+      criar_pedido: {
+        Args: {
+          p_nome: string;
+          p_email: string;
+          p_whatsapp?: string | null;
+          p_empresa?: string | null;
+          p_itens?: unknown;
+          p_total_centavos?: number;
+          p_frete_centavos?: number;
+          p_forma_pagamento?: string | null;
+          p_endereco?: unknown;
+          p_setor?: string | null;
+          p_origem?: string | null;
+        };
+        /** O número gerado (SB-AAMM-XXXXXX). */
+        Returns: string;
+      };
+      consultar_pedido: {
+        Args: { p_numero: string };
+        Returns: Record<string, unknown>[];
+      };
+      atualizar_status_pedido: {
+        Args: {
+          p_segredo: string;
+          p_numero: string;
+          p_status: string;
+          p_nota?: string | null;
+          p_transportadora?: string | null;
+          p_rastreio_codigo?: string | null;
+          p_rastreio_url?: string | null;
+        };
+        Returns: Record<string, unknown>[];
+      };
     };
     Enums: Record<string, never>;
   };

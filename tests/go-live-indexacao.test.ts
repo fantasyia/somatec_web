@@ -26,6 +26,12 @@ const SEMPRE_FORA_DO_INDICE = [
   // O layout raiz é caso à parte, e o teste abaixo cuida dele: o default
   // global não vem do env, vem de `site_settings.robots_index` no banco.
   'src/app/layout.tsx',
+  // Pedido: noindex PERMANENTE, não é trava de pré-lançamento.
+  // `/pedido/<numero>` é a página de um cliente específico — não pode entrar
+  // em buscador nunca. `/pedido` é serviço, não conteúdo: indexar ela não
+  // traz ninguém, e ainda concorreria com o blog pela atenção do rastreador.
+  'src/app/pedido/page.tsx',
+  'src/app/pedido/[numero]/page.tsx',
 ];
 
 function paginasDoApp(): string[] {
@@ -116,5 +122,28 @@ describe('go-live: o sitemap conhece o blog', () => {
     // Sitemap sem o blog é ruim; sitemap com erro 500 é pior — o Google
     // desiste do arquivo inteiro.
     expect(sitemap()).toMatch(/try\s*\{[\s\S]*lerPosts[\s\S]*\}\s*catch/);
+  });
+});
+
+describe('pedido — noindex é permanente, não trava de lançamento', () => {
+  it('a página de um pedido nunca pode ser indexada nem seguida', () => {
+    // Se alguém "consertar" isso achando que é a trava de pré-lançamento, a
+    // página de pedido de cliente entra no Google.
+    const fonte = readFileSync(resolve(process.cwd(), 'src/app/pedido/[numero]/page.tsx'), 'utf-8');
+    expect(fonte).toMatch(/index:\s*false/);
+    expect(fonte).toMatch(/follow:\s*false/);
+    expect(fonte).not.toMatch(/SITE_NOINDEX/);
+  });
+
+  it('a página do pedido não pode ser cacheada', () => {
+    // Status servido de cache mostraria "em separação" pra quem já recebeu.
+    const fonte = readFileSync(resolve(process.cwd(), 'src/app/pedido/[numero]/page.tsx'), 'utf-8');
+    expect(fonte).toMatch(/dynamic\s*=\s*'force-dynamic'/);
+    expect(fonte).toMatch(/revalidate\s*=\s*0/);
+  });
+
+  it('pedido não entra no sitemap', () => {
+    const sitemap = readFileSync(resolve(process.cwd(), 'src/app/sitemap.ts'), 'utf-8');
+    expect(sitemap).not.toMatch(/\/pedido/);
   });
 });
