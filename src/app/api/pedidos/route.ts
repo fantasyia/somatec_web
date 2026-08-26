@@ -7,6 +7,8 @@ import { getClientIp } from '@/lib/http/client-ip';
 import { apiVersionHeaders } from '@/lib/http/headers';
 import { trackRequest } from '@/lib/metrics/registry';
 import { createLogger } from '@/lib/logger';
+import { enviarEmail } from '@/lib/email/enviar';
+import { assuntoPedido, htmlPedido, textoPedido } from '@/lib/email/pedido-confirmado';
 
 const log = createLogger('api-pedidos');
 const ROUTE = '/api/pedidos';
@@ -108,6 +110,23 @@ export async function POST(req: NextRequest) {
   }
 
   log.info('pedido registrado', { numero: r.numero });
+
+  // Confirmação por e-mail. É AVISO, não é a transação: o pedido já existe e
+  // o número já vai na resposta. Por isso o envio é aguardado mas o resultado
+  // é ignorado — falhar aqui não pode transformar um pedido bom em erro na
+  // tela do cliente.
+  //
+  // Aguardado, e não disparado solto, porque em serverless a função pode ser
+  // congelada assim que a resposta sai: "fire and forget" viraria "forget".
+  const endereco = dados.endereco as { cidade?: string; uf?: string };
+  await enviarEmail({
+    para: dados.email,
+    assunto: assuntoPedido(r.numero),
+    html: htmlPedido({ ...dados, numero: r.numero, cidade: endereco?.cidade, uf: endereco?.uf }),
+    texto: textoPedido({ ...dados, numero: r.numero }),
+    marcador: `pedido:${r.numero}`,
+  });
+
   trackRequest(ROUTE, 201);
   return NextResponse.json(
     { ok: true, numero: r.numero },
