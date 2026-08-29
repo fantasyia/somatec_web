@@ -5,8 +5,10 @@ import { notFound } from 'next/navigation';
 import { ChevronRight, Clock, Zap } from 'lucide-react';
 import { ArticleToc } from '@/components/blog/ArticleToc';
 import { BlogCard } from '@/components/blog/BlogCard';
+import { BlocosArtigo } from '@/components/blog/BlocosArtigo';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { type BlogPost } from '@/lib/constants/blog';
+import { blocosDaSecao } from '@/lib/constants/blog-content';
 import { lerAssinatura, lerConteudo, lerHtmlBruto, lerPost, lerPosts } from '@/lib/blog/fonte';
 import { extrairJsonLd } from '@/lib/blog/html-para-artigo';
 import { AuthorBox, BylineArtigo } from '@/components/blog/AssinaturaArtigo';
@@ -283,21 +285,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   >
                     {sec.titulo}
                   </h2>
-                  {sec.paragrafos.map((p, i) => (
-                    <p key={i} className="mb-4 text-[17px] leading-[1.85] text-[rgb(var(--text))]">
-                      {p}
-                    </p>
-                  ))}
+                  <BlocosArtigo blocos={blocosDaSecao(sec)} />
                   {sec.subsecoes?.map((sub, i) => (
                     <div key={i}>
                       <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))] mt-6 mb-2">
                         {sub.titulo}
                       </h3>
-                      {sub.paragrafos.map((p, j) => (
-                        <p key={j} className="mb-4 text-[17px] leading-[1.85] text-[rgb(var(--text))]">
-                          {p}
-                        </p>
-                      ))}
+                      <BlocosArtigo blocos={blocosDaSecao(sub)} />
                     </div>
                   ))}
                   {sec.imagem && (

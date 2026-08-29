@@ -16,7 +16,14 @@
 // publicação consulta pra reprovar antes de ir pro ar.
 // =============================================================================
 
-import type { ArticleContent, ArticleFaq, ArticleSection } from '@/lib/constants/blog-content';
+import type {
+  ArticleBlock,
+  ArticleContent,
+  ArticleFaq,
+  ArticleSection,
+  ArticleSubsection,
+  ArticleTable,
+} from '@/lib/constants/blog-content';
 
 /** Só o texto, com o espaçamento normalizado. */
 function texto(html: string): string {
@@ -29,6 +36,10 @@ function texto(html: string): string {
     .replace(/&quot;/gi, '"')
     .replace(/&#(\d+);/g, (_m, n) => String.fromCharCode(Number(n)))
     .replace(/\s+/g, ' ')
+    // Toda tag vira espaço — então `<strong>Sim</strong>, abaixo` sairia como
+    // "Sim , abaixo". Fica gritante em célula de tabela, que é texto curto.
+    .replace(/\s+([,.;:!?)\]])/g, '$1')
+    .replace(/([([])\s+/g, '$1')
     .trim();
 }
 
@@ -43,14 +54,84 @@ export function ancora(titulo: string): string {
     .slice(0, 60) || 'secao';
 }
 
-/** Parágrafos de um pedaço de HTML — <p> e itens de lista viram linha. */
-function paragrafos(html: string): string[] {
-  const saida: string[] = [];
-  for (const m of html.matchAll(/<(p|li)\b[^>]*>([\s\S]*?)<\/\1>/gi)) {
-    const t = texto(m[2]);
-    if (t) saida.push(m[1].toLowerCase() === 'li' ? `• ${t}` : t);
+/** As linhas de uma <table>, já com as células viradas texto.
+ *  Linha de cabeçalho = linha que só tem <th>. Tabela que usa <th> como
+ *  rótulo de linha (th + td na mesma <tr>) NÃO é cabeçalho — é dado. */
+function linhasDaTabela(html: string): { celulas: string[]; ehCabecalho: boolean }[] {
+  const saida: { celulas: string[]; ehCabecalho: boolean }[] = [];
+  for (const tr of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
+    const celulas: string[] = [];
+    let th = 0;
+    let td = 0;
+    for (const c of tr[1].matchAll(/<(t[hd])\b[^>]*>([\s\S]*?)<\/\1>/gi)) {
+      celulas.push(texto(c[2]));
+      if (c[1].toLowerCase() === 'th') th++;
+      else td++;
+    }
+    if (celulas.length) saida.push({ celulas, ehCabecalho: th > 0 && td === 0 });
   }
   return saida;
+}
+
+/** <table> → ArticleTable. `undefined` quando não sobra dado nenhum: tabela
+ *  vazia não vira bloco, senão o artigo ganha uma moldura oca. */
+function tabela(html: string): ArticleTable | undefined {
+  const linhas = linhasDaTabela(html);
+  if (!linhas.length) return undefined;
+
+  const cabecalho = linhas[0].ehCabecalho ? linhas.shift()!.celulas : [];
+  const corpo = linhas.map((l) => l.celulas);
+  if (!corpo.length && !cabecalho.length) return undefined;
+
+  // Largura única: célula faltando no HTML de origem viraria buraco no <tr>, e
+  // o navegador desalinha a coluna inteira dali pra baixo.
+  const largura = Math.max(cabecalho.length, ...corpo.map((l) => l.length));
+  const encher = (l: string[]) =>
+    l.length === largura ? l : [...l, ...Array<string>(largura - l.length).fill('')];
+
+  const cap = html.match(/<caption\b[^>]*>([\s\S]*?)<\/caption>/i);
+  const legenda = cap ? texto(cap[1]) : '';
+
+  return {
+    cabecalho: cabecalho.length ? encher(cabecalho) : [],
+    linhas: corpo.map(encher),
+    ...(legenda ? { legenda } : {}),
+  };
+}
+
+// <table> vem PRIMEIRO na alternância de propósito: a varredura é da esquerda
+// pra direita, então casar a tabela inteira consome o que houver dentro dela.
+// Com <p> na frente, um <p> dentro de célula viraria parágrafo solto no meio
+// do texto — e a tabela ainda apareceria depois, fora de ordem.
+const RE_BLOCO = /<table\b[^>]*>([\s\S]*?)<\/table>|<(p|li)\b[^>]*>([\s\S]*?)<\/\2>/gi;
+
+/** O corpo de um pedaço de HTML, NA ORDEM: parágrafo, item de lista, tabela.
+ *
+ *  Era só <p> e <li> — e por isso toda <table> do CMS sumia calada na
+ *  tradução. Não dava erro: a seção renderizava com o texto ao redor e a
+ *  tabela simplesmente não existia na página. */
+function corpoEmBlocos(html: string): ArticleBlock[] {
+  const saida: ArticleBlock[] = [];
+  for (const m of html.matchAll(RE_BLOCO)) {
+    if (m[2]) {
+      const t = texto(m[3]);
+      if (t) saida.push({ tipo: 'paragrafo', texto: m[2].toLowerCase() === 'li' ? `• ${t}` : t });
+      continue;
+    }
+    const tab = tabela(m[1]);
+    if (tab) saida.push({ tipo: 'tabela', tabela: tab });
+  }
+  return saida;
+}
+
+/** Só o texto corrido — o que `paragrafos` sempre devolveu. */
+function textosDe(lista: ArticleBlock[]): string[] {
+  return lista.flatMap((b) => (b.tipo === 'paragrafo' ? [b.texto] : []));
+}
+
+/** Parágrafos de um pedaço de HTML — <p> e itens de lista viram linha. */
+function paragrafos(html: string): string[] {
+  return textosDe(corpoEmBlocos(html));
 }
 
 function primeiraImagem(html: string) {
@@ -169,17 +250,21 @@ export function htmlParaArtigo(html: string, opcoes?: { atualizadoEm?: string })
     const antesDoH3 = partesH3[0];
     const subsecoes = partesH3
       .slice(1)
-      .map((parte) => {
+      .map((parte): ArticleSubsection | null => {
         const t = parte.match(/<h3\b[^>]*>([\s\S]*?)<\/h3>/i);
         if (!t) return null;
-        return { titulo: texto(t[1]), paragrafos: paragrafos(parte.slice(t[0].length)) };
+        const corpoSub = corpoEmBlocos(parte.slice(t[0].length));
+        return { titulo: texto(t[1]), paragrafos: textosDe(corpoSub), blocos: corpoSub };
       })
-      .filter((x): x is { titulo: string; paragrafos: string[] } => Boolean(x && x.titulo));
+      .filter((x): x is ArticleSubsection => Boolean(x && x.titulo));
+
+    const corpoSecao = corpoEmBlocos(antesDoH3);
 
     secoes.push({
       id,
       titulo,
-      paragrafos: paragrafos(antesDoH3),
+      paragrafos: textosDe(corpoSecao),
+      blocos: corpoSecao,
       ...(primeiraImagem(antesDoH3) ? { imagem: primeiraImagem(antesDoH3)! } : {}),
       ...(subsecoes.length ? { subsecoes } : {}),
     });
@@ -193,11 +278,31 @@ export function htmlParaArtigo(html: string, opcoes?: { atualizadoEm?: string })
   };
 }
 
+/** Quantas <table> o corpo TEM, fora a seção de FAQ (que tem template próprio,
+ *  só pergunta e resposta). É o número que a estrutura traduzida precisa bater.
+ *
+ *  O pedaço antes do primeiro <h2> entra na conta de propósito: tabela ali não
+ *  pertence a seção nenhuma e some do mesmo jeito. */
+function tabelasNoCorpo(html: string): number {
+  let n = 0;
+  for (const bloco of limparCorpo(html).split(/(?=<h2\b)/i)) {
+    const cab = bloco.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/i);
+    if (cab && RE_FAQ.test(texto(cab[1]))) continue;
+    n += (bloco.match(/<table\b/gi) || []).length;
+  }
+  return n;
+}
+
+function tabelasEmBlocos(lista?: ArticleBlock[]): number {
+  return (lista ?? []).filter((b) => b.tipo === 'tabela').length;
+}
+
 export type Diagnostico = {
   ok: boolean;
   problemas: string[];
   secoes: number;
   perguntas: number;
+  tabelas: number;
   temRespostaRapida: boolean;
 };
 
@@ -214,9 +319,29 @@ export function diagnosticar(html: string): Diagnostico {
   if (!artigo.respostaRapida.trim()) {
     problemas.push('Sem resposta rápida — perde o alvo de featured snippet.');
   }
-  const vazias = artigo.secoes.filter((s) => s.paragrafos.length === 0 && !s.subsecoes?.length);
+  // Seção "vazia" é seção sem CORPO — e tabela é corpo. Antes só parágrafo
+  // contava, então a seção que é um comparativo e nada mais era reprovada.
+  const vazias = artigo.secoes.filter(
+    (s) => (s.blocos ?? []).length === 0 && s.paragrafos.length === 0 && !s.subsecoes?.length,
+  );
   if (vazias.length) {
     problemas.push(`${vazias.length} seção(ões) só com título: ${vazias.map((s) => s.titulo).join(', ')}`);
+  }
+
+  // A perda silenciosa: o HTML traz a tabela, a estrutura chega sem ela e a
+  // página renderiza o texto ao redor como se nada faltasse.
+  const noHtml = tabelasNoCorpo(html);
+  const naEstrutura = artigo.secoes.reduce(
+    (n, s) =>
+      n +
+      tabelasEmBlocos(s.blocos) +
+      (s.subsecoes ?? []).reduce((m, sub) => m + tabelasEmBlocos(sub.blocos), 0),
+    0,
+  );
+  if (naEstrutura < noHtml) {
+    problemas.push(
+      `${noHtml - naEstrutura} tabela(s) do corpo não chegaram à estrutura — some(m) da página sem erro.`,
+    );
   }
 
   return {
@@ -224,6 +349,7 @@ export function diagnosticar(html: string): Diagnostico {
     problemas,
     secoes: artigo.secoes.length,
     perguntas: artigo.faq.length,
+    tabelas: naEstrutura,
     temRespostaRapida: Boolean(artigo.respostaRapida.trim()),
   };
 }

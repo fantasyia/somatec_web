@@ -7,14 +7,59 @@
 
 export type ArticleImage = { url: string; legenda: string; alt: string };
 
+/** Tabela do corpo do artigo.
+ *
+ *  `cabecalho` pode vir vazio (tabela sem <thead>) — quem renderiza decide se
+ *  desenha a faixa de título ou não. As linhas já chegam com a mesma largura
+ *  do cabeçalho: tabela torta no HTML de origem não pode virar célula faltando
+ *  na tela. */
+export type ArticleTable = {
+  cabecalho: string[];
+  linhas: string[][];
+  legenda?: string;
+};
+
+/** Um pedaço do corpo, na ORDEM em que aparece.
+ *
+ *  Existe por causa da ordem: a tabela quase sempre vem logo depois do
+ *  parágrafo que a apresenta ("os valores de referência mais usados:"). Uma
+ *  lista de parágrafos + uma lista de tabelas em separado perderia esse
+ *  encadeamento e a tabela cairia sempre no fim da seção. */
+export type ArticleBlock =
+  | { tipo: 'paragrafo'; texto: string }
+  | { tipo: 'tabela'; tabela: ArticleTable };
+
+export type ArticleSubsection = {
+  titulo: string;
+  paragrafos: string[];
+  blocos?: ArticleBlock[];
+};
+
 export type ArticleSection = {
   /** âncora usada pelo TOC e pelo scrollspy. */
   id: string;
   titulo: string;
+  /** Só o texto corrido. Continua existindo porque o conteúdo escrito à mão
+   *  usa isto, e porque é o que alimenta checagem de texto (busca, prévia). */
   paragrafos: string[];
+  /** O corpo na ordem real, quando quem montou a seção sabe a ordem. Quando
+   *  ausente, `blocosDaSecao()` deriva de `paragrafos`. */
+  blocos?: ArticleBlock[];
   imagem?: ArticleImage;
-  subsecoes?: { titulo: string; paragrafos: string[] }[];
+  subsecoes?: ArticleSubsection[];
 };
+
+/** O corpo a renderizar — um caminho só no template.
+ *
+ *  Seção vinda do tradutor traz `blocos`; seção escrita à mão neste arquivo
+ *  traz só `paragrafos`. Aqui as duas viram a mesma coisa. */
+export function blocosDaSecao(secao: {
+  paragrafos: string[];
+  blocos?: ArticleBlock[];
+}): ArticleBlock[] {
+  if (secao.blocos) return secao.blocos;
+  return secao.paragrafos.map((texto) => ({ tipo: 'paragrafo', texto }) as ArticleBlock);
+}
 
 export type ArticleFaq = { pergunta: string; resposta: string };
 
