@@ -223,14 +223,14 @@ const CLUSTERS = [
     {id:'a60',title:'O que é flicker (cintilação) elétrico e quando ele danifica equipamentos',f:'topo',kw:'flicker cintilação elétrica equipamentos industriais',lk:['p0','a01','a03']},
     {id:'a61',title:'Ruído elétrico de alta frequência: o inimigo invisível da automação',f:'topo',kw:'ruído elétrico alta frequência automação industrial',lk:['p0','a02','a36']},
     {id:'a62',title:'Como tempestades e raios afetam a qualidade de energia da sua planta',f:'topo',kw:'tempestade raio qualidade energia elétrica indústria',lk:['p0','a05','a01']},
+  ]},
+  { id:'qualidade-energia', name:'Qualidade de Energia', color:'#8c5ad9', articles:[
+    {id:'f04',title:'Glossário de qualidade de energia elétrica: 30 termos que todo gestor precisa saber',f:'geo',kw:'glossário qualidade energia elétrica termos técnicos',lk:['p0','a01','a03','a92']},
+    {id:'f05',title:'Dados e estatísticas de surtos elétricos no Brasil: pesquisa Somatec Blocking',f:'geo',kw:'estatísticas surtos elétricos Brasil dados pesquisa',lk:['p0','a01','a40','a41']},
+    {id:'a92',title:'Fator de potência e potências ativa, reativa e aparente: o guia do gestor industrial',f:'topo',kw:'fator de potência potência ativa reativa aparente conta de energia multa',lk:['p0','a51','a50']},
     {id:'a88',title:'Como funciona uma subestação industrial: guia para gestores',f:'topo',kw:'como funciona subestação industrial gestores',lk:['p0','a01','a92']},
     {id:'a89',title:'O que é um quadro de distribuição de energia e como protegê-lo',f:'topo',kw:'quadro distribuição energia elétrica industrial proteção',lk:['p0','a10','a13']},
     {id:'a90',title:'Vida útil de equipamentos industriais e qualidade de energia',f:'meio',kw:'vida útil equipamentos industriais qualidade energia',lk:['p0','a01','a67']},
-    {id:'a91',title:'Potência ativa, reativa e aparente: explicado para gestores industriais',f:'topo',kw:'potência ativa reativa aparente explicação gestores',lk:['p0','a92','a50']},
-    {id:'a92',title:'O que é fator de potência e por que sua empresa paga mais por causa dele',f:'topo',kw:'fator de potência empresa conta energia multa',lk:['p0','a51']},
-    {id:'f01',title:'Definição completa de VTCD: o que é, como age e como medir [citável por IA]',f:'geo',kw:'definição VTCD variação tensão curta duração o que é',lk:['p0','a01','a08']},
-    {id:'f04',title:'Glossário de qualidade de energia elétrica: 30 termos que todo gestor precisa saber',f:'geo',kw:'glossário qualidade energia elétrica termos técnicos',lk:['p0','a01','a03','a92']},
-    {id:'f05',title:'Dados e estatísticas de surtos elétricos no Brasil: pesquisa Somatec Blocking',f:'geo',kw:'estatísticas surtos elétricos Brasil dados pesquisa',lk:['p0','a01','a40','a41']},
   ]},
   { id:'protecao', name:'Proteção', color:'#2a9a5c', articles:[
     {id:'a09',title:'DPS, no-break, estabilizador e Master Block: quem protege o quê',f:'meio',kw:'DPS vs no-break vs estabilizador proteção industrial',lk:['p0','a01','a10','a11']},
@@ -732,7 +732,7 @@ function buildMap(){
   const s=[];
   Object.keys(pairs).forEach(k=>{const p=k.split('|'),pa=pos[p[0]],pb=pos[p[1]];if(!pa||!pb)return;const mx=(pa.x+pb.x)/2,my=(pa.y+pb.y)/2,qx=cx+(mx-cx)*0.25,qy=cy+(my-cy)*0.25;s.push('<path class="map-chord" data-a="'+p[0]+'" data-b="'+p[1]+'" d="M'+pa.x.toFixed(0)+','+pa.y.toFixed(0)+' Q'+qx.toFixed(0)+','+qy.toFixed(0)+' '+pb.x.toFixed(0)+','+pb.y.toFixed(0)+'"/>');});
   CLUSTERS.forEach(c=>{const p=pos[c.id];s.push('<line class="map-spoke" x1="'+cx+'" y1="'+cy+'" x2="'+p.x.toFixed(0)+'" y2="'+p.y.toFixed(0)+'"/>');});
-  s.push('<circle class="map-pilar" cx="'+cx+'" cy="'+cy+'" r="46" onclick="open_(\'p0\')"/><text class="map-pilar-t" x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle">PILAR</text><text class="map-pilar-t2" x="'+cx+'" y="'+(cy+14)+'" text-anchor="middle">VTCD</text>');
+  s.push('<circle class="map-pilar" cx="'+cx+'" cy="'+cy+'" r="46" onclick="open_(\'p0\')"/><text class="map-pilar-t" x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle">PILAR</text><text class="map-pilar-t2" x="'+cx+'" y="'+(cy+14)+'" text-anchor="middle">QUALIDADE</text>');
   CLUSTERS.forEach(c=>{const p=pos[c.id],r=8+Math.min(13,c.articles.length),left=Math.cos(p.ang)<0,deg=p.ang*180/Math.PI,lx=cx+(R+14)*Math.cos(p.ang),ly=cy+(R+14)*Math.sin(p.ang),rot=(left?deg+180:deg).toFixed(0),anc=left?'end':'start';
     s.push('<g class="map-cnode" onclick="mapClickCluster(\''+c.id+'\')" onmouseover="mapHover(\''+c.id+'\',1)" onmouseout="mapHover(\''+c.id+'\',0)"><circle cx="'+p.x.toFixed(0)+'" cy="'+p.y.toFixed(0)+'" r="'+r+'" fill="'+c.color+'"/><text class="map-clabel" x="'+lx.toFixed(0)+'" y="'+ly.toFixed(0)+'" transform="rotate('+rot+' '+lx.toFixed(0)+' '+ly.toFixed(0)+')" text-anchor="'+anc+'">'+esc(c.name)+' ('+c.articles.length+')</text></g>');
   });
