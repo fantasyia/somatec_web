@@ -15,9 +15,15 @@ import { config } from 'dotenv';
 
 config({ path: '.env.local', quiet: true });
 
-const temAmbiente = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
+// Só presença NÃO serve: o CI injeta placeholders não-vazios (o build quebra
+// com env vazia), então a suíte rodava contra `placeholder.supabase.co`, falhava
+// em tudo e deixava o CI vermelho desde 26/08. Aqui exige-se config de verdade:
+// host do Supabase + chave com cara de JWT.
+const urlSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const chaveSupabase = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+const temAmbiente =
+  /^https:\/\/[a-z0-9]{16,}\.supabase\.co\/?$/.test(urlSupabase.trim()) &&
+  chaveSupabase.split('.').length === 3;
 
 // Import dinâmico: `server-only` só resolve pelo alias da config, e o módulo
 // lê env na chamada — o dotenv acima tem de rodar antes.
