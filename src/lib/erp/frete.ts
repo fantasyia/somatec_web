@@ -30,7 +30,9 @@ const log = createLogger('erp-frete');
 //        id_forma_frete, nome_forma_frete }]
 // =============================================================================
 
-const TIMEOUT_MS = 8000;
+// Cotação real bate em transportadora, não em cache: 8s era otimista, e um
+// timeout apareceria como "indisponível" — indistinguível de ERP fora do ar.
+const TIMEOUT_MS = 15_000;
 
 export type ItemCotacao = { model: string; quantidade: number };
 
@@ -53,8 +55,10 @@ export type MotivoFalha =
   | 'dados_invalidos';
 
 export type ResultadoCotacao =
-  | { ok: true; opcoes: OpcaoFrete[] }
-  | { ok: false; motivo: MotivoFalha; opcoes: [] };
+  | { ok: true; opcoes: OpcaoFrete[]; detalhe?: string }
+  /** `detalhe` é diagnóstico e NUNCA vai pro cliente — só pra quem manda o
+   *  segredo na rota. Pode conter mensagem interna do ERP. */
+  | { ok: false; motivo: MotivoFalha; opcoes: []; detalhe?: string };
 
 /** "150 × 100 × 60" (mm) → cm, que é a unidade da cotação. */
 export function dimensoesCm(dim: string): {
@@ -136,7 +140,14 @@ export async function cotarFreteErp(
 ): Promise<ResultadoCotacao> {
   const url = process.env.ERP_COTACAO_URL;
   const token = process.env.ERP_API_TOKEN;
-  if (!url || !token) return { ok: false, motivo: 'sem_credencial', opcoes: [] };
+  if (!url || !token) {
+    return {
+      ok: false,
+      motivo: 'sem_credencial',
+      opcoes: [],
+      detalhe: `faltando: ${[!url && 'ERP_COTACAO_URL', !token && 'ERP_API_TOKEN'].filter(Boolean).join(', ')}`,
+    };
+  }
 
   const produtos = montarItens(itens);
   if (produtos.length === 0) return { ok: false, motivo: 'dados_invalidos', opcoes: [] };
@@ -184,25 +195,41 @@ export async function cotarFreteErp(
         ehToken ? 'ERP recusou o token da cotação' : 'ERP respondeu algo que não é JSON',
         { status: r.status, resposta: texto },
       );
-      return { ok: false, motivo: ehToken ? 'credencial_invalida' : 'indisponivel', opcoes: [] };
+      return {
+        ok: false,
+        motivo: ehToken ? 'credencial_invalida' : 'indisponivel',
+        opcoes: [],
+        detalhe: `HTTP ${r.status} texto: ${texto}`,
+      };
     }
 
     if (!r.ok) {
       log.warn('ERP recusou a cotação', { status: r.status, resposta: bruto.slice(0, 200) });
-      return { ok: false, motivo: 'indisponivel', opcoes: [] };
+      return {
+        ok: false,
+        motivo: 'indisponivel',
+        opcoes: [],
+        detalhe: `HTTP ${r.status}: ${bruto.slice(0, 300)}`,
+      };
     }
 
     const opcoes = normalizar(corpo);
+    const vazio = opcoes.length === 0 ? `sem opções — resposta: ${bruto.slice(0, 300)}` : undefined;
     // Cotação vazia não é falha: pode ser CEP sem cobertura na preferencial nem
     // nas alternativas. A tela cai no prazo confirmado no pedido.
     if (opcoes.length === 0) {
       log.info('ERP não devolveu opção de frete', { resposta: bruto.slice(0, 200) });
     }
-    return { ok: true, opcoes };
+    return { ok: true, opcoes, ...(vazio ? { detalhe: vazio } : {}) };
   } catch (err) {
     log.warn('cotação no ERP falhou', {
       erro: err instanceof Error ? err.message : String(err),
     });
-    return { ok: false, motivo: 'indisponivel', opcoes: [] };
+    return {
+      ok: false,
+      motivo: 'indisponivel',
+      opcoes: [],
+      detalhe: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+    };
   }
 }
