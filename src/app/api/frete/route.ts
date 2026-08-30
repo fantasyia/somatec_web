@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { cotarFreteErp } from '@/lib/erp/frete';
+import { validateBearer } from '@/lib/auth/bearer';
 
 // =============================================================================
 // Cálculo de frete — cotado pelo ERP (Olist/Tiny), que cota no Melhor Envio.
@@ -39,9 +40,25 @@ export async function POST(req: NextRequest) {
 
   const r = await cotarFreteErp(destino, itens);
 
+  // Diagnóstico. O `detalhe` carrega mensagem interna do ERP (e, num erro de
+  // autenticação, pistas sobre a credencial), então só sai pra quem manda
+  // `Authorization: Bearer <CRON_SECRET>` — o cliente do checkout nunca vê.
+  // Sem isso, investigar falha de cotação em produção vira adivinhação: a
+  // resposta é a MESMA ("indisponível") pra ERP fora do ar, timeout, URL
+  // errada e payload recusado.
+  const { detalhe, ...semDetalhe } = r;
+  const podeVerDetalhe = validateBearer(
+    req.headers.get('authorization'),
+    'CRON_SECRET',
+    { requireInProduction: true },
+  ).ok;
+  const corpo = podeVerDetalhe && detalhe ? { ...semDetalhe, detalhe } : semDetalhe;
+
   // `indisponivel` é 502 (o ERP falhou de verdade). Credencial ausente ou
   // recusada e carrinho sem item cotável são 200: não é erro do servidor, é
   // configuração — e o checkout trata os três seguindo em frente, com frete
   // grátis e prazo confirmado no pedido.
-  return NextResponse.json(r, { status: !r.ok && r.motivo === 'indisponivel' ? 502 : 200 });
+  return NextResponse.json(corpo, {
+    status: !r.ok && r.motivo === 'indisponivel' ? 502 : 200,
+  });
 }

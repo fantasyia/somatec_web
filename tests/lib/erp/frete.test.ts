@@ -160,7 +160,7 @@ describe('cotarFreteErp', () => {
     vi.stubEnv('ERP_API_TOKEN', '');
     const spy = vi.spyOn(globalThis, 'fetch');
 
-    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toEqual({
+    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toMatchObject({
       ok: false,
       motivo: 'sem_credencial',
       opcoes: [],
@@ -214,7 +214,7 @@ describe('resposta 200 que na verdade é erro', () => {
   it('"token invalido" com 200 vira credencial_invalida, NÃO indisponivel', async () => {
     textoPuro('token invalido');
 
-    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toEqual({
+    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toMatchObject({
       ok: false,
       motivo: 'credencial_invalida',
       opcoes: [],
@@ -232,9 +232,48 @@ describe('resposta 200 que na verdade é erro', () => {
   it('cotação vazia é sucesso, não falha (CEP sem cobertura é resposta válida)', async () => {
     respondeCom([]);
 
-    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toEqual({
+    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toMatchObject({
       ok: true,
       opcoes: [],
     });
+  });
+});
+
+describe('diagnóstico da falha', () => {
+  it('timeout diz que foi timeout, não vira "indisponivel" mudo', async () => {
+    const e = new Error('The operation was aborted due to timeout');
+    e.name = 'TimeoutError';
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(e);
+
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
+
+    expect(r.detalhe).toContain('TimeoutError');
+  });
+
+  it('não-2xx carrega status e corpo (URL errada dá 404, e isso precisa aparecer)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('{"status":404}', { status: 404 }),
+    );
+
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
+
+    expect(r.detalhe).toContain('404');
+  });
+
+  it('sem credencial diz QUAL env falta', async () => {
+    vi.stubEnv('ERP_API_TOKEN', '');
+
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
+
+    expect(r.detalhe).toContain('ERP_API_TOKEN');
+  });
+
+  it('cotação vazia mostra a resposta crua — é o caso mais difícil de diagnosticar', async () => {
+    respondeCom([]);
+
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
+
+    expect(r.ok).toBe(true);
+    expect(r.detalhe).toContain('sem opções');
   });
 });
