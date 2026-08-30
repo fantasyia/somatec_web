@@ -55,9 +55,13 @@ export async function POST(req: NextRequest) {
   const corpo = podeVerDetalhe && detalhe ? { ...semDetalhe, detalhe } : semDetalhe;
 
   // `indisponivel` é 502 (o ERP falhou de verdade). Credencial ausente ou
-  // recusada e carrinho sem item cotável são 200: não é erro do servidor, é
-  // configuração — e o checkout trata os três seguindo em frente, com frete
-  // grátis e prazo confirmado no pedido.
+  // recusada, produto não vinculado à integração e carrinho sem item cotável
+  // são 200: não é erro do servidor, é configuração — e o checkout trata os
+  // quatro seguindo em frente, com frete grátis e prazo confirmado no pedido.
+  //
+  // Importa que produto_nao_vinculado NÃO seja 502: senão o monitoramento
+  // acusa o site de erro de servidor enquanto tudo está de pé, e o alerta de
+  // ERP fora do ar perde o sentido de tanto tocar à toa.
   return NextResponse.json(corpo, {
     status: !r.ok && r.motivo === 'indisponivel' ? 502 : 200,
   });

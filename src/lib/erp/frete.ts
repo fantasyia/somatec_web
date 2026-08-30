@@ -49,6 +49,9 @@ export type MotivoFalha =
   | 'sem_credencial'
   /** O ERP recusou o token. É erro de CONFIGURAÇÃO, não indisponibilidade. */
   | 'credencial_invalida'
+  /** O ERP está de pé e respondeu, mas não conhece o SKU: os produtos não
+   *  estão vinculados ao cadastro da integração. Também é CONFIGURAÇÃO. */
+  | 'produto_nao_vinculado'
   /** ERP fora do ar, lento, ou resposta que não dá pra ler. */
   | 'indisponivel'
   /** Carrinho sem nenhum item cotável. */
@@ -204,6 +207,25 @@ export async function cotarFreteErp(
     }
 
     if (!r.ok) {
+      // `{"error":"Item 'MB-01' não encontrado."}` com 400 é o MESMO tipo de
+      // problema que o token recusado: o ERP está de pé, quem está errado é o
+      // cadastro — os SKUs não foram vinculados à integração. Jogar isso em
+      // `indisponivel` faz a falha se passar por queda do ERP, e como o
+      // checkout degrada sozinho ninguém descobre até reparar que o prazo
+      // sumiu. É exatamente a armadilha que o caso do token já evita.
+      const naoConhece = /item/i.test(bruto) && /n[ãa]o encontrad/i.test(bruto);
+      if (naoConhece) {
+        log.error('ERP não reconhece o SKU — produto não vinculado à integração', {
+          status: r.status,
+          resposta: bruto.slice(0, 200),
+        });
+        return {
+          ok: false,
+          motivo: 'produto_nao_vinculado',
+          opcoes: [],
+          detalhe: `HTTP ${r.status}: ${bruto.slice(0, 300)}`,
+        };
+      }
       log.warn('ERP recusou a cotação', { status: r.status, resposta: bruto.slice(0, 200) });
       return {
         ok: false,

@@ -277,3 +277,63 @@ describe('diagnóstico da falha', () => {
     expect(r.detalhe).toContain('sem opções');
   });
 });
+
+// =============================================================================
+// PRODUTO NÃO VINCULADO À INTEGRAÇÃO.
+//
+// O `/cotar` não procura no catálogo geral do ERP: procura no cadastro de
+// produtos da integração. Enquanto os MB-01..MB-12 não estiverem vinculados
+// lá, toda cotação volta `400 {"error":"Item 'MB-01' não encontrado."}`.
+//
+// O ERP está DE PÉ nesse cenário. Chamar isso de "indisponível" esconde um
+// erro de cadastro atrás de uma falha de infraestrutura — e como o checkout
+// degrada sozinho pro "prazo confirmado no pedido", ninguém descobre até
+// alguém reparar que o prazo sumiu da tela.
+// =============================================================================
+
+describe('SKU que o ERP não conhece', () => {
+  it('vira produto_nao_vinculado, NÃO indisponivel', async () => {
+    respondeCom({ error: "Item 'MB-01' não encontrado." }, 400);
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.motivo).toBe('produto_nao_vinculado');
+  });
+
+  it('aguenta a mensagem sem acento', async () => {
+    respondeCom({ error: "Item 'MB-07' nao encontrado." }, 400);
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-07', quantidade: 1 }]);
+    if (r.ok) throw new Error('esperava falha');
+    expect(r.motivo).toBe('produto_nao_vinculado');
+  });
+
+  it('o checkout continua degradando — lista vazia, sem exceção', async () => {
+    respondeCom({ error: "Item 'MB-01' não encontrado." }, 400);
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
+    expect(r.opcoes).toEqual([]);
+  });
+
+  it('carrega o corpo do ERP no detalhe — é o que diz QUAL sku falhou', async () => {
+    respondeCom({ error: "Item 'MB-09' não encontrado." }, 400);
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-09', quantidade: 1 }]);
+    if (r.ok) throw new Error('esperava falha');
+    expect(r.detalhe).toContain('MB-09');
+    expect(r.detalhe).toContain('400');
+  });
+
+  it('outro 400 do ERP continua sendo indisponivel', async () => {
+    // Só "não encontrado" de ITEM é cadastro. O resto é o ERP recusando.
+    respondeCom({ error: "Parameter 'itens' not found" }, 400);
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
+    if (r.ok) throw new Error('esperava falha');
+    expect(r.motivo).toBe('indisponivel');
+  });
+
+  it('404 de URL errada NÃO é confundido com produto não vinculado', async () => {
+    // A rota errada devolve 404; nada a ver com cadastro de produto.
+    respondeCom({ error: 'Not Found' }, 404);
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
+    if (r.ok) throw new Error('esperava falha');
+    expect(r.motivo).toBe('indisponivel');
+  });
+});
