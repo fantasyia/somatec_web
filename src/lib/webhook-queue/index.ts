@@ -5,6 +5,7 @@ import { withTiming } from '@/lib/perf/timing';
 import { computeAttempt } from '@/lib/webhook-queue/backoff';
 import type { MullerBotPayload } from '@/lib/mullerbot/payload';
 import type { SendOutcome } from '@/lib/mullerbot/client';
+import type { PedidoBetinna } from '@/lib/betinna/pedidos';
 import type { Json } from '@/types/database';
 
 const log = createLogger('queue');
@@ -17,18 +18,30 @@ const log = createLogger('queue');
 // claim/migração. Se o síncrono morrer, o cron entrega normalmente após a janela.
 const SYNC_SEND_GRACE_MS = 90_000;
 
+/**
+ * Pra onde a linha vai. A fila é de TRANSPORTE, não de leads: o que muda entre
+ * um destino e outro é só quem entrega, e o retry/backoff é o mesmo.
+ *
+ * `betinna-pedido` entrou junto com o checkout: pedido pago que não chega ao
+ * ERP é pedido que ninguém separa. O endpoint de lá é idempotente pelo número
+ * do pedido, então repetir é seguro — e é justamente isso que autoriza a fila.
+ */
+export type QueueDestination = 'mullerbot' | 'betinna-pedido';
+export type QueuePayload = MullerBotPayload | PedidoBetinna;
+
 export type EnqueueInput = {
   idempotencyKey: string;
-  payload: MullerBotPayload;
+  payload: QueuePayload;
   sourcePage: string | null;
   sourceIp: string | null;
+  destination?: QueueDestination;
 };
 
 export async function enqueueSubmission(input: EnqueueInput): Promise<void> {
   await withTiming('queue:enqueue', async () => {
     const supabase = getSupabaseAdminClient();
     const { error } = await supabase.from('webhook_retry_queue').insert({
-      destination: 'mullerbot',
+      destination: input.destination ?? 'mullerbot',
       idempotency_key: input.idempotencyKey,
       payload: input.payload as unknown as Json,
       status: 'pending',
@@ -62,7 +75,7 @@ export async function markSent(
   if (error) {
     log.warn('markSent update failed', { idempotencyKey, httpStatus, externalId }, error);
   } else {
-    log.info('mullerbot send confirmed', { idempotencyKey, httpStatus, externalId });
+    log.info('entrega confirmada', { idempotencyKey, httpStatus, externalId });
   }
 }
 
@@ -96,7 +109,8 @@ export async function markAttempt(
 export type QueueRow = {
   id: string;
   idempotency_key: string;
-  payload: MullerBotPayload;
+  destination: QueueDestination;
+  payload: QueuePayload;
   attempts: number;
   max_attempts: number;
 };
@@ -105,7 +119,7 @@ export async function fetchDuePending(limit: number): Promise<QueueRow[]> {
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase
     .from('webhook_retry_queue')
-    .select('id, idempotency_key, payload, attempts, max_attempts')
+    .select('id, idempotency_key, destination, payload, attempts, max_attempts')
     .in('status', ['pending', 'failed'])
     .lte('next_attempt_at', new Date().toISOString())
     .order('next_attempt_at', { ascending: true })
