@@ -9,7 +9,6 @@ import {
   markSent,
 } from '@/lib/webhook-queue';
 import { validateBearer } from '@/lib/auth/bearer';
-import { renovarSePerto } from '@/lib/melhorenvio/token';
 import { incrementCounter } from '@/lib/metrics/registry';
 
 export const runtime = 'nodejs';
@@ -29,16 +28,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'CRON_SECRET not configured' }, { status: 500 });
     }
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
-  }
-
-  // Renovação do token do Melhor Envio. Mora aqui porque o risco é o CONTRÁRIO
-  // do movimento: 45 dias sem ninguém cotar matam a conexão, e aí só
-  // autorização manual no navegador traz de volta. Não pode derrubar a fila.
-  let melhorEnvio: string;
-  try {
-    melhorEnvio = await renovarSePerto();
-  } catch {
-    melhorEnvio = 'falhou';
   }
 
   const due = await fetchDuePending(50);
@@ -83,7 +72,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     ok: true,
-    melhorEnvio,
     byDestino,
     processed,
     sent,
