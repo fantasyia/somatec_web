@@ -39,8 +39,9 @@ export async function POST(req: NextRequest) {
 
   const r = await cotarFreteErp(destino, itens);
 
-  // `indisponivel` é 502 (o ERP falhou); ausência de credencial e carrinho sem
-  // item cotável são 200 — não é erro do servidor, é integração desligada ou
-  // carrinho sem nada a cotar, e o checkout trata os dois seguindo em frente.
+  // `indisponivel` é 502 (o ERP falhou de verdade). Credencial ausente ou
+  // recusada e carrinho sem item cotável são 200: não é erro do servidor, é
+  // configuração — e o checkout trata os três seguindo em frente, com frete
+  // grátis e prazo confirmado no pedido.
   return NextResponse.json(r, { status: !r.ok && r.motivo === 'indisponivel' ? 502 : 200 });
 }

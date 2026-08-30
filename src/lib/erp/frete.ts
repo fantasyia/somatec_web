@@ -1,5 +1,8 @@
 import 'server-only';
 import { MASTER_BLOCK_MODELS } from '@/lib/constants/masterblock';
+import { createLogger } from '@/lib/logger';
+
+const log = createLogger('erp-frete');
 
 // =============================================================================
 // Cotação de frete pelo ERP (Olist/Tiny) — não pelo Melhor Envio direto.
@@ -39,9 +42,19 @@ export type OpcaoFrete = {
   prazoDias: number | null;
 };
 
+export type MotivoFalha =
+  /** Nenhuma env configurada — integração ainda desligada. */
+  | 'sem_credencial'
+  /** O ERP recusou o token. É erro de CONFIGURAÇÃO, não indisponibilidade. */
+  | 'credencial_invalida'
+  /** ERP fora do ar, lento, ou resposta que não dá pra ler. */
+  | 'indisponivel'
+  /** Carrinho sem nenhum item cotável. */
+  | 'dados_invalidos';
+
 export type ResultadoCotacao =
   | { ok: true; opcoes: OpcaoFrete[] }
-  | { ok: false; motivo: 'sem_credencial' | 'indisponivel' | 'dados_invalidos'; opcoes: [] };
+  | { ok: false; motivo: MotivoFalha; opcoes: [] };
 
 /** "150 × 100 × 60" (mm) → cm, que é a unidade da cotação. */
 export function dimensoesCm(dim: string): {
@@ -154,11 +167,42 @@ export async function cotarFreteErp(
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
 
-    if (!r.ok) return { ok: false, motivo: 'indisponivel', opcoes: [] };
+    // ⚠️ O ERP responde **200 com texto puro** quando o token não presta
+    // ("token invalido"). Confiar em `r.ok` e ir direto pro `.json()` faz a
+    // exceção cair no catch e virar "indisponível" — que é mentira: o ERP
+    // está de pé, quem está errado é a configuração. E como o checkout degrada
+    // sozinho, ninguém descobriria até alguém reparar que o prazo sumiu.
+    const bruto = await r.text();
 
-    const opcoes = normalizar(await r.json());
+    let corpo: unknown;
+    try {
+      corpo = JSON.parse(bruto);
+    } catch {
+      const texto = bruto.trim().slice(0, 200);
+      const ehToken = /token/i.test(texto);
+      log[ehToken ? 'error' : 'warn'](
+        ehToken ? 'ERP recusou o token da cotação' : 'ERP respondeu algo que não é JSON',
+        { status: r.status, resposta: texto },
+      );
+      return { ok: false, motivo: ehToken ? 'credencial_invalida' : 'indisponivel', opcoes: [] };
+    }
+
+    if (!r.ok) {
+      log.warn('ERP recusou a cotação', { status: r.status, resposta: bruto.slice(0, 200) });
+      return { ok: false, motivo: 'indisponivel', opcoes: [] };
+    }
+
+    const opcoes = normalizar(corpo);
+    // Cotação vazia não é falha: pode ser CEP sem cobertura na preferencial nem
+    // nas alternativas. A tela cai no prazo confirmado no pedido.
+    if (opcoes.length === 0) {
+      log.info('ERP não devolveu opção de frete', { resposta: bruto.slice(0, 200) });
+    }
     return { ok: true, opcoes };
-  } catch {
+  } catch (err) {
+    log.warn('cotação no ERP falhou', {
+      erro: err instanceof Error ? err.message : String(err),
+    });
     return { ok: false, motivo: 'indisponivel', opcoes: [] };
   }
 }

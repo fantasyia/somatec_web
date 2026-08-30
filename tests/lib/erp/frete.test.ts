@@ -196,3 +196,45 @@ describe('cotarFreteErp', () => {
     });
   });
 });
+
+// =============================================================================
+// O ERP responde 200 com TEXTO PURO quando o token não presta ("token
+// invalido"). Medido contra o endpoint real em 30/08. Isso quebra a leitura
+// ingênua (`r.ok` → `.json()`): a exceção viraria "indisponível", que é
+// mentira — o ERP está de pé, quem está errado é a configuração. E como o
+// checkout degrada sozinho, ninguém descobriria até o prazo sumir da tela.
+// =============================================================================
+describe('resposta 200 que na verdade é erro', () => {
+  function textoPuro(corpo: string, status = 200) {
+    return vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response(corpo, { status, headers: { 'Content-Type': 'text/plain' } }));
+  }
+
+  it('"token invalido" com 200 vira credencial_invalida, NÃO indisponivel', async () => {
+    textoPuro('token invalido');
+
+    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toEqual({
+      ok: false,
+      motivo: 'credencial_invalida',
+      opcoes: [],
+    });
+  });
+
+  it('texto que não fala de token continua sendo indisponivel', async () => {
+    textoPuro('<html>502 Bad Gateway</html>');
+
+    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toMatchObject({
+      motivo: 'indisponivel',
+    });
+  });
+
+  it('cotação vazia é sucesso, não falha (CEP sem cobertura é resposta válida)', async () => {
+    respondeCom([]);
+
+    expect(await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }])).toEqual({
+      ok: true,
+      opcoes: [],
+    });
+  });
+});
