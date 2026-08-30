@@ -340,6 +340,19 @@ type Insert<T extends Timestamps> = Partial<Omit<T, 'id' | 'created_at' | 'updat
   Omit<T, 'id' | 'created_at' | 'updated_at' | keyof Partial<T>>;
 type Update<T> = Partial<Omit<T, 'id' | 'created_at' | 'updated_at'>>;
 
+/** Token OAuth do Melhor Envio — linha única (`id = 1`). Ver
+ *  `scripts/016-melhor-envio-token.sql` e `lib/melhorenvio/token.ts`. */
+export type MelhorEnvioToken = {
+  id: number;
+  access_token: string;
+  refresh_token: string;
+  escopo: string | null;
+  expira_em: string;
+  refresh_expira_em: string;
+  renovando_ate: string | null;
+  atualizado_em: string;
+};
+
 type TableRow<T extends Timestamps> = {
   Row: T;
   Insert: Insert<T>;
@@ -377,6 +390,12 @@ export interface Database {
       footer_columns: TableRow<FooterColumn>;
       footer_links: TableRow<FooterLink>;
       webhook_retry_queue: TableRow<WebhookRetryQueue>;
+      melhor_envio_token: {
+        Row: MelhorEnvioToken;
+        Insert: MelhorEnvioToken;
+        Update: Partial<MelhorEnvioToken>;
+        Relationships: [];
+      };
       redirects: TableRow<Redirect>;
       admin_activity_log: {
         Row: AdminActivityLog;

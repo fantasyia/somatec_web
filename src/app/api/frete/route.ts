@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { MASTER_BLOCK_MODELS } from '@/lib/constants/masterblock';
+import { baseMelhorEnvio, obterTokenValido, renovarAgora } from '@/lib/melhorenvio/token';
 
 // =============================================================================
 // Cálculo de frete — Melhor Envio (POST /api/v2/me/shipment/calculate).
@@ -7,12 +8,15 @@ import { MASTER_BLOCK_MODELS } from '@/lib/constants/masterblock';
 // Fica no SERVIDOR por dois motivos: o token não pode ir pro browser, e a CSP
 // do site bloqueia chamada do cliente pra domínio externo.
 //
-// ⛔ Sem MELHOR_ENVIO_TOKEN o endpoint responde `sem_credencial` (200) e o
+// ⛔ Sem token autorizado o endpoint responde `sem_credencial` (200) e o
 // checkout segue funcionando — o frete aparece como grátis e o prazo é
-// confirmado no pedido. É o único elo que falta ligar.
+// confirmado no pedido. Cotação é melhoria, não requisito da venda.
 //
-// Env necessárias (card "🔌 Integrações & Dados"):
-//   MELHOR_ENVIO_TOKEN     token Bearer (OAuth do app no painel Melhor Envio)
+// O token NÃO vem de env: ele expira em 30 dias e a renovação rotaciona o par,
+// então mora no banco e se renova sozinho (`lib/melhorenvio/token.ts`).
+//
+// Env necessárias:
+//   MELHOR_ENVIO_CLIENT_ID / _CLIENT_SECRET / _REDIRECT_URI  app do painel
 //   MELHOR_ENVIO_CEP_ORIGEM CEP de onde sai a mercadoria
 //   MELHOR_ENVIO_UA        User-Agent exigido pela doc: "Nome (email)"
 //   MELHOR_ENVIO_SANDBOX   'true' usa sandbox.melhorenvio.com.br
@@ -38,7 +42,6 @@ type ServicoMelhorEnvio = {
 };
 
 export async function POST(req: NextRequest) {
-  const token = process.env.MELHOR_ENVIO_TOKEN;
   const origem = process.env.MELHOR_ENVIO_CEP_ORIGEM;
 
   const body = (await req.json().catch(() => null)) as
@@ -52,13 +55,12 @@ export async function POST(req: NextRequest) {
   }
 
   // Sem credencial o checkout NÃO trava — só não mostra as opções de transporte.
+  const token = origem ? await obterTokenValido() : null;
   if (!token || !origem) {
     return NextResponse.json({ ok: false, motivo: 'sem_credencial', opcoes: [] });
   }
 
-  const base = process.env.MELHOR_ENVIO_SANDBOX === 'true'
-    ? 'https://sandbox.melhorenvio.com.br'
-    : 'https://melhorenvio.com.br';
+  const base = baseMelhorEnvio();
 
   // products[] com peso/dimensão reais de cada modelo (masterblock.ts).
   const products = itens.flatMap((i) => {
@@ -80,13 +82,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, motivo: 'dados_invalidos' }, { status: 400 });
   }
 
-  try {
-    const r = await fetch(`${base}/api/v2/me/shipment/calculate`, {
+  const cotar = (comToken: string) =>
+    fetch(`${base}/api/v2/me/shipment/calculate`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${comToken}`,
         // A doc do Melhor Envio EXIGE User-Agent identificando a aplicação.
         'User-Agent': process.env.MELHOR_ENVIO_UA ?? 'Somatec Blocking (comercial@somatecblocking.com.br)',
       },
@@ -97,6 +99,17 @@ export async function POST(req: NextRequest) {
       }),
       signal: AbortSignal.timeout(8000),
     });
+
+  try {
+    let r = await cotar(token);
+
+    // 401 antes da margem: o token morreu cedo (revogado, ou `expires_in`
+    // otimista). Renova na hora e tenta de novo — uma vez só, pra um token
+    // realmente inválido não virar dois erros e o dobro do tempo na tela.
+    if (r.status === 401) {
+      const novo = await renovarAgora();
+      if (novo) r = await cotar(novo);
+    }
 
     if (!r.ok) throw new Error(String(r.status));
 

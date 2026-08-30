@@ -8,6 +8,8 @@ import { apiVersionHeaders } from '@/lib/http/headers';
 import { trackRequest } from '@/lib/metrics/registry';
 import { createLogger } from '@/lib/logger';
 import { enviarEmail } from '@/lib/email/enviar';
+import { montarPedidoBetinna, enviarPedidoBetinna } from '@/lib/betinna/pedidos';
+import { enqueueSubmission, markAttempt, markSent } from '@/lib/webhook-queue';
 import { assuntoPedido, htmlPedido, textoPedido } from '@/lib/email/pedido-confirmado';
 
 const log = createLogger('api-pedidos');
@@ -111,6 +113,16 @@ export async function POST(req: NextRequest) {
 
   log.info('pedido registrado', { numero: r.numero });
 
+  // ── O pedido sobe pro Betinna, e de lá pro ERP ─────────────────────────
+  //
+  // Enfileira ANTES de tentar: se o Betinna estiver fora do ar, o cron entrega
+  // depois. Pedido que o cliente pagou e não chega ao ERP é pedido que ninguém
+  // separa — e aqui, diferente do lead, não existe segunda via.
+  //
+  // Nada disso pode transformar um pedido bom em erro na tela: o pedido já
+  // existe e o número já está na resposta. Falha aqui é log, não 500.
+  await enviarAoBetinna(dados, r.numero);
+
   // Confirmação por e-mail. É AVISO, não é a transação: o pedido já existe e
   // o número já vai na resposta. Por isso o envio é aguardado mas o resultado
   // é ignorado — falhar aqui não pode transformar um pedido bom em erro na
@@ -132,4 +144,51 @@ export async function POST(req: NextRequest) {
     { ok: true, numero: r.numero },
     { status: 201, headers: { ...apiVersionHeaders(), ...rateLimitHeaders(limite) } },
   );
+}
+
+/**
+ * Entrega o pedido no Betinna com rede de proteção.
+ *
+ * `idempotencyKey` é o número do pedido: a fila tem UNIQUE nessa coluna, então
+ * reenvio do mesmo pedido não vira segunda linha — e o endpoint do Betinna é
+ * idempotente pelo mesmo número. Duas travas pro mesmo risco, que é o pior de
+ * todos aqui: pedido em dobro no ERP vira nota em dobro.
+ */
+async function enviarAoBetinna(
+  dados: Omit<z.infer<typeof schema>, 'website'>,
+  numero: string,
+): Promise<void> {
+  const pedido = montarPedidoBetinna({ ...dados, numero });
+  if (!pedido) {
+    // Só quadro a dimensionar: é orçamento, não venda fechada. Vira lead pelo
+    // caminho normal; subir pro ERP criaria pedido sem o que faturar.
+    log.info('pedido sem item faturável — nao subiu ao ERP', { numero });
+    return;
+  }
+
+  const chave = `pedido:${numero}`;
+  try {
+    await enqueueSubmission({
+      idempotencyKey: chave,
+      payload: pedido,
+      destination: 'betinna-pedido',
+      sourcePage: dados.origem ?? null,
+      sourceIp: null,
+    });
+  } catch (err) {
+    // Sem fila não há segunda chance, mas ainda vale tentar o envio direto.
+    log.error('nao consegui enfileirar o pedido', {
+      numero,
+      erro: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  const outcome = await enviarPedidoBetinna(pedido);
+  if (outcome.result === 'sent') {
+    await markSent(chave, outcome.status, outcome.externalId ?? null);
+    log.info('pedido no ERP', { numero, erp: outcome.externalId });
+    return;
+  }
+  await markAttempt(chave, outcome, 0);
+  log.warn('pedido nao subiu agora — fila reentrega', { numero, outcome: outcome.result });
 }
