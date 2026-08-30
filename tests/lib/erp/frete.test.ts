@@ -60,20 +60,23 @@ describe('montagem dos itens', () => {
 
 describe('normalização da resposta', () => {
   it('lê preço, prazo e transportadora com os nomes do contrato', () => {
+    // Fixture com os nomes na posição REAL (conferido em produção): a fixture
+    // antiga tinha os dois trocados, e por isso o teste passava com o código
+    // errado — o erro só apareceu na tela.
     const [o] = normalizar([
       {
         preco: 89.9,
         prazo: 4,
         id_forma_envio: 12,
-        nome_forma_envio: 'Jadlog .Package',
-        nome_forma_frete: 'Jadlog via Melhor Envio',
+        nome_forma_envio: 'Jadlog via Melhor Envio',
+        nome_forma_frete: '.Package',
       },
     ]);
 
     expect(o).toEqual({
       id: '12',
-      nome: 'Jadlog .Package',
-      transportadora: 'Jadlog via Melhor Envio',
+      nome: '.Package',
+      transportadora: 'Jadlog',
       valor: 89.9,
       prazoDias: 4,
     });
@@ -300,6 +303,20 @@ describe('SKU que o ERP não conhece', () => {
     expect(r.motivo).toBe('produto_nao_vinculado');
   });
 
+  it.each([
+    ['acento normal', "Item 'MB-07' não encontrado."],
+    ['sem acento', "Item 'MB-07' nao encontrado."],
+    // Acontece quando o ERP declara latin1 e manda utf-8. Continua sendo JSON
+    // válido, então chega inteiro até aqui e passaria batido num matcher que
+    // procurasse o "ã" — voltando a se passar por queda do ERP.
+    ['mojibake latin1', "Item 'MB-07' nÃ£o encontrado."],
+  ])('reconhece o erro com o texto em %s', async (_nome, msg) => {
+    respondeCom({ error: msg }, 400);
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-07', quantidade: 1 }]);
+    if (r.ok) throw new Error('esperava falha');
+    expect(r.motivo).toBe('produto_nao_vinculado');
+  });
+
   it('aguenta a mensagem sem acento', async () => {
     respondeCom({ error: "Item 'MB-07' nao encontrado." }, 400);
     const r = await cotarFreteErp('01310100', [{ model: 'MB-07', quantidade: 1 }]);
@@ -335,5 +352,32 @@ describe('SKU que o ERP não conhece', () => {
     const r = await cotarFreteErp('01310100', [{ model: 'MB-01', quantidade: 1 }]);
     if (r.ok) throw new Error('esperava falha');
     expect(r.motivo).toBe('indisponivel');
+  });
+});
+
+// Conferido contra a resposta REAL do ERP em 30/08:
+//   nome_forma_envio = "Jadlog via Melhor Envio"  (transportadora)
+//   nome_forma_frete = ".Package"                 (serviço)
+// A suposição inicial era o contrário, e a tela dizia "entrega em 5 dias
+// úteis — .Package" — que não diz nada pra quem está comprando.
+describe('nome da transportadora na tela', () => {
+  it('mostra quem ENTREGA, sem o agregador de frete no meio', () => {
+    const [o] = normalizar([
+      {
+        preco: 40.75,
+        prazo: 6,
+        nome_forma_envio: 'Jadlog via Melhor Envio',
+        nome_forma_frete: '.Package',
+      },
+    ]);
+
+    expect(o.transportadora).toBe('Jadlog');
+    expect(o.nome).toBe('.Package');
+  });
+
+  it('transportadora sem "via Melhor Envio" passa intacta', () => {
+    expect(normalizar([{ preco: 1, nome_forma_envio: 'Correios' }])[0].transportadora).toBe(
+      'Correios',
+    );
   });
 });
