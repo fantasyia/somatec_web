@@ -300,6 +300,20 @@ describe('SKU que o ERP não conhece', () => {
     expect(r.motivo).toBe('produto_nao_vinculado');
   });
 
+  it.each([
+    ['acento normal', "Item 'MB-07' não encontrado."],
+    ['sem acento', "Item 'MB-07' nao encontrado."],
+    // Acontece quando o ERP declara latin1 e manda utf-8. Continua sendo JSON
+    // válido, então chega inteiro até aqui e passaria batido num matcher que
+    // procurasse o "ã" — voltando a se passar por queda do ERP.
+    ['mojibake latin1', "Item 'MB-07' nÃ£o encontrado."],
+  ])('reconhece o erro com o texto em %s', async (_nome, msg) => {
+    respondeCom({ error: msg }, 400);
+    const r = await cotarFreteErp('01310100', [{ model: 'MB-07', quantidade: 1 }]);
+    if (r.ok) throw new Error('esperava falha');
+    expect(r.motivo).toBe('produto_nao_vinculado');
+  });
+
   it('aguenta a mensagem sem acento', async () => {
     respondeCom({ error: "Item 'MB-07' nao encontrado." }, 400);
     const r = await cotarFreteErp('01310100', [{ model: 'MB-07', quantidade: 1 }]);

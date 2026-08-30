@@ -213,7 +213,12 @@ export async function cotarFreteErp(
       // `indisponivel` faz a falha se passar por queda do ERP, e como o
       // checkout degrada sozinho ninguém descobre até reparar que o prazo
       // sumiu. É exatamente a armadilha que o caso do token já evita.
-      const naoConhece = /item/i.test(bruto) && /n[ãa]o encontrad/i.test(bruto);
+      // Casa por "encontrad", que é ASCII puro. O "não" chega de formas
+      // diferentes conforme o encoding da resposta (`não`, `nao`, e o mojibake
+      // `nÃ£o` quando o ERP declara latin1 e manda utf-8) — e mojibake continua
+      // sendo JSON válido, então passaria batido por um matcher acentuado e a
+      // falha voltaria a se passar por queda do ERP.
+      const naoConhece = /item/i.test(bruto) && /encontrad/i.test(bruto);
       if (naoConhece) {
         log.error('ERP não reconhece o SKU — produto não vinculado à integração', {
           status: r.status,
