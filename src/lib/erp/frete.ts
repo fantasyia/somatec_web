@@ -111,6 +111,16 @@ export function montarItens(itens: ItemCotacao[]) {
   });
 }
 
+/**
+ * "Jadlog via Melhor Envio" → "Jadlog".
+ *
+ * Quem compra quer saber quem entrega. O agregador de frete é detalhe nosso —
+ * na tela ele só faz a frase parecer erro de sistema.
+ */
+function limparTransportadora(nome?: string): string {
+  return (nome ?? '').replace(/\s+via\s+melhor\s+envio\s*$/i, '').trim();
+}
+
 /** Normaliza a resposta do ERP pro formato que o checkout já consome. */
 export function normalizar(bruto: unknown): OpcaoFrete[] {
   const lista = Array.isArray(bruto)
@@ -123,10 +133,12 @@ export function normalizar(bruto: unknown): OpcaoFrete[] {
     .filter((s) => !s.erro && s.preco != null)
     .map((s) => ({
       id: String(s.id_forma_envio ?? s.id_forma_frete ?? s.nome_forma_envio ?? ''),
-      nome: s.nome_forma_envio ?? s.nome_forma_frete ?? 'Entrega',
-      // `nome_forma_frete` é a transportadora ("Jadlog via Melhor Envio");
-      // `nome_forma_envio` é o serviço. Quando só um vem, ele serve pros dois.
-      transportadora: s.nome_forma_frete ?? s.nome_forma_envio ?? '',
+      // Conferido contra a resposta real: `nome_forma_envio` é a
+      // TRANSPORTADORA ("Jadlog via Melhor Envio") e `nome_forma_frete` é o
+      // serviço (".Package"). Eu tinha suposto o contrário, e a tela mostrava
+      // "entrega em 5 dias — .Package", que não diz nada pra quem compra.
+      nome: s.nome_forma_frete ?? s.nome_forma_envio ?? 'Entrega',
+      transportadora: limparTransportadora(s.nome_forma_envio ?? s.nome_forma_frete),
       valor: Number(s.preco) || 0,
       prazoDias: s.prazo == null ? null : Number(s.prazo) || null,
     }));
