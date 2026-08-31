@@ -128,3 +128,56 @@ describe('pedido do site → Betinna', () => {
     expect(p.observacoes.length).toBeLessThanOrEqual(2000);
   });
 });
+
+// =============================================================================
+// O pedido de teste real (31/08) chegou no ERP sem CPF e sem endereço
+// estruturado: contato sem documento (não emite NF) e `enderecoEntrega` NULL
+// (não gera etiqueta). O endereço ia só na observação — que ninguém imprime.
+//
+// A regra do Léo: tudo que a nota e a etiqueta precisam viaja NO PEDIDO, na
+// hora da compra. Depois disso o cliente não é incomodado por nada.
+// =============================================================================
+describe('o que a NF e a etiqueta exigem', () => {
+  it('leva o CPF/CNPJ só com dígitos', () => {
+    const p = montarPedidoBetinna({ ...base, documento: '372.585.458-08' })!;
+
+    expect(p.cliente.cpfCnpj).toBe('37258545808');
+  });
+
+  it('sem documento, o campo é OMITIDO (string vazia reprova no schema de lá)', () => {
+    const p = montarPedidoBetinna({ ...base, documento: null })!;
+
+    expect('cpfCnpj' in p.cliente).toBe(false);
+  });
+
+  it('manda o endereço ESTRUTURADO, não só na observação', () => {
+    const p = montarPedidoBetinna({ ...base, documento: '37258545808' })!;
+
+    expect(p.entrega).toEqual({
+      cep: '01310100',
+      logradouro: 'Av. Paulista',
+      numero: '1000',
+      complemento: 'sala 4',
+      bairro: 'Bela Vista',
+      cidade: 'São Paulo',
+      uf: 'SP',
+    });
+  });
+
+  it('UF vai maiúscula e com 2 letras', () => {
+    const p = montarPedidoBetinna({
+      ...base,
+      endereco: { ...(base.endereco as object), uf: 'sp' },
+    })!;
+
+    expect(p.entrega?.uf).toBe('SP');
+  });
+
+  it('endereço pela METADE não vira entrega torta — o ERP recusaria o pedido', () => {
+    const p = montarPedidoBetinna({ ...base, endereco: { cidade: 'São Paulo' } })!;
+
+    expect(p.entrega).toBeUndefined();
+    // E o pedido continua válido: sem entrega ainda é pedido, dá pra completar.
+    expect(p.itens).toHaveLength(1);
+  });
+});
