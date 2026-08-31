@@ -32,6 +32,7 @@ import {
   enderecoCompleto, enderecoEmUmaLinha,
   type Endereco, type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
+import { documentoValido, mascararDocumento, apenasDigitos } from '@/lib/constants/documento';
 
 // A corrente dimensiona o Master Block — texto ali não significa nada. O campo
 // aceita SÓ dígito (a digitação já é filtrada) e o valor é validado contra a
@@ -290,6 +291,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   // Contato vira estado (não FormData): o passo 4 desmonta ao ir pro checkout.
   const [contato, setContato] = useState({ nome: '', whatsapp: '', email: '', empresa: '' });
   const [endereco, setEndereco] = useState<Endereco>(enderecoVazio);
+  // CPF/CNPJ: sem ele não se emite nota, e sem nota não sai etiqueta. Fica no
+  // passo do checkout (não no de contato) pra não pedir documento de quem só
+  // quer orçamento.
+  const [documento, setDocumento] = useState('');
   const [cepBuscando, setCepBuscando] = useState(false);
   const [cepMsg, setCepMsg] = useState<string | null>(null);
   const [pagamento, setPagamento] = useState<FormaPagamentoId | ''>('');
@@ -466,7 +471,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     // pagamento) e lead morno (esperando orçamento). Do lado do Betinna são
     // fluxos diferentes, então saem com `formulario` diferente — não dá pra
     // deixar o CRM adivinhar pelo texto do resumo.
-    const virouPedido = enderecoCompleto(endereco) && pagamento !== '';
+    const virouPedido = enderecoCompleto(endereco) && pagamento !== '' && documentoValido(documento);
     const dadosQuadro = naoSei
       ? 'não sabe os dados do quadro (pediu dimensionamento pela equipe — foto/WhatsApp)'
       : `tensão ${tensao || 'não informada'}, corrente do disjuntor geral ${corrente.trim() || 'não informada'}`;
@@ -511,6 +516,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
             email: contato.email,
             whatsapp: contato.whatsapp,
             empresa: contato.empresa || null,
+            documento: apenasDigitos(documento),
             itens: itensCarrinho.map((i) => ({
               descricao: i.quadro,
               modelo: i.modelo?.model ?? null,
@@ -960,6 +966,21 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-6">
+                  <div className="sm:col-span-3">
+                    <TextField
+                      label="CPF ou CNPJ" name="documento" inputMode="numeric"
+                      placeholder="000.000.000-00" maxLength={18} required
+                      value={mascararDocumento(documento)}
+                      onChange={(e) => setDocumento(e.target.value)}
+                      hint="Obrigatório para emitir a nota fiscal."
+                      error={
+                        apenasDigitos(documento).length >= 11 && !documentoValido(documento)
+                          ? 'Confira o número — não confere.'
+                          : undefined
+                      }
+                    />
+                  </div>
+                  <div className="sm:col-span-3" />
                   <div className="sm:col-span-2">
                     <TextField
                       label="CEP" name="cep" inputMode="numeric" autoComplete="postal-code"
@@ -1102,7 +1123,12 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
 
                   <button
                     type="submit"
-                    disabled={status === 'submitting' || !enderecoCompleto(endereco) || !pagamento}
+                    disabled={
+                      status === 'submitting' ||
+                      !enderecoCompleto(endereco) ||
+                      !pagamento ||
+                      !documentoValido(documento)
+                    }
                     className="btn-primary group w-full justify-center disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                   >
                     {status === 'submitting' ? (

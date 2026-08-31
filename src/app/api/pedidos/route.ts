@@ -39,6 +39,9 @@ const schema = z.object({
   email: z.string().email().max(160),
   whatsapp: z.string().max(40).nullish(),
   empresa: z.string().max(160).nullish(),
+  /** CPF/CNPJ do comprador. Sem ele o ERP não emite nota — e sem nota não sai
+   *  etiqueta. O checkout valida dígito verificador antes de mandar. */
+  documento: z.string().max(20).nullish(),
   itens: z.array(itemSchema).max(30).default([]),
   totalCentavos: z.number().int().min(0).max(100_000_000),
   freteCentavos: z.number().int().min(0).max(10_000_000).default(0),

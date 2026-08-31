@@ -37,6 +37,8 @@ export type EntradaPedidoBetinna = {
   email: string;
   whatsapp?: string | null;
   empresa?: string | null;
+  /** CPF/CNPJ — sem ele o ERP não emite nota. */
+  documento?: string | null;
   itens: ItemDoCheckout[];
   freteCentavos: number;
   formaPagamento?: string | null;
@@ -47,7 +49,18 @@ export type EntradaPedidoBetinna = {
 
 export type PedidoBetinna = {
   numeroSite: string;
-  cliente: { nome: string; email?: string; telefone?: string };
+  cliente: { nome: string; cpfCnpj?: string; email?: string; telefone?: string };
+  /** Endereço ESTRUTURADO. Em observação é texto — ninguém imprime etiqueta
+   *  a partir de observação. */
+  entrega?: {
+    cep: string;
+    logradouro: string;
+    numero?: string;
+    complemento?: string;
+    bairro?: string;
+    cidade?: string;
+    uf?: string;
+  };
   itens: Array<{ sku: string; quantidade: number; valorUnitario: number }>;
   valorFrete: number;
   observacoes: string;
@@ -100,16 +113,42 @@ export function montarPedidoBetinna(p: EntradaPedidoBetinna): PedidoBetinna | nu
     .join(' — ')
     .slice(0, 2000);
 
+  const doc = (p.documento ?? '').replace(/\D/g, '');
+
   return {
     numeroSite: p.numero,
     cliente: {
       nome: p.nome.trim().slice(0, 160),
+      ...(doc ? { cpfCnpj: doc } : {}),
       ...(p.email ? { email: p.email.trim().slice(0, 160) } : {}),
       ...(p.whatsapp ? { telefone: p.whatsapp.trim().slice(0, 30) } : {}),
     },
+    ...(entregaEstruturada(p.endereco) ? { entrega: entregaEstruturada(p.endereco)! } : {}),
     itens,
     valorFrete: Math.max(0, p.freteCentavos) / 100,
     observacoes,
+  };
+}
+
+/**
+ * O endereço do checkout no formato que o app (e depois o ERP) espera.
+ *
+ * Devolve `null` quando falta CEP ou logradouro: endereço pela metade faz o ERP
+ * recusar o pedido, e pedido recusado é pior que pedido sem endereço — este ao
+ * menos existe e dá pra completar no painel.
+ */
+function entregaEstruturada(e: Record<string, unknown> | null | undefined) {
+  if (!e) return null;
+  const v = (k: string) => String(e[k] ?? '').trim();
+  if (!v('cep') || !v('logradouro')) return null;
+  return {
+    cep: v('cep'),
+    logradouro: v('logradouro'),
+    ...(v('numero') ? { numero: v('numero') } : {}),
+    ...(v('complemento') ? { complemento: v('complemento') } : {}),
+    ...(v('bairro') ? { bairro: v('bairro') } : {}),
+    ...(v('cidade') ? { cidade: v('cidade') } : {}),
+    ...(v('uf') ? { uf: v('uf').toUpperCase().slice(0, 2) } : {}),
   };
 }
 
