@@ -143,9 +143,28 @@ function classifyQueue(stats: QueueStats | null): Check {
 // degradou", que é a leitura errada.
 // =============================================================================
 
+// Janela de partida. Medido em produção: o Redis responde `down` por ~13 s
+// depois do processo subir — não é o Redis caído, é a conexão do ioredis que
+// ainda não estabeleceu (`enableOfflineQueue: false`). Acontece a cada deploy.
+//
+// DECISÃO DO LÉO (30/08): quem ignora essa janela é o MONITOR, não o endpoint.
+// O check continua dizendo a verdade — naquele instante o Redis realmente não
+// responde. Fazer o check mentir por 30 s seria pior: esconderia um Redis que
+// caiu de verdade logo depois de um deploy, que é justamente quando é mais
+// provável que caia.
+//
+// Por isso o que entra aqui é o GANCHO, não o filtro: `uptime_s` no corpo e
+// `na_partida` em cada evento. Quem monta o alerta ignora o que vier com
+// `na_partida: true` — em UM campo, sem ter que cruzar dois endpoints nem
+// recalcular nada.
+const JANELA_PARTIDA_S = 30;
+
 type EventoDegrade = {
   quando: string;
   status: CheckStatus;
+  /** Caiu dentro dos primeiros 30 s de vida do processo — provável ruído de
+   *  partida, e o sinal que o alerta usa pra não tocar à toa. */
+  na_partida: boolean;
   /** Só o que estava ruim — o que estava ok não ajuda a investigar. */
   ruins: { check: string; status: CheckStatus; message?: string }[];
 };
@@ -160,7 +179,7 @@ let processoDesde: string | null = null;
  *  O monitoramento bate aqui de minuto em minuto; gravar toda chamada encheria
  *  a lista com o mesmo degrade repetido e esconderia justamente o que interessa
  *  — quando começou e quando voltou. */
-function registrarMudanca(overall: CheckStatus, checks: Record<string, Check>) {
+function registrarMudanca(overall: CheckStatus, checks: Record<string, Check>, uptimeS: number) {
   const ruins = Object.entries(checks)
     .filter(([, c]) => c.status === 'down' || c.status === 'degraded')
     .map(([check, c]) => ({ check, status: c.status, ...(c.message ? { message: c.message } : {}) }));
@@ -170,7 +189,12 @@ function registrarMudanca(overall: CheckStatus, checks: Record<string, Check>) {
 
   // A volta pro normal também é evento: é o que fecha a janela do incidente.
   if (assinaturaAnterior !== '' || ruins.length > 0) {
-    historico.unshift({ quando: new Date().toISOString(), status: overall, ruins });
+    historico.unshift({
+      quando: new Date().toISOString(),
+      status: overall,
+      na_partida: uptimeS < JANELA_PARTIDA_S,
+      ruins,
+    });
     if (historico.length > MAX_EVENTOS) historico.length = MAX_EVENTOS;
   }
   assinaturaAnterior = assinatura;
@@ -197,7 +221,8 @@ export async function GET(req: NextRequest) {
       : 'ok';
 
   const checks = { env, supabase, redis, betinna, queue, sentry };
-  registrarMudanca(overall, checks);
+  const uptimeS = Math.round(process.uptime());
+  registrarMudanca(overall, checks, uptimeS);
 
   const status = overall === 'down' ? 503 : 200;
   const origin = req.headers.get('origin');
@@ -205,6 +230,11 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(
     {
       status: overall,
+      // Aqui e não só no /api/version: um monitor que observa a saúde não
+      // deveria precisar de uma segunda chamada, a outro endpoint, pra saber
+      // se o que ele acabou de ler é ruído de partida.
+      uptime_s: uptimeS,
+      janela_partida_s: JANELA_PARTIDA_S,
       total_ms: Date.now() - start,
       timestamp: new Date().toISOString(),
       checks,

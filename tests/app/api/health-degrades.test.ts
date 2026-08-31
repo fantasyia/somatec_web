@@ -43,7 +43,11 @@ beforeEach(() => {
   vi.stubEnv('BETINNA_API_KEY', 'chave');
   redisMock.mockResolvedValue('PONG');
 });
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => {
+  vi.unstubAllEnvs();
+  // o spy de process.uptime nao pode vazar pro proximo teste
+  vi.restoreAllMocks();
+});
 
 describe('rastro de degrade', () => {
   it('tudo saudável não inventa evento nenhum', async () => {
@@ -124,3 +128,53 @@ describe('rastro de degrade', () => {
 function r_len(r: { degrades_recentes: { eventos: unknown[] } }) {
   return r.degrades_recentes.eventos.length;
 }
+
+// =============================================================================
+// JANELA DE PARTIDA.
+//
+// Medido em produção: o Redis responde `down` por ~13 s depois do processo
+// subir — é a conexão do ioredis que ainda não estabeleceu, não o Redis caído.
+// Acontece a cada deploy.
+//
+// Decisão do Léo (30/08): quem ignora a janela é o MONITOR, não o endpoint. O
+// check continua dizendo a verdade; o que se entrega aqui é o GANCHO pra quem
+// monta o alerta. Fazer o check mentir por 30 s esconderia um Redis que caiu
+// de verdade logo após um deploy — que é justamente quando é mais provável.
+// =============================================================================
+
+describe('janela de partida', () => {
+  it('o corpo carrega uptime e o tamanho da janela — sem precisar de outro endpoint', async () => {
+    const { GET } = await import('@/app/api/health/route');
+    const r = await chamar(GET);
+    expect(typeof r.uptime_s).toBe('number');
+    expect(r.janela_partida_s).toBe(30);
+  });
+
+  it('degrade logo depois de subir vem marcado como `na_partida`', async () => {
+    vi.spyOn(process, 'uptime').mockReturnValue(4);
+    redisMock.mockRejectedValue(new Error('Stream is not writeable'));
+    const { GET } = await import('@/app/api/health/route');
+    const r = await chamar(GET);
+    expect(r.degrades_recentes.eventos[0].na_partida).toBe(true);
+  });
+
+  it('degrade com o processo já rodando NÃO vem marcado — este o alerta tem que pegar', async () => {
+    vi.spyOn(process, 'uptime').mockReturnValue(3600);
+    redisMock.mockRejectedValue(new Error('connect ECONNREFUSED'));
+    const { GET } = await import('@/app/api/health/route');
+    const r = await chamar(GET);
+    expect(r.degrades_recentes.eventos[0].na_partida).toBe(false);
+  });
+
+  it('o status NÃO é maquiado dentro da janela — o check continua honesto', async () => {
+    // O endpoint não pode virar `ok` só porque acabou de subir: isso esconderia
+    // um Redis que caiu de verdade logo após o deploy.
+    vi.spyOn(process, 'uptime').mockReturnValue(2);
+    redisMock.mockRejectedValue(new Error('caiu de verdade'));
+    const { GET } = await import('@/app/api/health/route');
+    const r = await chamar(GET);
+    expect(r.status).toBe('degraded');
+    expect(r.checks.redis.status).toBe('down');
+    expect(JSON.stringify(r.degrades_recentes.eventos[0].ruins)).toMatch(/caiu de verdade/);
+  });
+});
