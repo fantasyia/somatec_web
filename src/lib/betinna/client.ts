@@ -56,6 +56,18 @@ function buildBody(p: MullerBotPayload) {
 
   return {
     nome: cut(p.name, 200),
+    // O Betinna guarda DOIS nomes: `nome` é o título do lead (o "negócio") e
+    // `contatoNome` é o nome da PESSOA. São campos independentes lá.
+    //
+    // Mandando só `nome`, o `contatoNome` ficava vazio — e é ele que o bot usa
+    // pra saudar. Quem comprava pelo site nunca era chamado pelo nome, mesmo
+    // tendo digitado o nome no checkout.
+    //
+    // Quem manda é o site porque é o site que SABE que este campo é nome de
+    // gente (o formulário pediu "Seu nome"). Deixar o Betinna adivinhar que
+    // `nome` é pessoa quando `contatoNome` falta seria magia implícita — e é
+    // assim que nasce "Olá Electro.", saudando uma razão social.
+    contatoNome: cut(p.name, 200),
     telefone: cut(p.whatsapp, 30),
     email: cut(p.email, 200),
     empresa: cut(p.company, 200),
