@@ -2,6 +2,16 @@ import 'server-only';
 import { createHash } from 'node:crypto';
 import type { FormSubmitData } from '@/lib/forms/schemas';
 import { tagsDoLead, type PublicoId } from '@/lib/constants/setores';
+import { LGPD_PUBLIC_IMPLICITO } from '@/lib/lgpd-public';
+
+/** Slug do lead de quem preencheu o contato e não concluiu. */
+const FORM_ABANDONO = 'checkout-ni-abandono';
+
+/** Etiqueta que separa o abandono no CRM.
+ *
+ *  Sai do SLUG, no servidor — não de tag mandada pelo cliente. Aceitar
+ *  etiqueta livre do browser deixaria qualquer um escrever no CRM. */
+const TAG_ABANDONO = 'checkout-abandonado';
 
 // -----------------------------------------------------------------------------
 // Builder do payload enviado ao MullerBot — adendo v1.1 §3.2
@@ -68,6 +78,7 @@ function sha256(input: string): string {
 
 export function buildMullerBotPayload(input: BuildPayloadInput): MullerBotPayload {
   const { validated, ip, userAgent, referer, lgpdTextVersion, lgpdTextRaw } = input;
+  const ehAbandono = validated.formulario === FORM_ABANDONO;
   const now = new Date().toISOString();
 
   const baseRecord = validated as unknown as Record<string, string | undefined>;
@@ -95,12 +106,17 @@ export function buildMullerBotPayload(input: BuildPayloadInput): MullerBotPayloa
     message: message && message.length > 0 ? message : null,
     extra_fields,
     source_page: validated.source_page ?? '/contato',
+    // O consentimento IMPLÍCITO (abandono) carrega o texto do AVISO que a
+    // pessoa viu no passo do contato — não o do checkbox, que ela nunca
+    // chegou a ver. Numa auditoria o que vale é o texto exibido, e é o par
+    // versão+hash que separa os dois padrões sem depender de memória de
+    // ninguém.
     lgpd_consent: {
       accepted: validated.lgpd_consent === true,
       timestamp: now,
       ip,
-      text_version: lgpdTextVersion,
-      text_hash: sha256(lgpdTextRaw),
+      text_version: ehAbandono ? LGPD_PUBLIC_IMPLICITO.version : lgpdTextVersion,
+      text_hash: sha256(ehAbandono ? LGPD_PUBLIC_IMPLICITO.text : lgpdTextRaw),
     },
     captcha_token: validated.captcha_token ?? '',
     captcha_unverified: input.captchaUnverified ?? false,
@@ -113,7 +129,11 @@ export function buildMullerBotPayload(input: BuildPayloadInput): MullerBotPayloa
     atribuicao: validated.atribuicao,
     ...(() => {
       const v = validated as unknown as { publico?: PublicoId; setor?: string };
-      const tags = tagsDoLead(v.publico ?? '', v.setor ?? '');
+      const tags = [...tagsDoLead(v.publico ?? '', v.setor ?? '')];
+      // Sem esta etiqueta, quem abandonou fica misturado com quem comprou —
+      // e é justamente a separação que torna a base de abandono útil pra
+      // retargeting, e inútil pra mandar "obrigado pela compra".
+      if (ehAbandono) tags.push(TAG_ABANDONO);
       return tags.length > 0 ? { tags } : {};
     })(),
   };

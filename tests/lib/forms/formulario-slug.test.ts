@@ -24,6 +24,11 @@ function slugsDoSchema(): string[] {
 }
 
 const ESPERADO = [
+  // ⚠️ Acrescentado em 31/08 — o BETINNA PRECISA SABER deste slug pra rotear.
+  // Enquanto o fluxo de nutrição do lado de lá não conhecer
+  // 'checkout-ni-abandono', o lead chega e fica parado sem ninguém acionar.
+  // Está registrado no card do lead de abandono.
+  'checkout-ni-abandono',
   'checkout-ni-orcamento',
   'checkout-ni-pedido',
   'contato',

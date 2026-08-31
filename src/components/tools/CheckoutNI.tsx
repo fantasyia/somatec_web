@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight,
@@ -21,7 +21,7 @@ import { TextField } from '@/components/forms/fields/TextField';
 import { HoneypotField } from '@/components/forms/fields/HoneypotField';
 import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
-import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
+import { LGPD_PUBLIC_DEFAULT, LGPD_PUBLIC_IMPLICITO } from '@/lib/lgpd-public';
 import { trackEvent } from '@/lib/analytics';
 import { enviarLeadOrcamento } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
@@ -272,6 +272,33 @@ function ConsentimentoLgpd() {
   );
 }
 
+/** Aviso do passo de CONTATO — consentimento implícito.
+ *
+ *  Não é caixa de marcar: quem preenche já está consentindo, e é isso que o
+ *  texto precisa dizer ANTES de a pessoa digitar. Sem o aviso visível, a
+ *  captura de quem não conclui não teria base pra existir. */
+const ALVO_LINK = 'Política de Privacidade';
+
+function AvisoLgpdContato() {
+  // O texto é a FONTE do consentimento (o servidor guarda o hash dele), então
+  // ele não pode ser reescrito aqui pra caber no link. Parte-se o texto na
+  // expressão a linkar; se um dia a copy mudar e a expressão sumir, cai no
+  // texto inteiro + link no fim — some o link no meio, não o aviso.
+  const i = LGPD_PUBLIC_IMPLICITO.text.indexOf(ALVO_LINK);
+  const antes = i >= 0 ? LGPD_PUBLIC_IMPLICITO.text.slice(0, i) : LGPD_PUBLIC_IMPLICITO.text + ' ';
+  const depois = i >= 0 ? LGPD_PUBLIC_IMPLICITO.text.slice(i + ALVO_LINK.length) : '';
+
+  return (
+    <p className="text-xs leading-relaxed text-[rgb(var(--text-muted))]">
+      {antes}
+      <Link href="/politica-de-privacidade" className="underline hover:text-gold">
+        {ALVO_LINK}
+      </Link>
+      {depois}
+    </p>
+  );
+}
+
 export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal = false }: Props) {
   const baseId = useId();
   const startedRef = useRef(false);
@@ -305,6 +332,14 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   /** Número do pedido, quando o checkout virou pedido de verdade. */
   const [numeroDoPedido, setNumeroPedido] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState('');
+  // Captcha PRÓPRIO do passo de contato: o token do passo 5 é de outra
+  // submissão (uso único), e reaproveitar faria uma das duas ser recusada.
+  // O widget é invisível, então não custa nada na tela.
+  const [captchaContato, setCaptchaContato] = useState('');
+  // Chave de quem já foi capturado — e-mail + telefone. Guarda "uma pessoa",
+  // não "uma vez": se ela corrigir o e-mail e avançar de novo, é outro
+  // contato e vale capturar; digitar o mesmo dez vezes não vira dez leads.
+  const abandonoEnviadoRef = useRef<string>('');
 
   // A corrente pode chegar pronta pelo link que a IA manda no WhatsApp
   // (fluxo C1): ela já fez o trabalho difícil de descobrir o disjuntor, então
@@ -345,6 +380,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       startedRef.current = true;
       trackEvent('calc_inicio', { setor, landing: landingSlug });
     }
+    // Saindo do contato PRA FRENTE: a pessoa entregou os dados. Daqui ela
+    // pode fechar, desistir ou sumir — o lead já está garantido.
+    if (passo === 4 && n > passo) capturarAbandono();
+
     const alvo = Math.min(totalPassos, Math.max(1, n));
     setPasso(alvo);
     trackEvent('calc_passo', { setor, landing: landingSlug, passo: alvo });
@@ -360,6 +399,64 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
 
   /** Contexto escolhido no passo 1 — dita os quadros do passo 3. */
   const ctxAtual = CONTEXTOS[setor].find((c) => c.id === contexto);
+
+  // ── LEAD DE ABANDONO ────────────────────────────────────────────────────
+  // Quem preencheu o contato e não concluiu também é lead: hoje o CRM só
+  // recebe quem CHEGA AO FIM, e o resto do funil evapora.
+  //
+  // Dispara ao AVANÇAR do passo de contato e ao SAIR da página com os campos
+  // preenchidos — nunca a cada tecla, que encheria o CRM de leads pela metade
+  // (uma pessoa vira dez "Jo", "Joa", "Joao").
+  //
+  // Consentimento IMPLÍCITO: vale o aviso que ela leu ali, não o checkbox do
+  // passo 5, que ela nunca viu. Quem separa os dois é o slug + o par
+  // versão/hash do texto, montados no servidor.
+  const capturarAbandono = useCallback(() => {
+    const nome = contato.nome.trim();
+    const email = contato.email.trim();
+    const whatsapp = contato.whatsapp.trim();
+    if (!nome || !email || !whatsapp) return;
+
+    const chave = `${email.toLowerCase()}|${whatsapp.replace(/\D/g, '')}`;
+    if (abandonoEnviadoRef.current === chave) return;
+    // Marca ANTES de enviar pra não duplicar se avançar duas vezes rápido —
+    // mas DEVOLVE a chave se o envio falhar. Sem isso, um captcha que ainda
+    // não gerou token queimaria a única tentativa: o servidor recusa, e o
+    // `pagehide` mais tarde nem tentaria de novo. O lead sumiria calado,
+    // que é exatamente o buraco que esta feature veio tapar.
+    abandonoEnviadoRef.current = chave;
+
+    void enviarLeadOrcamento({
+      formulario: 'checkout-ni-abandono',
+      nome,
+      email,
+      whatsapp,
+      empresa: contato.empresa,
+      segmento: `NI · ${setor}`,
+      publico: setor === 'residencial' ? 'residencia' : 'comercio',
+      resumo:
+        `[Checkout abandonado] Contexto: ${ctxAtual?.label ?? '—'}. ` +
+        `Quadro de entrada: ${naoSei ? 'não sabe os dados' : `tensão ${tensao || '—'}, corrente ${corrente.trim() || '—'}`}. ` +
+        (modelo ? `Dimensionado: ${modelo.model} (${formatBRL(modelo.preco)}). ` : '') +
+        'Preencheu o contato e não concluiu.',
+      sourcePage: `/${landingSlug}`,
+      // Implícito: a pessoa consentiu ao preencher, sob o aviso do passo 4.
+      lgpdConsent: true,
+      honeypot: '',
+      captchaToken: captchaContato,
+    }).then((r) => {
+      if (!r.ok && abandonoEnviadoRef.current === chave) abandonoEnviadoRef.current = '';
+    });
+  }, [contato, setor, landingSlug, ctxAtual, naoSei, tensao, corrente, modelo, captchaContato]);
+
+  // Saiu da aba/página com o contato preenchido: é a outra metade do abandono
+  // — quem não avança nem fecha, só some. `pagehide` porque `beforeunload` não
+  // dispara com confiança no celular.
+  useEffect(() => {
+    const aoSair = () => capturarAbandono();
+    window.addEventListener('pagehide', aoSair);
+    return () => window.removeEventListener('pagehide', aoSair);
+  }, [capturarAbandono]);
 
   function toggleAdicional(q: string) {
     setAdicionais((prev) =>
@@ -928,6 +1025,13 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       onChange={(e) => setContato((c) => ({ ...c, empresa: e.target.value }))}
                     />
                   </div>
+
+                  {/* Consentimento IMPLÍCITO: quem preenche já consente, e é
+                      isto que dá base pra capturar quem não conclui. Precisa
+                      estar VISÍVEL antes de a pessoa digitar. */}
+                  <AvisoLgpdContato />
+                  {/* Invisível — só produz o token do lead de abandono. */}
+                  <TurnstileWidget onToken={setCaptchaContato} />
 
                   {/* Sem preço fechado não há o que comprar: encerra como
                       orçamento aqui mesmo, sem passar pelo checkout. */}

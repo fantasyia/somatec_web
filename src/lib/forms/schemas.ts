@@ -96,6 +96,10 @@ const baseFields = {
       // pagamento × lead morno esperando orçamento. Slugs separados.
       'checkout-ni-pedido',
       'checkout-ni-orcamento',
+      // Quem preencheu o contato e NÃO concluiu. Consentimento IMPLÍCITO (o
+      // aviso no passo do contato, não o checkbox) — por isso slug próprio:
+      // numa auditoria de LGPD os dois padrões precisam se separar sozinhos.
+      'checkout-ni-abandono',
       'custo-de-parada',
     ])
     .optional(),

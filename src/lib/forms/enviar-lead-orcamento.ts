@@ -14,6 +14,7 @@ export type FormularioOrcamento =
   | 'orcamento-industrial'
   | 'checkout-ni-pedido'
   | 'checkout-ni-orcamento'
+  | 'checkout-ni-abandono'
   | 'custo-de-parada';
 
 export type LeadOrcamento = {
