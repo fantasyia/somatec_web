@@ -126,8 +126,59 @@ function classifyQueue(stats: QueueStats | null): Check {
   return { status: 'ok', message: `${stats.pending} pending, ${stats.failed} failed, ${stats.dead} dead` };
 }
 
+// =============================================================================
+// RASTRO DOS DEGRADES
+//
+// Cada chamada aqui é um retrato do instante. Um degrade que passa em dois
+// minutos some sem deixar nada, e depois ninguém consegue responder "o que
+// estava ruim ontem à noite?" — foi exatamente o que aconteceu em 30/08.
+//
+// O lugar natural disso seria o Sentry, que está desligado por decisão (não é
+// hora ainda). Enquanto não for, o endpoint guarda o próprio rastro.
+//
+// ⚠️ Vive na MEMÓRIA do processo: reinício ou deploy zera, e cada instância
+// tem o seu. Não é auditoria — é o suficiente pra investigar um flap recente,
+// que é o caso que hoje fica sem resposta nenhuma. Por isso o `desde` vai
+// junto: sem ele, uma lista vazia depois de um restart pareceria "nunca
+// degradou", que é a leitura errada.
+// =============================================================================
+
+type EventoDegrade = {
+  quando: string;
+  status: CheckStatus;
+  /** Só o que estava ruim — o que estava ok não ajuda a investigar. */
+  ruins: { check: string; status: CheckStatus; message?: string }[];
+};
+
+const MAX_EVENTOS = 8;
+const historico: EventoDegrade[] = [];
+let assinaturaAnterior = '';
+let processoDesde: string | null = null;
+
+/** Registra MUDANÇA de estado, não amostra.
+ *
+ *  O monitoramento bate aqui de minuto em minuto; gravar toda chamada encheria
+ *  a lista com o mesmo degrade repetido e esconderia justamente o que interessa
+ *  — quando começou e quando voltou. */
+function registrarMudanca(overall: CheckStatus, checks: Record<string, Check>) {
+  const ruins = Object.entries(checks)
+    .filter(([, c]) => c.status === 'down' || c.status === 'degraded')
+    .map(([check, c]) => ({ check, status: c.status, ...(c.message ? { message: c.message } : {}) }));
+
+  const assinatura = `${overall}|${ruins.map((r) => `${r.check}:${r.status}`).join(',')}`;
+  if (assinatura === assinaturaAnterior) return;
+
+  // A volta pro normal também é evento: é o que fecha a janela do incidente.
+  if (assinaturaAnterior !== '' || ruins.length > 0) {
+    historico.unshift({ quando: new Date().toISOString(), status: overall, ruins });
+    if (historico.length > MAX_EVENTOS) historico.length = MAX_EVENTOS;
+  }
+  assinaturaAnterior = assinatura;
+}
+
 export async function GET(req: NextRequest) {
   const start = Date.now();
+  processoDesde ??= new Date().toISOString();
   const env = checkEnv();
   const sentry = checkSentry();
   const betinna = checkBetinna();
@@ -145,6 +196,9 @@ export async function GET(req: NextRequest) {
       ? 'degraded'
       : 'ok';
 
+  const checks = { env, supabase, redis, betinna, queue, sentry };
+  registrarMudanca(overall, checks);
+
   const status = overall === 'down' ? 503 : 200;
   const origin = req.headers.get('origin');
 
@@ -153,8 +207,11 @@ export async function GET(req: NextRequest) {
       status: overall,
       total_ms: Date.now() - start,
       timestamp: new Date().toISOString(),
-      checks: { env, supabase, redis, betinna, queue, sentry },
+      checks,
       queue_stats: queueStats,
+      // `desde` diz até onde a memória alcança: lista vazia com `desde` de
+      // agora significa "acabou de subir", não "está tudo bem faz tempo".
+      degrades_recentes: { desde: processoDesde, eventos: historico },
     },
     { status, headers: publicResponseHeaders(origin) },
   );
