@@ -380,8 +380,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             </h2>
             {!ctaNi && (
               <p className="leading-relaxed text-white/80">
-                As cinco primeiras etapas não têm custo — estudo, projeto, proposta, instalação e
-                período de avaliação. Você só passa a pagar se o resultado for comprovado.
+                As cinco etapas — levantamento, projeto, proposta, instalação e avaliação — são
+                sem custo e começam com a assinatura do contrato; você só passa a pagar se o
+                resultado for comprovado em 60 a 90 dias.
               </p>
             )}
             <div className="flex flex-wrap justify-center gap-3 pt-2">

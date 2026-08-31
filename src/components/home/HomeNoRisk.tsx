@@ -1,7 +1,10 @@
 /**
  * Modelo comercial "investimento sem risco" — o diferencial mais forte do
- * playbook: os 5 primeiros passos são sem custo e o cliente só paga se
- * aprovar o resultado. Band navy para máximo contraste.
+ * playbook: as cinco etapas são sem custo e COMEÇAM COM A ASSINATURA DO
+ * CONTRATO — o cliente só passa a pagar se o resultado for comprovado em 60 a
+ * 90 dias. A ordem importa: sem o contrato, o texto lê como teste grátis sem
+ * compromisso, que é a "medição prévia" extinta em 20/08 voltando por outro
+ * caminho. Band navy para máximo contraste.
  */
 import Link from 'next/link';
 import { ChevronRight, Network } from 'lucide-react';
@@ -23,12 +26,12 @@ export function HomeNoRisk() {
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
             Na indústria, o Master Block trabalha por locação — e a conta só começa depois da
-            prova. Estudo da rede, projeto, proposta, instalação e período de avaliação: as cinco
-            primeiras etapas{' '}
-            <span className="font-semibold text-[rgb(var(--text))]">não têm custo</span>. Durante 60
-            a 90 dias, o software mede a sua operação até ter dado suficiente para comprovar — ou
-            não — o resultado. Comprovou, começa a mensalidade. Não comprovou, retiramos os
-            equipamentos, sem custo algum.
+            prova. As cinco etapas — levantamento, projeto, proposta, instalação e avaliação —{' '}
+            <span className="font-semibold text-[rgb(var(--text))]">são sem custo</span> e começam
+            com a assinatura do contrato; você só passa a pagar se o resultado for comprovado em 60
+            a 90 dias. Nesse período o software mede a sua operação até ter dado suficiente para
+            comprovar — ou não — o resultado. Comprovou, começa a mensalidade. Não comprovou,
+            retiramos os equipamentos, sem custo algum.
           </p>
         </div>
 

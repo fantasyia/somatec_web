@@ -104,8 +104,9 @@ export default async function SolucaoPage({
             {s.cta}
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Fale com a engenharia da Somatec Blocking: as cinco primeiras etapas não têm custo e
-            você só paga se o resultado for comprovado.
+            Fale com a engenharia da Somatec Blocking: as cinco etapas — levantamento, projeto,
+            proposta, instalação e avaliação — são sem custo e começam com a assinatura do
+            contrato; você só passa a pagar se o resultado for comprovado em 60 a 90 dias.
           </p>
           <CommercialCta
             label="Falar com a engenharia"

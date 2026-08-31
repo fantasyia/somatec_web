@@ -95,10 +95,11 @@ export default async function OrcamentoIndustrialPage() {
                 Você só paga se o resultado for comprovado.
               </h2>
               <p className="mt-3 text-[17px] leading-[1.8] text-[rgb(var(--text))]">
-                As cinco primeiras etapas são sem custo: levantamento técnico da rede, projeto,
-                proposta, instalação e a própria avaliação. O resultado é medido na sua planta, ao
-                longo de <span className="font-semibold">60 a 90 dias</span>, com o software do
-                Master Block mostrando o antes e o depois em tempo real.
+                As cinco etapas — levantamento, projeto, proposta, instalação e avaliação — são
+                sem custo e começam com a assinatura do contrato; você só passa a pagar se o
+                resultado for comprovado em{' '}
+                <span className="font-semibold">60 a 90 dias</span>. A medição acontece na sua
+                planta, com o software do Master Block mostrando o antes e o depois em tempo real.
               </p>
               <p className="mt-3 text-[17px] leading-[1.8] text-[rgb(var(--text))]">
                 Se o resultado não for comprovado, os equipamentos são retirados sem custo.
