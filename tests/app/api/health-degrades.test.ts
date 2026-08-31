@@ -15,7 +15,11 @@ import { NextRequest } from 'next/server';
 // =============================================================================
 
 const redisMock = vi.fn();
-vi.mock('@/lib/redis', () => ({ getRedis: () => ({ ping: () => redisMock() }) }));
+const idadeRedisMock = vi.fn<() => number | null>(() => 3600);
+vi.mock('@/lib/redis', () => ({
+  getRedis: () => ({ ping: () => redisMock() }),
+  idadeDoRedisS: () => idadeRedisMock(),
+}));
 
 vi.mock('@/lib/supabase/admin', () => ({
   getSupabaseAdminClient: () => ({
@@ -42,6 +46,7 @@ beforeEach(() => {
   vi.stubEnv('BETINNA_LEADS_URL', 'https://betinna.example/leads');
   vi.stubEnv('BETINNA_API_KEY', 'chave');
   redisMock.mockResolvedValue('PONG');
+  idadeRedisMock.mockReturnValue(3600);
 });
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -143,33 +148,56 @@ function r_len(r: { degrades_recentes: { eventos: unknown[] } }) {
 // =============================================================================
 
 describe('janela de partida', () => {
-  it('o corpo carrega uptime e o tamanho da janela — sem precisar de outro endpoint', async () => {
+  it('o corpo mostra os DOIS relógios — eles não são a mesma coisa', async () => {
     const { GET } = await import('@/app/api/health/route');
     const r = await chamar(GET);
     expect(typeof r.uptime_s).toBe('number');
+    expect(r.redis_idade_s).toBe(3600);
     expect(r.janela_partida_s).toBe(30);
   });
 
-  it('degrade logo depois de subir vem marcado como `na_partida`', async () => {
-    vi.spyOn(process, 'uptime').mockReturnValue(4);
-    redisMock.mockRejectedValue(new Error('Stream is not writeable'));
+  it('Redis recém-criado falhando sozinho vem marcado `na_partida`', async () => {
+    idadeRedisMock.mockReturnValue(4);
+    redisMock.mockRejectedValue(new Error("Stream isn't writeable"));
     const { GET } = await import('@/app/api/health/route');
     const r = await chamar(GET);
     expect(r.degrades_recentes.eventos[0].na_partida).toBe(true);
   });
 
-  it('degrade com o processo já rodando NÃO vem marcado — este o alerta tem que pegar', async () => {
-    vi.spyOn(process, 'uptime').mockReturnValue(3600);
+  it('Redis JÁ AQUECIDO que cai NÃO é partida — este o alerta tem que pegar', async () => {
+    idadeRedisMock.mockReturnValue(3600);
     redisMock.mockRejectedValue(new Error('connect ECONNREFUSED'));
     const { GET } = await import('@/app/api/health/route');
     const r = await chamar(GET);
     expect(r.degrades_recentes.eventos[0].na_partida).toBe(false);
   });
 
-  it('o status NÃO é maquiado dentro da janela — o check continua honesto', async () => {
-    // O endpoint não pode virar `ok` só porque acabou de subir: isso esconderia
-    // um Redis que caiu de verdade logo após o deploy.
+  it('NÃO usa o uptime do processo — foi esse o erro da 1ª versão', async () => {
+    // Processo novinho, mas o cliente Redis já está aquecido há uma hora: o
+    // cliente nasce na 1ª chamada que precisa dele, não no boot. Medir pelo
+    // uptime marcaria isto como partida e calaria um Redis caído de verdade.
     vi.spyOn(process, 'uptime').mockReturnValue(2);
+    idadeRedisMock.mockReturnValue(3600);
+    redisMock.mockRejectedValue(new Error('connect ECONNREFUSED'));
+    const { GET } = await import('@/app/api/health/route');
+    const r = await chamar(GET);
+    expect(r.degrades_recentes.eventos[0].na_partida).toBe(false);
+  });
+
+  it('outra coisa ruim JUNTO derruba a marca — problema real não se esconde atrás do aquecimento', async () => {
+    idadeRedisMock.mockReturnValue(2);
+    redisMock.mockRejectedValue(new Error("Stream isn't writeable"));
+    vi.stubEnv('BETINNA_LEADS_URL', '');
+    vi.stubEnv('BETINNA_API_KEY', '');
+    const { GET } = await import('@/app/api/health/route');
+    const r = await chamar(GET);
+    const ev = r.degrades_recentes.eventos[0];
+    expect(ev.ruins.length).toBeGreaterThan(1);
+    expect(ev.na_partida).toBe(false);
+  });
+
+  it('o status NÃO é maquiado dentro da janela — o check continua honesto', async () => {
+    idadeRedisMock.mockReturnValue(2);
     redisMock.mockRejectedValue(new Error('caiu de verdade'));
     const { GET } = await import('@/app/api/health/route');
     const r = await chamar(GET);

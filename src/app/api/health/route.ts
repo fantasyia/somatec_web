@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { publicResponseHeaders, corsHeaders } from '@/lib/http/headers';
-import { getRedis } from '@/lib/redis';
+import { getRedis, idadeDoRedisS } from '@/lib/redis';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -153,17 +153,23 @@ function classifyQueue(stats: QueueStats | null): Check {
 // caiu de verdade logo depois de um deploy, que é justamente quando é mais
 // provável que caia.
 //
-// Por isso o que entra aqui é o GANCHO, não o filtro: `uptime_s` no corpo e
-// `na_partida` em cada evento. Quem monta o alerta ignora o que vier com
-// `na_partida: true` — em UM campo, sem ter que cruzar dois endpoints nem
-// recalcular nada.
+// Por isso o que entra aqui é o GANCHO, não o filtro: `na_partida` em cada
+// evento. Quem monta o alerta ignora o que vier com `true` — em UM campo, sem
+// ter que cruzar dois endpoints nem recalcular nada.
+//
+// ⚠️ O relógio é a IDADE DO CLIENTE REDIS, não o uptime do processo. A
+// primeira versão usava o uptime e não funcionou: o cliente nasce na primeira
+// chamada que precisa dele, que pode ser muito depois do boot. No deploy de
+// 31/08 o degrade de partida veio marcado `na_partida: false` justamente por
+// isso — o alerta teria tocado no caso que este campo existe pra calar.
 const JANELA_PARTIDA_S = 30;
 
 type EventoDegrade = {
   quando: string;
   status: CheckStatus;
-  /** Caiu dentro dos primeiros 30 s de vida do processo — provável ruído de
-   *  partida, e o sinal que o alerta usa pra não tocar à toa. */
+  /** O degrade é só do Redis aquecendo a conexão — provável ruído de partida,
+   *  e o sinal que o alerta usa pra não tocar à toa. Um Redis que cai de
+   *  verdade depois de aquecido NÃO entra aqui. */
   na_partida: boolean;
   /** Só o que estava ruim — o que estava ok não ajuda a investigar. */
   ruins: { check: string; status: CheckStatus; message?: string }[];
@@ -179,7 +185,16 @@ let processoDesde: string | null = null;
  *  O monitoramento bate aqui de minuto em minuto; gravar toda chamada encheria
  *  a lista com o mesmo degrade repetido e esconderia justamente o que interessa
  *  — quando começou e quando voltou. */
-function registrarMudanca(overall: CheckStatus, checks: Record<string, Check>, uptimeS: number) {
+/** Só conta como partida quando TUDO que falhou é o Redis e o cliente acabou
+ *  de nascer. Se qualquer outra coisa estiver ruim junto, o alerta tem que
+ *  tocar — senão um problema real se esconderia atrás do aquecimento. */
+function ehRuidoDePartida(ruins: { check: string }[]): boolean {
+  if (ruins.length === 0 || !ruins.every((r) => r.check === 'redis')) return false;
+  const idade = idadeDoRedisS();
+  return idade !== null && idade < JANELA_PARTIDA_S;
+}
+
+function registrarMudanca(overall: CheckStatus, checks: Record<string, Check>) {
   const ruins = Object.entries(checks)
     .filter(([, c]) => c.status === 'down' || c.status === 'degraded')
     .map(([check, c]) => ({ check, status: c.status, ...(c.message ? { message: c.message } : {}) }));
@@ -192,7 +207,7 @@ function registrarMudanca(overall: CheckStatus, checks: Record<string, Check>, u
     historico.unshift({
       quando: new Date().toISOString(),
       status: overall,
-      na_partida: uptimeS < JANELA_PARTIDA_S,
+      na_partida: ehRuidoDePartida(ruins),
       ruins,
     });
     if (historico.length > MAX_EVENTOS) historico.length = MAX_EVENTOS;
@@ -221,8 +236,7 @@ export async function GET(req: NextRequest) {
       : 'ok';
 
   const checks = { env, supabase, redis, betinna, queue, sentry };
-  const uptimeS = Math.round(process.uptime());
-  registrarMudanca(overall, checks, uptimeS);
+  registrarMudanca(overall, checks);
 
   const status = overall === 'down' ? 503 : 200;
   const origin = req.headers.get('origin');
@@ -230,10 +244,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(
     {
       status: overall,
-      // Aqui e não só no /api/version: um monitor que observa a saúde não
-      // deveria precisar de uma segunda chamada, a outro endpoint, pra saber
-      // se o que ele acabou de ler é ruído de partida.
-      uptime_s: uptimeS,
+      // Contexto pra quem investiga: `redis_idade_s` é o relógio que decide o
+      // `na_partida`, e `uptime_s` mostra que os dois NÃO são a mesma coisa.
+      uptime_s: Math.round(process.uptime()),
+      redis_idade_s: idadeDoRedisS(),
       janela_partida_s: JANELA_PARTIDA_S,
       total_ms: Date.now() - start,
       timestamp: new Date().toISOString(),
