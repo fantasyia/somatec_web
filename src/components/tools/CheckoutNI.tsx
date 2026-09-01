@@ -1012,18 +1012,41 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       value={contato.whatsapp}
                       onChange={(e) => setContato((c) => ({ ...c, whatsapp: e.target.value }))}
                     />
-                    <TextField
-                      label="E-mail" name="email" type="email" autoComplete="email" required
-                      value={contato.email}
-                      onChange={(e) => setContato((c) => ({ ...c, email: e.target.value }))}
-                    />
-                    <TextField
-                      label={setor === 'comercial' ? 'Empresa (opcional)' : 'Cidade (opcional)'}
-                      name="company"
-                      autoComplete={setor === 'comercial' ? 'organization' : 'address-level2'}
-                      value={contato.empresa}
-                      onChange={(e) => setContato((c) => ({ ...c, empresa: e.target.value }))}
-                    />
+                    {/* O wrapper leva o col-span, não o TextField: o
+                        `className` dele vai pro <input>, e quem é item do grid
+                        é a div de fora. Sem o campo de empresa ao lado, o
+                        e-mail ocupa a linha inteira em vez de deixar meia
+                        coluna vazia. */}
+                    <div className={setor === 'comercial' ? undefined : 'sm:col-span-2'}>
+                      <TextField
+                        label="E-mail" name="email" type="email" autoComplete="email" required
+                        value={contato.email}
+                        onChange={(e) => setContato((c) => ({ ...c, email: e.target.value }))}
+                      />
+                    </div>
+                    {/* Empresa SÓ na trilha comercial.
+                     *
+                     *  No residencial este campo pedia "Cidade" — e mandava o
+                     *  valor no `company`, então a cidade aparecia no CRM como
+                     *  nome da empresa do cliente.
+                     *
+                     *  Decisão do Léo (31/08): tirar, não remapear. Quem chega
+                     *  ao checkout informa o CEP no passo seguinte, e dali sai
+                     *  cidade, bairro e UF — mais preciso do que a pessoa
+                     *  digitando. Um campo a mais no passo de MAIOR ATRITO não
+                     *  se paga por um dado que já vem melhor logo adiante.
+                     *
+                     *  Efeito colateral bom: `empresa` no CRM passa a ser
+                     *  empresa de verdade em 100% dos casos. */}
+                    {setor === 'comercial' && (
+                      <TextField
+                        label="Empresa (opcional)"
+                        name="company"
+                        autoComplete="organization"
+                        value={contato.empresa}
+                        onChange={(e) => setContato((c) => ({ ...c, empresa: e.target.value }))}
+                      />
+                    )}
                   </div>
 
                   {/* Consentimento IMPLÍCITO: quem preenche já consente, e é
