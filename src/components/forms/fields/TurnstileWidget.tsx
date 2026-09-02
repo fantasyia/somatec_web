@@ -1,7 +1,7 @@
 'use client';
 
 import Script from 'next/script';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 // Cloudflare Turnstile widget — modo invisível (size: 'invisible').
 // Renderiza apenas se NEXT_PUBLIC_TURNSTILE_SITE_KEY estiver definida.
@@ -38,7 +38,6 @@ export function TurnstileWidget({ onToken, theme = 'auto' }: Props) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
 
   const render = useCallback(() => {
     if (!window.turnstile || !containerRef.current || !siteKey) return;
@@ -54,9 +53,45 @@ export function TurnstileWidget({ onToken, theme = 'auto' }: Props) {
     });
   }, [siteKey, onToken, theme]);
 
+  // Espera o script ficar disponível e renderiza — SEM estado no meio.
+  //
+  // Antes isto dependia do `onLoad` do <Script>, que só dispara pra QUEM
+  // carrega o script. Quando uma segunda instância montava depois (o checkout
+  // tem uma no passo de contato e outra no de pagamento), o script já estava na
+  // página, o `onLoad` não vinha, e o widget nunca renderizava — o envio saía
+  // com `captcha_token` vazio e o servidor devolvia 400.
+  //
+  // Era bug latente: antes só um widget montava por sessão. Passou a doer
+  // quando o segundo apareceu.
+  //
+  // Sem `scriptLoaded`: guardar "o script chegou" em estado obrigava a chamar
+  // setState dentro do efeito, o que dispara render em cascata. O que importa
+  // não é o estado — é ter renderizado o widget, e disso o `widgetIdRef` já dá
+  // conta.
   useEffect(() => {
-    if (scriptLoaded) render();
+    if (!siteKey) return;
+    let parado = false;
+
+    const tentar = () => {
+      if (parado) return true;
+      if (!window.turnstile || !containerRef.current) return false;
+      render();
+      return true;
+    };
+
+    if (tentar()) return;
+
+    const t = setInterval(() => {
+      if (tentar()) clearInterval(t);
+    }, 100);
+    // Desiste depois de 15s: numa página onde o script foi bloqueado (adblock,
+    // rede corporativa) o intervalo rodaria pra sempre.
+    const limite = setTimeout(() => clearInterval(t), 15_000);
+
     return () => {
+      parado = true;
+      clearInterval(t);
+      clearTimeout(limite);
       if (widgetIdRef.current && window.turnstile) {
         try {
           window.turnstile.remove(widgetIdRef.current);
@@ -66,7 +101,7 @@ export function TurnstileWidget({ onToken, theme = 'auto' }: Props) {
         widgetIdRef.current = null;
       }
     };
-  }, [scriptLoaded, render]);
+  }, [siteKey, render]);
 
   if (!siteKey) {
     // Dev sem configurar: não renderiza nada e onToken nunca é chamado
@@ -76,11 +111,12 @@ export function TurnstileWidget({ onToken, theme = 'auto' }: Props) {
 
   return (
     <>
+      {/* Sem `onLoad`: quem espera o script é o efeito acima, que funciona
+          tanto pra primeira instância quanto pras seguintes. */}
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         async
         defer
-        onLoad={() => setScriptLoaded(true)}
       />
       <div ref={containerRef} />
     </>
