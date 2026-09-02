@@ -18,6 +18,7 @@ import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
 import { PublicoSetorFields } from './fields/PublicoSetorFields';
 import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
+import { validarContato, temErro } from '@/lib/forms/validar-contato';
 import Link from 'next/link';
 
 export type ContactFormVariant =
@@ -60,11 +61,28 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const fd = new FormData(e.currentTarget);
+
+    // Valida ANTES de marcar como enviando: com o `submitting` na frente, o
+    // botão desabilitava e a pessoa via o formulário travar sem saber por quê.
+    const problemas = validarContato({
+      nome: String(fd.get('name') ?? ''),
+      email: String(fd.get('email') ?? ''),
+      whatsapp: String(fd.get('whatsapp') ?? ''),
+      publico,
+      lgpdAceito: fd.get('lgpd_consent') === 'on',
+    });
+    if (temErro(problemas)) {
+      setErrors(problemas);
+      setStatus('error');
+      setMessage('Confira os campos destacados.');
+      return;
+    }
+
     setStatus('submitting');
     setMessage(null);
     setErrors({});
-
-    const fd = new FormData(e.currentTarget);
     const payload: Record<string, unknown> = {
       form_type: variant,
       name: fd.get('name'),
@@ -155,7 +173,7 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
           name="name"
           autoComplete="name"
           required
-          error={errors.name}
+          error={errors.nome}
           maxLength={120}
         />
         <TextField
