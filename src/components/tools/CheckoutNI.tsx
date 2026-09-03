@@ -23,7 +23,7 @@ import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT, LGPD_PUBLIC_IMPLICITO } from '@/lib/lgpd-public';
 import { trackEvent } from '@/lib/analytics';
-import { enviarLeadOrcamento } from '@/lib/forms/enviar-lead-orcamento';
+import { enviarLeadOrcamento, type ResultadoEnvio } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { selecionarMasterBlock, formatBRL, MB_LOAD_MAX } from '@/lib/constants/masterblock';
 import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
@@ -603,6 +603,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     // Vem ANTES do lead de propósito: se o registro falhar, o cliente não
     // recebe um "pedido confirmado" sem ter como consultar depois.
     let numeroPedido: string | null = null;
+    // Quando o /api/pedidos entrega o lead pelo servidor, este envio aqui não
+    // acontece — senão o CRM receberia dois.
+    let leadJaEntregue = false;
     if (virouPedido) {
       try {
         const resp = await fetch('/api/pedidos', {
@@ -626,10 +629,22 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
             endereco,
             setor,
             origem: `site:${landingSlug}`,
+            // O servidor precisa destes dois pra montar e entregar o LEAD por
+            // lá — o resumo porque só o wizard sabe o que a pessoa montou, e o
+            // consentimento porque sem ele o lead não vai pro CRM.
+            resumo: resumoLimpo,
+            lgpdConsent: fd.get('lgpd_consent') === 'on',
           }),
         });
-        const j = (await resp.json()) as { ok?: boolean; numero?: string | null };
+        const j = (await resp.json()) as {
+          ok?: boolean;
+          numero?: string | null;
+          leadEnviado?: boolean;
+        };
         if (j?.ok && j.numero) numeroPedido = j.numero;
+        // O servidor já entregou o lead (ou o pôs na fila, que dá no mesmo).
+        // Mandar de novo daqui só duplicaria no CRM.
+        if (j?.leadEnviado) leadJaEntregue = true;
       } catch {
         // Registro do pedido falhou. O lead ainda vai pro CRM logo abaixo, e
         // a equipe fecha na mão — a venda não se perde. O que muda é a
@@ -637,21 +652,31 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       }
     }
 
-    const r = await enviarLeadOrcamento({
-      formulario: virouPedido ? 'checkout-ni-pedido' : 'checkout-ni-orcamento',
-      nome: contato.nome,
-      email: contato.email,
-      whatsapp: contato.whatsapp,
-      empresa: contato.empresa,
-      segmento: `NI · ${setor}`,
-      // A LP já define o público — o lead sai roteável sem perguntar de novo.
-      publico: setor === 'residencial' ? 'residencia' : 'comercio',
-      resumo: numeroPedido ? `[Pedido ${numeroPedido}] ${resumoLimpo}` : resumoLimpo,
-      sourcePage: `/${landingSlug}`,
-      lgpdConsent: fd.get('lgpd_consent') === 'on',
-      honeypot: fd.get('website'),
-      captchaToken,
-    });
+    // O lead do PEDIDO agora sai do servidor, junto com o pedido — assim ele
+    // entra na fila com retentativa em vez de depender desta segunda chamada
+    // do navegador, que some se a aba fechar.
+    //
+    // Este caminho segue valendo pra dois casos: o ORÇAMENTO (que não cria
+    // pedido nenhum) e o pedido cujo registro falhou — aí não houve servidor
+    // pra entregar, e é melhor um lead pelo navegador que lead nenhum.
+    let r: ResultadoEnvio = { ok: true };
+    if (!leadJaEntregue) {
+      r = await enviarLeadOrcamento({
+        formulario: virouPedido ? 'checkout-ni-pedido' : 'checkout-ni-orcamento',
+        nome: contato.nome,
+        email: contato.email,
+        whatsapp: contato.whatsapp,
+        empresa: contato.empresa,
+        segmento: `NI · ${setor}`,
+        // A LP já define o público — o lead sai roteável sem perguntar de novo.
+        publico: setor === 'residencial' ? 'residencia' : 'comercio',
+        resumo: numeroPedido ? `[Pedido ${numeroPedido}] ${resumoLimpo}` : resumoLimpo,
+        sourcePage: `/${landingSlug}`,
+        lgpdConsent: fd.get('lgpd_consent') === 'on',
+        honeypot: fd.get('website'),
+        captchaToken,
+      });
+    }
 
     if (r.ok) {
       setStatus('success');

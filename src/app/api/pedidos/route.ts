@@ -11,6 +11,10 @@ import { enviarEmail } from '@/lib/email/enviar';
 import { montarPedidoBetinna, enviarPedidoBetinna } from '@/lib/betinna/pedidos';
 import { enqueueSubmission, markAttempt, markSent } from '@/lib/webhook-queue';
 import { assuntoPedido, htmlPedido, textoPedido } from '@/lib/email/pedido-confirmado';
+import { buildMullerBotPayload } from '@/lib/mullerbot/payload';
+import { getLgpdConsentText } from '@/lib/lgpd';
+import { entregarLead } from '@/lib/leads/entregar';
+import type { FormSubmitData } from '@/lib/forms/schemas';
 
 const log = createLogger('api-pedidos');
 const ROUTE = '/api/pedidos';
@@ -48,6 +52,12 @@ const schema = z.object({
   formaPagamento: z.string().max(40).nullish(),
   endereco: z.record(z.string(), z.unknown()).default({}),
   setor: z.string().max(40).nullish(),
+  /** Resumo legível do que a pessoa montou no wizard. Vem do CLIENTE porque é
+   *  ele que tem o estado do passo a passo; o servidor só o repassa ao CRM. */
+  resumo: z.string().max(2000).nullish(),
+  /** Consentimento LGPD do passo 5. Sem `true` o lead NÃO é entregue — mesma
+   *  regra do /api/forms/submit, que recusa consentimento ausente. */
+  lgpdConsent: z.boolean().nullish(),
   origem: z.string().max(80).nullish(),
   // Armadilha de robô: campo escondido que gente não preenche.
   website: z.string().max(200).optional(),
@@ -142,11 +152,91 @@ export async function POST(req: NextRequest) {
     marcador: `pedido:${r.numero}`,
   });
 
+  // ── O LEAD do pedido, entregue AQUI e não pelo navegador ──────────────
+  //
+  // Antes o checkout fazia uma SEGUNDA chamada, do browser, depois deste 201.
+  // Se ela falhasse — captcha, rede, aba fechada, limite de taxa — o pedido
+  // existia e o lead não, e nada acusava: o cliente via "pedido confirmado" e
+  // o CRM não sabia de nada. Aconteceu de verdade em 02/09.
+  //
+  // Aqui o lead entra na MESMA fila do pedido, então falha vira retentativa do
+  // cron em vez de sumiço. E não depende de captcha: quem chegou até criar um
+  // pedido já passou pelo limite de taxa e pelo honeypot desta rota, e pedido
+  // criado é sinal de humano bem mais forte que qualquer desafio.
+  const leadEnviado = await entregarLeadDoPedido(dados, r.numero, ip);
+
   trackRequest(ROUTE, 201);
   return NextResponse.json(
-    { ok: true, numero: r.numero },
+    // `leadEnviado` diz ao checkout que ele NÃO precisa mandar o lead de novo.
+    // Sem isso, os dois mandariam e o CRM receberia em duplicidade.
+    { ok: true, numero: r.numero, leadEnviado },
     { status: 201, headers: { ...apiVersionHeaders(), ...rateLimitHeaders(limite) } },
   );
+}
+
+/**
+ * Monta e entrega o lead do pedido concluído.
+ *
+ * Devolve `false` quando não havia lead a entregar (sem consentimento) ou
+ * quando nem a fila aceitou — nos dois casos o checkout ainda tenta pelo
+ * caminho antigo, que é melhor que ficar sem lead nenhum.
+ */
+async function entregarLeadDoPedido(
+  dados: Omit<z.infer<typeof schema>, 'website'>,
+  numero: string,
+  ip: string,
+): Promise<boolean> {
+  // Sem consentimento não há lead. Mesma regra do /api/forms/submit, que
+  // recusa `lgpd_consent` ausente — o pedido é registrado do mesmo jeito, mas
+  // o dado não vai pro CRM.
+  if (dados.lgpdConsent !== true) {
+    log.warn('pedido sem consentimento LGPD — lead nao entregue', { numero });
+    return false;
+  }
+
+  const setor = (dados.setor ?? '').toLowerCase();
+  // A LP já define o público; perguntar de novo seria pedir o que já se sabe.
+  const publico = setor === 'residencial' ? 'residencia' : 'comercio';
+  // `origem` chega como "site:protecao-residencial" — a página é o que vem
+  // depois dos dois-pontos.
+  const pagina = (dados.origem ?? '').split(':')[1] ?? '';
+
+  try {
+    const lgpd = await getLgpdConsentText();
+    const payload = buildMullerBotPayload({
+      validated: {
+        form_type: 'b2b',
+        interest_type: 'b2b',
+        name: dados.nome,
+        email: dados.email,
+        whatsapp: dados.whatsapp ?? '',
+        company: dados.empresa ?? '',
+        message: dados.resumo ? `[Pedido ${numero}] ${dados.resumo}` : `[Pedido ${numero}]`,
+        lgpd_consent: true,
+        source_page: pagina ? `/${pagina}` : '/',
+        website: '',
+        captcha_token: '',
+        formulario: 'checkout-ni-pedido',
+        publico,
+        setor: dados.setor ?? '',
+        segment: `NI · ${dados.setor ?? ''}`,
+      } as unknown as FormSubmitData,
+      ip,
+      userAgent: 'api/pedidos',
+      referer: null,
+      lgpdTextVersion: lgpd.version,
+      lgpdTextRaw: lgpd.text,
+    });
+
+    const r = await entregarLead(payload, { sourcePage: pagina ? `/${pagina}` : null, sourceIp: ip });
+    log.info('lead do pedido', { numero, resultado: r });
+    // `na_fila` também conta como entregue pro checkout: a fila garante a
+    // entrega, e mandar de novo do navegador só duplicaria.
+    return r !== 'nao_enfileirado';
+  } catch (err) {
+    log.error('falha montando o lead do pedido', { numero }, err);
+    return false;
+  }
 }
 
 /**
