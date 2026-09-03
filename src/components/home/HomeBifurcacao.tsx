@@ -36,7 +36,7 @@ const CARDS: readonly Card[] = [
     titulo: 'Industrial',
     modelo: 'Locação',
     resto:
-      ' com resultado comprovado — estudo, projeto, instalação e teste sem custo. Você só paga a mensalidade se aprovar o resultado na sua operação.',
+      ' com direito de saída — estudo, projeto, proposta e instalação sem custo. A primeira mensalidade vence 30 dias depois da instalação, e a partir de 12 meses a Somatec retira sem custo se você não quiser mais.',
     cta: { label: 'Ver proteção industrial', href: '#industria' },
   },
   {

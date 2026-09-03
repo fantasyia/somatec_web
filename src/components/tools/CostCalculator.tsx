@@ -166,9 +166,9 @@ export function CostCalculator() {
             {calc.queimas > 0 && <span>Queima de equipamentos: {brl(calc.queimas)}/ano</span>}
           </div>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/80">
-            É esse número que o Master Block ataca — e, no modelo da Somatec,{' '}
+            É esse número que o Master Block ataca — e, no modelo de locação da Somatec,{' '}
             <span className="font-semibold text-white">
-              você só paga se o resultado for comprovado na sua própria planta
+              até a instalação você não paga nada
             </span>
             . Deixe seus dados e receba a análise da engenharia sobre o seu caso.
           </p>

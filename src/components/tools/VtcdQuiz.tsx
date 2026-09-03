@@ -33,7 +33,7 @@ const LEVELS: Level[] = [
     label: 'Risco alto de VTCD',
     Icon: ShieldAlert,
     tone: 'text-gold',
-    text: 'Esse conjunto de sintomas é o quadro clássico de VTCD e transientes de alta frequência — exatamente a faixa em que a proteção convencional não atua. Cada mês sem tratar é prejuízo recorrente — e no período de avaliação você vê o antes e o depois antes de pagar.',
+    text: 'Esse conjunto de sintomas é o quadro clássico de VTCD e transientes de alta frequência — exatamente a faixa em que a proteção convencional não atua. Cada mês sem tratar é prejuízo recorrente — e até a instalação você não paga nada.',
   },
   {
     min: 2,
@@ -47,7 +47,7 @@ const LEVELS: Level[] = [
     label: 'Risco baixo pelos sintomas informados',
     Icon: CheckCircle2,
     tone: 'text-cyan',
-    text: 'Os sinais clássicos de VTCD não apareceram — mas distúrbios de alta frequência muitas vezes passam despercebidos até a primeira queima. Se quiser certeza, o período de avaliação é sem custo: instalamos, o software mede, e você só paga se o resultado aparecer.',
+    text: 'Os sinais clássicos de VTCD não apareceram — mas distúrbios de alta frequência muitas vezes passam despercebidos até a primeira queima. Se quiser certeza, instalamos e o software mede o antes e o depois na sua planta — e a partir de 12 meses, se não quiser mais, a gente retira sem custo.',
   },
 ];
 

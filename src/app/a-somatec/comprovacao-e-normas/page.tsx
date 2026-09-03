@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ShieldCheck, ClipboardCheck, LineChart, Leaf } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
   title: 'Comprovação, normas e segurança — Somatec Blocking',
@@ -107,7 +108,8 @@ export default function ComprovacaoNormasPage() {
             Quer ver a prova na sua planta?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Instale sem custo e veja a medição antes e depois: você só paga se o resultado for comprovado.
+            {OFERTA_INDUSTRIAL.curta} Depois de instalado, o software mostra a medição antes e
+            depois.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <CommercialCta

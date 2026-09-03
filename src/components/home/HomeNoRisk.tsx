@@ -1,10 +1,20 @@
 /**
- * Modelo comercial "investimento sem risco" — o diferencial mais forte do
- * playbook: as cinco etapas são sem custo e COMEÇAM COM A ASSINATURA DO
- * CONTRATO — o cliente só passa a pagar se o resultado for comprovado em 60 a
- * 90 dias. A ordem importa: sem o contrato, o texto lê como teste grátis sem
- * compromisso, que é a "medição prévia" extinta em 20/08 voltando por outro
- * caminho. Band navy para máximo contraste.
+ * Modelo comercial da locação industrial — o diferencial mais forte do
+ * playbook.
+ *
+ * ⛔ MUDOU EM 03/09. Não existe mais período de avaliação, e o argumento
+ * deixou de ser "só paga se o resultado for comprovado". O modelo agora é:
+ * assina o contrato → instala (até aqui não paga nada) → a primeira
+ * mensalidade vence 30 dias depois → a partir de 12 meses pode encerrar, e a
+ * Somatec retira sem custo.
+ *
+ * O que segura o risco não é mais a prova, é o DIREITO DE SAÍDA. A ordem
+ * continua importando: sem o contrato na frente, o texto lê como teste grátis
+ * sem compromisso, que é a "medição prévia" extinta em 20/08 voltando por
+ * outro caminho.
+ *
+ * 🔒 A duração do contrato é dado INTERNO e não pode aparecer aqui. Os 12
+ * meses são o prazo pra encerrar sem custo — nunca a duração do contrato.
  */
 import Link from 'next/link';
 import { ChevronRight, Network } from 'lucide-react';
@@ -13,7 +23,7 @@ import { LocacaoTimeline } from '@/components/home/LocacaoTimeline';
 
 export function HomeNoRisk() {
   return (
-    <section aria-label="Investimento sem risco">
+    <section aria-label="Como funciona a locação industrial">
       <div className="container-msm section-y">
         {/* O chip "Locação · Indústria" SAIU: eyebrow/kicker não é padrão da
             marca. O público agora é sinalizado pela própria copy — "Na
@@ -22,16 +32,17 @@ export function HomeNoRisk() {
             rótulo. */}
         <div className="max-w-3xl space-y-4">
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Instalamos na sua planta. Você só paga se os dados comprovarem.
+            Instalamos na sua planta. Se não valer a pena, a gente retira.
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Na indústria, o Master Block trabalha por locação — e a conta só começa depois da
-            prova. As cinco etapas — levantamento, projeto, proposta, instalação e avaliação —{' '}
-            <span className="font-semibold text-[rgb(var(--text))]">são sem custo</span> e começam
-            com a assinatura do contrato; você só passa a pagar se o resultado for comprovado em 60
-            a 90 dias. Nesse período o software mede a sua operação até ter dado suficiente para
-            comprovar — ou não — o resultado. Comprovou, começa a mensalidade. Não comprovou,
-            retiramos os equipamentos, sem custo algum.
+            Na indústria, o Master Block trabalha por locação. Você assina o contrato, a engenharia
+            faz o estudo da rede, o projeto e a proposta, e a gente instala —{' '}
+            <span className="font-semibold text-[rgb(var(--text))]">
+              até a instalação você não paga nada
+            </span>
+            . A primeira mensalidade vence 30 dias depois. E a partir de 12 meses, se não estiver
+            satisfeito ou simplesmente não quiser mais, a Somatec retira o equipamento sem custo e
+            encerra o contrato.
           </p>
         </div>
 

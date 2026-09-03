@@ -3,11 +3,12 @@ import { ChevronDown } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
   title: 'Perguntas frequentes — Somatec Blocking',
   description:
-    'Dúvidas sobre o Master Block, VTCD, qualidade de energia e o modelo de investimento sem risco da Somatec Blocking. Respostas técnicas para a indústria.',
+    'Dúvidas sobre o Master Block, VTCD, qualidade de energia e o modelo de locação da Somatec Blocking. Respostas técnicas para a indústria.',
   alternates: { canonical: '/faq' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
@@ -51,8 +52,8 @@ const FAQS: readonly QA[] = [
     a: 'Não. Em 26 anos de atuação não registramos nenhum acidente. As instalações são sempre feitas com a rede desligada, e os produtos são instalados em paralelo, atuando de forma passiva em relação ao circuito.',
   },
   {
-    q: 'Como funciona o investimento sem risco?',
-    a: 'Os primeiros passos — estudo da rede, projeto, proposta, instalação e período de avaliação (60 a 90 dias) — são sem custo. Você só passa a pagar a mensalidade se, ao final do teste, aprovar o resultado na sua operação. Se não houver resultado aprovado, a Somatec retira os equipamentos sem custo.',
+    q: 'Como funciona a locação do Master Block?',
+    a: 'Você assina o contrato de locação e a Somatec instala. Até a instalação, você não paga nada — estudo da rede, projeto e proposta estão incluídos. A primeira mensalidade vence 30 dias depois da instalação. E a partir de 12 meses, se não estiver satisfeito ou simplesmente não quiser mais, a Somatec retira o equipamento sem custo e encerra o contrato.',
   },
   {
     q: 'O Master Block funciona mesmo? Quem já usa?',
@@ -77,7 +78,7 @@ export default function FaqPage() {
 
       <PageHero
         title="Dúvidas sobre proteção e qualidade de energia"
-        description="Reunimos as perguntas mais comuns de engenheiros e gestores de manutenção sobre o Master Block, os VTCD e o nosso modelo de investimento sem risco."
+        description="Reunimos as perguntas mais comuns de engenheiros e gestores de manutenção sobre o Master Block, os VTCD e o nosso modelo de locação."
         breadcrumbs={[{ label: 'FAQ' }]}
       />
 
@@ -107,9 +108,7 @@ export default function FaqPage() {
             Não encontrou a sua dúvida?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Fale com a engenharia da Somatec Blocking: as cinco etapas — levantamento, projeto,
-            proposta, instalação e avaliação — são sem custo e começam com a assinatura do
-            contrato; você só passa a pagar se o resultado for comprovado em 60 a 90 dias.
+            {OFERTA_INDUSTRIAL.paragrafoEngenharia}
           </p>
           <CommercialCta
             label="Falar com a engenharia"

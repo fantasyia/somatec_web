@@ -7,6 +7,7 @@ import { CaseChart } from '@/components/home/CaseChart';
 import { CountUp } from '@/components/ui/CountUp';
 import { CASES, CLIENTES } from '@/lib/constants/cases';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
   title: 'Resultados — cases reais medidos na planta | Somatec Blocking',
@@ -119,11 +120,7 @@ export default function ResultadosPage() {
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
               O próximo número comprovado pode ser o da sua planta
             </h2>
-            <p className="text-white/80 leading-relaxed">
-              As cinco etapas — levantamento, projeto, proposta, instalação e avaliação — são
-              sem custo e começam com a assinatura do contrato; você só passa a pagar se o
-              resultado for comprovado em 60 a 90 dias.
-            </p>
+            <p className="text-white/80 leading-relaxed">{OFERTA_INDUSTRIAL.paragrafo}</p>
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               <Link href="/ferramentas/custo-de-parada" className="btn-primary group">
                 Calcular meu prejuízo

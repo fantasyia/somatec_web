@@ -9,7 +9,7 @@ import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 export const metadata: Metadata = {
   title: 'Quanto custa sua parada? Calculadora + diagnóstico de VTCD — Somatec Blocking',
   description:
-    'Descubra em 2 minutos quanto as paradas e queimas custam por ano na sua operação — e se os sintomas apontam VTCD. Avaliação sem risco: você só paga se o resultado for comprovado.',
+    'Descubra em 2 minutos quanto as paradas e queimas custam por ano na sua operação — e se os sintomas apontam VTCD. Na indústria, o Master Block é locação: até a instalação você não paga nada.',
   alternates: { canonical: '/ferramentas/custo-de-parada' },
   openGraph: {
     title: 'Calculadora de custo de parada + auto-diagnóstico de VTCD',

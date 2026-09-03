@@ -1,38 +1,44 @@
 'use client';
 
-import { Search, PencilRuler, FileText, Wrench, GaugeCircle } from 'lucide-react';
+import { Search, PencilRuler, FileText, FileSignature, Wrench } from 'lucide-react';
 import { useInView } from '@/hooks/useInView';
 import type { LucideIcon } from 'lucide-react';
 
 /**
  * Timeline da LOCAÇÃO (#16-D): 5 nós conectados por uma linha que PREENCHE
  * ao entrar na viewport; cada nó acende em sequência. "sem custo" corre pelos
- * 5 passos; o marcador final diz onde o pagamento começa (só se aprovar).
+ * 5 passos; o marcador final diz quando a primeira mensalidade vence.
  * Desktop horizontal · mobile empilha vertical. reduced-motion: transições
  * viram estado final (guard global de 0.01ms).
+ *
+ * ⛔ O 5º nó era "Período de avaliação" e o marcador dizia "só se aprovar".
+ * A oferta mudou em 03/09: não existe mais período de avaliação, e o pagamento
+ * não depende de aprovar resultado. O que é gratuito é tudo ATÉ A INSTALAÇÃO —
+ * daí a assinatura do contrato entrar como nó e a instalação fechar a régua.
  */
 
 const STEPS: { Icon: LucideIcon; label: string }[] = [
   { Icon: Search, label: 'Estudo da rede' },
   { Icon: PencilRuler, label: 'Projeto do sistema' },
   { Icon: FileText, label: 'Proposta técnica' },
+  { Icon: FileSignature, label: 'Assinatura do contrato' },
   { Icon: Wrench, label: 'Instalação' },
-  { Icon: GaugeCircle, label: 'Período de avaliação' },
 ];
 
 export function LocacaoTimeline() {
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.3 });
 
-  // Nota da jornada (desktop + mobile): amarra os 5 passos ao prazo total e
-  // deixa explícito que o pagamento só começa DEPOIS de tudo — e só se aprovar.
+  // Nota da jornada (desktop + mobile): diz até onde não se paga nada e quando
+  // a primeira mensalidade vence. O direito de saída fecha o argumento — é ele
+  // que substituiu o "só paga se comprovar".
   const nota = (
     <div className="flex items-start gap-3 rounded-card border border-gold/30 bg-gold/[0.06] p-4 md:items-center md:justify-center md:p-5 md:text-center">
       <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-gold md:mt-0" aria-hidden="true" />
       <p className="font-sans text-sm leading-relaxed text-[rgb(var(--text))] md:text-[15px]">
-        Estudo da rede, projeto, proposta, instalação e período de avaliação levam de{' '}
-        <span className="font-semibold text-gold">60 a 90 dias — tudo sem custo</span>. Você só
-        começa a pagar <span className="font-semibold">depois de toda essa jornada</span>, e só se
-        aprovar o resultado.
+        Estudo da rede, projeto, proposta e instalação:{' '}
+        <span className="font-semibold text-gold">até a instalação você não paga nada</span>. A
+        primeira mensalidade vence <span className="font-semibold">30 dias depois</span> — e a
+        partir de 12 meses, se não quiser mais, a Somatec retira o equipamento sem custo.
       </p>
     </div>
   );

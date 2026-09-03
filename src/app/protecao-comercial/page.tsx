@@ -14,7 +14,6 @@ import {
 import { Reveal } from '@/components/ui/Reveal';
 import { ProofBadges } from '@/components/ui/ProofBadges';
 import { CheckoutNI } from '@/components/tools/CheckoutNI';
-import { CascataDiagram } from '@/components/lp/CascataDiagram';
 import { BlogDoPublico } from '@/components/lp/BlogDoPublico';
 import { LpCta } from '@/components/lp/LpCta';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -74,7 +73,7 @@ const FAQ: readonly { pergunta: string; resposta: string }[] = [
   { pergunta: 'Já tenho DPS e estabilizador. Não basta?', resposta: 'Eles pegam uma parte. As oscilações mais rápidas — as que queimam placa e travam máquina — passam por eles. O Master Block existe pra essa camada.' },
   { pergunta: 'E se eu não souber tensão/corrente?', resposta: 'Toca em "não sei", manda uma foto do quadro e a gente dimensiona.' },
   { pergunta: 'O Master Block protege contra falta de fase?', resposta: 'Sim. Quando uma das fases da rede cai, ele desliga o circuito para que os equipamentos não continuem trabalhando com alimentação incompleta — é isso que evita que o motor queime por falta de fase. Assim que a energia normaliza, ele religa sozinho, sem ninguém precisar mexer no quadro. Se cair de novo, o processo se repete. Já vem configurado assim, com manual.' },
-  { pergunta: 'E se não funcionar?', resposta: 'Garantia de 3 anos, e você fala com gente — WhatsApp direto, sem robô de 0800.' },
+  { pergunta: 'E se não funcionar?', resposta: 'Garantia de 12 meses: 3 meses de garantia legal + 9 meses da Somatec Blocking. Acionada dentro do prazo, a reposição sai em até 3 dias. E você fala com gente — WhatsApp direto, sem robô de 0800.' },
 ];
 
 export default async function ProtecaoComercialPage() {
@@ -180,7 +179,7 @@ export default async function ProtecaoComercialPage() {
                 instalado pelo seu eletricista, com manual e suporte.
               </p>
               <ul className="space-y-2.5">
-                {['26 anos sem um acidente', 'Patenteado, fabricação exclusiva no Brasil', 'Garantia de 3 anos (+1 com depoimento)'].map((b) => (
+                {['26 anos sem um acidente', 'Patenteado, fabricação exclusiva no Brasil', 'Garantia de 12 meses · reposição em até 3 dias'].map((b) => (
                   <li key={b} className="flex items-start gap-2.5 text-sm text-[rgb(var(--text))]">
                     <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
                     <span className="font-medium">{b}</span>
@@ -238,32 +237,35 @@ export default async function ProtecaoComercialPage() {
         </section>
       </div>
 
-      {/* ── C4 · CASCATA COMERCIAL (navy) ─────────────────────────── */}
-      <section className="band-navy text-white" aria-label="Proteção em cascata">
+      {/* ── C4 · UM SÓ, NA ENTRADA (navy) ─────────────────────────────
+          ⛔ Esta seção dizia o CONTRÁRIO até 03/09: "um quadro protegido não
+          salva o negócio inteiro", vendendo um Master Block por quadro
+          (câmara fria, PDV, ar-condicionado), com diagrama. A decisão do Léo
+          é que nenhum equipamento comercial interfere em outro a ponto de
+          justificar aparelho por quadro, mesmo com quadro ramificado — então
+          a recomendação antiga era tecnicamente errada, não só cara. A
+          cascata continua valendo no INDUSTRIAL. */}
+      <section className="band-navy text-white" aria-label="Um Master Block no quadro de entrada">
         <div className="container-msm section-y space-y-8">
           <Reveal className="max-w-3xl space-y-4">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-              Um quadro protegido não salva o negócio inteiro
+              Um só, no quadro de entrada — e o negócio inteiro fica coberto
             </h2>
             <p className="leading-relaxed text-white/85 text-pretty">
-              Comércio quase sempre tem mais de um quadro: entrada, câmara fria, ar-condicionado,
-              PDV/servidores. Proteção que funciona é{' '}
-              <span className="font-semibold text-gold">em cascata</span> — um Master Block robusto na
-              entrada + um menor em cada quadro que sustenta o seu faturamento. É o que separa
-              &ldquo;protegi a instalação&rdquo; de &ldquo;protegi o negócio&rdquo;.
+              Não é um aparelho por equipamento nem por quadro. Um{' '}
+              <span className="font-semibold text-gold">único Master Block no quadro de entrada</span>{' '}
+              barra o distúrbio antes de ele chegar na câmara fria, no PDV, nos servidores ou no
+              ar-condicionado — e isso vale mesmo quando a instalação tem quadros separados.
             </p>
-          </Reveal>
-          <Reveal className="rounded-card-lg border border-white/10 bg-white/[0.03] p-6 md:p-10">
-            <CascataDiagram
-              setor="comercial"
-              titulo="Diagrama de proteção em cascata do comércio: entrada, câmara fria, PDV e ar-condicionado"
-              entradaLabel="Quadro de entrada"
-            />
+            <p className="leading-relaxed text-white/85 text-pretty">
+              É uma compra só, uma instalação só, e o seu eletricista faz. O que muda de negócio pra
+              negócio é o modelo, dimensionado pela corrente do seu disjuntor geral.
+            </p>
           </Reveal>
           <Reveal>
             <LpCta
-              label="Ver o que eu precisaria"
-              event="cascata_cta"
+              label="Calcular o meu Master Block"
+              event="protecao_unica_cta"
               setor="comercial"
               landing={SLUG}
               variant="ghostDark"

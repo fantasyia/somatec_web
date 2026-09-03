@@ -420,64 +420,14 @@ describe('medição e laudos — não é linha de serviço avulsa', () => {
 });
 
 // =============================================================================
-// AS 5 ETAPAS SEM CUSTO — a ORDEM tem que aparecer junto.
+// AS 5 ETAPAS SEM CUSTO -- guarda APOSENTADA em 03/09.
 //
-// A regra comercial (Léo, 29/08): o cliente assina o contrato → só então as
-// cinco etapas começam, todas sem custo → 60 a 90 dias depois sai o resultado
-// medido → e é aí que ele passa a pagar.
+// Ela cobrava que "as cinco etapas sem custo" viesse sempre acompanhada da
+// palavra "contrato", pra nao ler como teste gratis. A regra que ela protegia
+// deixou de existir: o periodo de avaliacao acabou, e com ele as cinco etapas
+// como argumento.
 //
-// As etapas continuam sem custo; isso nunca foi o problema. O que engana é
-// dizer isso SEM o contrato: o leitor entende teste grátis sem compromisso —
-// que é a "medição prévia" extinta em 20/08 voltando por outro caminho.
-//
-// Em 31/08 sete páginas do site ofereciam as etapas sem citar contrato, e a
-// pior era `/orcamento-industrial`, destino do CTA dos 14 artigos: a correção
-// que entrou no conteúdo não sobrevivia ao clique.
+// O que substituiu esta guarda esta em `tests/oferta-industrial.test.ts`, que
+// e mais forte: em vez de exigir uma palavra por perto, proibe o vocabulario
+// inteiro da oferta velha em qualquer superficie do site.
 // =============================================================================
-
-describe('as cinco etapas sem custo nunca aparecem sem o contrato', () => {
-  /** Reaproveita a varredura da guarda de medição prévia. */
-  function superficies(): string[] {
-    const { readdirSync, statSync } = require('node:fs') as typeof import('node:fs');
-    const out: string[] = [];
-    const anda = (dir: string) => {
-      for (const nome of readdirSync(resolve(process.cwd(), dir))) {
-        const rel = `${dir}/${nome}`;
-        if (rel.includes('/admin')) continue;
-        if (statSync(resolve(process.cwd(), rel)).isDirectory()) anda(rel);
-        else if (/\.tsx?$/.test(nome)) out.push(rel);
-      }
-    };
-    anda('src/app');
-    anda('src/components');
-    return out;
-  }
-
-  /** A oferta das etapas, nas formas em que ela aparece. */
-  const OFERTA = /(cinco|5)\s+(primeiras\s+)?etapas[\s\S]{0,80}?(sem custo|não têm custo|nao tem custo)/i;
-
-  it('toda página que oferece as etapas também fala em contrato', () => {
-    const semContrato: string[] = [];
-    for (const arquivo of superficies()) {
-      const fonte = lerCopyCorrida(arquivo);
-      if (!OFERTA.test(fonte)) continue;
-      // "contrato" na MESMA frase da oferta — citar contrato em outro bloco da
-      // página não conserta a frase que engana.
-      const trecho = fonte.slice(fonte.search(OFERTA), fonte.search(OFERTA) + 320);
-      if (!/contrato/i.test(trecho)) semContrato.push(`${arquivo}: "${trecho.slice(0, 120)}…"`);
-    }
-    expect(semContrato, semContrato.join(' | ')).toHaveLength(0);
-  });
-
-  it('a varredura acha mesmo a oferta (âncora anti-falso-verde)', () => {
-    // Se a frase mudar a ponto de a regex não casar mais, a guarda passaria
-    // verde sem ler nada — que é o pior desfecho possível pra ela.
-    const comOferta = superficies().filter((a) => OFERTA.test(lerCopyCorrida(a)));
-    expect(comOferta.length, 'nenhuma página casou a oferta — regex desatualizada?').toBeGreaterThanOrEqual(5);
-  });
-
-  it('a regex casa a forma ERRADA que existia antes', () => {
-    expect(OFERTA.test('As cinco primeiras etapas não têm custo — estudo, projeto')).toBe(true);
-    expect(OFERTA.test('As cinco primeiras etapas são sem custo: levantamento técnico')).toBe(true);
-  });
-});

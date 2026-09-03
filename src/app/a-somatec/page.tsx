@@ -34,7 +34,7 @@ const sections = [
     eyebrow: 'Resultados',
     title: 'Comprovação e garantia',
     description:
-      'Um modelo de investimento sem risco: o cliente só passa a pagar quando o resultado é comprovado na própria planta, medido pelo software durante o período de avaliação.',
+      'Locação com direito de saída: nada a pagar até a instalação, primeira mensalidade 30 dias depois e, a partir de 12 meses, retirada sem custo se o cliente não quiser mais.',
   },
   {
     href: '/solucoes',

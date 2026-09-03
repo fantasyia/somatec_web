@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { BlogIndex } from '@/components/blog/BlogIndex';
 import { lerPosts } from '@/lib/blog/fonte';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
   title: 'Blog Somatec — proteção elétrica, VTCD e custo de parada',
@@ -68,11 +69,7 @@ export default async function BlogPage() {
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
               Já desconfia que a sua rede tem VTCD?
             </h2>
-            <p className="leading-relaxed text-white/80">
-              As cinco etapas — levantamento, projeto, proposta, instalação e avaliação — são
-              sem custo e começam com a assinatura do contrato; você só passa a pagar se o
-              resultado for comprovado em 60 a 90 dias.
-            </p>
+            <p className="leading-relaxed text-white/80">{OFERTA_INDUSTRIAL.paragrafo}</p>
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               <Link href="/ferramentas/custo-de-parada" className="btn-primary group">
                 Calcular meu prejuízo

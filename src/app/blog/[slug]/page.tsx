@@ -15,12 +15,13 @@ import { AuthorBox, BylineArtigo } from '@/components/blog/AssinaturaArtigo';
 import { autorDoArtigo, revisorDoArtigo } from '@/lib/blog/schema-autor';
 import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { publicoDoCluster } from '@/lib/constants/publico-clusters';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 // 🔒 REGRA DE OURO NI + regra do custo de parada (Léo, 19/08).
 //
 // Este template servia os MESMOS dois CTAs industriais em TODO artigo — os de
-// casa e de comércio inclusive: "Você só paga se o resultado for comprovado"
-// (oferta de LOCAÇÃO, exclusiva do industrial) e "Calcular meu prejuízo" →
+// casa e de comércio inclusive: a oferta de LOCAÇÃO, exclusiva do industrial,
+// e "Calcular meu prejuízo" →
 // custo de parada, que é ferramenta industrial. Dono de casa lendo sobre home
 // theater levava a oferta industrial duas vezes na mesma página.
 //
@@ -351,13 +352,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   <Zap className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                 </span>
                 <span className="font-sans text-sm font-bold text-[rgb(var(--text))]">
-                  {ctaNi ? ctaNi.lateralTitulo : 'Avaliação sem risco'}
+                  {ctaNi ? ctaNi.lateralTitulo : OFERTA_INDUSTRIAL.lateralTitulo}
                 </span>
               </div>
               <p className="mt-2 text-[13px] leading-relaxed text-[rgb(var(--text-muted))]">
-                {ctaNi
-                  ? ctaNi.lateralTexto
-                  : '60 a 90 dias de avaliação na sua planta. Você só paga se o resultado for comprovado.'}
+                {ctaNi ? ctaNi.lateralTexto : OFERTA_INDUSTRIAL.curta}
               </p>
               <Link
                 href={ctaNi ? ctaNi.href : '/ferramentas/custo-de-parada'}
@@ -379,11 +378,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               {ctaNi ? ctaNi.titulo : 'Descubra se a sua planta sofre com VTCD'}
             </h2>
             {!ctaNi && (
-              <p className="leading-relaxed text-white/80">
-                As cinco etapas — levantamento, projeto, proposta, instalação e avaliação — são
-                sem custo e começam com a assinatura do contrato; você só passa a pagar se o
-                resultado for comprovado em 60 a 90 dias.
-              </p>
+              <p className="leading-relaxed text-white/80">{OFERTA_INDUSTRIAL.paragrafo}</p>
             )}
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               <Link href={ctaNi ? ctaNi.href : '/ferramentas/custo-de-parada'} className="btn-primary group">

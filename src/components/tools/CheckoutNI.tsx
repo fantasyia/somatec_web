@@ -33,6 +33,7 @@ import {
   type Endereco, type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
 import { documentoValido, mascararDocumento, apenasDigitos } from '@/lib/constants/documento';
+import { GARANTIA } from '@/lib/constants/oferta-industrial';
 
 // A corrente dimensiona o Master Block — texto ali não significa nada. O campo
 // aceita SÓ dígito (a digitação já é filtrada) e o valor é validado contra a
@@ -80,40 +81,28 @@ type Props = {
 };
 
 type ContextoId = 'casa' | 'apartamento' | 'comercio' | 'oficina' | 'condominio';
-type Contexto = { id: ContextoId; icon: typeof Home; label: string; quadros: string[] };
+type Contexto = { id: ContextoId; icon: typeof Home; label: string };
 
-/** Os quadros adicionais saem do CONTEXTO, não do público: quem marcou
- *  "meu condomínio" não tem câmara fria, e apartamento não tem casa de
- *  máquinas de piscina. Mostrar preset que não existe queima a confiança. */
+/** O contexto continua importando — ele vai no resumo do lead e diz à equipe
+ *  com que tipo de instalação está falando.
+ *
+ *  ⛔ O que saiu em 03/09 foi a lista de quadros secundários que cada contexto
+ *  oferecia (piscina, câmara fria, PDV, elevador…). O não-industrial passou a
+ *  levar UM equipamento só, no quadro de entrada. */
 const CONTEXTOS: Record<Setor, Contexto[]> = {
   residencial: [
-    {
-      id: 'casa', icon: Home, label: 'Minha casa',
-      quadros: ['Casa de máquinas da piscina', 'Automação / home theater', 'Ar-condicionado central', 'Carregador do carro elétrico'],
-    },
-    {
-      id: 'apartamento', icon: Building2, label: 'Meu apartamento',
-      quadros: ['Automação / home theater', 'Ar-condicionado', 'Carregador do carro elétrico'],
-    },
+    { id: 'casa', icon: Home, label: 'Minha casa' },
+    { id: 'apartamento', icon: Building2, label: 'Meu apartamento' },
   ],
   comercial: [
-    {
-      id: 'comercio', icon: Store, label: 'Meu comércio',
-      quadros: ['Câmara fria', 'Freezers / refrigeração', 'PDV / servidores', 'Ar-condicionado'],
-    },
-    {
-      id: 'oficina', icon: Wrench, label: 'Meu pequeno negócio / oficina',
-      quadros: ['Máquinas / compressor', 'PDV / servidores', 'Ar-condicionado'],
-    },
-    {
-      id: 'condominio', icon: Building2, label: 'Meu condomínio',
-      quadros: ['Elevador', "Bombas d'água", 'Portaria / CFTV', 'Ar-condicionado central'],
-    },
+    { id: 'comercio', icon: Store, label: 'Meu comércio' },
+    { id: 'oficina', icon: Wrench, label: 'Meu pequeno negócio / oficina' },
+    { id: 'condominio', icon: Building2, label: 'Meu condomínio' },
   ],
 };
 
 const TENSOES = ['127V', '220V', '380V', '440V', 'Não sei'] as const;
-const PASSOS_BASE = 4; // +1 (checkout) quando há preço pra fechar
+const PASSOS_BASE = 3; // +1 (checkout) quando há preço pra fechar
 
 /** De onde veio a corrente que a IA do WhatsApp (fluxo C1) apurou. Só
  *  'estimativa' muda alguma coisa na tela: número chutado merece conferência
@@ -125,13 +114,11 @@ export type Semente = {
   tensao: string;
   origem: OrigemCorrente | null;
   contexto: ContextoId | '';
-  /** Quadros adicionais que o bot já levantou, cada um com a corrente dele. */
-  quadros: { nome: string; corrente: string }[];
 };
 
-/** Compara rótulo de quadro sem depender de acento, caixa ou pontuação:
- *  "camara fria", "Câmara Fria" e "CÂMARA-FRIA" viram a mesma chave. Quem monta
- *  o link é a IA, e cobrar o rótulo exato só produziria link que não semeia. */
+/** Compara rótulo sem depender de acento, caixa ou pontuação: "meu comercio",
+ *  "Meu Comércio" e "MEU-COMÉRCIO" viram a mesma chave. Quem monta o link é a
+ *  IA, e cobrar o rótulo exato só produziria link que não semeia. */
 const chaveDe = (t: string) =>
   t
     .toLowerCase()
@@ -149,21 +136,21 @@ function correnteValida(bruto: string): string {
   return Number.isFinite(amp) && amp > 0 && amp <= MB_LOAD_MAX ? String(amp) : '';
 }
 
-/** Lê `?contexto=comercio&corrente=63&tensao=220&origem=disjuntor&quadros=...`.
+/** Lê `?contexto=comercio&corrente=63&tensao=220&origem=disjuntor`.
  *
  *  O valor da URL é SUGESTÃO, nunca trava: entra no campo e a pessoa corrige à
  *  vontade. Valor sujo (texto, zero, acima da linha, contexto que não existe
  *  nesta LP) é simplesmente ignorado — o wizard para no passo daquele dado, sem
  *  erro na cara de quem só clicou num link.
  *
- *  `quadros` é uma lista `rótulo:corrente` separada por vírgula, ex.:
- *  `quadros=camara fria:40,PDV / servidores:25`. Só entra o quadro que existe
- *  NO CONTEXTO informado e que veio com corrente válida — quadro marcado sem
- *  número é justamente o que o passo 3 proíbe.
+ *  ⛔ `quadros` NÃO é mais lido. Era a lista `rótulo:corrente` dos quadros
+ *  secundários, que o bot parou de mandar em 03/09 — o não-industrial leva um
+ *  equipamento só. Segue sendo ignorado em silêncio, e não por acaso: os links
+ *  já disparados no WhatsApp ainda carregam o parâmetro, e quem clicar num
+ *  deles precisa cair num wizard que funciona, não num erro.
  *
- *  `setor` é obrigatório pra validar contexto e quadros: os presets mudam entre
- *  a LP residencial e a comercial, e semear "câmara fria" numa casa seria
- *  inventar. Sem ele, esses dois campos voltam vazios. */
+ *  `setor` é obrigatório pra validar o contexto: 'casa' não existe na LP
+ *  comercial. Sem ele, o campo volta vazio. */
 export function lerSemente(busca: string, setor?: Setor): Semente {
   const q = new URLSearchParams(busca);
 
@@ -182,31 +169,19 @@ export function lerSemente(busca: string, setor?: Setor): Semente {
   const daLp = setor ? CONTEXTOS[setor] : [];
   const contexto = (daLp.find((c) => chaveDe(c.id) === ctxBruto)?.id ?? '') as ContextoId | '';
 
-  const presets = contexto ? (daLp.find((c) => c.id === contexto)?.quadros ?? []) : [];
-  const quadros = (q.get('quadros') ?? '')
-    .split(',')
-    .map((par) => {
-      const i = par.lastIndexOf(':');
-      if (i === -1) return null;
-      const nome = presets.find((n) => chaveDe(n) === chaveDe(par.slice(0, i)));
-      const amp = correnteValida(par.slice(i + 1));
-      return nome && amp ? { nome, corrente: amp } : null;
-    })
-    .filter((x): x is { nome: string; corrente: string } => x !== null);
-
-  return { corrente, tensao, origem, contexto, quadros };
+  return { corrente, tensao, origem, contexto };
 }
 
 /** Primeiro passo que a semente NÃO conseguiu preencher.
  *
- *  Nunca pula por cima de campo vazio, e nunca passa do 4: o passo 4 é nome,
+ *  Nunca pula por cima de campo vazio, e nunca passa do 3: o passo 3 é nome,
  *  WhatsApp e e-mail — dado da pessoa, que o bot está proibido de coletar.
  *  Abrir o checkout com contato que ninguém confirmou seria pior que o atrito
  *  que este atalho resolve. */
 export function passoDaSemente(s: Semente): number {
   if (!s.contexto) return 1;
   if (!s.corrente || !s.tensao) return 2;
-  return 4;
+  return 3;
 }
 
 /** Blocos de confiança do passo 5 (checkout-ni-spec.md).
@@ -217,10 +192,13 @@ export function passoDaSemente(s: Semente): number {
  *  ⚠️ Só fato já comprovável e já publicado no site: garantia, instalação pelo
  *  próprio eletricista, 26 anos sem acidente + FIESP, patente. Nada de número
  *  novo aqui. Fica ABAIXO do botão e em cinza — quem já decidiu não é
- *  interrompido; quem travou encontra a resposta. */
+ *  interrompido; quem travou encontra a resposta.
+ *
+ *  ⛔ A garantia mudou em 03/09: era "3 anos (+1 com depoimento)", que é o
+ *  registro aposentado nesse dia. Texto único em `@/lib/constants/oferta-industrial`. */
 function ConfiancaCheckout({ href, externo }: { href: string; externo: boolean }) {
   const itens = [
-    { Icon: ShieldCheck, titulo: 'Garantia de 3 anos', texto: '+1 ano se você mandar um depoimento.' },
+    { Icon: ShieldCheck, titulo: 'Garantia de 12 meses', texto: GARANTIA.niCurta },
     { Icon: Chave, titulo: 'Instale com seu eletricista', texto: 'Vai com manual. Não precisa de técnico da Somatec.' },
     { Icon: HardHat, titulo: '26 anos sem um acidente', texto: 'Prêmio FIESP Acelera Startup 2015.' },
     { Icon: BadgeCheck, titulo: 'Produto patenteado', texto: 'Fabricação exclusiva no Brasil.' },
@@ -311,11 +289,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   /** Sinaliza que os campos vieram do link do WhatsApp — muda só a microcópia. */
   const [origemUrl, setOrigemUrl] = useState<OrigemCorrente | null>(null);
   const [veioDeLink, setVeioDeLink] = useState(false);
-  /** Quadros adicionais escolhidos + a corrente de cada um (opcional: sem ela,
-   *  o secundário vai "a dimensionar no contato" em vez de já vir com preço). */
-  const [adicionais, setAdicionais] = useState<{ nome: string; corrente: string }[]>([]);
 
-  // Contato vira estado (não FormData): o passo 4 desmonta ao ir pro checkout.
+  // Contato vira estado (não FormData): o passo 3 desmonta ao ir pro checkout.
   const [contato, setContato] = useState({ nome: '', whatsapp: '', email: '', empresa: '' });
   const [endereco, setEndereco] = useState<Endereco>(enderecoVazio);
   // CPF/CNPJ: sem ele não se emite nota, e sem nota não sai etiqueta. Fica no
@@ -350,19 +325,18 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   // performance em toda visita por causa de um parâmetro que quase nunca vem.
   useEffect(() => {
     const s = lerSemente(window.location.search, setor);
-    if (!s.corrente && !s.tensao && !s.contexto && s.quadros.length === 0) return;
+    if (!s.corrente && !s.tensao && !s.contexto) return;
     // A URL só existe no client; semear no mount (e não no useState) é o que
     // evita mismatch de hidratação.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mesma convenção de HomeHero/CookieBanner: valor que só existe no client, semeado uma vez no mount
     if (s.contexto) setContexto(s.contexto);
     if (s.corrente) setCorrente(s.corrente);
     if (s.tensao) setTensao(s.tensao);
-    if (s.quadros.length) setAdicionais(s.quadros);
     setOrigemUrl(s.origem);
     setVeioDeLink(true);
     // Abre no primeiro passo que a semente NÃO preencheu, pra pessoa não
-    // refazer no site o que acabou de responder no WhatsApp. Nunca passa do 4:
-    // o 5 exigiria o contato, que o bot está proibido de coletar.
+    // refazer no site o que acabou de responder no WhatsApp. Nunca passa do 3:
+    // o 4 exigiria o contato, que o bot está proibido de coletar.
     setPasso(passoDaSemente(s));
   }, [setor]);
 
@@ -382,7 +356,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     }
     // Saindo do contato PRA FRENTE: a pessoa entregou os dados. Daqui ela
     // pode fechar, desistir ou sumir — o lead já está garantido.
-    if (passo === 4 && n > passo) capturarAbandono();
+    if (passo === 3 && n > passo) capturarAbandono();
 
     const alvo = Math.min(totalPassos, Math.max(1, n));
     setPasso(alvo);
@@ -397,7 +371,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     }
   }
 
-  /** Contexto escolhido no passo 1 — dita os quadros do passo 3. */
+  /** Contexto escolhido no passo 1 — vai no resumo do lead. */
   const ctxAtual = CONTEXTOS[setor].find((c) => c.id === contexto);
 
   // ── LEAD DE ABANDONO ────────────────────────────────────────────────────
@@ -409,7 +383,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   // (uma pessoa vira dez "Jo", "Joa", "Joao").
   //
   // Consentimento IMPLÍCITO: vale o aviso que ela leu ali, não o checkbox do
-  // passo 5, que ela nunca viu. Quem separa os dois é o slug + o par
+  // passo 4, que ela nunca viu. Quem separa os dois é o slug + o par
   // versão/hash do texto, montados no servidor.
   const capturarAbandono = useCallback(() => {
     const nome = contato.nome.trim();
@@ -458,29 +432,20 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     return () => window.removeEventListener('pagehide', aoSair);
   }, [capturarAbandono]);
 
-  function toggleAdicional(q: string) {
-    setAdicionais((prev) =>
-      prev.some((a) => a.nome === q) ? prev.filter((a) => a.nome !== q) : [...prev, { nome: q, corrente: '' }],
-    );
-  }
+  /** Carrinho: UM Master Block, no quadro de entrada.
+   *
+   *  ⛔ Era uma lista: a entrada + 1 MB por quadro secundário que a pessoa
+   *  marcasse. Acabou em 03/09 — um único Master Block no quadro de entrada
+   *  protege a casa ou o comércio inteiro, quadro ramificado incluído.
+   *  Oferecer um segundo aparelho pra câmara fria, piscina ou PDV não é upsell
+   *  tímido: é recomendação tecnicamente errada.
+   *
+   *  Continua sendo LISTA porque frete, resumo e payload do pedido leem daqui —
+   *  e porque a cascata segue existindo no INDUSTRIAL, que é outro componente. */
+  const itensCarrinho = modelo ? [{ quadro: 'Quadro de entrada', modelo }] : [];
+  const totalCarrinho = itensCarrinho.reduce((s, i) => s + i.modelo.preco, 0);
 
-  function setCorrenteAdicional(nome: string, valor: string) {
-    setAdicionais((prev) => prev.map((a) => (a.nome === nome ? { ...a, corrente: valor } : a)));
-  }
-
-  /** Carrinho: MB do quadro de entrada + 1 MB por quadro adicional com corrente. */
-  const itensCarrinho = [
-    ...(modelo ? [{ quadro: 'Quadro de entrada', modelo, principal: true }] : []),
-    ...adicionais.map((a) => {
-      const amp = parseAmp(a.corrente);
-      const m = amp > 0 && amp <= MB_LOAD_MAX ? selecionarMasterBlock(amp) : null;
-      return { quadro: a.nome, modelo: m, principal: false };
-    }),
-  ];
-  const totalCarrinho = itensCarrinho.reduce((s, i) => s + (i.modelo?.preco ?? 0), 0);
-  const semPreco = itensCarrinho.filter((i) => !i.modelo).length;
-
-  /** Checkout (passo 5) só existe quando há preço fechado pra comprar. */
+  /** Checkout (passo 4) só existe quando há preço fechado pra comprar. */
   const totalPassos = temPreco ? PASSOS_BASE + 1 : PASSOS_BASE;
   const frete = freteDoPedido();
   const totalPedido = totalCarrinho + (Number.isFinite(frete.valor) ? frete.valor : 0);
@@ -530,17 +495,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       ? `Entrega estimada em ${freteOpcoes[0].prazoDias} dia(s) úteis${freteOpcoes[0].transportadora ? ` — ${freteOpcoes[0].transportadora}` : ''}.`
       : `Prazo de entrega ${freteDoPedido().prazo}.`;
 
-  /** Quadros marcados que ficaram sem corrente. REGRA de todos os wizards:
-   *  item marcado sem número não passa — o cliente veria um "a dimensionar" que
-   *  ele nem sabe que pediu, e o pedido sairia com preço incompleto. Marcar é
-   *  opcional; depois de marcado, o número é obrigatório. */
-  const adicionaisSemCorrente = adicionais.filter((a) => parseAmp(a.corrente) === 0);
-
   function podeAvancar(): boolean {
     if (passo === 1) return contexto !== '';
     if (passo === 2) return naoSei || (tensao !== '' && parseAmp(corrente) > 0);
-    if (passo === 3) return adicionaisSemCorrente.length === 0;
-    if (passo === 4) return contatoOk; // só avança pro checkout com contato
+    if (passo === 3) return contatoOk; // só avança pro checkout com contato
     return true;
   }
 
@@ -549,12 +507,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       if (tensao === '') return 'Escolha a tensão pra continuar.';
       if (parseAmp(corrente) === 0) return 'Informe a corrente do disjuntor geral, em ampères.';
     }
-    if (passo === 3 && adicionaisSemCorrente.length > 0) {
-      return adicionaisSemCorrente.length === 1
-        ? `Informe a corrente do quadro "${adicionaisSemCorrente[0].nome}" — ou desmarque ele.`
-        : `${adicionaisSemCorrente.length} quadros marcados estão sem a corrente. Preencha ou desmarque.`;
-    }
-    if (passo === 4 && !contatoOk) return 'Preencha nome, WhatsApp e e-mail pra continuar.';
+    if (passo === 3 && !contatoOk) return 'Preencha nome, WhatsApp e e-mail pra continuar.';
     return null;
   }
 
@@ -577,17 +530,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       : overRange
         ? `Acima da linha padrão (> ${MB_LOAD_MAX} A) — requer dimensionamento dedicado.`
         : '';
-    const secundarios = itensCarrinho.filter((i) => !i.principal);
-    const adic = secundarios.length
-      ? 'Quadros adicionais: ' +
-        secundarios
-          .map((i) => `${i.quadro} → ${i.modelo ? `${i.modelo.model} (${formatBRL(i.modelo.preco)})` : 'sem corrente, a dimensionar'}`)
-          .join('; ') +
-        `. Total dos itens dimensionados: ${formatBRL(totalCarrinho)}.`
-      : 'Sem quadros adicionais indicados.';
     const resumo =
       `[Orçamento ${setor} — compra direta] Contexto: ${ctxAtual?.label ?? '—'}. ` +
-      `Quadro de entrada: ${dadosQuadro}. ${dimensionamento} ${adic}` +
+      `Quadro de entrada: ${dadosQuadro}. ${dimensionamento}` +
       (enderecoCompleto(endereco)
         ? ` ENTREGA: ${enderecoEmUmaLinha(endereco)}. Frete: ${frete.valor === 0 ? 'grátis (promoção)' : formatBRL(frete.valor)}. ` +
           `Pagamento escolhido: ${FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? '—'}. ` +
@@ -771,10 +716,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       <button
                         key={label}
                         type="button"
-                        onClick={() => {
-                          setContexto(id);
-                          setAdicionais([]); // trocar de contexto invalida os quadros
-                        }}
+                        onClick={() => setContexto(id)}
                         className={`${cardBtn} ${
                           sel
                             ? 'border-gold bg-gold/[0.06] text-[rgb(var(--text))]'
@@ -890,120 +832,40 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
               </div>
             )}
 
-            {/* ── Passo 3 — Quadros adicionais ───────────────────── */}
+            {/* ── Passo 3 — Resultado (dimensionado c/ preço · fallback p/ "não sei") + captura ── */}
             {passo === 3 && (
-              <div className="space-y-5">
-                <div>
-                  <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))]">
-                    Tem algum quadro separado que também quer proteger?
-                  </h3>
-                  <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">
-                    Assim você protege tudo em cascata: um Master Block mais robusto na entrada + um
-                    menor em cada quadro específico.
-                  </p>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {(ctxAtual?.quadros ?? []).map((q) => {
-                    const escolhido = adicionais.find((a) => a.nome === q);
-                    const sel = escolhido !== undefined;
-                    return (
-                      <div
-                        key={q}
-                        className={`rounded-card border transition-colors ${
-                          sel ? 'border-gold bg-gold/[0.06]' : 'border-[rgb(var(--border))]'
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => toggleAdicional(q)}
-                          className="flex w-full items-center gap-3 p-4 text-left font-sans text-sm font-semibold text-[rgb(var(--text))]"
-                          aria-pressed={sel}
-                        >
-                          <span
-                            className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                              sel ? 'border-gold bg-gold text-white' : 'border-[rgb(var(--border))]'
-                            }`}
-                          >
-                            {sel && <ChevronRight className="h-3.5 w-3.5 rotate-90" strokeWidth={3} />}
-                          </span>
-                          {q}
-                        </button>
-                        {/* Corrente do quadro adicional → dá o MB secundário e o
-                            preço dele. Marcou o quadro, o número é obrigatório
-                            (senão o pedido sai com item sem preço). */}
-                        {sel && (
-                          <div className="px-4 pb-4">
-                            <label
-                              htmlFor={`${baseId}-adic-${q}`}
-                              className="block pb-1.5 text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
-                            >
-                              Corrente do disjuntor deste quadro (A)
-                            </label>
-                            <input
-                              id={`${baseId}-adic-${q}`}
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={5}
-                              placeholder="Ex.: 25, 40…"
-                              value={escolhido.corrente}
-                              onChange={(e) => setCorrenteAdicional(q, soDigitos(e.target.value))}
-                              aria-invalid={parseAmp(escolhido.corrente) === 0 || undefined}
-                              className="w-full rounded-btn border border-[rgb(var(--border))] bg-[rgb(var(--bg))] px-3.5 py-2 font-sans text-sm outline-none transition-colors focus:border-gold"
-                            />
-                            <p className="pt-1.5 text-xs text-[rgb(var(--text-muted))]">
-                              {parseAmp(escolhido.corrente) === 0
-                                ? 'Obrigatório — sem esse número não dá pra dimensionar este quadro.'
-                                : `Só números, de 1 a ${MB_LOAD_MAX} A.`}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* ── Passo 4 — Resultado (dimensionado c/ preço · fallback p/ "não sei") + captura ── */}
-            {passo === 4 && (
               <div className="space-y-5">
                 {/* Card de resultado dimensionado — quando a corrente é conhecida */}
                 {temPreco && (
                   <div className="rounded-card-lg bg-deep_navy p-6 text-white md:p-7">
+                    {/* ⛔ Dizia "Sua proteção em cascata" e listava um item por
+                        quadro. A cascata saiu do não-industrial em 03/09: é um
+                        Master Block no quadro de entrada, e ele protege a
+                        instalação inteira — quadro ramificado incluído. */}
                     <div className="text-[11px] font-sans font-bold text-white/60">
-                      Sua proteção em cascata
+                      A sua proteção
                     </div>
                     <ul className="mt-3 divide-y divide-white/10">
                       {itensCarrinho.map((item) => (
                         <li key={item.quadro} className="flex items-baseline justify-between gap-4 py-2.5">
                           <span className="text-sm">
-                            <span className="font-semibold text-white">
-                              {item.modelo ? item.modelo.model : 'A dimensionar'}
-                            </span>
+                            <span className="font-semibold text-white">{item.modelo.model}</span>
                             <span className="ml-2 text-white/60">{item.quadro}</span>
                           </span>
                           <span className="shrink-0 text-sm tabular-nums text-white/80">
-                            {item.modelo ? formatBRL(item.modelo.preco) : 'no contato'}
+                            {formatBRL(item.modelo.preco)}
                           </span>
                         </li>
                       ))}
                     </ul>
                     <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 border-t border-white/10 pt-4">
-                      <span className="text-sm text-white/60">
-                        {semPreco > 0 ? 'Subtotal (itens dimensionados)' : 'Total · compra direta'}
-                      </span>
+                      <span className="text-sm text-white/60">Total · compra direta</span>
                       <span className="font-serif text-3xl font-bold text-gold">{formatBRL(totalCarrinho)}</span>
                     </div>
-                    {semPreco > 0 && (
-                      <p className="mt-3 text-sm text-white/75">
-                        {semPreco === 1 ? 'Um quadro ficou' : `${semPreco} quadros ficaram`} sem a
-                        corrente — a equipe dimensiona e inclui no orçamento.
-                      </p>
-                    )}
                     <p className="mt-3 text-xs leading-relaxed text-white/60">
-                      Protege seus equipamentos contra os picos de tensão que o DPS e o no-break não
-                      pegam. Indicação pela corrente informada; a engenharia confirma o projeto final.
+                      Um Master Block no quadro de entrada protege os equipamentos da instalação
+                      inteira contra os picos de tensão que o DPS e o no-break não pegam. Indicação
+                      pela corrente informada; a engenharia confirma o projeto final.
                     </p>
                   </div>
                 )}
@@ -1105,8 +967,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
               </div>
             )}
 
-            {/* ── Passo 5 — CHECKOUT (entrega + pagamento) ───────── */}
-            {passo === 5 && (
+            {/* ── Passo 4 — CHECKOUT (entrega + pagamento) ───────── */}
+            {passo === 4 && (
               <div className="space-y-6">
                 <div>
                   <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))]">

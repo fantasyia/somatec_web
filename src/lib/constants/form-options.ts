@@ -39,9 +39,11 @@ export const BR_STATES = [
 // declarar antes que era indústria. E "diagnóstico" era a oferta INDUSTRIAL —
 // oferecê-la a dono de casa furava a regra de ouro.
 //
-// ⛔ Desde 20/08 a oferta industrial NÃO é mais diagnóstico/medição na planta:
-// é PERÍODO DE AVALIAÇÃO sem risco (60 a 90 dias), com a prova medida pelo
-// software depois do contrato fechado. Não existe medição antes do contrato.
+// ⛔ Desde 20/08 a oferta industrial NÃO é mais diagnóstico/medição na planta —
+// não existe medição antes do contrato. E desde 03/09 também não é mais
+// período de avaliação: é LOCAÇÃO com direito de saída (nada a pagar até a
+// instalação, primeira mensalidade 30 dias depois, e a partir de 12 meses dá
+// pra encerrar com retirada sem custo).
 //
 // A frase agora diz o que a pessoa QUER, não em que categoria ela se encaixa —
 // mesma regra das mensagens de WhatsApp. O `value` continua 'b2b' de

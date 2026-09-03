@@ -12,6 +12,7 @@
 
 import { formatBRL } from '@/lib/constants/masterblock';
 import type { ProjetoLocacao } from '@/lib/constants/locacao';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export type DadosProjeto = {
   tensaoSaida: string;
@@ -157,8 +158,7 @@ export async function gerarPdfProjeto(d: DadosProjeto): Promise<void> {
   // ── Modelo comercial + rodapé ────────────────────────────────────────
   doc.setFont('helvetica', 'normal').setFontSize(9).setTextColor(...CINZA);
   const nota = doc.splitTextToSize(
-    'Estudo da rede, projeto, proposta, instalação e período de avaliação levam de 60 a 90 dias — tudo sem custo. ' +
-      'A mensalidade só começa depois de toda essa jornada, e apenas se o resultado for aprovado. ' +
+    `${OFERTA_INDUSTRIAL.paragrafo} ` +
       'Estimativa gerada a partir dos dados informados. Um representante revisa e confirma o valor final.',
     W - L * 2,
   ) as string[];

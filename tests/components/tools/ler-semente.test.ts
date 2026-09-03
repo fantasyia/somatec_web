@@ -18,7 +18,7 @@ import { MB_LOAD_MAX } from '@/lib/constants/masterblock';
 describe('lerSemente — caminho feliz', () => {
   it('lê corrente e tensão', () => {
     expect(lerSemente('?corrente=63&tensao=220')).toEqual({
-      corrente: '63', tensao: '220V', origem: null, contexto: '', quadros: [],
+      corrente: '63', tensao: '220V', origem: null, contexto: '',
     });
   });
 
@@ -68,7 +68,7 @@ describe('lerSemente — lixo abre em branco, nunca com erro', () => {
 
   it('corrente suja não derruba a tensão boa que veio junto', () => {
     expect(lerSemente('?corrente=dfsdf&tensao=380')).toEqual({
-      corrente: '', tensao: '380V', origem: null, contexto: '', quadros: [],
+      corrente: '', tensao: '380V', origem: null, contexto: '',
     });
   });
 });
@@ -84,9 +84,9 @@ describe('lerSemente — limites da linha', () => {
 });
 
 // =============================================================================
-// O bot já descobriu o tipo de local, a corrente, a tensão E os quadros
-// adicionais. Fazer a pessoa refazer tudo isso no site — inclusive ir de novo
-// até o quadro de luz — é o atrito que estes parâmetros matam.
+// O bot já descobriu o tipo de local, a corrente e a tensão. Fazer a pessoa
+// refazer tudo isso no site — inclusive ir de novo até o quadro de luz — é o
+// atrito que estes parâmetros matam.
 // =============================================================================
 
 describe('contexto — só vale o que existe NESTA LP', () => {
@@ -117,47 +117,48 @@ describe('contexto — só vale o que existe NESTA LP', () => {
   });
 });
 
-describe('quadros adicionais pelo link', () => {
-  it('lê rótulo + corrente e casa com o preset do contexto', () => {
-    const s = lerSemente('?contexto=comercio&quadros=Câmara fria:40,PDV / servidores:25', 'comercial');
-    expect(s.quadros).toEqual([
-      { nome: 'Câmara fria', corrente: '40' },
-      { nome: 'PDV / servidores', corrente: '25' },
-    ]);
+// =============================================================================
+// `quadros` APOSENTADO (03/09).
+//
+// O parâmetro carregava os quadros secundários que o bot levantava — câmara
+// fria, PDV, piscina. O não-industrial passou a levar UM equipamento só, e o
+// bot parou de mandar.
+//
+// O que se protege aqui é que ele seja IGNORADO, não que dê erro: os links já
+// disparados no WhatsApp ainda carregam o parâmetro, e quem clicar num deles
+// tem que cair num wizard que funciona.
+// =============================================================================
+
+describe('o parâmetro `quadros` é ignorado, não quebra', () => {
+  it('link antigo com quadros ainda semeia o resto normalmente', () => {
+    const s = lerSemente(
+      '?contexto=comercio&corrente=63&tensao=220&quadros=Câmara fria:40,PDV / servidores:25',
+      'comercial',
+    );
+    expect(s.contexto).toBe('comercio');
+    expect(s.corrente).toBe('63');
+    expect(s.tensao).toBe('220V');
   });
 
-  it('não exige acento nem caixa exata (quem monta o link é a IA)', () => {
-    const s = lerSemente('?contexto=comercio&quadros=camara fria:40', 'comercial');
-    expect(s.quadros).toEqual([{ nome: 'Câmara fria', corrente: '40' }]);
+  it('a semente não carrega mais campo de quadros', () => {
+    const s = lerSemente('?contexto=comercio&quadros=Câmara fria:40', 'comercial');
+    expect(Object.keys(s).sort()).toEqual(['contexto', 'corrente', 'origem', 'tensao']);
   });
 
-  it('⛔ quadro que não existe no contexto é descartado', () => {
-    const s = lerSemente('?contexto=oficina&quadros=Câmara fria:40', 'comercial');
-    expect(s.quadros).toEqual([]);
-  });
-
-  it('⛔ quadro SEM corrente válida é descartado — não entra marcado e vazio', () => {
-    // Marcado sem número é exatamente o que o passo 3 proíbe.
-    for (const sujo of ['Câmara fria:', 'Câmara fria:abc', 'Câmara fria:0', 'Câmara fria:-40', 'Câmara fria']) {
-      expect(lerSemente(`?contexto=comercio&quadros=${sujo}`, 'comercial').quadros).toEqual([]);
+  it('quadros sujo não derruba nada', () => {
+    for (const sujo of ['Câmara fria:', 'Câmara fria:abc', 'inventado:-40', '']) {
+      const s = lerSemente(`?contexto=comercio&corrente=63&tensao=220&quadros=${sujo}`, 'comercial');
+      expect(s.corrente, sujo).toBe('63');
     }
-  });
-
-  it('um quadro sujo não derruba os válidos', () => {
-    const s = lerSemente('?contexto=comercio&quadros=Câmara fria:40,inventado:30', 'comercial');
-    expect(s.quadros).toEqual([{ nome: 'Câmara fria', corrente: '40' }]);
-  });
-
-  it('sem contexto não há preset pra casar — nenhum quadro entra', () => {
-    expect(lerSemente('?quadros=Câmara fria:40', 'comercial').quadros).toEqual([]);
   });
 });
 
 describe('passoDaSemente — para no primeiro campo que faltou', () => {
   const semente = (busca: string) => lerSemente(busca, 'comercial');
 
-  it('tudo preenchido → abre no passo 4 (contato)', () => {
-    expect(passoDaSemente(semente('?contexto=comercio&corrente=63&tensao=220'))).toBe(4);
+  it('tudo preenchido → abre no passo 3 (contato)', () => {
+    // Era 4 enquanto existia o passo de quadros adicionais.
+    expect(passoDaSemente(semente('?contexto=comercio&corrente=63&tensao=220'))).toBe(3);
   });
 
   it('sem contexto → passo 1', () => {
@@ -173,9 +174,9 @@ describe('passoDaSemente — para no primeiro campo que faltou', () => {
     expect(passoDaSemente(semente(''))).toBe(1);
   });
 
-  it('⛔ NUNCA passa do passo 4', () => {
-    // O 5 é o checkout; o 4 é nome/WhatsApp/e-mail, que o bot não coleta.
+  it('⛔ NUNCA passa do passo 3', () => {
+    // O 4 é o checkout; o 3 é nome/WhatsApp/e-mail, que o bot não coleta.
     const cheio = semente('?contexto=comercio&corrente=63&tensao=220&quadros=Câmara fria:40&origem=disjuntor');
-    expect(passoDaSemente(cheio)).toBeLessThanOrEqual(4);
+    expect(passoDaSemente(cheio)).toBeLessThanOrEqual(3);
   });
 });

@@ -5,6 +5,7 @@ import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { SOLUCOES, getSolucao } from '@/lib/constants/solucoes';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const revalidate = 3600;
 
@@ -104,9 +105,7 @@ export default async function SolucaoPage({
             {s.cta}
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Fale com a engenharia da Somatec Blocking: as cinco etapas — levantamento, projeto,
-            proposta, instalação e avaliação — são sem custo e começam com a assinatura do
-            contrato; você só passa a pagar se o resultado for comprovado em 60 a 90 dias.
+            {OFERTA_INDUSTRIAL.paragrafoEngenharia}
           </p>
           <CommercialCta
             label="Falar com a engenharia"

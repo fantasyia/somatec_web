@@ -10,11 +10,13 @@ import { X, GaugeCircle, Calculator, type LucideIcon } from 'lucide-react';
 // Dispensável; a dispensa vale pela sessão (sessionStorage). Não aparece em
 // /contato, /ferramentas/* (já são páginas de conversão) nem no admin.
 //
-// 🔒 A OFERTA MUDA POR PÚBLICO. No industrial é o PERÍODO DE AVALIAÇÃO (60 a 90
-// dias, você só paga se o resultado for comprovado) — ⛔ não é mais medição
-// prévia: a Somatec parou de medir antes do contrato em 20/08. Nas LPs NI a
-// barra chama a calculadora da própria página (#calculadora), nunca /contato:
-// a trilha NI é compra direta, sem vendedor.
+// 🔒 A OFERTA MUDA POR PÚBLICO. No industrial é LOCAÇÃO com DIREITO DE SAÍDA:
+// até a instalação não se paga nada, a primeira mensalidade vence 30 dias
+// depois e a partir de 12 meses dá pra encerrar, com a retirada sem custo.
+// ⛔ Não é mais período de avaliação (extinto em 03/09) nem medição prévia (a
+// Somatec parou de medir antes do contrato em 20/08). Nas LPs NI a barra chama
+// a calculadora da própria página (#calculadora), nunca /contato: a trilha NI
+// é compra direta, sem vendedor.
 // =============================================================================
 
 const HIDDEN_PREFIXES = ['/contato', '/ferramentas', '/login'];
@@ -30,8 +32,8 @@ type Oferta = {
 
 const OFERTA_INDUSTRIAL: Oferta = {
   Icon: GaugeCircle,
-  destaque: 'Avalie o Master Block na sua planta',
-  complemento: '60 a 90 dias de avaliação. Você só paga se o resultado for comprovado.',
+  destaque: 'Coloque o Master Block na sua planta',
+  complemento: 'Até a instalação você não paga nada. Depois de 12 meses, pode encerrar sem custo.',
   cta: 'Solicitar',
   href: '/contato',
   fecharLabel: 'Fechar barra de diagnóstico',

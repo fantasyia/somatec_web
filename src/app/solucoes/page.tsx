@@ -73,7 +73,7 @@ export default function SolucoesPage() {
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
             A engenharia da Somatec indica a solução certa para a sua operação — e, na indústria,
-            você só paga se o resultado for comprovado.
+            até a instalação você não paga nada.
           </p>
           <CommercialCta
             label="Falar com a engenharia"

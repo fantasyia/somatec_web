@@ -510,8 +510,8 @@ export function OrcamentoIndustrial({
 
                   <p className="mt-4 text-xs leading-relaxed text-white/60">
                     Esta é a sua estimativa, calculada pela planta que você montou. Um representante
-                    revisa os detalhes técnicos e confirma o valor final — e você só passa a pagar
-                    depois do período de avaliação, se aprovar o resultado.
+                    revisa os detalhes técnicos e confirma o valor final — e você não paga nada até
+                    a instalação: a primeira mensalidade vence 30 dias depois.
                   </p>
                 </div>
 

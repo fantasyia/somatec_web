@@ -12,7 +12,6 @@ import {
 import { Reveal } from '@/components/ui/Reveal';
 import { ProofBadges } from '@/components/ui/ProofBadges';
 import { CheckoutNI } from '@/components/tools/CheckoutNI';
-import { CascataDiagram } from '@/components/lp/CascataDiagram';
 import { BlogDoPublico } from '@/components/lp/BlogDoPublico';
 import { LpCta } from '@/components/lp/LpCta';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -59,7 +58,7 @@ const FAQ: readonly { pergunta: string; resposta: string }[] = [
   { pergunta: 'E se eu não souber tensão/corrente?', resposta: 'Toca em "não sei", manda uma foto do quadro e a gente dimensiona.' },
   { pergunta: 'Funciona com energia solar?', resposta: 'Sim — inversor solar é justamente um dos equipamentos que mais recomendamos proteger.' },
   { pergunta: 'O Master Block protege contra falta de fase?', resposta: 'Sim. Se uma das fases da rede cai, ele desliga o circuito para que os equipamentos não fiquem trabalhando com alimentação incompleta — é o que evita que o motor da bomba da piscina, do ar-condicionado central ou do portão queime por falta de fase. Quando a energia normaliza, ele religa sozinho, sem ninguém precisar ir até o quadro. Se cair de novo, o processo se repete. Já vem configurado assim, com manual.' },
-  { pergunta: 'E se não funcionar?', resposta: 'Garantia de 3 anos, e você fala com gente — WhatsApp direto, sem robô de 0800.' },
+  { pergunta: 'E se não funcionar?', resposta: 'Garantia de 12 meses: 3 meses de garantia legal + 9 meses da Somatec Blocking. Acionada dentro do prazo, a reposição sai em até 3 dias. E você fala com gente — WhatsApp direto, sem robô de 0800.' },
 ];
 
 export default async function ProtecaoResidencialPage() {
@@ -171,7 +170,7 @@ export default async function ProtecaoResidencialPage() {
                 com manual e suporte.
               </p>
               <ul className="space-y-2.5">
-                {['26 anos sem um acidente', 'Patenteado, fabricação exclusiva', 'Garantia de 3 anos (+1 ano com seu depoimento)'].map((b) => (
+                {['26 anos sem um acidente', 'Patenteado, fabricação exclusiva', 'Garantia de 12 meses · reposição em até 3 dias'].map((b) => (
                   <li key={b} className="flex items-start gap-2.5 text-sm text-[rgb(var(--text))]">
                     <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
                     <span className="font-medium">{b}</span>
@@ -195,32 +194,35 @@ export default async function ProtecaoResidencialPage() {
         </section>
       </div>
 
-      {/* ── R4 · CASCATA (navy — âncora) ──────────────────────────── */}
-      <section className="band-navy text-white" aria-label="Proteção em cascata">
+      {/* ── R4 · UM SÓ, NA ENTRADA (navy — âncora) ────────────────────
+          ⛔ Esta seção dizia o CONTRÁRIO até 03/09: "proteção em cascata,
+          um Master Block por quadro que alimenta algo caro", com diagrama.
+          A decisão do Léo é que nenhum equipamento residencial interfere em
+          outro a ponto de justificar aparelho por quadro, mesmo com quadro
+          ramificado — então a recomendação antiga não era só cara, era
+          tecnicamente errada. A cascata continua valendo no INDUSTRIAL. */}
+      <section className="band-navy text-white" aria-label="Um Master Block no quadro de entrada">
         <div className="container-msm section-y space-y-8">
           <Reveal className="max-w-3xl space-y-4">
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-              Proteção em cascata: a casa inteira, não só a entrada
+              Um só, no quadro de entrada — e a casa inteira fica coberta
             </h2>
             <p className="leading-relaxed text-white/85 text-pretty">
-              Proteger só o quadro de entrada é trancar a porta da frente e deixar a janela aberta.
-              Casas de alto padrão têm quadros separados — casa de máquinas da piscina, ar-condicionado
-              central, automação. A proteção certa é{' '}
-              <span className="font-semibold text-gold">em cascata</span>: um Master Block mais robusto
-              na entrada + um menor em cada quadro que alimenta algo caro.
+              Não é um aparelho por cômodo nem por quadro. Um{' '}
+              <span className="font-semibold text-gold">único Master Block no quadro de entrada</span>{' '}
+              barra o distúrbio antes de ele se espalhar pela instalação — e isso vale mesmo quando a
+              casa tem quadros separados para a casa de máquinas da piscina, o ar-condicionado central
+              ou a automação.
             </p>
-          </Reveal>
-          <Reveal className="rounded-card-lg border border-white/10 bg-white/[0.03] p-6 md:p-10">
-            <CascataDiagram
-              setor="residencial"
-              titulo="Diagrama de proteção em cascata da casa: entrada, piscina, ar-condicionado e automação"
-              entradaLabel="Quadro de entrada"
-            />
+            <p className="leading-relaxed text-white/85 text-pretty">
+              É uma compra só, uma instalação só, e o seu eletricista faz. O que muda de casa pra casa
+              é o modelo, dimensionado pela corrente do seu disjuntor geral.
+            </p>
           </Reveal>
           <Reveal>
             <LpCta
-              label="Ver quais quadros eu tenho"
-              event="cascata_cta"
+              label="Calcular o meu Master Block"
+              event="protecao_unica_cta"
               setor="residencial"
               landing={SLUG}
               variant="ghostDark"

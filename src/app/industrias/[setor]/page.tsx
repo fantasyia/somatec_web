@@ -7,6 +7,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { CountUp } from '@/components/ui/CountUp';
 import { INDUSTRIAS, getIndustria } from '@/lib/constants/industrias';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 // Só os setores listados existem — qualquer outro slug → 404 real (SEO).
 export const dynamicParams = false;
@@ -121,11 +122,10 @@ export default async function IndustriaPage({
             <ShieldCheck className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
           </span>
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Prove na sua planta de {ind.nome.toLowerCase()}, sem custo
+            Coloque o Master Block na sua planta de {ind.nome.toLowerCase()}
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Estudo da rede, projeto, instalação e avaliação de 60 a 90 dias — tudo sem custo. Você só
-            passa a pagar se o resultado for comprovado na sua própria operação.
+            {OFERTA_INDUSTRIAL.paragrafo}
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-2">
             <Link href="/ferramentas/custo-de-parada" className="btn-primary group">

@@ -9,6 +9,7 @@ import {
   getWhatsAppButtonConfig,
   isExternalCtaHref,
 } from '@/lib/whatsapp-button';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 /**
  * Auto-orçamento INDUSTRIAL (trilha de LOCAÇÃO) — o cliente remonta a árvore da
@@ -75,34 +76,34 @@ export default async function OrcamentoIndustrialPage() {
       </section>
 
       {/* ── COMO FUNCIONA ─────────────────────────────────────────────
-          Os 14 artigos do blog trazem pra cá o CTA "Avalie o Master Block na
-          sua planta: 60 a 90 dias, e você só paga se o resultado for
-          comprovado". Quem chega precisa reencontrar ESSA promessa — antes
-          daqui a página falava só em estimativa de locação, e o leitor caía
-          numa oferta diferente da que clicou.
+          Os artigos do blog trazem pra cá o CTA da oferta industrial. Quem
+          chega precisa reencontrar a MESMA promessa — antes daqui a página
+          falava só em estimativa de locação, e o leitor caía numa oferta
+          diferente da que clicou.
 
-          Texto conforme a redação aprovada dos artigos (25/08). ⛔ Não vira
-          medição prévia nem oferta de software avulso: a medição acontece
-          DEPOIS do contrato, dentro da avaliação. */}
+          ⛔ Mudou em 03/09: não existe mais período de avaliação, e o bloco
+          dizia "você só paga se o resultado for comprovado". O que segura o
+          risco agora é o DIREITO DE SAÍDA. Texto único em
+          `@/lib/constants/oferta-industrial`.
+
+          ⛔ Continua não virando medição prévia nem oferta de software avulso:
+          a medição acontece DEPOIS do contrato. */}
       <div className="tone-surface">
-        <section className="container-msm section-y" aria-label="Como funciona a avaliação">
+        <section className="container-msm section-y" aria-label="Como funciona a locação">
           <Reveal>
             <div className="mx-auto max-w-3xl rounded-card-lg border border-cyan/30 bg-cyan/5 p-6 md:p-8">
               <p className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">
-                Avaliação na sua planta
+                Locação na sua planta
               </p>
               <h2 className="mt-2 font-serif text-2xl font-semibold text-[rgb(var(--text))] md:text-[1.75rem]">
-                Você só paga se o resultado for comprovado.
+                Se não valer a pena, a gente retira sem custo.
               </h2>
               <p className="mt-3 text-[17px] leading-[1.8] text-[rgb(var(--text))]">
-                As cinco etapas — levantamento, projeto, proposta, instalação e avaliação — são
-                sem custo e começam com a assinatura do contrato; você só passa a pagar se o
-                resultado for comprovado em{' '}
-                <span className="font-semibold">60 a 90 dias</span>. A medição acontece na sua
-                planta, com o software do Master Block mostrando o antes e o depois em tempo real.
+                {OFERTA_INDUSTRIAL.paragrafo}
               </p>
               <p className="mt-3 text-[17px] leading-[1.8] text-[rgb(var(--text))]">
-                Se o resultado não for comprovado, os equipamentos são retirados sem custo.
+                Depois de instalado, o software do Master Block mede a sua planta e mostra o antes
+                e o depois em tempo real.
               </p>
             </div>
           </Reveal>
