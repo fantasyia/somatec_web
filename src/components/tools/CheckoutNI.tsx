@@ -15,6 +15,7 @@ import {
   HardHat,
   BadgeCheck,
   MessageCircle,
+  AlertTriangle,
   Wrench as Chave,
 } from 'lucide-react';
 import { TextField } from '@/components/forms/fields/TextField';
@@ -867,6 +868,41 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       inteira contra os picos de tensão que o DPS e o no-break não pegam. Indicação
                       pela corrente informada; a engenharia confirma o projeto final.
                     </p>
+                  </div>
+                )}
+
+                {/* ── Corrente ESTIMADA: o aviso tem de estar AQUI ────────────
+                    O aviso vivia só no `hint` do campo de corrente, que é do
+                    passo 2. Mas `passoDaSemente` manda o link completo do bot
+                    direto pro passo 3 — então, justamente nos links que
+                    CARREGAM a estimativa, o aviso nunca era visto.
+
+                    Não é cosmética: a regra do prompt do bot é estimar PARA
+                    CIMA, porque indicar modelo menor que o necessário é vender
+                    algo que não protege. Este é o último ponto antes de a
+                    pessoa decidir, então é aqui que a conferência tem de ser
+                    oferecida — com caminho de volta pro campo, não só com um
+                    texto. */}
+                {origemUrl === 'estimativa' && !naoSei && corrente !== '' && (
+                  <div className="flex items-start gap-3 rounded-card border border-gold/50 bg-gold/[0.10] p-4">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-gold" strokeWidth={2} aria-hidden="true" />
+                    <div>
+                      <p className="font-sans text-sm font-semibold text-[rgb(var(--text))]">
+                        Confira a corrente antes de fechar
+                      </p>
+                      <p className="mt-1 text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+                        Os {corrente} A vieram da nossa conversa como estimativa — confirme no
+                        disjuntor antes de fechar. É esse número que escolhe o modelo.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => irPara(2)}
+                        className="mt-2 inline-flex items-center gap-1 font-sans text-sm font-semibold text-gold transition-colors hover:text-gold-soft"
+                      >
+                        <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                        Conferir a corrente
+                      </button>
+                    </div>
                   </div>
                 )}
 
