@@ -1,25 +1,23 @@
 /**
  * Modelo comercial da locação industrial — o diferencial mais forte do
- * playbook.
+ * playbook. O texto vem de `@/lib/constants/oferta-industrial`, fonte única.
  *
- * ⛔ MUDOU EM 03/09. Não existe mais período de avaliação, e o argumento
- * deixou de ser "só paga se o resultado for comprovado". O modelo agora é:
- * assina o contrato → instala (até aqui não paga nada) → a primeira
- * mensalidade vence 30 dias depois → a partir de 12 meses pode encerrar, e a
- * Somatec retira sem custo.
+ * ⛔ MUDOU DUAS VEZES. Em 03/09 acabou o período de avaliação; em 04/09 o
+ * modelo foi refinado e três frases viraram proibidas: "não paga nada até a
+ * instalação", "instalação sem custo" e "encerra quando quiser".
  *
- * O que segura o risco não é mais a prova, é o DIREITO DE SAÍDA. A ordem
- * continua importando: sem o contrato na frente, o texto lê como teste grátis
- * sem compromisso, que é a "medição prévia" extinta em 20/08 voltando por
- * outro caminho.
+ * O que segura o risco é a JANELA DE SAÍDA: no 12º mês abrem 60 dias pra
+ * decidir. ⚠️ Não é saída a qualquer momento — passada a janela, o contrato
+ * segue. E ⚠️ a instalação é contratada pelo CLIENTE, com empresa homologada.
  *
  * 🔒 A duração do contrato é dado INTERNO e não pode aparecer aqui. Os 12
- * meses são o prazo pra encerrar sem custo — nunca a duração do contrato.
+ * meses são quando a janela ABRE — nunca a duração do contrato.
  */
 import Link from 'next/link';
 import { ChevronRight, Network } from 'lucide-react';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { LocacaoTimeline } from '@/components/home/LocacaoTimeline';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export function HomeNoRisk() {
   return (
@@ -31,18 +29,16 @@ export function HomeNoRisk() {
             só o industrial usa, e dizem público + oferta como frase, não como
             rótulo. */}
         <div className="max-w-3xl space-y-4">
+          {/* ⛔ O H2 era "Instalamos na sua planta. Se não valer a pena, a
+              gente retira." As duas metades ficaram falsas em 04/09: quem
+              contrata e paga a instalação é o CLIENTE, com empresa homologada;
+              e a saída não é a qualquer momento, é uma janela de 60 dias que
+              abre no 12º mês. */}
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Instalamos na sua planta. Se não valer a pena, a gente retira.
+            No 12º mês, você decide se continua.
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
-            Na indústria, o Master Block trabalha por locação. Você assina o contrato, a engenharia
-            faz o estudo da rede, o projeto e a proposta, e a gente instala —{' '}
-            <span className="font-semibold text-[rgb(var(--text))]">
-              até a instalação você não paga nada
-            </span>
-            . A primeira mensalidade vence 30 dias depois. E a partir de 12 meses, se não estiver
-            satisfeito ou simplesmente não quiser mais, a Somatec retira o equipamento sem custo e
-            encerra o contrato.
+            {OFERTA_INDUSTRIAL.paragrafo}
           </p>
         </div>
 

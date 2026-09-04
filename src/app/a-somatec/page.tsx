@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRight, Cpu, Award, ShieldCheck, Users } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
   title: 'A Somatec Blocking — Autoridade em qualidade de energia',
@@ -34,7 +35,7 @@ const sections = [
     eyebrow: 'Resultados',
     title: 'Comprovação e garantia',
     description:
-      'Locação com direito de saída: nada a pagar até a instalação, primeira mensalidade 30 dias depois e, a partir de 12 meses, retirada sem custo se o cliente não quiser mais.',
+      OFERTA_INDUSTRIAL.curta,
   },
   {
     // ⛔ Era "Produtos e serviços", apontando pra a seção que foi removida:

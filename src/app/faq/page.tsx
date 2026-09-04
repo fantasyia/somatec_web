@@ -53,7 +53,7 @@ const FAQS: readonly QA[] = [
   },
   {
     q: 'Como funciona a locação do Master Block?',
-    a: 'Você assina o contrato de locação e a Somatec instala. Até a instalação, você não paga nada — estudo da rede, projeto e proposta estão incluídos. A primeira mensalidade vence 30 dias depois da instalação. E a partir de 12 meses, se não estiver satisfeito ou simplesmente não quiser mais, a Somatec retira o equipamento sem custo e encerra o contrato.',
+    a: OFERTA_INDUSTRIAL.paragrafo,
   },
   {
     q: 'O Master Block funciona mesmo? Quem já usa?',

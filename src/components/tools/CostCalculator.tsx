@@ -168,7 +168,7 @@ export function CostCalculator() {
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/80">
             É esse número que o Master Block ataca — e, no modelo de locação da Somatec,{' '}
             <span className="font-semibold text-white">
-              até a instalação você não paga nada
+              a cobrança só começa 45 dias depois da nota fiscal
             </span>
             . Deixe seus dados e receba a análise da engenharia sobre o seu caso.
           </p>

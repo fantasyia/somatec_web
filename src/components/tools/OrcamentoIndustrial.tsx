@@ -30,6 +30,7 @@ import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { formatBRL } from '@/lib/constants/masterblock';
 import { dimensionarLocacao, VALORES_SIMULADOS } from '@/lib/constants/locacao';
 import { DiagramaProjetoCascata } from '@/components/lp/DiagramaProjetoCascata';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 // =============================================================================
 // OrcamentoIndustrial — auto-orçamento da TRILHA INDUSTRIAL (final = LOCAÇÃO).
@@ -510,8 +511,7 @@ export function OrcamentoIndustrial({
 
                   <p className="mt-4 text-xs leading-relaxed text-white/60">
                     Esta é a sua estimativa, calculada pela planta que você montou. Um representante
-                    revisa os detalhes técnicos e confirma o valor final — e você não paga nada até
-                    a instalação: a primeira mensalidade vence 30 dias depois.
+                    revisa os detalhes técnicos e confirma o valor final. {OFERTA_INDUSTRIAL.curta}
                   </p>
                 </div>
 

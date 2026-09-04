@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 /**
  * ⭐ Bifurcação (despachos #15 + #16 + adendos): seção FULL-SCREEN com TRÊS
@@ -36,7 +37,7 @@ const CARDS: readonly Card[] = [
     titulo: 'Industrial',
     modelo: 'Locação',
     resto:
-      ' com direito de saída — estudo, projeto, proposta e instalação sem custo. A primeira mensalidade vence 30 dias depois da instalação, e a partir de 12 meses a Somatec retira sem custo se você não quiser mais.',
+      ' com janela de saída — ' + OFERTA_INDUSTRIAL.curta,
     cta: { label: 'Ver proteção industrial', href: '#industria' },
   },
   {

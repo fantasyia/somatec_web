@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 import { X, GaugeCircle, Calculator, type LucideIcon } from 'lucide-react';
 
 // =============================================================================
@@ -10,13 +11,13 @@ import { X, GaugeCircle, Calculator, type LucideIcon } from 'lucide-react';
 // Dispensável; a dispensa vale pela sessão (sessionStorage). Não aparece em
 // /contato, /ferramentas/* (já são páginas de conversão) nem no admin.
 //
-// 🔒 A OFERTA MUDA POR PÚBLICO. No industrial é LOCAÇÃO com DIREITO DE SAÍDA:
-// até a instalação não se paga nada, a primeira mensalidade vence 30 dias
-// depois e a partir de 12 meses dá pra encerrar, com a retirada sem custo.
-// ⛔ Não é mais período de avaliação (extinto em 03/09) nem medição prévia (a
-// Somatec parou de medir antes do contrato em 20/08). Nas LPs NI a barra chama
-// a calculadora da própria página (#calculadora), nunca /contato: a trilha NI
-// é compra direta, sem vendedor.
+// 🔒 A OFERTA MUDA POR PÚBLICO. No industrial é LOCAÇÃO com JANELA DE SAÍDA —
+// o texto vem de `@/lib/constants/oferta-industrial`, que é a fonte única.
+// ⛔ Não é período de avaliação (extinto em 03/09), não é medição prévia (a
+// Somatec parou de medir antes do contrato em 20/08), e ⛔ desde 04/09 também
+// não se escreve "não paga nada até a instalação": quem contrata e paga a
+// instalação é o cliente. Nas LPs NI a barra chama a calculadora da própria
+// página (#calculadora), nunca /contato: a trilha NI é compra direta.
 // =============================================================================
 
 const HIDDEN_PREFIXES = ['/contato', '/ferramentas', '/login'];
@@ -30,10 +31,12 @@ type Oferta = {
   fecharLabel: string;
 };
 
-const OFERTA_INDUSTRIAL: Oferta = {
+// A barra do industrial. Nome distinto do import de copy pra não colidir:
+// este objeto é a BARRA; OFERTA_INDUSTRIAL é o texto da oferta.
+const BARRA_INDUSTRIAL: Oferta = {
   Icon: GaugeCircle,
   destaque: 'Coloque o Master Block na sua planta',
-  complemento: 'Até a instalação você não paga nada. Depois de 12 meses, pode encerrar sem custo.',
+  complemento: OFERTA_INDUSTRIAL.curta,
   cta: 'Solicitar',
   href: '/contato',
   fecharLabel: 'Fechar barra de diagnóstico',
@@ -79,7 +82,7 @@ export function StickyCta() {
 
   if (dismissed || !pathname || HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))) return null;
 
-  const oferta = OFERTA_NI[pathname] ?? OFERTA_INDUSTRIAL;
+  const oferta = OFERTA_NI[pathname] ?? BARRA_INDUSTRIAL;
   const { Icon } = oferta;
 
   return (

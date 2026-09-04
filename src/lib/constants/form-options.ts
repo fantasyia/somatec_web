@@ -39,11 +39,11 @@ export const BR_STATES = [
 // declarar antes que era indústria. E "diagnóstico" era a oferta INDUSTRIAL —
 // oferecê-la a dono de casa furava a regra de ouro.
 //
-// ⛔ Desde 20/08 a oferta industrial NÃO é mais diagnóstico/medição na planta —
-// não existe medição antes do contrato. E desde 03/09 também não é mais
-// período de avaliação: é LOCAÇÃO com direito de saída (nada a pagar até a
-// instalação, primeira mensalidade 30 dias depois, e a partir de 12 meses dá
-// pra encerrar com retirada sem custo).
+// ⛔ Desde 20/08 a oferta industrial NÃO é mais diagnóstico/medição na planta
+// — não existe medição antes do contrato. Desde 03/09 também não é período de
+// avaliação. E desde 04/09 é LOCAÇÃO com JANELA DE SAÍDA: a cobrança começa 45
+// dias depois da nota fiscal, a instalação o cliente contrata, e no 12º mês
+// abrem 60 dias pra decidir se continua. Texto em `oferta-industrial.ts`.
 //
 // A frase agora diz o que a pessoa QUER, não em que categoria ela se encaixa —
 // mesma regra das mensagens de WhatsApp. O `value` continua 'b2b' de

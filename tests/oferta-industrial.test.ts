@@ -115,6 +115,23 @@ const APOSENTADO: { padrao: RegExp; oQueEra: string; exemplo: string }[] = [
     oQueEra: 'o registro de garantia aposentado em 03/09',
     exemplo: 'Garantia de 3 anos (+1 com depoimento)',
   },
+
+  // ── mortos em 04/09, quando o modelo foi refinado ────────────────────────
+  {
+    padrao: /n[ãa]o paga nada at[ée] a instala|at[ée] a instala[çc][ãa]o,? (voc[êe] )?n[ãa]o paga nada/i,
+    oQueEra: 'a promessa de que nada se paga até instalar',
+    exemplo: 'Até a instalação você não paga nada. Depois de 12 meses, pode encerrar sem custo.',
+  },
+  {
+    padrao: /instala[çc][ãa]o (sem custo|gratuita|inclu[íi]da)/i,
+    oQueEra: 'quem contrata e paga a instalação é o CLIENTE',
+    exemplo: 'estudo, projeto, proposta e instalação sem custo',
+  },
+  {
+    padrao: /(encerr[ae]|cancel[ae]|sai[ar]?) quando quiser|a partir de 12 meses.{0,60}(encerrar|retira)/i,
+    oQueEra: 'saída aberta — o contrato dá uma JANELA de 60 dias, não saída a qualquer momento',
+    exemplo: 'a partir de 12 meses, se não quiser mais, a Somatec retira o equipamento sem custo',
+  },
 ];
 
 describe('o vocabulário da oferta velha não aparece em lugar nenhum', () => {
@@ -197,22 +214,45 @@ describe('🔒 a duração do contrato não vaza pro site', () => {
 // =============================================================================
 
 describe('o texto novo carrega o modelo inteiro', () => {
-  it('o parágrafo diz que até a instalação não se paga', () => {
-    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/n[ãa]o paga nada/i);
+  it('diz que estudo, projeto e proposta correm sem custo', () => {
+    // ⛔ Este assert exigia "não paga nada" — o texto de 03/09. Exigir isso
+    // hoje forçaria de volta a frase que morreu em 04/09: agora o que é sem
+    // custo são as TRÊS primeiras etapas, não tudo até instalar.
+    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/estudo da rede, projeto e proposta/i);
   });
 
-  it('diz quando a primeira mensalidade vence', () => {
-    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/30 dias/);
+  it('diz quando a cobrança começa: 45 dias depois da nota fiscal', () => {
+    // ⛔ Era "30 dias depois da instalação". O relógio começa na NOTA FISCAL,
+    // não na instalação — e a instalação nem é da Somatec.
+    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/45 dias/);
+    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/nota fiscal/i);
   });
 
-  it('diz o direito de saída — 12 meses e retirada sem custo', () => {
-    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/12 meses/);
+  it('diz que a INSTALAÇÃO é contratada pelo cliente', () => {
+    // Se isto sumir, o texto volta a sugerir que a Somatec instala de graça.
+    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/instala[çc][ãa]o voc[êe] contrata|voc[êe] contrata/i);
+    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/homologada/i);
+  });
+
+  it('diz a JANELA de saída — 12º mês E os 60 dias', () => {
+    // O "12º mês" sozinho não basta: sem os 60 dias o texto promete saída a
+    // qualquer momento, que é o que o contrato NÃO dá. Foi esse o erro que
+    // ficou no ar até 04/09.
+    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/12[º°] m[êe]s/);
+    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/60 dias/);
     expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/sem custo/i);
   });
 
-  it('a versão curta não perde o essencial', () => {
-    expect(OFERTA_INDUSTRIAL.curta).toMatch(/n[ãa]o paga nada/i);
-    expect(OFERTA_INDUSTRIAL.curta).toMatch(/12 meses/);
+  it('a versão curta não perde o essencial: 45 dias + a janela', () => {
+    expect(OFERTA_INDUSTRIAL.curta).toMatch(/45 dias/);
+    expect(OFERTA_INDUSTRIAL.curta).toMatch(/60 dias/);
+  });
+
+  it('⛔ `sem custo` sozinho NÃO é proibido', () => {
+    // Ele continua certo em "estudo, projeto e proposta sem custo" e em
+    // "retira o equipamento sem custo". Guarda larga demais reprovaria a
+    // própria copy aprovada — e o teste acima já a exige.
+    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/sem custo/i);
   });
 });
 

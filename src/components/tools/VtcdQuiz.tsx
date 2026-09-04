@@ -33,21 +33,25 @@ const LEVELS: Level[] = [
     label: 'Risco alto de VTCD',
     Icon: ShieldAlert,
     tone: 'text-gold',
-    text: 'Esse conjunto de sintomas é o quadro clássico de VTCD e transientes de alta frequência — exatamente a faixa em que a proteção convencional não atua. Cada mês sem tratar é prejuízo recorrente — e até a instalação você não paga nada.',
+    text: 'Esse conjunto de sintomas é o quadro clássico de VTCD e transientes de alta frequência — exatamente a faixa em que a proteção convencional não atua. Cada mês sem tratar é prejuízo recorrente — e a cobrança só começa 45 dias depois da nota fiscal.',
   },
   {
     min: 2,
     label: 'Risco moderado — vale investigar',
     Icon: AlertTriangle,
     tone: 'text-cyan',
-    text: 'Alguns sintomas já apontam distúrbios de alta frequência na sua rede. Com o Master Block instalado, o software identifica a causa e mostra a redução — antes de você pagar qualquer coisa.',
+    // ⛔ Terminava em "antes de você pagar qualquer coisa" — lê como teste
+    // grátis, que acabou em 03/09. O fato do modelo de 04/09 é outro e
+    // continua forte: a cobrança começa 45 dias depois da nota fiscal, então
+    // as primeiras análises chegam antes da primeira cobrança.
+    text: 'Alguns sintomas já apontam distúrbios de alta frequência na sua rede. Com o Master Block instalado, o software identifica a causa e mostra a redução — e as primeiras análises da sua rede chegam antes da primeira cobrança.',
   },
   {
     min: 0,
     label: 'Risco baixo pelos sintomas informados',
     Icon: CheckCircle2,
     tone: 'text-cyan',
-    text: 'Os sinais clássicos de VTCD não apareceram — mas distúrbios de alta frequência muitas vezes passam despercebidos até a primeira queima. Se quiser certeza, instalamos e o software mede o antes e o depois na sua planta — e a partir de 12 meses, se não quiser mais, a gente retira sem custo.',
+    text: 'Os sinais clássicos de VTCD não apareceram — mas distúrbios de alta frequência muitas vezes passam despercebidos até a primeira queima. Se quiser certeza, o software mede o antes e o depois na sua planta — e no 12º mês você tem 60 dias pra decidir se continua.',
   },
 ];
 
