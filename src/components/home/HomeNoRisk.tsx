@@ -55,8 +55,22 @@ export function HomeNoRisk() {
             subiu de nível e virou o módulo "Uma hora parada por mês já paga
             a conta" (HomeHoraParada), logo abaixo. */}
         <div className="mt-10">
+          {/* ⛔ Era "Quero avaliar na minha planta" — "avaliar" evocava o
+              período de avaliação, extinto em 03/09.
+
+              🔒 A master decidiu (03/09 19:06) que este botão viraria "Montar
+              o projeto da minha planta", apontando pra /orcamento-industrial.
+              NÃO apliquei assim, e o motivo está na tela: o bloco logo abaixo
+              JÁ é o self-service, com o rótulo "Montar o projeto" e o mesmo
+              destino. Aplicar ao pé da letra criaria dois botões iguais,
+              colados.
+
+              Este aqui é WhatsApp (CommercialCta, fallback /contato), então
+              cai na OUTRA família do mesmo despacho — a de destino /contato,
+              onde a copy aprovada é "Falar com a engenharia". É a regra dela
+              aplicada ao destino real do botão. Registrado no card. */}
           <CommercialCta
-            label="Quero o Master Block na minha planta"
+            label="Falar com a engenharia"
             mensagem="Olá! Vim pelo site e quero o Master Block na minha fábrica."
             fallbackPath="/contato"
           />

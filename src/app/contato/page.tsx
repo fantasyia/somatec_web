@@ -44,13 +44,16 @@ export default function ContatoPage() {
       <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 bg-deep_navy texture-dark text-text_light overflow-hidden">
         <div className="container-msm">
           <div className="max-w-3xl space-y-4 animate-fade-up">
-            {/* ⛔ Era "Vamos diagnosticar a sua planta". Duas coisas erradas nessa
-                frase: "diagnosticar" é a medição prévia que a Somatec parou de
-                fazer em 20/08, e "sua planta" fala só com o industrial — o
-                /contato recebe também comércio, residência e candidato a
-                representante. */}
+            {/* ⛔ Era "Vamos diagnosticar a sua planta" — "diagnosticar" é a
+                medição prévia que a Somatec parou de fazer em 20/08.
+
+                🔒 COPY APROVADA pela master (despacho no card, 03/09 19:06).
+                O motivo dela: o subtítulo logo abaixo já diz "Conte o que
+                acontece na sua operação… e nossa equipe retorna com o próximo
+                passo". O H1 prometia uma coisa e o parágrafo descrevia outra;
+                agora os dois falam da mesma ação. */}
             <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">
-              Fale com a engenharia da Somatec
+              Conte o que está acontecendo na sua planta
             </h1>
             <p className="text-base md:text-lg leading-relaxed text-white/80 max-w-xl text-pretty">
               Conte o que acontece na sua operação — paradas, queimas, travamentos — e nossa
