@@ -431,3 +431,51 @@ describe('medição e laudos — não é linha de serviço avulsa', () => {
 // e mais forte: em vez de exigir uma palavra por perto, proibe o vocabulario
 // inteiro da oferta velha em qualquer superficie do site.
 // =============================================================================
+
+// =============================================================================
+// GUARDA — a CASCATA é projeto INDUSTRIAL, e a página tem de dizer isso.
+//
+// Desde 03/09 o não-industrial leva UM Master Block, no quadro de entrada:
+// nenhum equipamento de casa ou de comércio interfere em outro a ponto de
+// justificar aparelho por quadro, nem com quadro ramificado.
+//
+// As duas LPs NI foram corrigidas naquele dia, mas `/produtos` continuou
+// dizendo "um único supressor não basta" sem dizer PRA QUEM. E `/produtos`
+// está no menu principal: um dono de comércio chegava ali e lia o oposto do
+// que a LP dele acabara de prometer.
+//
+// A guarda não proíbe a cascata — na indústria ela é o projeto certo. Cobra
+// que o público apareça junto, que é o que separa argumento técnico de
+// recomendação errada pro leitor errado.
+// =============================================================================
+
+describe('a proteção em cascata aparece marcada como industrial', () => {
+  const FONTE = lerCopyCorrida('src/app/produtos/page.tsx');
+
+  it('a página fala de cascata (âncora anti-falso-verde)', () => {
+    // Se a seção sumir ou for renomeada, as asserções abaixo passariam vazias.
+    expect(FONTE).toMatch(/em cascata/i);
+    expect(FONTE).toMatch(/um único supressor/i);
+  });
+
+  it('o público industrial vem junto do argumento', () => {
+    const i = FONTE.search(/um único supressor/i);
+    const janela = FONTE.slice(Math.max(0, i - 400), i + 400);
+    expect(janela, 'a cascata está sem dizer que é industrial').toMatch(/ind[úu]stria/i);
+  });
+
+  it('a página diz o que vale pro NÃO-industrial, e manda pra LP certa', () => {
+    // Sem isto, quem é de comércio sai da página com a recomendação errada.
+    expect(FONTE).toMatch(/único Master Block no quadro de entrada/i);
+    expect(FONTE).toMatch(/\/protecao-comercial/);
+    expect(FONTE).toMatch(/\/protecao-residencial/);
+  });
+
+  it('⛔ e não oferece locação pro público NI que chega aqui', () => {
+    // Regra de ouro: a oferta de locação é exclusiva do industrial. Como a
+    // página passou a falar com quem é de comércio/casa, ela entra no escopo.
+    for (const padrao of [/comodato/i, /s[óo] paga\b/i]) {
+      expect(FONTE, `"${padrao}" não pode estar em /produtos`).not.toMatch(padrao);
+    }
+  });
+});

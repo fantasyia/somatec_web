@@ -203,25 +203,50 @@ export default function ProdutosPage() {
         </p>
       </section>
 
-      {/* ── Proteção em cascata ──────────────────────────────────── */}
+      {/* ── Proteção em cascata (INDUSTRIAL) ──────────────────────────
+          ⚠️ Esta seção descreve o projeto INDUSTRIAL, onde a planta tem
+          subestação, vários setores e equipamento crítico espalhado. Ela
+          estava sem dizer isso, e /produtos está no menu principal: um dono
+          de comércio lia "um único supressor não basta" logo depois de a LP
+          dele dizer o contrário — desde 03/09 o não-industrial leva UM
+          Master Block, no quadro de entrada.
+
+          O enquadramento é o conserto certo, não apagar: na indústria a
+          cascata continua sendo o projeto correto. */}
       <section className="band-navy text-white">
         <div className="container-msm py-14 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <Reveal className="space-y-5">
+              <span className="inline-block rounded-btn border border-white/25 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
+                Projeto industrial
+              </span>
               <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
                 Proteção em cascata + aterramento dedicado
               </h2>
               <p className="text-white/80 leading-relaxed">
-                Um único supressor junto ao equipamento sensível não basta — ele fica
-                sujeito a um surto acima da sua capacidade de escoamento. A Somatec
-                projeta a proteção em cascata: um MasterBlock na entrada da instalação,
-                outro no quadro de distribuição e outro próximo ao equipamento crítico,
-                atenuando o surto gradativamente.
+                Na indústria, onde a planta tem subestação, vários setores e equipamento
+                crítico espalhado, um único supressor junto ao equipamento sensível não
+                basta — ele fica sujeito a um surto acima da sua capacidade de escoamento.
+                A Somatec projeta a proteção em cascata: um MasterBlock na entrada da
+                instalação, outro no quadro de distribuição e outro próximo ao equipamento
+                crítico, atenuando o surto gradativamente.
               </p>
               <p className="text-white/80 leading-relaxed">
                 E porque o desempenho depende do referencial de terra, instalamos um
                 sistema de aterramento próprio e exclusivo, com equipotencialização
                 conforme o capítulo de aterramento da NBR 5410.
+              </p>
+              <p className="rounded-card border border-white/15 bg-white/[0.04] p-4 text-sm leading-relaxed text-white/75">
+                <span className="font-semibold text-white">Comércio e residência é diferente:</span>{' '}
+                um único Master Block no quadro de entrada protege a instalação inteira, e a
+                escolha do modelo sai da corrente do disjuntor geral.{' '}
+                <Link href="/protecao-comercial" className="font-semibold text-gold underline-offset-2 hover:underline">
+                  Ver a proteção do comércio
+                </Link>{' '}
+                ·{' '}
+                <Link href="/protecao-residencial" className="font-semibold text-gold underline-offset-2 hover:underline">
+                  da casa
+                </Link>
               </p>
             </Reveal>
 
