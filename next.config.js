@@ -104,17 +104,23 @@ const nextConfig = {
       { source: '/a-msm/quem-somos', destination: '/a-somatec/quem-somos', permanent: true },
       { source: '/a-msm/estrutura-industrial', destination: '/a-somatec/tecnologia-e-fabricacao', permanent: true },
       { source: '/a-msm/qualidade-e-seguranca', destination: '/a-somatec/comprovacao-e-normas', permanent: true },
-      // Slugs antigos (food) de /solucoes -> novas soluções Somatec.
-      { source: '/solucoes/food-service', destination: '/solucoes/protecao-contra-surtos', permanent: true },
-      { source: '/solucoes/b2b', destination: '/solucoes/qualidade-de-energia', permanent: true },
-      { source: '/solucoes/distribuicao', destination: '/solucoes/banco-de-capacitores', permanent: true },
-      { source: '/solucoes/terceirizacao-de-producao', destination: '/solucoes', permanent: true },
-      { source: '/solucoes/envase', destination: '/solucoes/manutencao-cabine-primaria', permanent: true },
-      { source: '/solucoes/marcas-proprias', destination: '/solucoes', permanent: true },
-      // Medição e laudos saiu do catálogo (decisão do Léo, 24/08): não existe
-      // fora da instalação do produto completo. A URL estava no sitemap, então
-      // vai pro índice de soluções em vez de 404.
-      { source: '/solucoes/medicao-e-laudos', destination: '/solucoes', permanent: true },
+      // ── /solucoes INTEIRA saiu em 04/09 ────────────────────────────
+      // Decisão do Léo: o site passa a ser SÓ Master Block, dividido entre
+      // industrial e não-industrial. Saíram Banco de Capacitores e Manutenção
+      // de Cabine Primária (não são Master Block), e a Gestão de Qualidade de
+      // Energia virou seção de /produtos — nunca foi produto à parte.
+      //
+      // Um curinga cobre tudo: os slugs Somatec, os slugs food do site antigo
+      // (food-service, b2b, distribuicao, envase, marcas-proprias,
+      // terceirizacao-de-producao) e o medicao-e-laudos aposentado em 24/08.
+      //
+      // ⚠️ O curinga substitui as regras individuais DE PROPÓSITO. Elas
+      // apontavam uma pra outra dentro de /solucoes, e manter isso agora
+      // criaria redirect encadeado (/solucoes/envase → /solucoes/manutencao…
+      // → /produtos): dois saltos, que o Google penaliza e o navegador
+      // paga. Assim é um salto só, de qualquer URL antiga.
+      { source: '/solucoes', destination: '/produtos', permanent: true },
+      { source: '/solucoes/:slug*', destination: '/produtos', permanent: true },
       // Seções food removidas (não existem no negócio Somatec).
       { source: '/marcas', destination: '/produtos', permanent: true },
       { source: '/marcas/:slug', destination: '/produtos', permanent: true },

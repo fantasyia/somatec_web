@@ -364,12 +364,23 @@ describe('oferta de entrada industrial — nada de medição antes do contrato',
 });
 
 
-describe('medição e laudos — não é linha de serviço avulsa', () => {
-  // Decisão do Léo (24/08): medição e laudos não existem fora da instalação
-  // do produto completo. A página /solucoes/medicao-e-laudos foi removida —
-  // esta guarda impede que a rota volte por link, menu, sitemap ou ícone.
-  const ROTA_MORTA = /\/solucoes\/medicao-e-laudos/;
+// =============================================================================
+// GUARDA — o site oferece SÓ Master Block.
+//
+// Decisão do Léo (04/09): acabaram Banco de Capacitores, Manutenção de Cabine
+// Primária e qualquer outro serviço. A seção `/solucoes` inteira saiu, e a
+// Gestão de Qualidade de Energia virou seção de `/produtos` — nunca foi
+// produto à parte (é o que o Master Block entrega depois de instalado).
+//
+// Antes disso, em 24/08, "medição e laudos" já tinha saído pela mesma lógica.
+// Esta guarda substitui a daquele card: a regra agora é mais larga, e proteger
+// só a rota antiga deixaria as outras voltarem.
+//
+// As URLs estavam no sitemap e podem estar indexadas, então nenhuma delas pode
+// virar 404 — todas têm de redirecionar.
+// =============================================================================
 
+describe('o site oferece só Master Block', () => {
   function fontesDoSite(): string[] {
     const { readdirSync, statSync } = require('node:fs') as typeof import('node:fs');
     const out: string[] = [];
@@ -384,29 +395,80 @@ describe('medição e laudos — não é linha de serviço avulsa', () => {
     return out;
   }
 
-  it('nenhum arquivo do site aponta pra rota removida', () => {
+  const CONFIG = () => readFileSync(resolve(process.cwd(), 'next.config.js'), 'utf-8');
+
+  it('nenhum arquivo do site linka pra /solucoes', () => {
+    // Aqui NÃO se filtra comentário: link em comentário também é rastro, e o
+    // próximo a mexer copia o que vê. Exceção só pra prosa que EXPLICA a
+    // remoção, que é reconhecida por vir junto de "04/09" ou "removida".
     const violacoes: string[] = [];
     for (const arquivo of fontesDoSite()) {
-      // aqui NÃO se filtra comentário: link em comentário também é rastro
-      const fonte = readFileSync(resolve(process.cwd(), arquivo), 'utf-8');
-      if (ROTA_MORTA.test(fonte)) violacoes.push(arquivo);
+      for (const linha of readFileSync(resolve(process.cwd(), arquivo), 'utf-8').split('\n')) {
+        if (!/\/solucoes/.test(linha)) continue;
+        if (/04\/09|removida|saiu|Veio de/.test(linha)) continue;
+        violacoes.push(`${arquivo}: ${linha.trim()}`);
+      }
     }
     expect(violacoes, violacoes.join('\n')).toHaveLength(0);
   });
 
-  it('a solução não existe mais no catálogo', () => {
-    const catalogo = readFileSync(resolve(process.cwd(), 'src/lib/constants/solucoes.ts'), 'utf-8');
-    expect(catalogo).not.toMatch(/slug:\s*'medicao-e-laudos'/);
-    expect(catalogo).not.toMatch(/Quero um diagnóstico da minha rede/);
+  it('a rota /solucoes não existe mais', () => {
+    const { existsSync } = require('node:fs') as typeof import('node:fs');
+    expect(existsSync(resolve(process.cwd(), 'src/app/solucoes'))).toBe(false);
+    expect(existsSync(resolve(process.cwd(), 'src/lib/constants/solucoes.ts'))).toBe(false);
   });
 
-  it('o redirect 301 existe e não leva pra rota morta', () => {
-    const config = readFileSync(resolve(process.cwd(), 'next.config.js'), 'utf-8');
-    // a URL estava no sitemap: precisa de destino, não de 404
-    expect(config).toMatch(/source:\s*'\/solucoes\/medicao-e-laudos',\s*destination:\s*'\/solucoes'/);
-    // e nenhum OUTRO redirect pode ter a rota morta como destino
-    const destinos = [...config.matchAll(/destination:\s*'([^']+)'/g)].map((m) => m[1]);
-    expect(destinos).not.toContain('/solucoes/medicao-e-laudos');
+  it('toda URL antiga de /solucoes redireciona — nenhuma vira 404', () => {
+    const config = CONFIG();
+    expect(config).toMatch(/source:\s*'\/solucoes',\s*destination:\s*'\/produtos'/);
+    // o curinga cobre os slugs Somatec, os slugs food do site antigo e o
+    // medicao-e-laudos aposentado em 24/08
+    expect(config).toMatch(/source:\s*'\/solucoes\/:slug\*',\s*destination:\s*'\/produtos'/);
+  });
+
+  it('⛔ nenhum redirect leva PRA dentro de /solucoes — seria salto duplo', () => {
+    // Era o caso antes: /solucoes/envase apontava pra /solucoes/manutencao-…,
+    // que agora aponta pra /produtos. Dois saltos, que o Google penaliza.
+    const destinos = [...CONFIG().matchAll(/destination:\s*'([^']+)'/g)].map((m) => m[1]);
+    expect(destinos.filter((d) => d.startsWith('/solucoes'))).toEqual([]);
+  });
+
+  it('capacitores e cabine primária não são mais OFERECIDOS', () => {
+    // ⚠️ Citar cabine primária DESCREVENDO a instalação do cliente continua
+    // certo ("planta com subestação ou cabine primária", em setores.ts e no
+    // OrcamentoIndustrial) — é o que separa indústria de comércio no wizard.
+    // O que não pode é aparecer como algo que a Somatec vende.
+    const OFERTA = [
+      /Banco de Capacitores/i,
+      /banco de capacitores/i,
+      /Manutenção de Cabine/i,
+      /manutenção de cabine primária/i,
+    ];
+    const violacoes: string[] = [];
+    for (const arquivo of fontesDoSite()) {
+      const fonte = lerCopyCorrida(arquivo);
+      for (const padrao of OFERTA) {
+        const m = fonte.match(padrao);
+        if (m) violacoes.push(`${arquivo}: "${m[0]}"`);
+      }
+    }
+    expect(violacoes, violacoes.join(' | ')).toHaveLength(0);
+  });
+
+  it('a descrição da planta do cliente CONTINUA (a guarda não é larga demais)', () => {
+    // Se isto cair, a guarda acima passou a apagar o que separa Grupo A de
+    // Grupo B no orçamento — e o wizard perde a triagem.
+    expect(lerCopy('src/lib/constants/setores.ts')).toMatch(/cabine primária/i);
+    expect(lerCopy('src/components/tools/OrcamentoIndustrial.tsx')).toMatch(/cabine primária/i);
+  });
+
+  it('o conteúdo do Sistema IoT não se perdeu na remoção', () => {
+    // A página /solucoes/qualidade-de-energia foi apagada; o conteúdo dela
+    // tinha de sobreviver em /produtos, senão a remoção virou perda.
+    const produtos = lerCopyCorrida('src/app/produtos/page.tsx');
+    expect(produtos).toMatch(/Master Block IoT/);
+    expect(produtos).toMatch(/THDv/);
+    expect(produtos).toMatch(/plano de ação preventivo/i);
   });
 
   it('a varredura enxerga o site de verdade (âncora anti-falso-verde)', () => {
@@ -414,8 +476,7 @@ describe('medição e laudos — não é linha de serviço avulsa', () => {
     expect(arquivos.length).toBeGreaterThan(50);
     expect(arquivos).toContain('src/lib/constants/navigation.ts');
     expect(arquivos).toContain('src/app/sitemap.ts');
-    // e o regex tem de pegar a rota quando ela aparece de fato
-    expect(ROTA_MORTA.test("href: '/solucoes/medicao-e-laudos'")).toBe(true);
+    expect(arquivos).toContain('src/app/produtos/page.tsx');
   });
 });
 
@@ -547,7 +608,8 @@ describe('CTA de diagnóstico não volta como convite', () => {
     for (const padrao of MORTOS) {
       expect(cabine, `${padrao} está larga demais`).not.toMatch(padrao);
     }
-    expect(lerCopy('src/lib/constants/solucoes.ts')).toContain(cabine);
+    // (o arquivo solucoes.ts não existe mais — a oferta de cabine saiu do
+    // site em 04/09. O que se protege aqui é só a LARGURA dos padrões.)
   });
 
   it('as páginas que perderam o CTA ganharam o aprovado no lugar', () => {

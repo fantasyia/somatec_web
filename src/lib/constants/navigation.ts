@@ -58,32 +58,6 @@ export const HEADER_NAV: NavItem[] = [
     ],
   },
   {
-    label: 'Soluções',
-    href: '/solucoes',
-    children: [
-      {
-        label: 'Proteção contra surtos',
-        href: '/solucoes/protecao-contra-surtos',
-        description: 'Master Block — supressor com atuação em 100 kHz.',
-      },
-      {
-        label: 'Qualidade de energia',
-        href: '/solucoes/qualidade-de-energia',
-        description: 'Software on-line que comprova a proteção em tempo real.',
-      },
-      {
-        label: 'Banco de capacitores',
-        href: '/solucoes/banco-de-capacitores',
-        description: 'Correção do fator de potência e fim das multas por reativo.',
-      },
-      {
-        label: 'Manutenção de cabine',
-        href: '/solucoes/manutencao-cabine-primaria',
-        description: 'Confiabilidade elétrica sem paradas não programadas.',
-      },
-    ],
-  },
-  {
     label: 'Resultados',
     href: '/resultados',
     children: [
@@ -180,13 +154,16 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
       { label: 'Modelos MB-01 a MB-12', href: '/produtos' },
     ],
   },
+  // A coluna "Soluções" saiu em 04/09 junto com /solucoes. No lugar entra a
+  // divisão que o Léo definiu como a do site: industrial x não-industrial.
+  // As duas LPs NI estavam só debaixo de "Contato", que é onde ninguém
+  // procura por elas.
   {
-    title: 'Soluções',
+    title: 'Proteção',
     links: [
-      { label: 'Proteção contra surtos', href: '/solucoes/protecao-contra-surtos' },
-      { label: 'Qualidade de energia', href: '/solucoes/qualidade-de-energia' },
-      { label: 'Banco de capacitores', href: '/solucoes/banco-de-capacitores' },
-      { label: 'Manutenção de cabine', href: '/solucoes/manutencao-cabine-primaria' },
+      { label: 'Indústria (locação)', href: '/orcamento-industrial' },
+      { label: 'Para o meu negócio', href: '/protecao-comercial' },
+      { label: 'Para a minha casa', href: '/protecao-residencial' },
     ],
   },
   {
@@ -195,7 +172,6 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
       { label: 'Blog', href: '/blog' },
       { label: 'Resultados e cases', href: '/resultados' },
       { label: 'Diagnóstico de VTCD', href: '/ferramentas/custo-de-parada' },
-      { label: 'Orçamento industrial (locação)', href: '/orcamento-industrial' },
     ],
   },
   {

@@ -203,6 +203,65 @@ export default function ProdutosPage() {
         </p>
       </section>
 
+      {/* ── Master Block IoT — a gestão de energia ────────────────────
+          Veio de `/solucoes/qualidade-de-energia`, removida em 04/09 junto com
+          a seção inteira: o site passou a ser só Master Block, e o
+          monitoramento nunca foi produto à parte — é o que o Sistema Master
+          Block entrega depois de instalado.
+
+          🔒 Continua valendo: NUNCA oferecer o software/monitoramento como
+          produto separado, teste ou demo. Aqui ele é seção do produto.
+
+          ⚠️ PROVISÓRIO: o Léo avisou (04/09) que vem repaginação trazendo o
+          Master Block IoT como produto PRINCIPAL, com os relatórios mensais
+          de gestão. Esta seção existe pra o conteúdo não se perder no meio do
+          caminho — não é o desenho final, e não vale investir nela. Os
+          relatórios mensais NÃO estão escritos aqui de propósito: não há copy
+          aprovada ainda. */}
+      <div className="tone-surface">
+        <section className="container-msm py-12 md:py-16" aria-label="Master Block IoT">
+          <Reveal className="max-w-3xl space-y-4">
+            <span className="inline-block rounded-btn border border-cyan/40 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-cyan">
+              Sistema IoT
+            </span>
+            <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
+              Não para na instalação: o sistema comprova a proteção
+            </h2>
+            <p className="leading-relaxed text-[rgb(var(--text-muted))]">
+              O Sistema Master Block IoT não para na instalação do filtro. Um software de gestão
+              on-line de qualidade de energia acompanha, em tempo real, a eficácia do Master Block
+              na retenção dos picos de tensão, a sua vida útil e as condições gerais de qualidade
+              de energia da rede.
+            </p>
+            <p className="leading-relaxed text-[rgb(var(--text-muted))]">
+              O sistema calcula continuamente o tempo de uso dos ativos e os níveis de distorção
+              harmônica (THDv) — e, como a tolerância dos equipamentos cai conforme envelhecem,
+              aponta quando os níveis já não são adequados e sugere um plano de ação preventivo.{' '}
+              <span className="font-semibold text-[rgb(var(--text))]">
+                É a diferença entre proteger e comprovar que está protegendo.
+              </span>
+            </p>
+          </Reveal>
+
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {[
+              { title: 'Monitoramento contínuo', description: 'Nenhum DPS comum oferece acompanhamento on-line da qualidade de energia da rede.' },
+              { title: 'Inspeções periódicas', description: 'Três visitas por ano avaliam as condições físicas do Master Block e da instalação.' },
+              { title: 'Plano de ação preventivo', description: 'O sistema antecipa riscos com base na idade do ativo e nos níveis de THDv.' },
+            ].map((h, i) => (
+              <Reveal key={h.title} delay={i * 60} className="card-elevated flex flex-col gap-2 p-6">
+                <span className="font-sans text-base font-semibold text-[rgb(var(--text))]">
+                  {h.title}
+                </span>
+                <span className="text-sm leading-relaxed text-[rgb(var(--text-muted))]">
+                  {h.description}
+                </span>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      </div>
+
       {/* ── Proteção em cascata (INDUSTRIAL) ──────────────────────────
           ⚠️ Esta seção descreve o projeto INDUSTRIAL, onde a planta tem
           subestação, vários setores e equipamento crítico espalhado. Ela

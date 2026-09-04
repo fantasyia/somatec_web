@@ -37,12 +37,16 @@ const sections = [
       'Locação com direito de saída: nada a pagar até a instalação, primeira mensalidade 30 dias depois e, a partir de 12 meses, retirada sem custo se o cliente não quiser mais.',
   },
   {
-    href: '/solucoes',
+    // ⛔ Era "Produtos e serviços", apontando pra a seção que foi removida:
+    // /solucoes saiu inteira em 04/09, junto com Banco de Capacitores e
+    // manutenção de cabine primária. O Léo definiu que a Somatec só oferece
+    // Master Block.
+    href: '/produtos',
     icon: ShieldCheck,
-    eyebrow: 'Portfólio',
-    title: 'Produtos e serviços',
+    eyebrow: 'Produto',
+    title: 'Sistema Master Block',
     description:
-      'Sistema Master Block — supressor com software de gestão de energia on-line — e Banco de Capacitores, além de manutenção de cabine primária.',
+      'O supressor que atua em 100 kHz, nos 12 modelos da linha — com o software de gestão de energia on-line que comprova a proteção depois de instalado.',
   },
 ];
 

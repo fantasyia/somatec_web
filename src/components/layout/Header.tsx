@@ -36,11 +36,6 @@ import { cn } from '@/lib/utils';
 // Cobre TODOS os itens do nav: todo menu abre o mesmo painel, então todo filho
 // precisa de ícone. Href repetido em menus diferentes reaproveita o ícone.
 const NAV_ICON: Record<string, LucideIcon> = {
-  // Soluções
-  '/solucoes/protecao-contra-surtos': Zap,
-  '/solucoes/qualidade-de-energia': Gauge,
-  '/solucoes/banco-de-capacitores': BatteryCharging,
-  '/solucoes/manutencao-cabine-primaria': Wrench,
   // A Somatec
   '/a-somatec/quem-somos': Building2,
   '/a-somatec/tecnologia-e-fabricacao': Factory,

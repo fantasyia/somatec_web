@@ -23,10 +23,10 @@ export function HomeAterramento() {
                 NBR 5410 — a base para a proteção funcionar.
               </p>
               <Link
-                href="/solucoes/protecao-contra-surtos"
+                href="/produtos"
                 className="group inline-flex items-center gap-1.5 pt-1 font-sans text-sm font-semibold text-gold transition-colors hover:text-gold-soft"
               >
-                Ver solução
+                Ver o Master Block
                 <ChevronRight
                   className="h-4 w-4 transition-transform group-hover:translate-x-1"
                   strokeWidth={2}

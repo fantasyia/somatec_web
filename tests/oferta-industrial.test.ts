@@ -250,7 +250,6 @@ describe('as páginas leem a constante, não reescrevem a oferta', () => {
     'src/app/blog/[slug]/page.tsx',
     'src/app/faq/page.tsx',
     'src/app/resultados/page.tsx',
-    'src/app/solucoes/[slug]/page.tsx',
     'src/app/industrias/[setor]/page.tsx',
     'src/app/orcamento-industrial/page.tsx',
     'src/lib/pdf/projeto-industrial.ts',
