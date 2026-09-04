@@ -526,10 +526,12 @@ describe('a proteção em cascata aparece marcada como industrial', () => {
   });
 
   it('a página diz o que vale pro NÃO-industrial, e manda pra LP certa', () => {
-    // Sem isto, quem é de comércio sai da página com a recomendação errada.
+    // Sem isto, quem é de comércio descobre que aquilo não é pra ele e NÃO
+    // descobre o que é — sai da página sem nada. A copy aprovada (master,
+    // 03/09) resolve com uma frase e UM link; a guarda cobra o link pra uma
+    // das LPs NI, não os dois, pra não engessar a redação.
     expect(FONTE).toMatch(/único Master Block no quadro de entrada/i);
-    expect(FONTE).toMatch(/\/protecao-comercial/);
-    expect(FONTE).toMatch(/\/protecao-residencial/);
+    expect(FONTE).toMatch(/\/protecao-(comercial|residencial)/);
   });
 
   it('⛔ e não oferece locação pro público NI que chega aqui', () => {

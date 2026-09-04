@@ -263,48 +263,57 @@ export default function ProdutosPage() {
       </div>
 
       {/* ── Proteção em cascata (INDUSTRIAL) ──────────────────────────
-          ⚠️ Esta seção descreve o projeto INDUSTRIAL, onde a planta tem
-          subestação, vários setores e equipamento crítico espalhado. Ela
-          estava sem dizer isso, e /produtos está no menu principal: um dono
-          de comércio lia "um único supressor não basta" logo depois de a LP
-          dele dizer o contrário — desde 03/09 o não-industrial leva UM
-          Master Block, no quadro de entrada.
+          ⚠️ Esta seção descreve o projeto INDUSTRIAL. Ela estava sem dizer
+          isso, e /produtos está no menu principal: um dono de comércio lia
+          "um único supressor não basta" logo depois de a LP dele dizer o
+          contrário — desde 03/09 o não-industrial leva UM Master Block, no
+          quadro de entrada.
 
-          O enquadramento é o conserto certo, não apagar: na indústria a
-          cascata continua sendo o projeto correto. */}
+          🔒 O H2, o primeiro parágrafo e a linha final são COPY APROVADA pela
+          master (despacho no card, 03/09 19:07). Não reescrever.
+
+          Duas coisas que o despacho explica e que não são óbvias:
+
+          1. O enquadramento tem de estar NO H2 e na ABERTURA do parágrafo.
+             Num scan de página o olho pousa no H2 e na primeira linha — um
+             selo ou preâmbulo acima do H2 fica antes desse ponto e não é
+             lido. (Foi o erro da primeira versão desta seção.)
+
+          2. A linha final não é upsell: sem ela o visitante não-industrial
+             descobre que aquilo não é pra ele e NÃO descobre o que é. Com
+             ela, o parágrafo que contradizia a LP dele passa a empurrar pra
+             ela — a ambiguidade vira roteamento.
+
+          O CascadeDiagram fica: ilustra o projeto industrial, que continua
+          existindo. */}
       <section className="band-navy text-white">
         <div className="container-msm py-14 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <Reveal className="space-y-5">
-              <span className="inline-block rounded-btn border border-white/25 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
-                Projeto industrial
-              </span>
               <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-                Proteção em cascata + aterramento dedicado
+                Na indústria: proteção em cascata + aterramento dedicado
               </h2>
               <p className="text-white/80 leading-relaxed">
-                Na indústria, onde a planta tem subestação, vários setores e equipamento
-                crítico espalhado, um único supressor junto ao equipamento sensível não
-                basta — ele fica sujeito a um surto acima da sua capacidade de escoamento.
-                A Somatec projeta a proteção em cascata: um MasterBlock na entrada da
-                instalação, outro no quadro de distribuição e outro próximo ao equipamento
-                crítico, atenuando o surto gradativamente.
+                Numa planta industrial — com subestação, vários quadros e equipamento
+                crítico espalhado pela produção — um único supressor junto à máquina não
+                basta: ele fica sujeito a um surto acima da sua capacidade de escoamento.
+                Nesses casos a Somatec projeta a proteção em cascata: um MasterBlock na
+                entrada da instalação, outro no quadro de distribuição e outro próximo ao
+                equipamento crítico, atenuando o surto gradativamente.
               </p>
               <p className="text-white/80 leading-relaxed">
                 E porque o desempenho depende do referencial de terra, instalamos um
                 sistema de aterramento próprio e exclusivo, com equipotencialização
                 conforme o capítulo de aterramento da NBR 5410.
               </p>
-              <p className="rounded-card border border-white/15 bg-white/[0.04] p-4 text-sm leading-relaxed text-white/75">
-                <span className="font-semibold text-white">Comércio e residência é diferente:</span>{' '}
-                um único Master Block no quadro de entrada protege a instalação inteira, e a
-                escolha do modelo sai da corrente do disjuntor geral.{' '}
-                <Link href="/protecao-comercial" className="font-semibold text-gold underline-offset-2 hover:underline">
-                  Ver a proteção do comércio
-                </Link>{' '}
-                ·{' '}
-                <Link href="/protecao-residencial" className="font-semibold text-gold underline-offset-2 hover:underline">
-                  da casa
+              <p className="text-white/80 leading-relaxed">
+                Em comércio e residência a conta é outra: um único Master Block no quadro de
+                entrada cobre o imóvel inteiro.{' '}
+                <Link
+                  href="/protecao-comercial"
+                  className="font-semibold text-gold underline-offset-2 hover:underline"
+                >
+                  Veja a proteção para o seu caso →
                 </Link>
               </p>
             </Reveal>
