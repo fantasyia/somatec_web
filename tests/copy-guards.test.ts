@@ -479,3 +479,99 @@ describe('a proteção em cascata aparece marcada como industrial', () => {
     }
   });
 });
+
+// =============================================================================
+// GUARDA — "diagnóstico" como CTA morreu junto com a medição prévia (20/08).
+//
+// A Somatec parou de medir antes do contrato. Mas o verbo sobreviveu como
+// RÓTULO DE BOTÃO em 8 superfícies, incluindo o CTA principal da home e o H1
+// do /contato — quem clicava esperando alguém ir à planta medir ia ouvir que
+// não é assim.
+//
+// A guarda de `MEDICAO_PREVIA` acima não pega isto de propósito: ela proíbe
+// "diagnóstico gratuito"/"sem custo", porque medição como PROVA pós-instalação
+// segue legítima. O que morreu é o CONVITE.
+//
+// ⚠️ O que NÃO entra aqui: "Quero avaliar minha cabine primária"
+// (`solucoes.ts`). Ali "avaliar" pede o SERVIÇO de manutenção de cabine, que a
+// Somatec vende — proibir o verbo inteiro apagaria uma oferta real. Por isso os
+// padrões abaixo são frases, não palavras soltas.
+// =============================================================================
+
+describe('CTA de diagnóstico não volta como convite', () => {
+  const MORTOS = [
+    /Solicitar diagn[óo]stico/i,
+    /Receba um diagn[óo]stico/i,
+    /Vamos diagnosticar/i,
+    /Quero avaliar na minha planta/i,
+  ];
+
+  function superficiesDeCta(): string[] {
+    const { readdirSync, statSync } = require('node:fs') as typeof import('node:fs');
+    const out: string[] = [];
+    const anda = (dir: string) => {
+      for (const nome of readdirSync(resolve(process.cwd(), dir))) {
+        const rel = `${dir}/${nome}`;
+        if (rel.includes('/admin')) continue;
+        if (statSync(resolve(process.cwd(), rel)).isDirectory()) anda(rel);
+        else if (/\.tsx?$/.test(nome)) out.push(rel);
+      }
+    };
+    anda('src/app');
+    anda('src/components');
+    anda('src/lib/constants');
+    return out;
+  }
+
+  it.each(MORTOS)('%s não aparece em nenhuma superfície', (padrao) => {
+    const violacoes: string[] = [];
+    for (const arquivo of superficiesDeCta()) {
+      const m = lerCopyCorrida(arquivo).match(padrao);
+      if (m) violacoes.push(`${arquivo}: "${m[0]}"`);
+    }
+    expect(violacoes, violacoes.join(' | ')).toHaveLength(0);
+  });
+
+  it('a varredura está mesmo olhando o site (âncora anti-falso-verde)', () => {
+    const arquivos = superficiesDeCta();
+    expect(arquivos.length).toBeGreaterThan(50);
+    expect(arquivos).toContain('src/app/contato/page.tsx');
+    expect(arquivos).toContain('src/lib/constants/home-fallback.ts');
+  });
+
+  it('⛔ a guarda NÃO apaga o serviço de cabine primária', () => {
+    // "Quero avaliar minha cabine primária" é pedido de SERVIÇO, não da
+    // medição extinta. Se algum padrão passar a casar isso, a guarda virou
+    // ampla demais e vai derrubar uma oferta que existe.
+    const cabine = 'Quero avaliar minha cabine primária';
+    for (const padrao of MORTOS) {
+      expect(cabine, `${padrao} está larga demais`).not.toMatch(padrao);
+    }
+    expect(lerCopy('src/lib/constants/solucoes.ts')).toContain(cabine);
+  });
+
+  it('as páginas que perderam o CTA ganharam o aprovado no lugar', () => {
+    // Sem isto, apagar o botão passaria na guarda acima e ninguém veria.
+    for (const arquivo of [
+      'src/app/blog/page.tsx',
+      'src/app/blog/[slug]/page.tsx',
+      'src/app/industrias/[setor]/page.tsx',
+      'src/app/resultados/page.tsx',
+      'src/app/a-somatec/comprovacao-e-normas/page.tsx',
+    ]) {
+      expect(lerCopyCorrida(arquivo), arquivo).toMatch(/Falar com a engenharia/i);
+    }
+  });
+
+  it('a guarda casa as formas que estavam no ar (âncora)', () => {
+    const antes = [
+      'Solicitar diagnóstico',
+      'Receba um diagnóstico de risco',
+      'Vamos diagnosticar a sua planta',
+      'Quero avaliar na minha planta',
+    ];
+    for (const frase of antes) {
+      expect(MORTOS.some((p) => p.test(frase)), frase).toBe(true);
+    }
+  });
+});

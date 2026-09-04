@@ -56,8 +56,8 @@ export function HomeNoRisk() {
             a conta" (HomeHoraParada), logo abaixo. */}
         <div className="mt-10">
           <CommercialCta
-            label="Quero avaliar na minha planta"
-            mensagem="Olá! Vim pelo site e quero avaliar o Master Block na minha fábrica."
+            label="Quero o Master Block na minha planta"
+            mensagem="Olá! Vim pelo site e quero o Master Block na minha fábrica."
             fallbackPath="/contato"
           />
         </div>

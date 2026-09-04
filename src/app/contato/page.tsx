@@ -44,8 +44,13 @@ export default function ContatoPage() {
       <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 bg-deep_navy texture-dark text-text_light overflow-hidden">
         <div className="container-msm">
           <div className="max-w-3xl space-y-4 animate-fade-up">
+            {/* ⛔ Era "Vamos diagnosticar a sua planta". Duas coisas erradas nessa
+                frase: "diagnosticar" é a medição prévia que a Somatec parou de
+                fazer em 20/08, e "sua planta" fala só com o industrial — o
+                /contato recebe também comércio, residência e candidato a
+                representante. */}
             <h1 className="font-serif font-semibold text-h2-m md:text-h1-d text-balance">
-              Vamos diagnosticar a sua planta
+              Fale com a engenharia da Somatec
             </h1>
             <p className="text-base md:text-lg leading-relaxed text-white/80 max-w-xl text-pretty">
               Conte o que acontece na sua operação — paradas, queimas, travamentos — e nossa

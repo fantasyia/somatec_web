@@ -136,7 +136,7 @@ export default async function IndustriaPage({
               href="/contato"
               className="inline-flex items-center rounded-btn border border-deep_navy/30 px-5 py-2.5 font-sans text-sm font-medium text-deep_navy transition-colors hover:border-gold hover:text-gold dark:border-white/40 dark:text-white"
             >
-              Solicitar diagnóstico
+              Falar com a engenharia
             </Link>
           </div>
         </Reveal>

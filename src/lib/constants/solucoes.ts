@@ -51,7 +51,7 @@ export const SOLUCOES: readonly Solucao[] = [
       { title: 'Inspeções periódicas', description: 'Três visitas por ano avaliam as condições físicas do Master Block e da instalação.' },
       { title: 'Plano de ação preventivo', description: 'O sistema antecipa riscos com base na idade do ativo e nos níveis de THDv.' },
     ],
-    cta: 'Quero avaliar na minha planta',
+    cta: 'Quero o Master Block na minha planta',
   },
   {
     slug: 'banco-de-capacitores',
@@ -85,6 +85,11 @@ export const SOLUCOES: readonly Solucao[] = [
       { title: 'Segurança', description: 'Trabalhos conforme as normas, com o histórico de zero acidentes da Somatec.' },
       { title: 'Continuidade operacional', description: 'Menos paradas e mais previsibilidade para a produção.' },
     ],
+    // ⚠️ Este "avaliar" FICA, e não é descuido da varredura de 04/09 que tirou
+    // "diagnóstico/avaliar" das outras superfícies. Lá o verbo evocava a
+    // medição prévia gratuita, extinta em 20/08. Aqui ele pede o SERVIÇO de
+    // manutenção de cabine, que a Somatec vende e continua vendendo — trocar
+    // apagaria uma oferta real.
     cta: 'Quero avaliar minha cabine primária',
   },
 ];

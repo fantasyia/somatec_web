@@ -82,7 +82,7 @@ export default async function BlogPage() {
                 href="/contato"
                 className="inline-flex items-center rounded-btn border border-white/40 px-5 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:border-gold hover:text-gold"
               >
-                Solicitar diagnóstico
+                Falar com a engenharia
               </Link>
             </div>
           </div>
