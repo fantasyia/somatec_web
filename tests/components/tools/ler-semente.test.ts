@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { lerSemente, passoDaSemente } from '@/components/tools/CheckoutNI';
-import { MB_LOAD_MAX } from '@/lib/constants/masterblock';
 
 // =============================================================================
 // A IA do WhatsApp (fluxo C1) apura a corrente conversando — é o trabalho mais
@@ -45,7 +44,7 @@ describe('lerSemente — lixo abre em branco, nunca com erro', () => {
     ['?corrente=0', 'zero'],
     ['?corrente=-40', 'negativo'],
     ['?corrente=63.5', 'decimal'],
-    [`?corrente=${MB_LOAD_MAX + 1}`, 'acima da linha Master Block'],
+    ['?corrente=123456', 'seis dígitos — lixo de URL, não disjuntor'],
     ['', 'sem parâmetro nenhum'],
   ])('%s (%s) → corrente vazia', (busca) => {
     expect(lerSemente(busca).corrente).toBe('');
@@ -73,9 +72,13 @@ describe('lerSemente — lixo abre em branco, nunca com erro', () => {
   });
 });
 
-describe('lerSemente — limites da linha', () => {
-  it('aceita exatamente o teto', () => {
-    expect(lerSemente(`?corrente=${MB_LOAD_MAX}`).corrente).toBe(String(MB_LOAD_MAX));
+describe('lerSemente — limites', () => {
+  it('⛔ NÃO tem teto de linha: acima de 3000 A é MB-12, não recusa', () => {
+    // O MB_LOAD_MAX = 6300 era invenção e fazia o site recusar a corrente —
+    // perdia o lead. A tabela diz "+ de 3000 A" pro MB-12, sem limite (05/09).
+    expect(lerSemente('?corrente=4000').corrente).toBe('4000');
+    expect(lerSemente('?corrente=7000').corrente).toBe('7000');
+    expect(lerSemente('?corrente=99999').corrente).toBe('99999');
   });
 
   it('aceita o mínimo de 1 A', () => {

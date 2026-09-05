@@ -164,11 +164,13 @@ export default function ProdutosPage() {
                 <th scope="col" className="px-4 py-3 font-sans font-semibold">
                   Corrente de carga <span className="text-white/60 font-normal">(A)</span>
                 </th>
+                {/* ⛔ Eram DUAS colunas — "Máx. corrente de surto (8/20 µs)" e
+                    "Corrente nominal (In)" — com uma progressão aritmética
+                    (8/16/24… kA) que não consta em documento nenhum. Léo, 05/09:
+                    "coloque no site só o ICC, que é a informação que consta nos
+                    docs". Spec elétrica publicada = só o que tem fonte. */}
                 <th scope="col" className="px-4 py-3 font-sans font-semibold">
-                  Máx. corrente de surto <span className="text-white/60 font-normal">(8/20 µs)</span>
-                </th>
-                <th scope="col" className="px-4 py-3 font-sans font-semibold">
-                  Corrente nominal <span className="text-white/60 font-normal">(In)</span>
+                  ICC <span className="text-white/60 font-normal">(kA)</span>
                 </th>
                 <th scope="col" className="px-4 py-3 font-sans font-semibold">
                   Dimensões <span className="text-white/60 font-normal">(C×L×A mm)</span>
@@ -186,8 +188,7 @@ export default function ProdutosPage() {
                     {m.model}
                   </th>
                   <td className="px-4 py-3 font-semibold text-[rgb(var(--text))] whitespace-nowrap">{m.loadLabel}</td>
-                  <td className="px-4 py-3 font-semibold text-[rgb(var(--text))]">{m.surge}</td>
-                  <td className="px-4 py-3 text-[rgb(var(--text-muted))]">{m.nominal}</td>
+                  <td className="px-4 py-3 font-semibold text-[rgb(var(--text))]">{m.icc}</td>
                   <td className="px-4 py-3 text-[rgb(var(--text-muted))] whitespace-nowrap">{m.dim}</td>
                   <td className="px-4 py-3 text-[rgb(var(--text-muted))]">{m.weight}</td>
                 </tr>
@@ -198,7 +199,7 @@ export default function ProdutosPage() {
 
         <p className="mt-4 text-xs text-[rgb(var(--text-muted))]">
           Fabricante: Somatecblocking UF Eletroeletrônicos LTDA · CNPJ 16.774.052/0001-55.
-          Corrente de carga conforme a Tabela de Potências Master Block 2026; demais valores
+          Corrente de carga e ICC conforme a tabela oficial Master Block 2026; dimensões e peso
           conforme a folha de dados. Especificações sujeitas a revisão técnica.
         </p>
       </section>

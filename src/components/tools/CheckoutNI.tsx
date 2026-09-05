@@ -26,7 +26,7 @@ import { LGPD_PUBLIC_DEFAULT, LGPD_PUBLIC_IMPLICITO } from '@/lib/lgpd-public';
 import { trackEvent } from '@/lib/analytics';
 import { enviarLeadOrcamento, type ResultadoEnvio } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
-import { selecionarMasterBlock, formatBRL, MB_LOAD_MAX } from '@/lib/constants/masterblock';
+import { selecionarMasterBlock, formatBRL } from '@/lib/constants/masterblock';
 import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
 import {
   GATEWAY_ATIVO, FORMAS_PAGAMENTO, freteDoPedido, enderecoVazio,
@@ -37,8 +37,11 @@ import { documentoValido, mascararDocumento, apenasDigitos } from '@/lib/constan
 import { GARANTIA } from '@/lib/constants/oferta-industrial';
 
 // A corrente dimensiona o Master Block — texto ali não significa nada. O campo
-// aceita SÓ dígito (a digitação já é filtrada) e o valor é validado contra a
-// faixa real da linha: 1 A até MB_LOAD_MAX.
+// aceita SÓ dígito (a digitação já é filtrada), até 5 casas.
+//
+// ⛔ Não existe mais teto de corrente. O MB_LOAD_MAX = 6300 era invenção: a
+// tabela diz "+ de 3000 A" pro MB-12, sem limite, e o site RECUSAVA corrente
+// acima de 6300 — perdia o lead (05/09).
 function soDigitos(v: string): string {
   return v.replace(/\D/g, '').replace(/^0+/, '').slice(0, 5);
 }
@@ -132,15 +135,18 @@ function correnteValida(bruto: string): string {
   // Exige dígito puro (aceita só o "A" que a IA às vezes escreve junto). Sem
   // isso, `soDigitos` transformaria "-40" em 40 — inventar o número de outra
   // pessoa a partir de um parâmetro sujo é pior que abrir em branco.
+  //
+  // O 99999 NÃO é limite da linha (não há um): é o mesmo teto de 5 dígitos do
+  // campo, pra lixo de URL não virar número de disjuntor.
   const cru = bruto.trim().replace(/\s|A$/gi, '');
   const amp = /^\d+$/.test(cru) ? parseInt(cru, 10) : NaN;
-  return Number.isFinite(amp) && amp > 0 && amp <= MB_LOAD_MAX ? String(amp) : '';
+  return Number.isFinite(amp) && amp > 0 && amp <= 99999 ? String(amp) : '';
 }
 
 /** Lê `?contexto=comercio&corrente=63&tensao=220&origem=disjuntor`.
  *
  *  O valor da URL é SUGESTÃO, nunca trava: entra no campo e a pessoa corrige à
- *  vontade. Valor sujo (texto, zero, acima da linha, contexto que não existe
+ *  vontade. Valor sujo (texto, zero, contexto que não existe
  *  nesta LP) é simplesmente ignorado — o wizard para no passo daquele dado, sem
  *  erro na cara de quem só clicou num link.
  *
@@ -343,10 +349,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
 
   // Dimensionamento LIVE (Tabela de Potências 2026 + preço de venda direta): a
   // corrente do quadro de entrada → modelo MB + preço. Fallback só quando o
-  // cliente não sabe os dados (naoSei) ou está acima da linha padrão.
+  // cliente não sabe os dados (naoSei). Não existe "acima da linha": o MB-12
+  // pega tudo acima de 3000 A.
   const amp = parseAmp(corrente);
-  const modelo = !naoSei && amp > 0 && amp <= MB_LOAD_MAX ? selecionarMasterBlock(amp) : null;
-  const overRange = !naoSei && amp > MB_LOAD_MAX;
+  const modelo = !naoSei && amp > 0 ? selecionarMasterBlock(amp) : null;
   const temPreco = modelo != null;
 
   // Emite calc_inicio na 1ª interação e calc_passo a cada avanço.
@@ -367,7 +373,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
         setor,
         landing: landingSlug,
         temPreco,
-        modelo: modelo?.model ?? (overRange ? 'acima-da-linha' : 'nao-sei'),
+        modelo: modelo?.model ?? 'nao-sei',
       });
     }
   }
@@ -528,9 +534,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       : `tensão ${tensao || 'não informada'}, corrente do disjuntor geral ${corrente.trim() || 'não informada'}`;
     const dimensionamento = modelo
       ? `Dimensionado (quadro de entrada): ${modelo.model} (${modelo.loadLabel}) — ${formatBRL(modelo.preco)}.`
-      : overRange
-        ? `Acima da linha padrão (> ${MB_LOAD_MAX} A) — requer dimensionamento dedicado.`
-        : '';
+      : '';
     const resumo =
       `[Orçamento ${setor} — compra direta] Contexto: ${ctxAtual?.label ?? '—'}. ` +
       `Quadro de entrada: ${dadosQuadro}. ${dimensionamento}` +
@@ -792,7 +796,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                           ? origemUrl === 'estimativa'
                             ? 'Veio da nossa conversa como estimativa — confirme no disjuntor antes de fechar.'
                             : 'Já preenchemos com o número da nossa conversa. Dá pra corrigir.'
-                          : `Só números, de 1 a ${MB_LOAD_MAX} A (a faixa da linha Master Block).`
+                          : 'Só números — a corrente do disjuntor geral, em ampères.'
                       }
                       error={corrente !== '' && amp === 0 ? 'Informe a corrente em ampères.' : undefined}
                     />
@@ -911,11 +915,17 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                     {temPreco ? 'Falta só um passo pra fechar.' : 'Falta só um passo pro seu orçamento.'}
                   </h3>
                   <p className="mt-1 text-sm text-[rgb(var(--text-muted))]">
+                    {/* ⛔ As duas frases terminavam em "sem vendedor no seu pé", e aqui
+                        elas se desmentiam na mesma linha: "a Somatec confirma e fecha
+                        com você" / "nossa equipe te retorna" — TEM gente. Copy aprovada
+                        pelo Léo (05/09): no lugar da promessa negativa entra o ganho
+                        concreto, frete grátis + despacho em até 1 dia útil, que é o
+                        mesmo que o bot (C1 v48) diz ao entregar o link pra este passo.
+                        "Sem vendedor" FICA nas superfícies de antes do orçamento, onde
+                        não há interlocutor e a frase responde a objeção real. */}
                     {temPreco
-                      ? 'Deixe seus dados que a Somatec confirma o modelo e fecha a compra com você — sem vendedor no seu pé.'
-                      : overRange
-                        ? 'Seu quadro está acima da linha padrão — nossa equipe dimensiona a solução certa e te retorna com o valor.'
-                        : 'Nossa equipe dimensiona o Master Block certo pro seu quadro e te retorna com o valor — sem compromisso, sem vendedor no seu pé.'}
+                      ? 'Deixe seus dados que a Somatec confirma o modelo e fecha a compra com você. Frete grátis para todo o Brasil e despacho em até 1 dia útil.'
+                      : 'Nossa equipe dimensiona o Master Block certo pro seu quadro e te retorna com o valor, sem compromisso.'}
                   </p>
                 </div>
 

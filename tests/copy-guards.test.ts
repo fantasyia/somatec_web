@@ -639,3 +639,56 @@ describe('CTA de diagnóstico não volta como convite', () => {
     }
   });
 });
+
+// =============================================================================
+// GUARDA — "sem vendedor no seu pé" sai de DEPOIS do orçamento, fica ANTES.
+//
+// Léo (05/09): "isso de vendedor no meio não deveria ser falado… com quem ele
+// tá falando já é tipo um vendedor". O corte é em dois, de propósito:
+//
+//   • ANTES do orçamento (LPs, StickyCta, nota do wizard): a pessoa está
+//     sozinha na tela decidindo se começa, e "sem vendedor" responde a objeção
+//     real ("vou cair num funil de ligação?"). Não há interlocutor — FICA.
+//   • DEPOIS do orçamento (passo 3 do checkout): "a Somatec confirma e fecha
+//     com você" + "sem vendedor" se desmentem na mesma linha — SAI. No lugar
+//     entra o ganho concreto: frete grátis + despacho em até 1 dia útil, que é
+//     o que o bot (C1 v48) diz ao entregar o link pra esse passo.
+//
+// A guarda cobra as DUAS metades. Apagar "sem vendedor" do site inteiro seria
+// tão errado quanto deixá-lo no passo 3.
+// =============================================================================
+
+describe('"sem vendedor" — fora do passo 3, mantido antes do orçamento', () => {
+  const CHECKOUT = lerCopyCorrida('src/components/tools/CheckoutNI.tsx');
+  const passo3 = () => {
+    const ini = CHECKOUT.indexOf('{passo === 3 && (');
+    const fim = CHECKOUT.indexOf('{passo === 4 && (');
+    expect(ini, 'não achei o passo 3').toBeGreaterThan(-1);
+    expect(fim, 'não achei o passo 4').toBeGreaterThan(ini);
+    return CHECKOUT.slice(ini, fim);
+  };
+
+  it('⛔ o passo 3 não diz mais "sem vendedor"', () => {
+    expect(passo3()).not.toMatch(/sem vendedor/i);
+  });
+
+  it('o passo 3 diz o ganho concreto: frete grátis + despacho em até 1 dia útil', () => {
+    // "1 dia útil" é compromisso público confirmado pelo Léo (05/09): "sim o
+    // Tiny rodando o despacho é em 1 dia útil sim".
+    const bloco = passo3();
+    expect(bloco).toMatch(/Frete grátis para todo o Brasil/);
+    expect(bloco).toMatch(/despacho em até 1 dia útil/);
+  });
+
+  it('o passo 3 sem preço fechado terminou em "sem compromisso", e só', () => {
+    expect(passo3()).toMatch(/te retorna com o valor, sem compromisso\./);
+  });
+
+  it('ANTES do orçamento a frase FICA — StickyCta e a nota do wizard', () => {
+    // Se isto cair, alguém apagou "sem vendedor" do site inteiro: a objeção
+    // "vou cair num funil de ligação?" volta a ficar sem resposta.
+    expect(lerCopyCorrida('src/components/layout/StickyCta.tsx')).toMatch(/sem vendedor/i);
+    const antesDoPasso3 = CHECKOUT.slice(0, CHECKOUT.indexOf('{passo === 3 && ('));
+    expect(antesDoPasso3).toMatch(/sem vendedor/i);
+  });
+});
