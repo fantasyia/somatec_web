@@ -85,20 +85,21 @@ export default async function ProtecaoResidencialPage() {
 
       {/* ── R1 · HERO (navy sobre imagem) ─────────────────────────── */}
       <section
-        className="relative isolate flex min-h-[min(76svh,max(520px,48vw))] items-center overflow-hidden bg-deep_navy pt-20 text-white"
+        className="relative isolate flex min-h-[max(520px,min(85svh,56vw))] items-center overflow-hidden bg-deep_navy pt-20 text-white"
         aria-label="Proteção para casa de alto padrão"
       >
         <div className="absolute inset-0 -z-20" aria-hidden="true">
-          <img
-            src="/home/hero-s3-family-v2.webp"
-            srcSet="/home/hero-s3-family-v2-480.webp 480w, /home/hero-s3-family-v2-768.webp 768w, /home/hero-s3-family-v2-1200.webp 1200w, /home/hero-s3-family-v2.webp 1920w"
-            sizes="100vw"
-            alt="Família reunida no sofá da sala de estar, com a piscina iluminada pela janela"
-            className="h-full w-full object-cover"
-            style={{ objectPosition: 'center' }}
-            fetchPriority="high"
-            decoding="async"
-          />
+          {/* Hero próprio da LP (asset ni-landing-*): a família no sofá fica só na home. */}
+          <picture>
+            <source media="(max-width: 767px)" srcSet="/home/hero/ni-landing-hero-tall.webp" />
+            <img
+              src="/home/hero/ni-landing-hero-wide.webp"
+              alt="Casa de alto padrão ao entardecer, com as luzes internas acesas e o carro na garagem"
+              className="h-full w-full object-cover object-[center_62%] md:object-[center_55%]"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
         </div>
         <div
           aria-hidden="true"
