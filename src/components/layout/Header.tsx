@@ -353,15 +353,24 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
             <PackageSearch className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
             {HEADER_CTAS.pedido.label}
           </Link>
+          {/* Link de texto, igual ao "Acompanhar pedido" ao lado. Era um
+              btn-secondary com borda, e isso deixava TRÊS pesos disputando o
+              mesmo canto: o botão laranja, uma caixa com borda e um link solto.
+              O representante não é o público do site — a trilha dele é o
+              /login, não a venda —, então ele não precisa de caixa. Assim
+              sobra um CTA de verdade no header, que é o Comercial. */}
           <Link
             href={HEADER_CTAS.representative.href}
             className={cn(
-              'hidden md:inline-flex btn-secondary',
+              'hidden md:inline-flex items-center gap-1.5 font-sans text-sm transition-colors',
               isTransparent
-                ? 'border-white/40 text-white hover:border-white'
-                : 'text-[rgb(var(--text))]',
+                // Mesmo motivo do vizinho: sobre a foto do hero, texto solto
+                // some nas partes claras — precisa de fundo próprio.
+                ? 'rounded-btn bg-black/25 px-2.5 py-1.5 text-white/90 backdrop-blur-sm hover:bg-black/35 hover:text-white'
+                : 'text-[rgb(var(--text-muted))] hover:text-cyan',
             )}
           >
+            <Handshake className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
             {HEADER_CTAS.representative.label}
           </Link>
           {/* Destino é wa.me: <a> com target/rel, não <Link> (rota externa). */}
