@@ -42,3 +42,8 @@ next-env.d.ts
 # IDE
 .vscode/
 .idea/
+
+# Canvas seedado do Claude Design (~2 MB de runtime). As FONTES são os
+# .dc.html + canvas.json; o .html é regerado pelo seed-canvas.mjs.
+design/*.html
+!design/*.dc.html

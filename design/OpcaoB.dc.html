@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap');
+    body { margin: 0; font-family: 'Source Sans 3', system-ui, sans-serif; }
+    a { color: #00416E; } a:hover { color: #002B47; }
+  </style>
+</helmet>
+
+<div style="width: 1100px; background: #F1F5F9; padding: 28px; box-sizing: border-box;">
+  <div style="background: #FFFFFF; border: 1px solid #DCE4EC; border-radius: 12px; overflow: hidden;">
+
+    <div style="padding: 18px 28px 0 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <span style="font-family: 'Poppins', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: #0E2233;">Passo 3 de 4</span>
+        <span style="font-size: 13px; color: #33475C;">2 minutos · sem vendedor</span>
+      </div>
+      <div style="margin-top: 12px; height: 4px; background: #DCE4EC; border-radius: 999px;">
+        <div style="width: 75%; height: 4px; background: #F39200; border-radius: 999px;"></div>
+      </div>
+    </div>
+
+    <!-- faixa navy: o resumo vira cabeçalho, largura toda -->
+    <div style="margin: 24px 28px 0 28px; background: #002B47; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px;">
+      <div style="display: flex; align-items: center; gap: 18px;">
+        <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(0,140,200,0.18); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4FB6E0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-2.8 7.6-7 9-4.2-1.4-7-4.8-7-9V6z"/><path d="M12 8v4M12 15.5h.01"/></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-family: 'Poppins', system-ui, sans-serif; font-size: 19px; font-weight: 700; color: #FFFFFF;">Master Block MB-01</span>
+          <span style="font-size: 13px; color: rgba(255,255,255,0.7);">Quadro de entrada · frete grátis · despacho em até 1 dia útil</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end;">
+        <span style="font-size: 12px; color: rgba(255,255,255,0.6);">Total · compra direta</span>
+        <span style="font-family: 'Poppins', system-ui, sans-serif; font-size: 30px; font-weight: 800; color: #F39200; letter-spacing: -0.01em;">R$ 4.350</span>
+      </div>
+    </div>
+
+    <div style="padding: 26px 28px 28px 28px; display: flex; flex-direction: column; gap: 22px;">
+
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 20px;">
+        <h3 style="margin: 0; font-family: 'Poppins', system-ui, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.01em; color: #0E2233;">Só falta como a gente te encontra.</h3>
+        <span style="font-size: 13px; color: #6B7F94; white-space: nowrap;">3 campos · 30 segundos</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px;">
+        <div style="display: flex; flex-direction: column; gap: 7px;">
+          <label style="font-size: 13px; font-weight: 600; color: #0E2233;">Seu nome <span style="color: #F39200;">*</span></label>
+          <div style="height: 48px; background: #FFFFFF; border: 1px solid #C3D0DC; border-radius: 6px; display: flex; align-items: center; padding: 0 16px; font-size: 15px; color: #0E2233;">Marcelo Harada</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 7px;">
+          <label style="font-size: 13px; font-weight: 600; color: #0E2233;">WhatsApp <span style="color: #F39200;">*</span></label>
+          <div style="height: 48px; background: #FFFFFF; border: 1px solid #C3D0DC; border-radius: 6px; display: flex; align-items: center; padding: 0 16px; font-size: 15px; color: #0E2233;">(11) 98877-6655</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 7px;">
+          <label style="font-size: 13px; font-weight: 600; color: #0E2233;">E-mail <span style="color: #F39200;">*</span></label>
+          <div style="height: 48px; background: #FFFFFF; border: 2px solid #F39200; box-shadow: 0 0 0 3px rgba(243,146,0,0.18); border-radius: 6px; display: flex; align-items: center; padding: 0 15px; font-size: 15px; color: rgba(51,71,92,0.55);">voce@empresa.com.br</div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 13px; color: #6B7F94;">Compra pra empresa?</span>
+        <button style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; border: 1px solid #C3D0DC; background: #FFFFFF; font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 600; color: #00416E; cursor: pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Adicionar nome da empresa
+        </button>
+      </div>
+
+      <div style="border-top: 1px solid #DCE4EC; padding-top: 20px; display: flex; align-items: center; justify-content: space-between; gap: 24px;">
+        <p style="margin: 0; max-width: 460px; font-size: 12px; line-height: 1.6; color: #6B7F94;">Ao preencher seus dados você concorda com nossa <a href="#" style="text-decoration: underline;">Política de Privacidade</a> e autoriza o contato da nossa equipe. Você pode pedir a exclusão a qualquer momento.</p>
+        <div style="display: flex; align-items: center; gap: 14px; flex-shrink: 0;">
+          <button style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 6px; border: none; background: transparent; font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 600; color: #33475C; cursor: pointer;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Voltar
+          </button>
+          <button style="display: inline-flex; align-items: center; gap: 10px; padding: 15px 30px; border-radius: 6px; border: none; background: linear-gradient(135deg, #F39200 0%, #F7B24D 100%); box-shadow: 0 4px 14px rgba(243,146,0,0.32); font-family: 'Source Sans 3', sans-serif; font-size: 15px; font-weight: 700; color: #002B47; cursor: pointer;">
+            Ir para o pagamento
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

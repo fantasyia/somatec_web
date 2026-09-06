@@ -1,0 +1,38 @@
+{
+  "artboards": [
+    { "file": "Atual.dc.html", "x": 0, "y": 0, "w": 1100, "h": 720, "title": "Hoje (referência)" },
+    { "file": "Main.dc.html", "x": 1220, "y": 0, "w": 1100, "h": 640, "title": "A · Resumo ao lado" },
+    { "file": "OpcaoB.dc.html", "x": 2440, "y": 0, "w": 1100, "h": 640, "title": "B · Resumo no topo" }
+  ],
+  "annotations": [
+    {
+      "id": "nota-problema",
+      "x": 0,
+      "y": -190,
+      "w": 1100,
+      "text": "HOJE — o bloco laranja é o elemento mais pesado da tela e disputa atenção com o próprio formulário.\n\nQuatro pontos:\n1. Laranja é a cor do MasterBlock, não de urgência — usá-la no aviso gasta o acento da marca.\n2. Navy e ciano, que são a marca, não aparecem em lugar nenhum.\n3. O CTA está a 40% de opacidade: o elemento mais importante é o mais fraco da tela.\n4. O valor (R$ 4.350) ficou pra trás, fora de vista, bem na hora de decidir."
+    },
+    {
+      "id": "nota-a",
+      "x": 1220,
+      "y": -190,
+      "w": 1100,
+      "text": "A · RESUMO AO LADO — duas colunas: à esquerda a tarefa, à direita o que ela está levando.\n\nO card navy traz o valor de volta pro campo de visão. Os três fatos viram uma lista em ciano, sem moldura colorida. O brinde continua, reduzido a uma linha. O CTA fica sólido e diz o destino ('Ir para o pagamento'), e o que falta preencher vira texto ao lado, não botão apagado.\n\nTradeoff: mais denso, e no mobile a coluna da direita cai pra baixo do formulário."
+    },
+    {
+      "id": "nota-b",
+      "x": 2440,
+      "y": -190,
+      "w": 1100,
+      "text": "B · RESUMO NO TOPO — a faixa navy atravessa a largura toda e os campos ficam em uma linha.\n\nOs três benefícios saem da lista e viram uma frase dentro da faixa. 'Empresa' vira um botão que abre o campo, então a tela pede 3 campos em vez de 4.\n\nTradeoff: o brinde com contador não cabe nesta versão sem reabrir o problema do bloco laranja. Se ele tiver de ficar visível, a A resolve melhor."
+    },
+    {
+      "id": "nota-decisao",
+      "x": 1220,
+      "y": 700,
+      "w": 1100,
+      "text": "DECISÃO SUA, LÉO — o contador regressivo do brinde.\n\nNão tirei porque é oferta, não layout. Mas ele é a peça que mais destoa: contagem regressiva é vocabulário de e-commerce de pressão, e o resto do site fala como fabricante técnico. Na A ele sobrevive discreto; na B ele sai.\n\nAs duas mantêm os tokens do site — Poppins/Source Sans 3, raio 8/12/6px, #00416E, #002B47, #008CC8, laranja #F39200 só no preço e no CTA."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

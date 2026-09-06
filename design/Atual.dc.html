@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap');
+    body { margin: 0; font-family: 'Source Sans 3', system-ui, sans-serif; }
+    a { color: #F39200; } a:hover { color: #C77700; }
+  </style>
+</helmet>
+
+<div style="width: 1100px; background: #F1F5F9; padding: 28px; box-sizing: border-box;">
+  <div style="background: #FFFFFF; border: 1px solid #DCE4EC; border-radius: 12px; overflow: hidden;">
+
+    <!-- barra de passo -->
+    <div style="padding: 18px 28px 0 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <span style="font-family: 'Poppins', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: #0E2233;">Passo 3 de 4</span>
+        <span style="font-size: 13px; color: #33475C;">2 minutos · sem vendedor</span>
+      </div>
+      <div style="margin-top: 12px; height: 4px; background: #DCE4EC; border-radius: 999px;">
+        <div style="width: 75%; height: 4px; background: #F39200; border-radius: 999px;"></div>
+      </div>
+    </div>
+
+    <div style="padding: 24px 28px 28px 28px; display: flex; flex-direction: column; gap: 20px;">
+
+      <h3 style="margin: 0; font-family: 'Poppins', system-ui, sans-serif; font-size: 20px; font-weight: 700; color: #0E2233;">Falta só um passo pra fechar.</h3>
+      <p style="margin: -12px 0 0 0; font-size: 14px; line-height: 1.6; color: #33475C;">Deixe seus dados que a Somatec confirma o modelo e fecha a compra com você. Frete grátis para todo o Brasil e despacho em até 1 dia útil.</p>
+
+      <!-- bloco de oferta ATUAL: âmbar, dominante -->
+      <div style="border: 1px solid rgba(243,146,0,0.4); background: rgba(243,146,0,0.07); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: #0E2233;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F39200" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          <span><strong style="font-weight: 700;">Frete grátis</strong> para todo o Brasil.</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: #0E2233;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F39200" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>
+          <span><strong style="font-weight: 700;">Brinde exclusivo</strong> para quem fechar nos próximos <strong style="color: #F39200; font-weight: 700;">19:38</strong>.</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #33475C;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#33475C" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>
+          <span>O contador segue de onde parou se você recarregar a página.</span>
+        </div>
+      </div>
+
+      <!-- formulário -->
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 12px; font-weight: 600; color: #33475C;">Seu nome <span style="color: #F39200;">*</span></label>
+          <div style="height: 46px; background: #F1F5F9; border: 1px solid #DCE4EC; border-radius: 6px;"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 12px; font-weight: 600; color: #33475C;">WhatsApp <span style="color: #F39200;">*</span></label>
+          <div style="height: 46px; background: #F1F5F9; border: 1px solid #DCE4EC; border-radius: 6px; display: flex; align-items: center; padding: 0 16px; font-size: 15px; color: rgba(51,71,92,0.6);">(11) 99999-9999</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 12px; font-weight: 600; color: #33475C;">E-mail <span style="color: #F39200;">*</span></label>
+          <div style="height: 46px; background: #F1F5F9; border: 1px solid #DCE4EC; border-radius: 6px;"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label style="font-size: 12px; font-weight: 600; color: #33475C;">Empresa (opcional)</label>
+          <div style="height: 46px; background: #F1F5F9; border: 1px solid #DCE4EC; border-radius: 6px;"></div>
+        </div>
+      </div>
+
+      <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #33475C;">Ao preencher seus dados você concorda com nossa <a href="#" style="text-decoration: underline;">Política de Privacidade</a> e autoriza o contato da nossa equipe. Você pode pedir a exclusão a qualquer momento.</p>
+
+      <!-- rodapé -->
+      <div style="border-top: 1px solid #DCE4EC; padding-top: 20px; display: flex; justify-content: space-between; align-items: flex-start;">
+        <button style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 6px; border: 1px solid #DCE4EC; background: #FFFFFF; font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 600; color: #0E2233; cursor: pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          Voltar
+        </button>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+          <button style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 6px; border: none; background: linear-gradient(135deg, #F39200 0%, #F7B24D 100%); font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 700; color: #002B47; opacity: 0.4; cursor: not-allowed;">
+            Continuar
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <span style="font-size: 12px; color: #33475C;">Preencha nome, WhatsApp e e-mail pra continuar.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
