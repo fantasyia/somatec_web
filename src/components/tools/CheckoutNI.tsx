@@ -867,10 +867,21 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       <span className="text-sm text-white/60">Total · compra direta</span>
                       <span className="font-serif text-3xl font-bold text-gold">{formatBRL(totalCarrinho)}</span>
                     </div>
+                    {/* ⛔ Terminava em "a engenharia confirma o PROJETO final".
+                        Projeto é a trilha INDUSTRIAL: lá o cliente contrata um
+                        projeto de proteção em cascata, com engenharia dentro.
+                        Aqui ele compra um equipamento e recebe em casa — falar
+                        em projeto promete um serviço que a compra direta não
+                        tem, e ainda contradiz o "sem vendedor" da própria tela.
+
+                        A conferência do modelo continua dita, e no lugar certo:
+                        o parágrafo logo abaixo já diz que a Somatec confirma o
+                        modelo antes de fechar. Aqui basta a ressalva de que a
+                        indicação saiu do número que a pessoa informou. */}
                     <p className="mt-3 text-xs leading-relaxed text-white/60">
                       Um Master Block no quadro de entrada protege os equipamentos da instalação
-                      inteira contra os picos de tensão que o DPS e o no-break não pegam. Indicação
-                      pela corrente informada; a engenharia confirma o projeto final.
+                      inteira contra os picos de tensão que o DPS e o no-break não pegam. O modelo
+                      acima é indicado pela corrente que você informou.
                     </p>
                   </div>
                 )}

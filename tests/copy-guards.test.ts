@@ -692,3 +692,50 @@ describe('"sem vendedor" — fora do passo 3, mantido antes do orçamento', () =
     expect(antesDoPasso3).toMatch(/sem vendedor/i);
   });
 });
+
+// =============================================================================
+// GUARDA — "PROJETO" é vocabulário da trilha INDUSTRIAL.
+//
+// Léo, 05/09, olhando o passo 3 do checkout: "se é local de compra de
+// equipamento nunca deve estar escrito de projeto".
+//
+// A distinção não é de estilo, é de oferta. No industrial o cliente contrata
+// um PROJETO de proteção em cascata, com engenharia dimensionando a planta —
+// e ali "a engenharia confirma o projeto final" é verdade. No NI ele compra um
+// equipamento e recebe em casa: não há projeto, não há engenharia no meio, e
+// prometer isso ainda contradiz o "sem vendedor" que a própria tela usa como
+// argumento.
+//
+// O checkout dizia exatamente isso no card do resultado, logo abaixo do preço
+// — o último texto antes de a pessoa decidir gastar milhares de reais.
+// =============================================================================
+
+describe('trilha NI — "projeto" e cascata não atravessam do industrial', () => {
+  const INDUSTRIAL = [/\bprojeto\b/i, /\bprojetos\b/i, /em cascata/i];
+
+  it.each(NI_ARQUIVO_INTEIRO)('%s não usa vocabulário de projeto', (arquivo) => {
+    const fonte = lerCopyCorrida(arquivo);
+    for (const padrao of INDUSTRIAL) {
+      expect(fonte, `"${padrao}" é da trilha industrial e não pode estar em ${arquivo}`).not.toMatch(padrao);
+    }
+  });
+
+  it('a ressalva do dimensionamento continua existindo, sem prometer projeto', () => {
+    // Tirar a frase inteira seria pior que a frase errada: some a ressalva de
+    // que o modelo saiu do número que a PESSOA informou, que é o que segura o
+    // caso da corrente chutada.
+    const checkout = lerCopyCorrida('src/components/tools/CheckoutNI.tsx');
+    expect(checkout).toMatch(/indicado pela corrente que você informou/i);
+  });
+
+  it('a guarda casa a forma ERRADA que estava no ar (âncora)', () => {
+    const antes = 'Indicação pela corrente informada; a engenharia confirma o projeto final.';
+    expect(INDUSTRIAL.some((p) => p.test(antes))).toBe(true);
+  });
+
+  it('⛔ e não vaza pro lado industrial, onde projeto é legítimo', () => {
+    // Se esta cair, a guarda virou lint de vocabulário e apagou o argumento
+    // que vende no industrial.
+    expect(lerCopyCorrida('src/components/tools/OrcamentoIndustrial.tsx')).toMatch(/\bprojeto\b/i);
+  });
+});
