@@ -247,23 +247,25 @@ describe('o texto novo carrega o modelo inteiro', () => {
   it('⛔ a JANELA DE SAÍDA não aparece mais em superfície nenhuma', () => {
     const JANELA = [
       /janela de sa[íi]da/i,
-      /12[º°]? m[êe]s/i,
+      // : "12º mês" (janela) sim; "12 meses" (garantia NI, legítima) não.
+      /12[º°]? m[êe]s/i,
       /60 dias pra decidir/i,
       /decide se continua/i,
       /direito de sa[íi]da/i,
+      // A mesma mecânica sem o nome — o orquestrador achou "Se não valer a
+      // pena, a gente retira sem custo" como H2 do /orcamento-industrial
+      // depois da primeira varredura, que só procurava as palavras acima.
+      /retira(mos)?( o equipamento)? sem custo/i,
+      /se n[ãa]o valer a pena/i,
     ];
     for (const campo of ['curta', 'paragrafo', 'paragrafoEngenharia', 'lateralTitulo'] as const) {
       for (const p of JANELA) {
         expect(OFERTA_INDUSTRIAL[campo], `${campo} ainda cita a janela`).not.toMatch(p);
       }
     }
-    // As superfícies que cravavam a frase por fora da fonte única.
-    for (const arquivo of [
-      'src/components/home/HomeNoRisk.tsx',
-      'src/components/home/HomeBifurcacao.tsx',
-      'src/components/tools/VtcdQuiz.tsx',
-      'src/components/home/LocacaoTimeline.tsx',
-    ]) {
+    // TODO o src/, não uma lista à mão: a primeira versão listava 4 arquivos
+    // e o /orcamento-industrial (5º) passou com a promessa de saída no H2.
+    for (const arquivo of superficies()) {
       const fonte = readFileSync(resolve(process.cwd(), arquivo), 'utf-8')
         .split('\n')
         .filter((l) => !l.trim().startsWith('//') && !l.trim().startsWith('*'))

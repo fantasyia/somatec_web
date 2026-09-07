@@ -82,8 +82,13 @@ export default async function OrcamentoIndustrialPage() {
           diferente da que clicou.
 
           ⛔ Mudou em 03/09: não existe mais período de avaliação, e o bloco
-          dizia "você só paga se o resultado for comprovado". O que segura o
-          risco agora é o DIREITO DE SAÍDA. Texto único em
+          dizia "você só paga se o resultado for comprovado". Entre 04/09 e
+          07/09 o H2 daqui era "Se não valer a pena, a gente retira sem custo"
+          — a janela de saída sem dizer o nome. Em 07/09 o Léo tirou a janela
+          do site (não é argumento de marketing), e "retira sem custo" como
+          promessa de saída cai junto: é a mesma mecânica. O orquestrador
+          pegou essa aqui depois da primeira varredura, que só olhava as
+          palavras "janela"/"12º mês". Texto único em
           `@/lib/constants/oferta-industrial`.
 
           ⛔ Continua não virando medição prévia nem oferta de software avulso:
@@ -96,7 +101,7 @@ export default async function OrcamentoIndustrialPage() {
                 Locação na sua planta
               </p>
               <h2 className="mt-2 font-serif text-2xl font-semibold text-[rgb(var(--text))] md:text-[1.75rem]">
-                Se não valer a pena, a gente retira sem custo.
+                {OFERTA_INDUSTRIAL.curta}
               </h2>
               <p className="mt-3 text-[17px] leading-[1.8] text-[rgb(var(--text))]">
                 {OFERTA_INDUSTRIAL.paragrafo}

@@ -52,7 +52,8 @@
 // reaparecer em `src/`.
 //
 // ⚠️ `sem custo` sozinho NÃO é proibido: continua certo em "estudo, projeto e
-// proposta sem custo" e em "retira o equipamento sem custo".
+// proposta sem custo". ⛔ Mas "retira(mos) sem custo" / "se não valer a pena, a
+// gente retira" é a janela de saída sem o nome — caiu junto com ela em 07/09.
 // =============================================================================
 
 export const OFERTA_INDUSTRIAL = {
