@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
+import { SITE } from '@/lib/constants/site';
 import { getHomeHero, getIndicators } from '@/lib/data/home';
 import { HomeHero } from '@/components/home/HomeHero';
 import { HomeAterramento } from '@/components/home/HomeAterramento';
@@ -19,26 +19,27 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { Reveal } from '@/components/ui/Reveal';
 import { organizationSchema, masterBlockProductSchema, faqSchema } from '@/lib/seo/structured-data';
 
+/**
+ * A home NÃO declara `openGraph`, `twitter` nem `description` de propósito.
+ *
+ * Ela herda o layout raiz, que lê `seo_og_default_title`,
+ * `seo_og_default_description` e `seo_global_description` de `site_settings`
+ * no Supabase. É isso que permite trocar a copy do card de compartilhamento
+ * sem deploy.
+ *
+ * ⚠️ Até 07/09 a home cravava aqui `${SITE.fullName} — ${SITE.description}`
+ * como og:title — 150 caracteres, o nome da empresa mais a descrição inteira
+ * colada. Em Next, `openGraph` de página SUBSTITUI o do layout (não há
+ * deep-merge), então a home vencia o banco e a copy nova simplesmente não
+ * aparecia. E não dava erro: as duas chaves gravavam, a revalidação
+ * respondia ok, e o card continuava velho.
+ *
+ * O `title` fica: "Somatec Blocking" é melhor que o default longo do layout.
+ */
 export const metadata: Metadata = {
   title: SITE.fullName,
-  description: SITE.description,
   alternates: { canonical: '/' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-  openGraph: {
-    title: `${SITE.fullName} — ${SITE.description}`,
-    description: SITE.description,
-    url: SITE.url,
-    siteName: SITE.fullName,
-    locale: SITE.locale,
-    type: 'website',
-    images: [...DEFAULT_OG_IMAGES],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: `${SITE.fullName} — ${SITE.description}`,
-    description: SITE.description,
-    images: [SITE.ogImage],
-  },
 };
 
 // ISR — revalidação on-demand (Fase 7 conecta /api/revalidate).

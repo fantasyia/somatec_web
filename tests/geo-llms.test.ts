@@ -70,6 +70,35 @@ describe('robots.txt — robôs de IA', () => {
   });
 });
 
+describe('og default — a home tem de HERDAR o layout, não cravar o seu', () => {
+  const home = readFileSync(resolve(process.cwd(), 'src/app/page.tsx'), 'utf-8');
+  const semComentarios = home
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '');
+
+  // Em Next, `openGraph` de página SUBSTITUI o do layout — não há deep-merge.
+  // A home cravava o seu até 07/09, então vencia o banco: a copy nova gravava,
+  // a revalidação respondia ok, e o card de prévia continuava com o texto
+  // velho. Nada acusava erro. Se voltar a cravar, isto quebra.
+  it('a home não declara openGraph próprio', () => {
+    expect(semComentarios).not.toMatch(/openGraph\s*:/);
+  });
+
+  it('a home não declara twitter próprio', () => {
+    expect(semComentarios).not.toMatch(/twitter\s*:/);
+  });
+
+  it('a home não repete o nome da empresa colado na descrição', () => {
+    expect(semComentarios).not.toMatch(/SITE\.fullName\}\s*—\s*\$\{SITE\.description/);
+  });
+
+  it('o layout continua lendo o og do banco', () => {
+    const layout = readFileSync(resolve(process.cwd(), 'src/app/layout.tsx'), 'utf-8');
+    expect(layout).toMatch(/seo\.og_title/);
+    expect(layout).toMatch(/seo\.og_description/);
+  });
+});
+
 describe('llms.txt', () => {
   const fonte = readFileSync(resolve(process.cwd(), 'src/app/llms.txt/route.ts'), 'utf-8');
   const semComentarios = fonte.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
