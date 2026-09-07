@@ -61,8 +61,15 @@ export function HomeClients() {
       className="border-y border-[rgb(var(--border))] tone-surface"
       aria-label="Empresas que confiam na Somatec Blocking"
     >
-      <div className="py-6 md:py-7">
-        <Reveal className="space-y-5">
+      {/* Altura enxuta de propósito (Léo, 07/09: "está muito grande").
+          Esta faixa e o hero dividem uma coluna de 100svh na home, então cada
+          pixel tirado daqui vira pixel de hero — é o único jeito de o banner
+          crescer sem empurrar a dobra pra baixo.
+          O que NÃO encolhe é o tamanho do logo: eles são a prova social, e
+          logo pequeno demais deixa de ser reconhecido, que é a única função
+          que ele tem aqui. O corte veio do respiro, não das marcas. */}
+      <div className="py-3.5 md:py-4">
+        <Reveal className="space-y-3">
           <p className="text-center text-[11px] font-sans font-semibold uppercase tracking-[0.16em] text-[rgb(var(--text-muted))]">
             Empresas que confiam na Somatec Blocking
           </p>
