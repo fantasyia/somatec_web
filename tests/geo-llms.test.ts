@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import robots from '@/app/robots';
 
@@ -67,6 +67,47 @@ describe('robots.txt — robôs de IA', () => {
   it('o sitemap volta a ser anunciado quando o site abre', () => {
     process.env.SITE_NOINDEX = 'false';
     expect(robots().sitemap).toMatch(/\/sitemap\.xml$/);
+  });
+});
+
+describe('heros das LPs — arquivo referenciado tem de existir', () => {
+  // As LPs servem imagem por <picture>, e imagem ausente NÃO quebra build nem
+  // teste: o navegador só mostra o alt. Os assets `ni-landing-*` chegaram a
+  // ficar semanas órfãos no repo antes de serem ligados — quem varrer imagem
+  // não usada pode podar justamente estes.
+  const LPS = [
+    'src/app/protecao-comercial/page.tsx',
+    'src/app/protecao-residencial/page.tsx',
+  ];
+
+  it('todo /home/hero/*.webp citado nas LPs existe em public/', () => {
+    const faltando: string[] = [];
+    for (const lp of LPS) {
+      const fonte = readFileSync(resolve(process.cwd(), lp), 'utf-8');
+      for (const m of fonte.matchAll(/["'](\/home\/hero\/[^"']+\.webp)["']/g)) {
+        const rel = `public${m[1]}`;
+        if (!existsSync(resolve(process.cwd(), rel))) faltando.push(`${lp} → ${rel}`);
+      }
+    }
+    expect(faltando, faltando.join('\n')).toHaveLength(0);
+  });
+
+  it('cada LP cita as DUAS variantes — sem a tall o mobile baixa a wide', () => {
+    for (const lp of LPS) {
+      const fonte = readFileSync(resolve(process.cwd(), lp), 'utf-8');
+      expect(fonte, `${lp} sem variante wide`).toMatch(/\/home\/hero\/[^"']*-wide\.webp/);
+      expect(fonte, `${lp} sem variante tall`).toMatch(/\/home\/hero\/[^"']*-tall\.webp/);
+    }
+  });
+
+  it('as LPs não voltam a usar a foto da home', () => {
+    for (const lp of LPS) {
+      const fonte = readFileSync(resolve(process.cwd(), lp), 'utf-8');
+      const hero = fonte.slice(0, fonte.indexOf('</section>'));
+      expect(hero, `${lp} voltou a reusar hero da home`).not.toMatch(
+        /src="\/home\/hero-s[0-9]/,
+      );
+    }
   });
 });
 

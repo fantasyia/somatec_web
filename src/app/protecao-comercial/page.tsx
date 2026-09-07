@@ -104,20 +104,33 @@ export default async function ProtecaoComercialPage() {
         aria-label="Proteção elétrica para comércio"
       >
         <div className="absolute inset-0 -z-20" aria-hidden="true">
-          <img
-            src="/home/hero-s2-comercio-v3.webp"
-            srcSet="/home/hero-s2-comercio-v3-480.webp 480w, /home/hero-s2-comercio-v3-768.webp 768w, /home/hero-s2-comercio-v3-1200.webp 1200w, /home/hero-s2-comercio-v3.webp 1920w"
-            sizes="100vw"
-            alt="Atendente de padaria entregando o pão a uma cliente, com a vitrine e o forno ao fundo"
-            className="h-full w-full object-cover"
-            style={{ objectPosition: 'center 42%' }}
-            fetchPriority="high"
-            decoding="async"
-          />
+          {/* Hero próprio da LP: a padaria do slide 2 fica só na home.
+              A cena é construída pro layout — metade esquerda em navy chapado
+              (a coluna de texto) e a luz das geladeiras à direita. Por isso o
+              scrim aqui é reforço, não remendo. */}
+          <picture>
+            <source media="(max-width: 767px)" srcSet="/home/hero/comercial-landing-hero-tall.webp" />
+            <img
+              src="/home/hero/comercial-landing-hero-wide.webp"
+              alt="Corredor de supermercado com geladeiras de porta de vidro iluminadas e um terminal de PDV ao fundo."
+              className="h-full w-full object-cover object-[center_55%]"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
         </div>
+        {/* Scrim com DUAS receitas, e o motivo é medido.
+            No desktop o texto ocupa 47% da largura e fica inteiro sobre a
+            metade navy da foto — o degradê horizontal leve basta.
+            No mobile ele ocupa 84%: atravessa pra metade iluminada. Medido
+            com a receita do desktop, a faixa direita dava média 7:1 (passa)
+            mas PICO de 1,26:1 em cima das luminárias das geladeiras — onde
+            a letra cai na luz, ela some. Média engana aqui: texto é traço
+            fino sobre pixel específico, o que vale é o pico.
+            Por isso o mobile leva um scrim mais forte e mais espalhado. */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(9,13,18,0.9)_0%,rgba(9,13,18,0.66)_38%,rgba(9,13,18,0.24)_70%,rgba(9,13,18,0.04)_100%)]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(9,13,18,0.93)_0%,rgba(9,13,18,0.85)_45%,rgba(9,13,18,0.72)_75%,rgba(9,13,18,0.6)_100%)] md:bg-[linear-gradient(90deg,rgba(9,13,18,0.9)_0%,rgba(9,13,18,0.66)_38%,rgba(9,13,18,0.24)_70%,rgba(9,13,18,0.04)_100%)]"
         />
         <div className="container-msm w-full py-14 md:py-20">
           <div className="max-w-[680px] space-y-5">
