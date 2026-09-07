@@ -87,7 +87,11 @@ mesmos olhos que a copy de página, e é onde uma frase errada rende mais estrag
 
 ## Regras do site
 
-- **NOINDEX até o go-live.** Não indexar sem OK do Léo.
+- **NOINDEX até o go-live — e são DUAS chaves, não uma.** `SITE_NOINDEX` no Railway **e**
+  `seo_robots_index` em `site_settings` (Supabase). O layout raiz faz `seo.robots_index ?? false`:
+  virar só a do Railway **abre o `robots.txt` e mantém a meta `noindex` na página** — o site
+  parece liberado, continua fora do índice, e nada acusa erro em lugar nenhum. As duas viram
+  juntas, e só com OK do Léo.
 - **Push na `main` = deploy automático** (Railway observa a main). Autorizar merge **é** autorizar
   publicação — não existe passo de deploy separado.
 - **Meta de SEO mora no banco**, não no código: `site_settings` no Supabase
