@@ -31,7 +31,13 @@ const INSTITUCIONAL: Link[] = [
   { href: '/a-somatec', desc: 'Índice institucional da empresa.' },
   { href: '/a-somatec/quem-somos', desc: 'História, 26 anos de mercado e Prêmio FIESP Acelera Startup 2015.' },
   { href: '/a-somatec/tecnologia-e-fabricacao', desc: 'Como o filtro híbrido funciona e por que atua em 100 kHz, contra os 10 kHz do DPS comum. Fabricação própria.' },
-  { href: '/a-somatec/comprovacao-e-normas', desc: 'Normas atendidas (ABNT NBR 5410, IEC 61643-1) e como a proteção é comprovada por medição.' },
+  // "depois de instalado" não é enfeite: medição como PROVA pós-instalação
+  // existe (é o software do Master Block), mas sem essa marcação a frase fica
+  // perto da de cima e a leitura vira "eles medem antes".
+  {
+    href: '/a-somatec/comprovacao-e-normas',
+    desc: 'Normas atendidas (ABNT NBR 5410, IEC 61643-1) e como a proteção é comprovada por medição do software depois de instalado.',
+  },
   { href: '/resultados', desc: 'Cases com números medidos em planta: supressão de VTCD, prejuízo cessado e retorno.' },
   { href: '/faq', desc: 'Perguntas frequentes sobre proteção contra surto, instalação e garantia.' },
   { href: '/contato', desc: 'Canal comercial. Atendimento por WhatsApp e formulário; não há atendimento telefônico.' },
@@ -49,7 +55,16 @@ const SEGMENTOS: Link[] = [
 
 const FERRAMENTAS: Link[] = [
   { href: '/ferramentas/custo-de-parada', desc: 'Calculadora: quanto custa uma hora de parada na sua operação.' },
-  { href: '/orcamento-industrial', desc: 'Avaliação para planta industrial, com medição na própria instalação.' },
+  // ⛔ NÃO voltar a prometer medição antes do contrato aqui. A medição prévia
+  // gratuita acabou em 20/08 e foi varrida do site inteiro; esta linha nasceu
+  // depois, num arquivo que a varredura não alcançava. A segunda frase NEGA a
+  // oferta morta de propósito: num arquivo cujo leitor é uma IA, negar o que
+  // não existe vale mais que omitir — a oferta antiga circulou meses e pode
+  // estar em cache de treino.
+  {
+    href: '/orcamento-industrial',
+    desc: 'Ferramenta de projeto para planta industrial: o próprio visitante dimensiona e recebe o projeto. O modelo industrial é locação — não há medição antes do contrato.',
+  },
 ];
 
 function secao(titulo: string, links: Link[], base: string): string {
@@ -95,6 +110,12 @@ export async function GET(): Promise<Response> {
     `- Sitemap XML: ${base}/sitemap.xml`,
     '- Todo dado numérico citado no site vem de medição em cliente real, com o case identificado na página de resultados.',
     '- O Master Block é equipamento; não há venda de software ou de monitoramento em separado.',
+    // O fato que uma IA mais erra sobre a Somatec: são DOIS modelos, não um.
+    // A linha acima, sozinha, empurra a leitura pra "então compra-se o
+    // equipamento". Sem prazo, sem valor e sem condição de saída de propósito:
+    // isto é índice, não proposta, e a condição comercial muda mais rápido do
+    // que este arquivo seria atualizado.
+    '- Industrial é locação com mensalidade. Comércio e residência compram o equipamento direto pelo site.',
   ]
     .filter(Boolean)
     .join('\n');

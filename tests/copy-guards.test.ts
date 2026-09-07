@@ -314,6 +314,13 @@ const MEDICAO_PREVIA = [
   /medi[çc][ãa]o na sua rede/i,
   /diagn[óo]stico gratuito/i,
   /diagn[óo]stico.{0,20}sem custo/i,
+  // Furo encontrado em 07/09 pelo master: o /llms.txt dizia "Avaliação para
+  // planta industrial, COM MEDIÇÃO NA PRÓPRIA INSTALAÇÃO". Promete exatamente
+  // a oferta morta, só que sem a palavra "gratuita" — e por isso passou por
+  // todos os padrões acima. O que caracteriza a oferta extinta não é o preço,
+  // é ir medir ANTES do contrato.
+  /medi[çc][ãa]o na pr[óo]pria instala[çc][ãa]o/i,
+  /avalia[çc][ãa]o.{0,40}com medi[çc][ãa]o/i,
 ];
 
 describe('oferta de entrada industrial — nada de medição antes do contrato', () => {
@@ -359,6 +366,11 @@ describe('oferta de entrada industrial — nada de medição antes do contrato',
     for (const padrao of MEDICAO_PREVIA) {
       expect('o software mostra a medição antes e depois').not.toMatch(padrao);
       expect('92% de supressão de VTCD, medida em campo').not.toMatch(padrao);
+      // A frase que o master aprovou pro /llms.txt em 07/09. Se um padrão novo
+      // apagar esta, a guarda ficou larga demais e derruba o argumento que vende.
+      expect(
+        'como a proteção é comprovada por medição do software depois de instalado',
+      ).not.toMatch(padrao);
     }
   });
 });
