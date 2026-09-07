@@ -27,10 +27,16 @@ que se comete aqui.
 3. a **cobrança só começa 45 dias depois da emissão** — tempo de entregar, instalar, e o cliente já
    estar recebendo as primeiras análises da rede dele
 4. a **instalação é contratada pelo próprio cliente**, paga a uma **empresa homologada** pela Somatec
-5. **no 12º mês abre a janela de saída**: 60 dias pra se manifestar. Encerrou, a Somatec **retira o
-   equipamento sem custo**; não se manifestou, o contrato **segue pelo prazo contratado**
+5. 🔒 **no 12º mês abre uma janela de saída de 60 dias — DADO INTERNO desde 07/09.** Decisão do
+   Léo: "isso não deve ser usado como propaganda de marketing, a gente não quer que o cliente saia
+   da nossa locação". A janela segue no contrato; **não aparece em nenhuma superfície do site**.
+   `tests/oferta-industrial.test.ts` reprova se voltar. Entre 04/09 e 07/09 ela FOI o argumento
+   central (H2 da home era "No 12º mês, você decide se continua") — texto dessa fase em doc/card/
+   cache é daquela época, não volta.
 
-O argumento é a **janela de saída** — nunca "teste grátis", nunca "cancela quando quiser".
+O que o site diz: locação · estudo, projeto e proposta sem custo · cobrança 45 dias depois da NF ·
+instalação contratada pelo cliente com empresa homologada. Nunca "teste grátis", nunca "cancela
+quando quiser", e **nunca a janela de saída**.
 
 🔒 **A duração do contrato (60 meses) é dado INTERNO.** Em lugar nenhum, em nenhuma superfície. E os
 **12 meses NÃO são a duração** — são quando a janela abre. Escrever "contrato de 12 meses" é o
@@ -68,11 +74,12 @@ Pergunte de cada frase nova:
 3. Diz **"não paga nada até a instalação"**, **"instalação sem custo"** ou **"encerra quando
    quiser"**? → ⛔ **04/09** (quem paga a instalação é o cliente; a saída tem janela)
 4. Oferece **comprar o equipamento** ou **pacote anual de software** no industrial? → ⛔ **25/08**
+5. Menciona a **janela de saída** (12º mês, 60 dias pra decidir, "decide se continua")? → 🔒 **07/09**
 
 ✅ **Continua verdadeiro:** estudo, projeto e proposta sem custo · cobrança 45 dias depois da NF ·
-instalação contratada pelo cliente com empresa homologada · janela de 60 dias no 12º mês com retirada
-sem custo · **medição como PROVA depois de instalado** (legítima, e é argumento que vende — não
-apagar).
+instalação contratada pelo cliente com empresa homologada · **medição como PROVA depois de instalado**
+(legítima, e é argumento que vende — não apagar). ⛔ A **janela de saída** era item desta lista até
+07/09 — saiu (ver acima).
 
 ⚠️ **Guarda larga demais apaga argumento bom.** `medição` sozinha como padrão proibido reprova a
 medição pós-instalação. O par certo é mecânica **+ exceção explícita**.

@@ -234,18 +234,53 @@ describe('o texto novo carrega o modelo inteiro', () => {
     expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/homologada/i);
   });
 
-  it('diz a JANELA de saída — 12º mês E os 60 dias', () => {
-    // O "12º mês" sozinho não basta: sem os 60 dias o texto promete saída a
-    // qualquer momento, que é o que o contrato NÃO dá. Foi esse o erro que
-    // ficou no ar até 04/09.
-    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/12[º°] m[êe]s/);
-    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/60 dias/);
-    expect(OFERTA_INDUSTRIAL.paragrafo).toMatch(/sem custo/i);
+  // ⛔ REVIRADO EM 07/09. Este teste EXIGIA a janela de saída ("12º mês E os
+  // 60 dias") — entre 04/09 e 07/09 ela era o argumento central da oferta, a
+  // ponto de ser H2 na home. O Léo decidiu que ela não vai mais no site: "não
+  // deve ser usado como propaganda de marketing, a gente não quer que o
+  // cliente saia da nossa locação, não precisa ser explícito de dizer isso pra
+  // ele". A janela continua no CONTRATO; o que acabou foi anunciá-la.
+  //
+  // A guarda vira do avesso: agora ela quebra se a janela VOLTAR. E vale pra
+  // TODA superfície pública, porque a home e o quiz cravavam a frase fora da
+  // fonte única — se fosse só olhar OFERTA_INDUSTRIAL, os dois passariam.
+  it('⛔ a JANELA DE SAÍDA não aparece mais em superfície nenhuma', () => {
+    const JANELA = [
+      /janela de sa[íi]da/i,
+      /12[º°]? m[êe]s/i,
+      /60 dias pra decidir/i,
+      /decide se continua/i,
+      /direito de sa[íi]da/i,
+    ];
+    for (const campo of ['curta', 'paragrafo', 'paragrafoEngenharia', 'lateralTitulo'] as const) {
+      for (const p of JANELA) {
+        expect(OFERTA_INDUSTRIAL[campo], `${campo} ainda cita a janela`).not.toMatch(p);
+      }
+    }
+    // As superfícies que cravavam a frase por fora da fonte única.
+    for (const arquivo of [
+      'src/components/home/HomeNoRisk.tsx',
+      'src/components/home/HomeBifurcacao.tsx',
+      'src/components/tools/VtcdQuiz.tsx',
+      'src/components/home/LocacaoTimeline.tsx',
+    ]) {
+      const fonte = readFileSync(resolve(process.cwd(), arquivo), 'utf-8')
+        .split('\n')
+        .filter((l) => !l.trim().startsWith('//') && !l.trim().startsWith('*'))
+        .join('\n')
+        .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
+        .replace(/\/\*[\s\S]*?\*\//g, '');
+      for (const p of JANELA) {
+        expect(fonte, `${arquivo} ainda cita a janela na tela`).not.toMatch(p);
+      }
+    }
   });
 
-  it('a versão curta não perde o essencial: 45 dias + a janela', () => {
+  it('a versão curta não perde o essencial: os 45 dias', () => {
     expect(OFERTA_INDUSTRIAL.curta).toMatch(/45 dias/);
-    expect(OFERTA_INDUSTRIAL.curta).toMatch(/60 dias/);
+    // A garantia NI diz "12 meses" e é legítima — a guarda acima olha só a
+    // oferta industrial e as superfícies dela, de propósito.
+    expect(GARANTIA.ni).toMatch(/12 meses/);
   });
 
   it('⛔ `sem custo` sozinho NÃO é proibido', () => {

@@ -41,9 +41,9 @@ export const BR_STATES = [
 //
 // ⛔ Desde 20/08 a oferta industrial NÃO é mais diagnóstico/medição na planta
 // — não existe medição antes do contrato. Desde 03/09 também não é período de
-// avaliação. E desde 04/09 é LOCAÇÃO com JANELA DE SAÍDA: a cobrança começa 45
-// dias depois da nota fiscal, a instalação o cliente contrata, e no 12º mês
-// abrem 60 dias pra decidir se continua. Texto em `oferta-industrial.ts`.
+// avaliação. Desde 04/09 é LOCAÇÃO: a cobrança começa 45 dias depois da nota
+// fiscal e a instalação o cliente contrata. E desde 07/09 a janela de saída
+// NÃO vai mais no site (decisão do Léo). Texto em `oferta-industrial.ts`.
 //
 // A frase agora diz o que a pessoa QUER, não em que categoria ela se encaixa —
 // mesma regra das mensagens de WhatsApp. O `value` continua 'b2b' de

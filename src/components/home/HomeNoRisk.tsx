@@ -6,12 +6,17 @@
  * modelo foi refinado e três frases viraram proibidas: "não paga nada até a
  * instalação", "instalação sem custo" e "encerra quando quiser".
  *
- * O que segura o risco é a JANELA DE SAÍDA: no 12º mês abrem 60 dias pra
- * decidir. ⚠️ Não é saída a qualquer momento — passada a janela, o contrato
- * segue. E ⚠️ a instalação é contratada pelo CLIENTE, com empresa homologada.
+ * ⛔ E em 07/09 mudou de novo: a JANELA DE SAÍDA (12º mês, 60 dias) SAIU DO
+ * SITE por decisão do Léo — "não deve ser usado como propaganda de marketing,
+ * a gente não quer que o cliente saia da nossa locação". Entre 04/09 e 07/09
+ * ela era o argumento central desta seção, a ponto de o H2 ser "No 12º mês,
+ * você decide se continua". A janela continua no CONTRATO; o que acabou foi
+ * anunciá-la. Se aparecer em cache, doc ou card, é daquela fase — não volta.
  *
- * 🔒 A duração do contrato é dado INTERNO e não pode aparecer aqui. Os 12
- * meses são quando a janela ABRE — nunca a duração do contrato.
+ * O que o site diz agora: cobrança só 45 dias depois da NF, e a instalação é
+ * contratada pelo CLIENTE, com empresa homologada. Só isso.
+ *
+ * 🔒 A duração do contrato é dado INTERNO e não pode aparecer aqui.
  */
 import Link from 'next/link';
 import { ChevronRight, Network } from 'lucide-react';
@@ -29,13 +34,14 @@ export function HomeNoRisk() {
             só o industrial usa, e dizem público + oferta como frase, não como
             rótulo. */}
         <div className="max-w-3xl space-y-4">
-          {/* ⛔ O H2 era "Instalamos na sua planta. Se não valer a pena, a
-              gente retira." As duas metades ficaram falsas em 04/09: quem
-              contrata e paga a instalação é o CLIENTE, com empresa homologada;
-              e a saída não é a qualquer momento, é uma janela de 60 dias que
-              abre no 12º mês. */}
+          {/* ⛔ Terceiro H2 desta seção. O primeiro ("Instalamos na sua planta.
+              Se não valer a pena, a gente retira.") ficou falso em 04/09. O
+              segundo ("No 12º mês, você decide se continua.") saiu em 07/09
+              porque a janela de saída deixou de ir pro site. Este reaproveita
+              a frase curta já aprovada da oferta — não é copy nova. Se o
+              orquestrador quiser outro título, é decisão dele. */}
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            No 12º mês, você decide se continua.
+            A cobrança só começa 45 dias depois da nota.
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
             {OFERTA_INDUSTRIAL.paragrafo}

@@ -51,7 +51,7 @@ const LEVELS: Level[] = [
     label: 'Risco baixo pelos sintomas informados',
     Icon: CheckCircle2,
     tone: 'text-cyan',
-    text: 'Os sinais clássicos de VTCD não apareceram — mas distúrbios de alta frequência muitas vezes passam despercebidos até a primeira queima. Se quiser certeza, o software mede o antes e o depois na sua planta — e no 12º mês você tem 60 dias pra decidir se continua.',
+    text: 'Os sinais clássicos de VTCD não apareceram — mas distúrbios de alta frequência muitas vezes passam despercebidos até a primeira queima. Se quiser certeza, o software mede o antes e o depois na sua planta .',
   },
 ];
 

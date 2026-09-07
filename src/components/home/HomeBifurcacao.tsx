@@ -37,7 +37,7 @@ const CARDS: readonly Card[] = [
     titulo: 'Industrial',
     modelo: 'Locação',
     resto:
-      ' com janela de saída — ' + OFERTA_INDUSTRIAL.curta,
+      ' — ' + OFERTA_INDUSTRIAL.curta,
     cta: { label: 'Ver proteção industrial', href: '#industria' },
   },
   {

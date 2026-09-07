@@ -37,10 +37,11 @@ const STEPS: { Icon: LucideIcon; label: string; selo: string }[] = [
 export function LocacaoTimeline() {
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.3 });
 
-  // Nota da jornada (desktop + mobile). O texto vem da fonte única: ela diz
-  // quando a cobrança começa e como funciona a janela de saída — que é o
-  // argumento que substituiu o "só paga se comprovar" (03/09) e depois o
-  // "não paga nada até a instalação" (04/09).
+  // Nota da jornada (desktop + mobile). O texto vem da fonte única: hoje diz
+  // só quando a cobrança começa (45 dias depois da NF). Já disse "só paga se
+  // comprovar" (até 03/09), "não paga nada até a instalação" (até 04/09) e a
+  // janela de saída (até 07/09, quando o Léo a tirou do site). Mudou a oferta,
+  // muda em oferta-industrial.ts — aqui não se toca.
   const nota = (
     <div className="flex items-start gap-3 rounded-card border border-gold/30 bg-gold/[0.06] p-4 md:items-center md:justify-center md:p-5 md:text-center">
       <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-gold md:mt-0" aria-hidden="true" />

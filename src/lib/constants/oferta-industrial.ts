@@ -18,20 +18,24 @@
 //      recebendo as primeiras análises da rede dele
 //   4. a instalação é contratada pelo PRÓPRIO CLIENTE, paga direto a uma
 //      empresa homologada pela Somatec
-//   5. no 12º mês abre a JANELA DE SAÍDA: 60 dias pra se manifestar. Encerrou,
-//      a Somatec retira o equipamento sem custo; não se manifestou, o contrato
-//      segue pelo prazo contratado
+//   5. 🔒 no 12º mês abre uma janela de saída de 60 dias — ISSO É DADO INTERNO
+//      DESDE 07/09, não vai no site (ver abaixo)
 //
-// O argumento é a JANELA DE SAÍDA — não "teste grátis", não "cancela quando
-// quiser".
+// O que o site DIZ da oferta: locação; estudo, projeto e proposta sem custo;
+// cobrança só 45 dias depois da NF; instalação contratada pelo cliente com
+// empresa homologada. Só isso.
 //
 // -----------------------------------------------------------------------------
-// 🔒 TRÊS COISAS QUE NÃO PODEM APARECER NO SITE
+// 🔒 O QUE NÃO PODE APARECER NO SITE
 //
 //   • A duração do contrato é dado INTERNO. Em lugar nenhum.
-//   • Os 12 meses são quando a janela ABRE, e ela dura 60 dias. Escrever
-//     "depois de 12 meses pode encerrar" promete saída a qualquer momento —
-//     que é o que o contrato NÃO dá. Foi o erro que ficou no ar até 04/09.
+//   • A JANELA DE SAÍDA (12º mês, 60 dias) — decisão do Léo em 07/09/2026:
+//     "isso não deve ser usado como propaganda de marketing, a gente não quer
+//     que o cliente saia da nossa locação, não precisa ser explícito de dizer
+//     isso pra ele". A janela continua existindo no CONTRATO; o que acabou foi
+//     usá-la como argumento. Entre 04/09 e 07/09 ela foi o argumento central
+//     ("No 12º mês, você decide se continua" era H2 na home) — se alguém
+//     achar essa frase em cache, doc ou card, é desta fase, e não volta.
 //   • A instalação NÃO é sem custo: quem contrata e paga é o cliente, com uma
 //     empresa homologada. Dizer o contrário inverte quem paga uma conta.
 //
@@ -53,19 +57,18 @@
 
 export const OFERTA_INDUSTRIAL = {
   /** Uma linha. Barra sticky, cartão lateral, espaços apertados. */
-  curta:
-    'A cobrança só começa 45 dias depois da nota fiscal. No 12º mês, você tem 60 dias pra decidir se continua.',
+  curta: 'A cobrança só começa 45 dias depois da nota fiscal.',
 
   /** Parágrafo dos CTAs de fim de página. */
   paragrafo:
-    'Na indústria o Master Block trabalha por locação: estudo da rede, projeto e proposta correm sem custo. Fechado o contrato, a Somatec emite a nota fiscal e a cobrança só começa 45 dias depois da emissão — tempo de entregar, instalar e você já estar recebendo as primeiras análises da sua rede. A instalação você contrata, com uma das empresas homologadas pela Somatec. E no 12º mês abre uma janela de 60 dias pra decidir se continua; se quiser encerrar, a Somatec retira o equipamento sem custo.',
+    'Na indústria o Master Block trabalha por locação: estudo da rede, projeto e proposta correm sem custo. Fechado o contrato, a Somatec emite a nota fiscal e a cobrança só começa 45 dias depois da emissão — tempo de entregar, instalar e você já estar recebendo as primeiras análises da sua rede. A instalação você contrata, com uma das empresas homologadas pela Somatec.',
 
   /** Mesma coisa, aberta com o convite a falar com a engenharia. */
   paragrafoEngenharia:
-    'Fale com a engenharia da Somatec Blocking. Na indústria o Master Block trabalha por locação: estudo da rede, projeto e proposta correm sem custo. Fechado o contrato, a Somatec emite a nota fiscal e a cobrança só começa 45 dias depois da emissão — tempo de entregar, instalar e você já estar recebendo as primeiras análises da sua rede. A instalação você contrata, com uma das empresas homologadas pela Somatec. E no 12º mês abre uma janela de 60 dias pra decidir se continua; se quiser encerrar, a Somatec retira o equipamento sem custo.',
+    'Fale com a engenharia da Somatec Blocking. Na indústria o Master Block trabalha por locação: estudo da rede, projeto e proposta correm sem custo. Fechado o contrato, a Somatec emite a nota fiscal e a cobrança só começa 45 dias depois da emissão — tempo de entregar, instalar e você já estar recebendo as primeiras análises da sua rede. A instalação você contrata, com uma das empresas homologadas pela Somatec.',
 
   /** Rótulo curto do bloco lateral do blog. */
-  lateralTitulo: 'Locação com janela de saída',
+  lateralTitulo: 'Locação para a indústria',
 } as const;
 
 // =============================================================================
