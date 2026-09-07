@@ -28,7 +28,7 @@ export const CheckboxField = forwardRef<HTMLInputElement, Props>(function Checkb
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${inputId}-err` : undefined}
           className={cn(
-            'mt-0.5 h-4 w-4 rounded border-[rgb(var(--border))] bg-[rgb(var(--bg))] text-gold accent-gold cursor-pointer',
+            'mt-0.5 h-5 w-5 rounded border-[rgb(var(--border))] bg-[rgb(var(--bg))] text-gold accent-gold cursor-pointer',
             'focus:outline-none focus:ring-2 focus:ring-gold/30',
             error && 'border-red-500',
             className,

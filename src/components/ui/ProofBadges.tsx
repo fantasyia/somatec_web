@@ -29,7 +29,7 @@ export function ProofBadges({ variant = 'light', className = '' }: Props) {
 
   return (
     <div
-      className={`grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 ${className}`}
+      className={`grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-4 ${className}`}
       aria-label="Provas e reconhecimentos da Somatec"
     >
       {PROOFS.map(({ Icon, main, sub }) => (

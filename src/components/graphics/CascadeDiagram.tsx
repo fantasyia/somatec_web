@@ -47,11 +47,15 @@ export function CascadeDiagram() {
   const wireY = 96;
   return (
     <figure className="rounded-card-lg border border-white/10 bg-white/[0.03] p-4 md:p-6">
+      <p className="mb-2 text-xs text-white/55 md:hidden" aria-hidden="true">
+        Arraste para o lado pra ver o diagrama inteiro →
+      </p>
+      <div className="overflow-x-auto">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="Diagrama da proteção em cascata: o surto entra forte pela rede, é atenuado no Master Block da entrada, depois no do quadro de distribuição e chega inofensivo ao equipamento protegido"
-        className="w-full h-auto"
+        className="w-full h-auto min-w-[600px] md:min-w-0"
       >
         {/* Fio condutor */}
         <line x1={16} x2={W - 16} y1={wireY} y2={wireY} stroke="rgba(255,255,255,0.25)" strokeWidth={2.5} />
@@ -108,6 +112,7 @@ export function CascadeDiagram() {
           o surto perde força em cada estágio
         </text>
       </svg>
+      </div>
     </figure>
   );
 }

@@ -130,7 +130,11 @@ export function DiagramaExemploIndustrial() {
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.2 });
 
   return (
-    <div ref={ref} className="overflow-x-auto">
+    <div ref={ref}>
+      <p className="mb-2 text-xs text-[rgb(var(--text-muted))] md:hidden" aria-hidden="true">
+        Arraste para o lado pra ver o diagrama inteiro →
+      </p>
+      <div className="overflow-x-auto">
       <svg
         viewBox="0 0 1240 760"
         className="h-auto w-full min-w-[980px]"
@@ -200,6 +204,7 @@ export function DiagramaExemploIndustrial() {
           </text>
         </g>
       </svg>
+      </div>
     </div>
   );
 }

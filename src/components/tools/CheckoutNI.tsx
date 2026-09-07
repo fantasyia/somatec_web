@@ -245,7 +245,7 @@ function ConfiancaCheckout({ href, externo }: { href: string; externo: boolean }
 function ConsentimentoLgpd() {
   return (
     <label className="flex items-start gap-2.5 text-xs leading-relaxed text-[rgb(var(--text-muted))]">
-      <input type="checkbox" name="lgpd_consent" required className="mt-0.5 accent-[#F39200]" />
+      <input type="checkbox" name="lgpd_consent" required className="mt-0.5 h-5 w-5 shrink-0 accent-[#F39200]" />
       <span>
         {LGPD_PUBLIC_DEFAULT.text}{' '}
         <Link href="/politica-de-privacidade" className="underline hover:text-gold">

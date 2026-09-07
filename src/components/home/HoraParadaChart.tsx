@@ -1,4 +1,5 @@
 'use client';
+import type { CSSProperties } from 'react';
 
 import { useInView } from '@/hooks/useInView';
 
@@ -59,7 +60,8 @@ export function HoraParadaChart() {
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="Gráfico ilustrativo: os cinco custos de uma parada somados ultrapassam o valor da mensalidade"
-        className="h-auto w-full"
+        className="chart-svg h-auto w-full"
+        style={{ ["--chart-fs-m" as string]: "20px" } as CSSProperties}
       >
         {/* Barra empilhada — cada custo sobe de baixo pra cima */}
         {RECTS.map(({ label, cor, y, alt, meioY, i }) => (

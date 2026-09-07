@@ -367,7 +367,7 @@ export function HomeHero({ data }: Props) {
                 onClick={() => goTo(i)}
                 // Barra hairline premium (1px). O botão tem padding vertical
                 // pra manter uma área de clique/toque confortável.
-                className="group relative flex items-center py-2.5"
+                className="group relative flex items-center py-4 md:py-2.5"
               >
                 <span className="relative block h-px w-full overflow-hidden rounded-full bg-white/20 transition-[height] duration-200 group-hover:h-0.5">
                   <span
@@ -388,7 +388,7 @@ export function HomeHero({ data }: Props) {
               type="button"
               aria-label="Slide anterior"
               onClick={() => goTo(index - 1)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/25 text-white/50 transition-all duration-200 ease-premium hover:border-white/70 hover:text-white"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/25 text-white/50 transition-all duration-200 ease-premium hover:border-white/70 hover:text-white md:h-8 md:w-8"
             >
               <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </button>
@@ -396,7 +396,7 @@ export function HomeHero({ data }: Props) {
               type="button"
               aria-label="Próximo slide"
               onClick={() => goTo(index + 1)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/25 text-white/50 transition-all duration-200 ease-premium hover:border-white/70 hover:text-white"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/25 text-white/50 transition-all duration-200 ease-premium hover:border-white/70 hover:text-white md:h-8 md:w-8"
             >
               <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </button>

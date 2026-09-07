@@ -1,4 +1,5 @@
 'use client';
+import type { CSSProperties } from 'react';
 
 import { useInView } from '@/hooks/useInView';
 
@@ -88,7 +89,8 @@ export function CaseChart() {
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="Gráfico ilustrativo: picos de tensão (VTCD) frequentes antes da instalação do Master Block e rede estável depois, com 92% de supressão medida"
-        className="h-auto w-full"
+        className="chart-svg h-auto w-full"
+        style={{ ["--chart-fs-m" as string]: "23px" } as CSSProperties}
       >
         {/* Fundo antes×depois — leve tom perigo/estável */}
         <rect x={PAD.left} y={PAD.top} width={EVENT_X - PAD.left} height={PLOT_H} fill="#EF4444" opacity={0.06} />
@@ -124,6 +126,7 @@ export function CaseChart() {
           fontFamily={FONT}
           fontSize={12}
           fill={MUTED}
+          className="hidden md:block"
         >
           Limite de segurança dos equipamentos
         </text>
@@ -157,7 +160,7 @@ export function CaseChart() {
           strokeWidth={2.25}
           strokeLinejoin="round"
           className={`draw-path ${inView ? 'is-drawn' : ''}`}
-          style={{ '--path-length': '1500px' } as React.CSSProperties}
+          style={{ '--path-length': '1500px' } as CSSProperties}
         />
         {/* Halos nos picos — PULSAM quando a figura entra na viewport */}
         {spikes.map((s, i) => (
@@ -175,11 +178,12 @@ export function CaseChart() {
           strokeWidth={2.75}
           strokeLinejoin="round"
           className={`draw-path ${inView ? 'is-drawn' : ''}`}
-          style={{ '--path-length': '400px', transitionDelay: '0.9s' } as React.CSSProperties}
+          style={{ '--path-length': '400px', transitionDelay: '0.9s' } as CSSProperties}
         />
 
-        {/* Rótulos diretos (identidade nunca só por cor) */}
-        <g fontFamily={FONT} fontSize={13} fontWeight={600}>
+        {/* Rótulos diretos (identidade nunca só por cor). Abaixo de md saem do
+            SVG (colidiam ao escalar) e voltam como lista HTML logo abaixo. */}
+        <g fontFamily={FONT} fontSize={13} fontWeight={600} className="hidden md:block">
           <circle cx={PAD.left + PLOT_W * 0.14} cy={H - 12} r={4} fill="#D97706" />
           <text x={PAD.left + PLOT_W * 0.14 + 10} y={H - 8} fill={TXT}>
             Antes: picos de VTCD queimam placas
@@ -190,6 +194,21 @@ export function CaseChart() {
           </text>
         </g>
       </svg>
+
+      <ul className="mt-3 space-y-1 text-xs font-semibold text-white/85 md:hidden" aria-hidden="true">
+        <li className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#D97706]" />
+          Antes: picos de VTCD queimam placas
+        </li>
+        <li className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#008CC8]" />
+          Depois: rede estável
+        </li>
+        <li className="flex items-center gap-2 font-normal text-white/60">
+          <span className="w-2.5 shrink-0 border-t border-dashed border-white/50" />
+          Limite de segurança dos equipamentos
+        </li>
+      </ul>
 
       <p className="mt-4 text-[11px] leading-relaxed text-white/45">
         Representação ilustrativa do comportamento registrado por dois analisadores de energia

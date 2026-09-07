@@ -40,7 +40,7 @@ export function HomeHoraParada() {
             {/* Glow ambiente — mesma luz de palco do gráfico do DPS. */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-8 -z-10 bg-[radial-gradient(60%_60%_at_55%_45%,rgba(0,140,200,0.22)_0%,transparent_70%)] blur-2xl"
+              className="pointer-events-none absolute inset-0 -z-10 lg:-inset-8 bg-[radial-gradient(60%_60%_at_55%_45%,rgba(0,140,200,0.22)_0%,transparent_70%)] blur-2xl"
             />
             <div className="relative rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5 text-[rgb(var(--text))] shadow-premium-light md:p-8">
               <HoraParadaChart />

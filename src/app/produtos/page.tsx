@@ -156,6 +156,9 @@ export default function ProdutosPage() {
           </p>
         </Reveal>
 
+        <p className="mb-2 text-xs text-[rgb(var(--text-muted))] md:hidden" aria-hidden="true">
+          Arraste a tabela para o lado pra ver todas as colunas →
+        </p>
         <Reveal className="overflow-x-auto rounded-card border border-[rgb(var(--border))]">
           <table className="w-full min-w-[640px] text-sm">
             <thead>

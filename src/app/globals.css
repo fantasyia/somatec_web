@@ -82,6 +82,16 @@
 }
 
 @layer components {
+  /* Gráficos SVG (viewBox 640–760 de largura): em tela estreita o desenho
+     encolhe pra ~340px e o texto de 12–17 unidades vira 5–7px. Abaixo de md,
+     todo <text> do gráfico usa um tamanho único, definido por gráfico na
+     var --chart-fs-m (unidades do viewBox), calibrado pra ~11px na tela. */
+  @media (max-width: 767.98px) {
+    .chart-svg text {
+      font-size: var(--chart-fs-m, 22px);
+    }
+  }
+
   .container-msm {
     @apply container mx-auto px-6 lg:px-8;
   }

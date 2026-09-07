@@ -1,4 +1,5 @@
 'use client';
+import type { CSSProperties } from 'react';
 
 import { useInView } from '@/hooks/useInView';
 
@@ -50,7 +51,8 @@ export function FrequencySpectrum({ className }: { className?: string }) {
         viewBox="0 0 760 380"
         role="img"
         aria-label="Gráfico em escala logarítmica de frequência: o DPS comum protege até 10 kHz e despenca; o Master Block segue atuando por toda a década seguinte, até 100 kHz"
-        className="w-full"
+        className="chart-svg w-full"
+        style={{ ["--chart-fs-m" as string]: "24px" } as CSSProperties}
       >
         {/* Grid horizontal */}
         {[60, 130, 200, 270].map((y) => (
@@ -142,7 +144,7 @@ export function FrequencySpectrum({ className }: { className?: string }) {
           strokeWidth={3.5}
           strokeLinecap="round"
           className={`draw-path ${inView ? 'is-drawn' : ''}`}
-          style={{ '--path-length': '560px' } as React.CSSProperties}
+          style={{ '--path-length': '560px' } as CSSProperties}
         />
         {/* Rótulo ancorado na própria curva (ponto + haste), abaixo dela */}
         <g opacity={inView ? 1 : 0} style={{ transition: 'opacity 0.6s ease 0.9s' }}>
@@ -169,7 +171,7 @@ export function FrequencySpectrum({ className }: { className?: string }) {
           strokeWidth={4.5}
           strokeLinecap="round"
           className={`draw-path ${inView ? 'is-drawn' : ''}`}
-          style={{ '--path-length': '660px', transitionDelay: '0.5s' } as React.CSSProperties}
+          style={{ '--path-length': '660px', transitionDelay: '0.5s' } as CSSProperties}
         />
         <g opacity={inView ? 1 : 0} style={{ transition: 'opacity 0.6s ease 1.8s' }}>
           <circle cx={X1} cy={96} r={9} fill="#F39200" />
