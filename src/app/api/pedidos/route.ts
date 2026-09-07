@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { CONTACT } from '@/lib/constants/site';
 import { z } from 'zod';
 import { criarPedido } from '@/lib/pedidos/servidor';
 import { limitFormSubmit } from '@/lib/ratelimit/upstash';
@@ -149,6 +150,11 @@ export async function POST(req: NextRequest) {
     assunto: assuntoPedido(r.numero),
     html: htmlPedido({ ...dados, numero: r.numero, cidade: endereco?.cidade, uf: endereco?.uf }),
     texto: textoPedido({ ...dados, numero: r.numero }),
+    // Remetente é pedidos@ (EMAIL_REMETENTE, transacional). Quem responde o
+    // e-mail tem que cair no canal que alguém lê: comercial@ (Léo, 07/09 —
+    // "é o e-mail que vai direto pro Leandro"). Sem isto, o "Responder" do
+    // cliente ia pra caixa pedidos@.
+    responderPara: CONTACT.email,
     marcador: `pedido:${r.numero}`,
   });
 
