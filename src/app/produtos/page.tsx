@@ -11,7 +11,7 @@ import { CascadeDiagram } from '@/components/graphics/CascadeDiagram';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { Reveal } from '@/components/ui/Reveal';
-import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
+import { DEFAULT_OG_IMAGES, EMPRESA } from '@/lib/constants/site';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { masterBlockProductSchema } from '@/lib/seo/structured-data';
 import { MASTER_BLOCK_MODELS, MB_TENSAO } from '@/lib/constants/masterblock';
@@ -201,7 +201,7 @@ export default function ProdutosPage() {
         </Reveal>
 
         <p className="mt-4 text-xs text-[rgb(var(--text-muted))]">
-          Fabricante: Somatecblocking UF Eletroeletrônicos LTDA · CNPJ 16.774.052/0001-55.
+          Fabricante: {EMPRESA.linha}.
           Corrente de carga e ICC conforme a tabela oficial Master Block 2026; dimensões e peso
           conforme a folha de dados. Especificações sujeitas a revisão técnica.
         </p>

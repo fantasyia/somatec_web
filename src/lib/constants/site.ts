@@ -51,6 +51,20 @@ export const CONTACT = {
   },
 } as const;
 
+// IDENTIFICAÇÃO LEGAL DO FORNECEDOR. O site VENDE DIRETO (CheckoutNI), e o
+// Decreto 7.962/2013 (e-commerce no CDC) exige razão social, CNPJ, endereço
+// físico e e-mail em local de destaque, visíveis antes de fechar a compra.
+// Até 07/09 a razão social e o CNPJ estavam escritos à mão em 3 lugares e o
+// endereço só aparecia em /contato e no JSON-LD — o rodapé e o checkout não
+// tinham nenhum dos quatro (achado da Master Criador de Fluxo, 07/09).
+// Consumido pelo rodapé (toda página) e pelo passo de pagamento do checkout.
+export const EMPRESA = {
+  razaoSocial: 'Somatecblocking UF Eletroeletrônicos LTDA',
+  cnpj: '16.774.052/0001-55',
+  /** Razão social · CNPJ, como vai no rodapé e no checkout. */
+  linha: 'Somatecblocking UF Eletroeletrônicos LTDA · CNPJ 16.774.052/0001-55',
+} as const;
+
 /** Link do WhatsApp comercial. `texto` vira a mensagem já digitada pro cliente. */
 export function whatsappHref(texto?: string): string {
   const qs = texto ? `?text=${encodeURIComponent(texto)}` : '';

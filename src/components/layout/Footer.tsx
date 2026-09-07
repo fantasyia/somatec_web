@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram, Linkedin, Youtube } from 'lucide-react';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
-import { SITE, SOCIALS as ENV_SOCIALS } from '@/lib/constants/site';
+import { SITE, CONTACT, EMPRESA, SOCIALS as ENV_SOCIALS } from '@/lib/constants/site';
 import { type Socials, type Certification } from '@/lib/data/site-settings';
 import { PROOFS } from '@/components/ui/ProofBadges';
 import { FooterColumns } from '@/components/layout/FooterColumns';
@@ -99,8 +99,21 @@ export function Footer({ columns = FOOTER_COLUMNS, socials, slugsNi = [] }: Prop
         {/* Divider */}
         <div className="mt-12 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
+        {/* Identificação legal do fornecedor — Decreto 7.962/2013 (o site vende
+            direto): razão social, CNPJ, endereço físico e e-mail em TODA página.
+            Texto de EMPRESA/CONTACT (fonte única), nunca escrito aqui. */}
+        <address className="mt-8 space-y-1 text-xs not-italic leading-relaxed text-white/50">
+          <div>{EMPRESA.linha}</div>
+          <div>{CONTACT.address}</div>
+          <div>
+            <a href={`mailto:${CONTACT.email}`} className="hover:text-gold transition-colors">
+              {CONTACT.email}
+            </a>
+          </div>
+        </address>
+
         {/* Copyright */}
-        <div className="mt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-white/50">
+        <div className="mt-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-white/50">
           <div>© {year} {SITE.fullName}. Todos os direitos reservados.</div>
           <div className="flex items-center gap-6">
             <Link href="/politica-de-privacidade" className="hover:text-gold transition-colors">

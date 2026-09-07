@@ -1,4 +1,4 @@
-import { SITE, CONTACT, SOCIALS } from '@/lib/constants/site';
+import { SITE, CONTACT, SOCIALS, EMPRESA } from '@/lib/constants/site';
 
 /**
  * Helpers para gerar Schema.org JSON-LD structured data.
@@ -18,7 +18,7 @@ export function organizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: SITE.fullName,
-    legalName: 'Somatecblocking UF Eletroeletrônicos LTDA',
+    legalName: EMPRESA.razaoSocial,
     url: SITE.url,
     logo: absoluteUrl('/logo-somatec.png'),
     image: absoluteUrl(SITE.ogImage),

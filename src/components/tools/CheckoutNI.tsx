@@ -34,6 +34,7 @@ import {
   type Endereco, type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
 import { documentoValido, mascararDocumento, apenasDigitos } from '@/lib/constants/documento';
+import { CONTACT, EMPRESA } from '@/lib/constants/site';
 import { GARANTIA } from '@/lib/constants/oferta-industrial';
 
 // A corrente dimensiona o Master Block — texto ali não significa nada. O campo
@@ -225,6 +226,11 @@ function ConfiancaCheckout({ href, externo }: { href: string; externo: boolean }
           </li>
         ))}
       </ul>
+      {/* Quem está vendendo — Decreto 7.962/2013 exige razão social, CNPJ,
+          endereço e e-mail visíveis antes de fechar a compra. Fonte única. */}
+      <address className="mt-4 text-[11px] not-italic leading-relaxed text-[rgb(var(--text-muted))]">
+        Vendido e entregue por {EMPRESA.linha} — {CONTACT.address} — {CONTACT.email}
+      </address>
       <p className="mt-4 flex items-center gap-2 text-xs text-[rgb(var(--text-muted))]">
         <MessageCircle className="h-4 w-4 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
         Ficou alguma dúvida antes de fechar?{' '}

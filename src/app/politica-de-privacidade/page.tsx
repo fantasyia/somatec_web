@@ -1,4 +1,5 @@
-﻿import type { Metadata } from 'next';
+import { EMPRESA } from '@/lib/constants/site';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageHero } from '@/components/layout/PageHero';
 
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     title: 'Quem somos',
-    body: 'A Somatec Blocking (Somatecblocking UF Eletroeletrônicos LTDA, CNPJ 16.774.052/0001-55) é uma empresa nacional do setor eletroeletrônico, especializada em eficiência energética e proteção elétrica para a indústria. Este site tem caráter exclusivamente institucional e comercial.',
+    body: `A Somatec Blocking (${EMPRESA.razaoSocial}, CNPJ ${EMPRESA.cnpj}) é uma empresa nacional do setor eletroeletrônico, especializada em eficiência energética e proteção elétrica para a indústria. Este site tem caráter exclusivamente institucional e comercial.`,
   },
   {
     title: 'Dados coletados',
