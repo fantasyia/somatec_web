@@ -661,7 +661,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     <WizardShell
       passo={passo}
       totalPassos={totalPassos}
-      nota="2 minutos · frete grátis"
+      nota="2 minutos pra concluir · frete grátis"
       rotuloSucesso="Pronto"
       status={status}
       mensagem={message}

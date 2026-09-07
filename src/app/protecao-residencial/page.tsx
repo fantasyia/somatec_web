@@ -119,7 +119,7 @@ export default async function ProtecaoResidencialPage() {
               <LpCta label="Montar minha proteção" event="hero_cta" setor="residencial" landing={SLUG} />
             </div>
             <p className="text-sm text-white/70">
-              2 minutos · frete grátis e despacho em até 1 dia útil
+              2 minutos pra concluir · frete grátis e despacho em até 1 dia útil
             </p>
           </div>
         </div>
