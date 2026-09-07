@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import path from 'node:path';
+import { INDUSTRIAS } from '@/lib/constants/industrias';
 
 // =============================================================================
 // SOFT 404 EM ROTA DINÂMICA — regressão de SEO.
@@ -8,6 +9,15 @@ import path from 'node:path';
 // `/blog/[slug]` e `/solucoes/[slug]` renderizavam a página "não encontrada"
 // mas respondiam **200**. O Google trata isso como página de baixa qualidade e
 // segura URL morta no índice.
+//
+// ⛔ 04/09 (d91d477): a `/solucoes` INTEIRA saiu do site e virou redirect 308
+// pra /produtos no next.config.js. Este arquivo continuou pedindo 404 nela e,
+// como `fetch` segue redirect, recebia o 200 do /produtos — o CI quebrou em
+// TODO push de 04/09 a 07/09 (e-mail "All jobs have failed" a cada commit),
+// sem ninguém olhar porque o vitest local (que não roda e2e) ficava verde.
+// A rota dinâmica que sobrou é `/industrias/[setor]` (dynamicParams = false):
+// é ela que carrega o teste agora, e a /solucoes é testada pelo que ela É —
+// um redirect.
 //
 // Não dá pra pegar isso em teste unitário: o status se perde na GRAVAÇÃO do
 // render sob demanda no cache ISR, que só existe com `next build` +
@@ -135,12 +145,20 @@ describe('404 duro em rota dinâmica', () => {
     expect(segunda.status).toBe(404);
   });
 
-  it('/solucoes/<slug inexistente> responde 404 — inclusive na segunda vez', async () => {
-    const primeira = await fetch(`${BASE}/solucoes/${INEXISTENTE}`);
+  it('/industrias/<setor inexistente> responde 404 — inclusive na segunda vez', async () => {
+    const primeira = await fetch(`${BASE}/industrias/${INEXISTENTE}`);
     expect(primeira.status).toBe(404);
 
-    const segunda = await fetch(`${BASE}/solucoes/${INEXISTENTE}`);
+    const segunda = await fetch(`${BASE}/industrias/${INEXISTENTE}`);
     expect(segunda.status).toBe(404);
+  });
+
+  it('/solucoes/<qualquer coisa> é redirect permanente pra /produtos (a rota saiu em 04/09)', async () => {
+    for (const caminho of ['/solucoes', `/solucoes/${INEXISTENTE}`]) {
+      const r = await fetch(`${BASE}${caminho}`, { redirect: 'manual' });
+      expect(r.status, caminho).toBe(308);
+      expect(new URL(r.headers.get('location') ?? '', BASE).pathname, caminho).toBe('/produtos');
+    }
   });
 
   it('rota estática inexistente continua 404', async () => {
@@ -151,8 +169,9 @@ describe('404 duro em rota dinâmica', () => {
 
 // O contraveneno: o consertado não pode ter virado "404 em tudo".
 describe('slug que existe continua 200', () => {
-  it('/solucoes/protecao-contra-surtos responde 200', async () => {
-    const r = await fetch(`${BASE}/solucoes/protecao-contra-surtos`);
+  it('o primeiro setor de INDUSTRIAS responde 200 em /industrias', async () => {
+    // Slug vem da constante, não cravado: se a lista mudar, o teste acompanha.
+    const r = await fetch(`${BASE}/industrias/${INDUSTRIAS[0].slug}`);
     expect(r.status).toBe(200);
   });
 
