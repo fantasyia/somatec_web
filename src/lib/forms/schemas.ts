@@ -70,10 +70,20 @@ const atribuicaoSchema = z.object({
 });
 
 // Campos comuns a todos os formulários
+// ⚠️ E-mail e WhatsApp aceitam VAZIO aqui, e a obrigatoriedade volta no
+// `superRefine` do formSubmitSchema. Não é afrouxamento: é o único jeito de
+// abrir exceção pro lead de ABANDONO sem enfraquecer os outros formulários.
+//
+// Decisão do Léo (07/09): o abandono captura todo mundo, "contanto que haja o
+// e-mail OU o whatsapp, senão não tem lógica". Antes o abandono só disparava
+// com os TRÊS preenchidos — quem digitava o e-mail e ia embora sem o telefone
+// evaporava, que é justamente o perfil que a régua de nutrição quer pegar.
+//
+// Pra todo o resto, os dois seguem obrigatórios como sempre foram.
 const baseFields = {
   name: trimmed(2, 120, 'Nome'),
-  email: emailSchema,
-  whatsapp: whatsappSchema,
+  email: z.union([z.literal(''), emailSchema]),
+  whatsapp: z.union([z.literal(''), whatsappSchema]),
   message: z.string().trim().max(2000, 'Mensagem muito longa').optional().default(''),
   lgpd_consent: lgpdSchema,
   source_page: z.string().max(200).optional().default('/contato'),
@@ -187,7 +197,38 @@ export const formSubmitSchema = z.discriminatedUnion('form_type', [
   z.object({ form_type: z.literal('terceirizacao') }).merge(terceirizacaoSchema),
   z.object({ form_type: z.literal('envase') }).merge(envaseSchema),
   z.object({ form_type: z.literal('contato_geral') }).merge(contatoGeralSchema),
-]);
+]).superRefine((d, ctx) => {
+  // Contrapeso do vazio permitido em baseFields. A regra é uma só e mora aqui,
+  // pra não ficar espalhada por seis schemas que podem divergir com o tempo.
+  const abandono = 'formulario' in d && d.formulario === 'checkout-ni-abandono';
+  const temEmail = Boolean(d.email);
+  const temWhats = Boolean(d.whatsapp);
+
+  if (abandono) {
+    // Lead de abandono: basta UM canal — sem canal nenhum o lead é inútil,
+    // ninguém consegue falar com a pessoa.
+    if (!temEmail && !temWhats) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['email'],
+        message: 'Lead de abandono precisa de e-mail ou WhatsApp',
+      });
+    }
+    return;
+  }
+
+  // Todos os outros formulários: os dois continuam obrigatórios.
+  if (!temEmail) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['email'], message: 'E-mail é obrigatório' });
+  }
+  if (!temWhats) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['whatsapp'],
+      message: 'WhatsApp é obrigatório',
+    });
+  }
+});
 
 export type FormSubmitInput = z.input<typeof formSubmitSchema>;
 export type FormSubmitData = z.output<typeof formSubmitSchema>;

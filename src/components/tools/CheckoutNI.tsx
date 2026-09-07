@@ -396,7 +396,12 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     const nome = contato.nome.trim();
     const email = contato.email.trim();
     const whatsapp = contato.whatsapp.trim();
-    if (!nome || !email || !whatsapp) return;
+    // Decisão do Léo (07/09): captura todo mundo, desde que dê pra FALAR com a
+    // pessoa — e-mail OU whatsapp. Antes exigia os três, e quem digitava o
+    // e-mail e ia embora antes do telefone evaporava: exatamente o perfil que a
+    // régua de nutrição existe pra pegar. O nome continua obrigatório porque é
+    // o primeiro campo do passo e lead sem nome nenhum suja o CRM.
+    if (!nome || (!email && !whatsapp)) return;
 
     const chave = `${email.toLowerCase()}|${whatsapp.replace(/\D/g, '')}`;
     if (abandonoEnviadoRef.current === chave) return;
