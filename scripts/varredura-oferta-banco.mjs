@@ -62,7 +62,7 @@ let problemas = 0;
 // ── posts ───────────────────────────────────────────────────────────────────
 const { data: posts, error: ePosts } = await db
   .from('posts')
-  .select('slug, status, title, excerpt, content_html');
+  .select('slug, status, title, excerpt, content_html, deleted_at, published');
 
 if (ePosts) {
   console.error('❌ Não consegui ler `posts`:', ePosts.message);
@@ -105,8 +105,21 @@ for (const p of posts) {
     })),
   ];
   if (!achados.length) continue;
-  problemas += achados.length;
-  console.log(`🔴 ${p.slug}  [${p.status}]`);
+
+  // Post excluído logicamente não alcança o site: `lerAcervo` filtra
+  // `.is('deleted_at', null)`. Contar como problema faz a varredura nunca
+  // ficar verde e ensina a ignorá-la — que é como guarda morre.
+  // Continua listado, porque o texto ruim segue no banco e volta se alguém
+  // reabrir o post.
+  const excluido = p.deleted_at != null;
+  if (!excluido) problemas += achados.length;
+
+  const situacao = excluido
+    ? 'EXCLUÍDO — fora do site, mas o texto continua no banco'
+    : p.published
+      ? '🔥 PUBLICADO — está no ar AGORA'
+      : `${p.status} — invisível hoje, vira problema ao publicar`;
+  console.log(`${excluido ? '⚪' : '🔴'} ${p.slug}  [${situacao}]`);
   for (const a of achados) {
     console.log(`     ${a.campo} · "${a.termo}" — ⛔ ${a.morreu}, ${a.porque}`);
     console.log(`     …${a.trecho}…\n`);
