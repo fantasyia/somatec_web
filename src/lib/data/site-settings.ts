@@ -37,14 +37,6 @@ export type SeoSettings = {
   robots_follow: boolean | null;
 };
 
-export type CompanyInfo = {
-  legal_name: string | null;
-  cnpj: string | null;
-  address: string | null;
-  email: string | null;
-  whatsapp: string | null;
-};
-
 export type Certification = {
   label: string;
   src: string;
@@ -98,7 +90,12 @@ const SEO_KEYS = [
   'seo_robots_index',
   'seo_robots_follow',
 ] as const;
-const COMPANY_KEYS = ['company_info'] as const;
+// COMPANY_KEYS/getCompanyInfo saíram em 07/09/2026. Eram código morto — nada
+// no site nem no CMS importava — e o docstring mentia dizendo que o Footer e o
+// structured data usavam. Pior: contrariavam a regra do CONTACT em
+// lib/constants/site.ts, que proíbe e-mail/telefone/endereço virem do banco
+// justamente porque produção já serviu valores velhos por causa disso. A linha
+// company_info no site_settings foi apagada junto (guardava "MSM Alimentos").
 
 /** Sociais — usado pelo Footer. Fallback pra env vars (constantes). */
 export const getSocials = unstable_cache(
@@ -133,23 +130,6 @@ export const getSeoSettings = unstable_cache(
     };
   },
   ['site-settings:seo'],
-  { revalidate: 3600, tags: ['site_settings'] },
-);
-
-/** Empresa — usado em address/email/phone do Footer e structured data. */
-export const getCompanyInfo = unstable_cache(
-  async (): Promise<CompanyInfo> => {
-    const map = await loadKeys(COMPANY_KEYS);
-    const raw = (map['company_info'] as Partial<CompanyInfo> | null) ?? null;
-    return {
-      legal_name: raw?.legal_name ?? null,
-      cnpj: raw?.cnpj ?? null,
-      address: raw?.address ?? null,
-      email: raw?.email ?? null,
-      whatsapp: raw?.whatsapp ?? null,
-    };
-  },
-  ['site-settings:company'],
   { revalidate: 3600, tags: ['site_settings'] },
 );
 
