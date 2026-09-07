@@ -5,6 +5,57 @@
 
 ---
 
+## ✅ EXECUTADO EM 07/09/2026 — leia antes de seguir o resto
+
+O domínio **está no ar**. As seções 1 e 2 abaixo foram feitas; as 3, 4, 5 e 6 continuam abertas para as sessões donas.
+
+| | estado |
+|---|---|
+| `https://www.somatecblocking.com.br` | 200, certificado Let's Encrypt até 06/12/2026 |
+| `https://somatecblocking.com.br` (apex) | 200, certificado próprio |
+| HTTP → HTTPS | 301 nos dois |
+| canonical | aponta pro `www` nos dois — sem conteúdo duplicado |
+| `NEXT_PUBLIC_SITE_URL` | `https://www.somatecblocking.com.br` |
+| fallbacks de código | atualizados (commit `10a93dd`) |
+| e-mail | **intacto** — MX, SPF, os 2 DKIM e os CNAME `send`/`rsend` conferidos um a um depois da mudança |
+| NOINDEX | **continua ligado**, como decidido |
+| 26 URLs do sitemap | todas 200; nenhum link interno quebrado |
+
+### ⚠️ Correção: o apex NÃO virou 301, virou ALIAS
+
+A seção 1.5 deste doc manda conferir *"301 pro www"* no apex. **Não foi isso que aconteceu**, e a razão importa:
+
+1. O Railway só aceita apex por `CNAME @`, e CNAME no apex engole o MX — mataria o Google Workspace.
+2. O redirecionador da Hostinger **recusou**: *"Não é possível redirecionar seu domínio para ele mesmo"* — ele trata `www.<domínio>` como o mesmo domínio.
+
+A saída foi **ALIAS na raiz**, que a Hostinger suporta: no hPanel escolhe-se tipo `CNAME` com nome `@` e o painel converte pra *CNAME ALIAS*. O ALIAS resolve o hostname e responde como **A**, sem expor CNAME — por isso convive com o MX.
+
+**Consequência prática:** os dois hostnames **servem** o site, em vez de um redirecionar pro outro. O que impede conteúdo duplicado é o `canonical`, que aponta pro `www` nos dois. Se um dia isso incomodar em SEO, a solução é mover o DNS pra um provedor com redirect próprio (ou Cloudflare) — não é urgente.
+
+**Como conferir o ALIAS** (o painel não rotula de forma óbvia, e resolver público cacheia resposta vazia por ~10 min):
+
+```bash
+nslookup -type=A     somatecblocking.com.br cosmos.dns-parking.com   # devolve A
+nslookup -type=CNAME somatecblocking.com.br cosmos.dns-parking.com   # NÃO devolve CNAME
+nslookup -type=MX    somatecblocking.com.br cosmos.dns-parking.com   # MX intacto
+```
+
+Essas três respostas juntas são a assinatura de um ALIAS funcionando.
+
+### ⚠️ A API da Hostinger não serve pra este domínio
+
+Os MCPs de DNS e domínios conectam e **leem**, mas toda escrita é recusada com `[DNS:4002] Customer does not own` / `[Domains:2006] Domain is not registered at Hostinger`. O domínio é registrado fora e só tem a zona estacionada lá. **DNS deste domínio é sempre à mão, no hPanel.**
+
+### 🔴 Achado fora do previsto: Turnstile estava com chave de TESTE
+
+A seção 2.3 supunha que era só acrescentar o domínio na allowlist. Na verdade o site rodava com o par `1x0000…` da Cloudflare, que **aprova qualquer token** — o formulário estava sem proteção nenhuma contra bot, desde antes da migração. Resolvido em 07/09 com chaves reais; token falso agora é recusado.
+
+### O que a migração NÃO tocou
+
+Nada de `SITE_NOINDEX`, nada de e-mail, e nada nas seções 3 a 6. Em especial, o **host do Railway continua hardcoded nos prompts do bot** (seção 3.1) — o que quer dizer que o bot ainda manda o cliente pro endereço antigo.
+
+---
+
 ## 🔒 O QUE **NÃO** MUDA NESTA RODADA
 
 **O site continua NOINDEX.** Decisão do Léo: o domínio entra no ar de forma gradual, com ajustes de layout ainda pendentes.
