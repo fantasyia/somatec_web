@@ -42,7 +42,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-function safeUrl(url: string, fallback = 'https://somatecblocking.com.br') {
+function safeUrl(url: string, fallback = 'https://www.somatecblocking.com.br') {
   try { return new URL(url); } catch { return new URL(fallback); }
 }
 

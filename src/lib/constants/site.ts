@@ -10,7 +10,7 @@ export const SITE = {
   // empresa não é pra ele, logo depois de a página inteira dizer que é.
   tagline:
     'Proteção elétrica e qualidade de energia — para indústria, comércio e residências.',
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://somatecblocking.com.br',
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.somatecblocking.com.br',
   locale: 'pt-BR',
   ogImage: '/og-default.jpg',
 } as const;
