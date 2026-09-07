@@ -3,6 +3,7 @@ import { ChevronRight } from 'lucide-react';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { Reveal } from '@/components/ui/Reveal';
 import { lerPostsDoPublico } from '@/lib/blog/fonte';
+import { BlogDoPublicoPlaceholder } from '@/components/lp/BlogDoPublicoPlaceholder';
 import type { PublicoNI } from '@/lib/constants/publico-clusters';
 
 /**
@@ -17,6 +18,14 @@ import type { PublicoNI } from '@/lib/constants/publico-clusters';
  *
  * 🔒 Regra de ouro NI: nada de locação aqui — os cards levam pro /blog, que é
  * conteúdo, não pra trilha industrial.
+ *
+ * 📌 ANDAIME (Léo, 07/09): "deixa como placeholder a questão do blog nas LPs do
+ * NI, pq preciso validar o layout e precisa estar com o blog lá". Sem artigo
+ * publicado a seção sumia e não havia o que validar. Então, ENQUANTO o site
+ * estiver noindex (pré-lançamento), ela renderiza cards de exemplo no lugar do
+ * vazio. `SITE_NOINDEX` é a mesma chave do go-live: quando o site abrir, o
+ * andaime cai sozinho e a seção volta a sumir até existir artigo de verdade.
+ * Nenhum passo manual, nenhum "lembrar de tirar".
  */
 
 type Props = {
@@ -27,7 +36,11 @@ type Props = {
 
 export async function BlogDoPublico({ publico, titulo, subtitulo }: Props) {
   const posts = await lerPostsDoPublico(publico);
-  if (posts.length === 0) return null;
+  // Pré-lançamento e sem artigo: mostra o andaime pro Léo validar o layout.
+  // No ar e sem artigo: a seção não existe — nunca cartão falso pro público.
+  const preLancamento = process.env.SITE_NOINDEX === 'true';
+  const andaime = posts.length === 0 && preLancamento;
+  if (posts.length === 0 && !andaime) return null;
 
   return (
     /* tone-base: o FAQ acima (R7/C7) é tone-surface e o CTA abaixo é navy —
@@ -40,15 +53,19 @@ export async function BlogDoPublico({ publico, titulo, subtitulo }: Props) {
         </Reveal>
 
         <Reveal delay={80} className="mt-8">
-          <div
-            className={`grid grid-cols-1 gap-6 ${
-              posts.length === 1 ? 'md:max-w-lg' : posts.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'
-            }`}
-          >
-            {posts.map((post) => (
-              <BlogCard key={post.slug} post={post} />
-            ))}
-          </div>
+          {andaime ? (
+            <BlogDoPublicoPlaceholder publico={publico} />
+          ) : (
+            <div
+              className={`grid grid-cols-1 gap-6 ${
+                posts.length === 1 ? 'md:max-w-lg' : posts.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'
+              }`}
+            >
+              {posts.map((post) => (
+                <BlogCard key={post.slug} post={post} />
+              ))}
+            </div>
+          )}
         </Reveal>
 
         <Reveal delay={140} className="mt-8">
