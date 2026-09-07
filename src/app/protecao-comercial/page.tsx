@@ -131,7 +131,7 @@ export default async function ProtecaoComercialPage() {
             <div className="pt-2">
               <LpCta label="Proteger meu negócio" event="hero_cta" setor="comercial" landing={SLUG} />
             </div>
-            <p className="text-sm text-white/70">orçamento em 2 minutos · sem vendedor no seu pé</p>
+            <p className="text-sm text-white/70">orçamento em 2 minutos · frete grátis e despacho em até 1 dia útil</p>
           </div>
         </div>
       </section>

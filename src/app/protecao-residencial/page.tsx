@@ -34,7 +34,7 @@ const SLUG = 'protecao-residencial';
 export const metadata: Metadata = {
   title: { absolute: 'Proteção contra surtos para casa de alto padrão | Master Block' },
   description:
-    'Automação, home theater, inversor solar e carro elétrico na mesma rede. Basta um pico de energia para levar tudo junto. Monte sua proteção em minutos, sem precisar de vendedor.',
+    'Automação, home theater, inversor solar e carro elétrico na mesma rede. Basta um pico de energia para levar tudo junto. Monte sua proteção em minutos, com frete grátis e despacho em até 1 dia útil.',
   alternates: { canonical: `/${SLUG}` },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
@@ -119,7 +119,7 @@ export default async function ProtecaoResidencialPage() {
               <LpCta label="Montar minha proteção" event="hero_cta" setor="residencial" landing={SLUG} />
             </div>
             <p className="text-sm text-white/70">
-              2 minutos · sem vendedor · você só fala com alguém se quiser
+              2 minutos · frete grátis e despacho em até 1 dia útil
             </p>
           </div>
         </div>

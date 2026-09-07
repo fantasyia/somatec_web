@@ -47,7 +47,7 @@ const OFERTA_NI: Record<string, Oferta> = {
   '/protecao-residencial': {
     Icon: Calculator,
     destaque: 'Monte a proteção da sua casa em 2 minutos',
-    complemento: 'sem vendedor.',
+    complemento: 'frete grátis e despacho em até 1 dia útil.',
     cta: 'Calcular agora',
     href: '#calculadora',
     fecharLabel: 'Fechar barra da calculadora',
@@ -55,7 +55,7 @@ const OFERTA_NI: Record<string, Oferta> = {
   '/protecao-comercial': {
     Icon: Calculator,
     destaque: 'Monte a proteção do seu negócio em 2 minutos',
-    complemento: 'sem vendedor.',
+    complemento: 'frete grátis e despacho em até 1 dia útil.',
     cta: 'Calcular agora',
     href: '#calculadora',
     fecharLabel: 'Fechar barra da calculadora',

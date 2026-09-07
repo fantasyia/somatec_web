@@ -17,7 +17,7 @@ type Props = {
   /** Passo atual (1-based) e total — alimentam a barra de progresso. */
   passo: number;
   totalPassos: number;
-  /** Texto curto à direita do cabeçalho (ex.: "2 minutos · sem vendedor"). */
+  /** Texto curto à direita do cabeçalho (ex.: "2 minutos · frete grátis"). */
   nota: string;
   /** Rótulo do cabeçalho quando o lead já foi enviado. */
   rotuloSucesso: string;

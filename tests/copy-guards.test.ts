@@ -653,7 +653,9 @@ describe('CTA de diagnóstico não volta como convite', () => {
 });
 
 // =============================================================================
-// GUARDA — "sem vendedor no seu pé" sai de DEPOIS do orçamento, fica ANTES.
+// GUARDA — "sem vendedor": onde a frase SAIU e onde ela FICA.
+//
+// Duas decisões do Léo, em datas diferentes, e a segunda revisa a primeira.
 //
 // Léo (05/09): "isso de vendedor no meio não deveria ser falado… com quem ele
 // tá falando já é tipo um vendedor". O corte é em dois, de propósito:
@@ -696,12 +698,48 @@ describe('"sem vendedor" — fora do passo 3, mantido antes do orçamento', () =
     expect(passo3()).toMatch(/te retorna com o valor, sem compromisso\./);
   });
 
-  it('ANTES do orçamento a frase FICA — StickyCta e a nota do wizard', () => {
-    // Se isto cair, alguém apagou "sem vendedor" do site inteiro: a objeção
-    // "vou cair num funil de ligação?" volta a ficar sem resposta.
-    expect(lerCopyCorrida('src/components/layout/StickyCta.tsx')).toMatch(/sem vendedor/i);
+  // ⚠️ REVISTO EM 07/09 (Léo). A regra de 05/09 dizia "fica em tudo que vem
+  // antes do orçamento, porque ali não há interlocutor". Isso não valia pras
+  // LPs: boa parte de quem chega nelas vem de um LINK DO BOT — acabou de falar
+  // com alguém que se comporta como vendedor, e a frase se desmente igual se
+  // desmentia no passo 3.
+  //
+  // O corte novo é por ORIGEM DO TRÁFEGO, não por etapa do funil:
+  //   • LPs de proteção (hero, meta, cabeçalho da calculadora, StickyCta) —
+  //     chegada quente, vinda do bot. SAI.
+  //   • Bifurcação da home e CTAs laterais do blog — chegada fria, ninguém
+  //     falou com a pessoa. FICA: a objeção "vou cair num funil de ligação?"
+  //     é real e continua sem outra resposta.
+  it('⛔ as LPs de proteção não dizem mais "sem vendedor"', () => {
+    for (const arquivo of [
+      'src/app/protecao-comercial/page.tsx',
+      'src/app/protecao-residencial/page.tsx',
+      'src/components/layout/StickyCta.tsx',
+    ]) {
+      expect(lerCopyCorrida(arquivo), `${arquivo} voltou a dizer "sem vendedor"`).not.toMatch(
+        /sem vendedor/i,
+      );
+    }
     const antesDoPasso3 = CHECKOUT.slice(0, CHECKOUT.indexOf('{passo === 3 && ('));
-    expect(antesDoPasso3).toMatch(/sem vendedor/i);
+    expect(antesDoPasso3).not.toMatch(/sem vendedor/i);
+  });
+
+  it('as LPs trocaram a negação pelo ganho concreto', () => {
+    for (const arquivo of [
+      'src/app/protecao-comercial/page.tsx',
+      'src/app/protecao-residencial/page.tsx',
+      'src/components/layout/StickyCta.tsx',
+    ]) {
+      expect(lerCopyCorrida(arquivo)).toMatch(/frete grátis/i);
+    }
+  });
+
+  it('na entrada FRIA a frase FICA — home e blog', () => {
+    // Se isto cair, alguém apagou "sem vendedor" do site inteiro. Quem chega
+    // pelo Google ou por anúncio não falou com ninguém: pra essa pessoa a
+    // objeção continua de pé e a frase é a única resposta.
+    expect(lerCopyCorrida('src/components/home/HomeBifurcacao.tsx')).toMatch(/vendedor/i);
+    expect(lerCopyCorrida('src/app/blog/[slug]/page.tsx')).toMatch(/vendedor/i);
   });
 });
 

@@ -656,7 +656,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     <WizardShell
       passo={passo}
       totalPassos={totalPassos}
-      nota="2 minutos · sem vendedor"
+      nota="2 minutos · frete grátis"
       rotuloSucesso="Pronto"
       status={status}
       mensagem={message}
@@ -933,7 +933,16 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                         concreto, frete grátis + despacho em até 1 dia útil, que é o
                         mesmo que o bot (C1 v48) diz ao entregar o link pra este passo.
                         "Sem vendedor" FICA nas superfícies de antes do orçamento, onde
-                        não há interlocutor e a frase responde a objeção real. */}
+                        não há interlocutor e a frase responde a objeção real.
+
+                        ⚠️ REVISTO EM 07/09 (Léo): a frase saiu TAMBÉM das duas LPs de
+                        proteção — hero, meta description, cabeçalho da calculadora e
+                        barra fixa. O motivo é o que a regra de 05/09 não previa: boa
+                        parte de quem chega nessas páginas vem de um LINK DO BOT, ou
+                        seja, acabou de falar com alguém que se comporta como vendedor.
+                        Ali a frase se desmente igual se desmentia aqui.
+                        Onde "sem vendedor" CONTINUA: bifurcação da home e os CTAs
+                        laterais do blog — entrada fria, sem interlocutor nenhum. */}
                     {temPreco
                       ? 'Deixe seus dados que a Somatec confirma o modelo e fecha a compra com você. Frete grátis para todo o Brasil e despacho em até 1 dia útil.'
                       : 'Nossa equipe dimensiona o Master Block certo pro seu quadro e te retorna com o valor, sem compromisso.'}
