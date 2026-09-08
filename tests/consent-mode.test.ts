@@ -72,6 +72,30 @@ describe('Consent Mode — a ordem no layout', () => {
   });
 });
 
+describe('Um caminho só de evento — nunca contagem em dobro', () => {
+  const analytics = ler('src/lib/analytics.ts');
+  const layout = ler(LAYOUT);
+
+  it('com GTM empurra só pro dataLayer; sem GTM chama o gtag', () => {
+    // Chamar os dois faria o GA4 receber o mesmo evento pelo gtag E pelo
+    // container — relatório em dobro, sem erro nenhum aparecendo.
+    expect(analytics).toMatch(/if \(window\.__somatecGTM\)[\s\S]{0,120}dataLayer\?\.push/);
+    expect(analytics).toMatch(/\} else \{[\s\S]{0,80}window\.gtag\?\.\('event'/);
+  });
+
+  it('a flag é escrita pelo próprio container, antes de ele carregar', () => {
+    expect(layout).toMatch(/window\.__somatecGTM=true;\(function\(w,d,s,l,i\)/);
+  });
+
+  it('a atribuição NÃO passa por consentimento', () => {
+    // stc_attrib é first-party funcional. Gatear quebraria a corrente
+    // site→Betinna em silêncio: lead entra sem origem, e não há backfill.
+    const attrib = ler('src/lib/attribution.ts');
+    expect(attrib).not.toContain('CONSENT_KEY');
+    expect(attrib).not.toMatch(/aplicarConsentimento|consent'\)/);
+  });
+});
+
 describe('Consent Mode — o clique', () => {
   const banner = ler(BANNER);
 
