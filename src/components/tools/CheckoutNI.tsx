@@ -325,6 +325,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [message, setMessage] = useState<string | null>(null);
   /** Número do pedido, quando o checkout virou pedido de verdade. */
   const [numeroDoPedido, setNumeroPedido] = useState<string | null>(null);
+  /** Página de pagamento do gateway. Só existe quando a cobrança foi criada. */
+  const [urlPagamento, setUrlPagamento] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState('');
   // Captcha PRÓPRIO do passo de contato: o token do passo 5 é de outra
   // submissão (uso único), e reaproveitar faria uma das duas ser recusada.
@@ -594,6 +596,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     // o pedido tem o seu, o lead tem o dele.
     const eventIdLead = novoEventId();
     let numeroPedido: string | null = null;
+    let pagamentoUrl: string | null = null;
     // Quando o /api/pedidos entrega o lead pelo servidor, este envio aqui não
     // acontece — senão o CRM receberia dois.
     let leadJaEntregue = false;
@@ -632,8 +635,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
           ok?: boolean;
           numero?: string | null;
           leadEnviado?: boolean;
+          pagamentoUrl?: string | null;
         };
         if (j?.ok && j.numero) numeroPedido = j.numero;
+        if (j?.pagamentoUrl) pagamentoUrl = j.pagamentoUrl;
         // O servidor já entregou o lead (ou o pôs na fila, que dá no mesmo).
         // Mandar de novo daqui só duplicaria no CRM.
         if (j?.leadEnviado) leadJaEntregue = true;
@@ -673,6 +678,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     if (r.ok) {
       setStatus('success');
       setNumeroPedido(numeroPedido);
+      setUrlPagamento(pagamentoUrl);
       setMessage(
         virouPedido
           ? `Pedido registrado! Você vai receber a confirmação por e-mail e nossa equipe finaliza o pedido com você (${
@@ -738,6 +744,18 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
               Guarde este número — é com ele que você acompanha a entrega. Ele também vai no
               e-mail de confirmação.
             </p>
+            {/* O pagamento acontece na página do gateway, não aqui — dado de
+                cartão não passa pelo nosso servidor. O número do pedido fica
+                NESTA tela de propósito: quem abandona o pagamento e volta
+                depois ainda tem como se achar. */}
+            {urlPagamento && (
+              <a
+                href={urlPagamento}
+                className="btn-primary mt-5 inline-flex w-full justify-center sm:w-auto"
+              >
+                Pagar agora
+              </a>
+            )}
             <a
               href={`/pedido/${numeroDoPedido}`}
               className="mt-4 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan transition-opacity hover:opacity-80"

@@ -15,6 +15,8 @@ import { assuntoPedido, htmlPedido, textoPedido } from '@/lib/email/pedido-confi
 import { buildMullerBotPayload } from '@/lib/mullerbot/payload';
 import { getLgpdConsentText } from '@/lib/lgpd';
 import { entregarLead } from '@/lib/leads/entregar';
+import { asaasConfigurado, criarCobranca } from '@/lib/pagamento/asaas';
+import { FORMA_NO_GATEWAY, type FormaPagamentoId } from '@/lib/constants/pagamento';
 import type { FormSubmitData } from '@/lib/forms/schemas';
 
 const log = createLogger('api-pedidos');
@@ -171,11 +173,29 @@ export async function POST(req: NextRequest) {
   // criado é sinal de humano bem mais forte que qualquer desafio.
   const leadEnviado = await entregarLeadDoPedido(dados, r.numero, ip);
 
+  // ── COBRANÇA ──────────────────────────────────────────────────────────
+  //
+  // Depois de tudo o que não pode falhar. O pedido JÁ existe e o número já
+  // está garantido: se o gateway estiver fora, o cliente recebe o pedido
+  // confirmado e a equipe cobra do jeito antigo — melhor que perder a venda
+  // inteira porque um provedor externo piscou.
+  //
+  // Criada no SERVIDOR de propósito: a chave do Asaas nunca chega ao navegador.
+  //
+  // ⚠️ O VALOR ainda é o que o checkout mandou (validado por schema, mas de
+  // origem do cliente) — é o mesmo número que já gravava o pedido antes do
+  // gateway existir. Fechar isso é recalcular o total a partir do catálogo no
+  // servidor, e é trabalho à parte: não inventei aqui pra não dar a impressão
+  // de que já está protegido.
+  const pagamentoUrl = await criarCobrancaDoPedido(dados, r.numero);
+
   trackRequest(ROUTE, 201);
   return NextResponse.json(
     // `leadEnviado` diz ao checkout que ele NÃO precisa mandar o lead de novo.
     // Sem isso, os dois mandariam e o CRM receberia em duplicidade.
-    { ok: true, numero: r.numero, leadEnviado },
+    // `pagamentoUrl` ausente = checkout mostra o caminho de sempre (equipe
+    // finaliza). Presente = o navegador redireciona pra página de pagamento.
+    { ok: true, numero: r.numero, leadEnviado, pagamentoUrl },
     { status: 201, headers: { ...apiVersionHeaders(), ...rateLimitHeaders(limite) } },
   );
 }
@@ -290,4 +310,59 @@ async function enviarAoBetinna(
   }
   await markAttempt(chave, outcome, 0);
   log.warn('pedido nao subiu agora — fila reentrega', { numero, outcome: outcome.result });
+}
+
+/**
+ * Cria a cobrança no gateway e devolve a página de pagamento.
+ *
+ * NUNCA lança: cobrança é o último passo, e o pedido já existe. Falha aqui vira
+ * log + pedido sem link — que é exatamente o comportamento de antes do gateway,
+ * e o cliente segue com o número dele.
+ */
+async function criarCobrancaDoPedido(
+  dados: {
+    nome: string;
+    email: string;
+    whatsapp?: string | null;
+    documento?: string | null;
+    formaPagamento?: string | null;
+    endereco?: unknown;
+    totalCentavos: number;
+    freteCentavos: number;
+  },
+  numero: string,
+): Promise<string | null> {
+  if (!asaasConfigurado()) return null;
+  const doc = (dados.documento ?? '').replace(/\D/g, '');
+  if (!doc) {
+    // O Asaas exige CPF/CNPJ pra criar cliente. O checkout já valida dígito,
+    // então cair aqui é sinal de chamada fora da tela — não de cliente ruim.
+    log.warn('pedido sem documento — cobranca nao criada', { numero });
+    return null;
+  }
+  try {
+    // Total + frete: é o que o cliente viu na tela e o que o pedido gravou.
+    const total = Math.round(dados.totalCentavos) + Math.round(dados.freteCentavos ?? 0);
+    if (total <= 0) {
+      log.warn('pedido sem valor faturavel — cobranca nao criada', { numero });
+      return null;
+    }
+    const escolhida = (dados.formaPagamento ?? '').toLowerCase().includes('cart') ? 'cartao' : 'pix';
+    const cobranca = await criarCobranca({
+      numeroPedido: numero,
+      valorCentavos: total,
+      forma: FORMA_NO_GATEWAY[escolhida as FormaPagamentoId],
+      cliente: {
+        nome: dados.nome,
+        email: dados.email,
+        cpfCnpj: doc,
+        telefone: dados.whatsapp ?? null,
+        cep: (dados.endereco as { cep?: string } | null)?.cep ?? null,
+      },
+    });
+    return cobranca.url;
+  } catch (err) {
+    log.error('cobranca nao criada', { numero }, err);
+    return null;
+  }
 }

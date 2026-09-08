@@ -39,9 +39,11 @@ describe('pagamento — travas de integração', () => {
 });
 
 describe('formas de pagamento', () => {
-  it('oferece pix, cartão e boleto, com id único', () => {
+  it('oferece pix e cartão, com id único', () => {
+    // Boleto saiu em 08/09 (decisão do Léo): o e-commerce cobra só PIX e
+    // cartão. A lista é a fonte — a tela e a tradução pro gateway leem dela.
     const ids = FORMAS_PAGAMENTO.map((f) => f.id);
-    expect(ids).toEqual(['pix', 'cartao', 'boleto']);
+    expect(ids).toEqual(['pix', 'cartao']);
     expect(new Set(ids).size).toBe(ids.length);
   });
 

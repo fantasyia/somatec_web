@@ -9,14 +9,19 @@
 // com endereço + forma de pagamento escolhida, e a equipe manda o link de
 // pagamento. O cliente não fica sem caminho.
 //
-// Pra ligar de verdade (card "🔌 Integrações & Dados" → checklist do e-commerce):
-//   1. gateway: implementar `criarPagamento()` e virar GATEWAY_ATIVO
-//   2. Melhor Envio: implementar `calcularFrete()` e virar FRETE_CALCULADO
-// Nenhum outro arquivo do site fala com esses provedores.
+// O gateway é o ASAAS, em checkout HOSPEDADO: o servidor cria a cobrança em
+// `/api/pedidos` e devolve a página de pagamento, pra onde o checkout redireciona
+// (`src/lib/pagamento/asaas.ts`). Dado de cartão não passa pelo nosso servidor.
+//
+// Falta ligar: Melhor Envio (`calcularFrete()` + FRETE_CALCULADO).
 // =============================================================================
 
-/** ⛔ Vira true quando o gateway estiver conectado. */
-export const GATEWAY_ATIVO = false;
+/**
+ * Gateway ligado? Vem de env pra o mesmo build servir sandbox e produção — e
+ * pra a tela nunca prometer pagamento online num ambiente onde a chave não está
+ * configurada (promessa que só humano cumpre é pior que a mensagem honesta).
+ */
+export const GATEWAY_ATIVO = process.env.NEXT_PUBLIC_GATEWAY_ATIVO === 'true';
 
 /** ⛔ Vira true quando o Melhor Envio estiver conectado (prazo real por CEP). */
 export const FRETE_CALCULADO = false;
@@ -24,7 +29,8 @@ export const FRETE_CALCULADO = false;
 /** Promoção vigente (confirmada pelo Léo em 2026-08-09). */
 export const FRETE_GRATIS = true;
 
-export type FormaPagamentoId = 'pix' | 'cartao' | 'boleto';
+/** Só PIX e cartão — decisão do Léo. Boleto ficou de fora do e-commerce. */
+export type FormaPagamentoId = 'pix' | 'cartao';
 
 export type FormaPagamento = {
   id: FormaPagamentoId;
@@ -35,8 +41,13 @@ export type FormaPagamento = {
 export const FORMAS_PAGAMENTO: readonly FormaPagamento[] = [
   { id: 'pix', label: 'PIX', detalhe: 'Aprovação na hora' },
   { id: 'cartao', label: 'Cartão de crédito', detalhe: 'Parcelamento conforme a bandeira' },
-  { id: 'boleto', label: 'Boleto bancário', detalhe: 'Compensa em até 3 dias úteis' },
 ];
+
+/** Tradução pro vocabulário do gateway. Fica aqui porque a lista acima manda. */
+export const FORMA_NO_GATEWAY: Record<FormaPagamentoId, 'PIX' | 'CREDIT_CARD'> = {
+  pix: 'PIX',
+  cartao: 'CREDIT_CARD',
+};
 
 export type Endereco = {
   cep: string;
