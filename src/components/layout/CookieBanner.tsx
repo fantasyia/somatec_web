@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Cookie } from 'lucide-react';
 
-const STORAGE_KEY = 'msm-cookie-consent';
+import { CONSENT_KEY, CONSENT_KEY_LEGADO, aplicarConsentimento } from '@/lib/consent';
 
 const DEFAULT_BODY =
   'Utilizamos cookies essenciais para o funcionamento do site e, com seu consentimento, cookies analíticos para melhorar sua experiência. Saiba mais em nossa';
@@ -25,15 +25,22 @@ function CookieBannerImpl({ text }: Props) {
 
   useEffect(() => {
     try {
+      // Aceita a chave antiga (resíduo MSM) pra não perguntar de novo a quem
+      // já respondeu; a partir daqui grava só na nova.
+      const jaRespondeu =
+        localStorage.getItem(CONSENT_KEY) ?? localStorage.getItem(CONSENT_KEY_LEGADO);
       // eslint-disable-next-line react-hooks/set-state-in-effect -- decisão de visibilidade depende de localStorage (só disponível no client após mount)
-      if (!localStorage.getItem(STORAGE_KEY)) setVisible(true);
+      if (!jaRespondeu) setVisible(true);
     } catch { /* localStorage indisponível (Safari private/etc.) */ }
   }, []);
 
   const dismiss = (value: 'accepted' | 'rejected') => {
     try {
-      localStorage.setItem(STORAGE_KEY, value);
+      localStorage.setItem(CONSENT_KEY, value);
     } catch {}
+    // Avisa as tags NA HORA — o `wait_for_update` do Consent Mode segura a tag
+    // meio segundo esperando isto, então quem aceita é medido sem recarregar.
+    aplicarConsentimento(value);
     setVisible(false);
     fetch('/api/lgpd/consent', {
       method: 'POST',

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { CONSENT_DEFAULT_SNIPPET } from '@/lib/consent';
 import { Source_Sans_3, Poppins } from 'next/font/google';
 import { unstable_cache } from 'next/cache';
 import './globals.css';
@@ -165,8 +166,23 @@ export default async function RootLayout({
     ]);
   const whatsAppUrl = buildWhatsAppUrl(whatsAppConfig);
   const gaId = seo.google_analytics_id;
+  // ⚖️ GTM manda (decisão do Léo, 08/09): existindo container, GA4 e Pixel
+  // entram POR DENTRO dele. O gtag direto vira fallback e é ignorado aqui —
+  // carregar os dois faria o GA contar cada pageview duas vezes.
+  const gtmId = seo.gtm_id;
   return (
     <html lang="pt-BR" className={`${inter.variable} ${fraunces.variable}`}>
+      <head>
+        {/* ⚖️ CONSENT MODE v2 — declara o consentimento ANTES de qualquer tag.
+            Sem isto, bastava existir um ID no banco pro GA subir pra todo
+            mundo, inclusive pra quem clicou "Apenas essenciais" (LGPD, e mudo:
+            nenhum erro aparecia). `beforeInteractive` garante a ordem — o
+            `default` tem que chegar antes do container, depois já disparou.
+            Texto único em `@/lib/consent`. */}
+        <Script id="consent-default" strategy="beforeInteractive">
+          {CONSENT_DEFAULT_SNIPPET}
+        </Script>
+      </head>
       <body className="font-sans antialiased min-h-screen flex flex-col">
         {/* Skip link for keyboard navigation */}
         <a
@@ -186,10 +202,11 @@ export default async function RootLayout({
         {whatsAppUrl && <WhatsAppButton href={whatsAppUrl} />}
         <StickyCta />
 
-        {/* Google Analytics — só carrega quando há GA ID em site_settings
-            (escrito direto no Supabase pela sessão do site; o painel saiu em
-            25/08). Usa strategy=afterInteractive (não bloqueia LCP). */}
-        {gaId && (
+        {/* Google Analytics — fallback pra quando NÃO existe container GTM.
+            Só carrega com GA ID em site_settings (escrito direto no Supabase;
+            o painel saiu em 25/08) e afterInteractive, pra não bloquear o LCP.
+            Respeita o Consent Mode declarado no <head>. */}
+        {!gtmId && gaId && (
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`}
@@ -202,6 +219,14 @@ gtag('js', new Date());
 gtag('config', ${JSON.stringify(gaId)}, { anonymize_ip: true });`}
             </Script>
           </>
+        )}
+        {/* Google Tag Manager — o container centraliza GA4, Pixel e o que vier.
+            Sobe DEPOIS do Consent Mode declarado no <head>: sem essa ordem, a
+            tag dispara antes de saber se pode. */}
+        {gtmId && (
+          <Script id="gtm" strategy="afterInteractive">
+            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(gtmId)});`}
+          </Script>
         )}
       </body>
     </html>

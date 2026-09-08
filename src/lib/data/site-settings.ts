@@ -33,6 +33,8 @@ export type SeoSettings = {
   og_image: string | null;
   twitter_handle: string | null;
   google_analytics_id: string | null;
+  /** ID do container GTM (GTM-XXXXXXX). Quando existe, é ELE quem carrega tudo. */
+  gtm_id: string | null;
   robots_index: boolean | null;
   robots_follow: boolean | null;
 };
@@ -87,6 +89,7 @@ const SEO_KEYS = [
   'seo_og_default_image',
   'seo_twitter_handle',
   'seo_google_analytics_id',
+  'seo_gtm_id',
   'seo_robots_index',
   'seo_robots_follow',
 ] as const;
@@ -125,6 +128,7 @@ export const getSeoSettings = unstable_cache(
       og_image: (map['seo_og_default_image'] as string | null) ?? null,
       twitter_handle: (map['seo_twitter_handle'] as string | null) ?? null,
       google_analytics_id: (map['seo_google_analytics_id'] as string | null) ?? null,
+      gtm_id: (map['seo_gtm_id'] as string | null) ?? null,
       robots_index: (map['seo_robots_index'] as boolean | null) ?? null,
       robots_follow: (map['seo_robots_follow'] as boolean | null) ?? null,
     };
