@@ -489,7 +489,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     beginCheckoutRef.current = true;
     rastrearInicioCheckout({
       value: totalPedido,
-      items: [{ item_id: modelo.model, quantity: 1, price: modelo.preco }],
+      items: [
+        { item_id: modelo.model, item_name: `Master Block ${modelo.model}`, quantity: 1, price: modelo.preco },
+      ],
     });
   }, [passo, modelo, totalPedido]);
   const contatoOk = Boolean(contato.nome.trim() && contato.whatsapp.trim() && contato.email.trim());
@@ -691,13 +693,20 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
         rastrearPedidoRegistrado({
           transactionId: numeroPedido,
           value: totalPedido,
-          items: [{ item_id: modelo.model, quantity: 1, price: modelo.preco }],
+          items: [
+            {
+              item_id: modelo.model,
+              item_name: `Master Block ${modelo.model}`,
+              quantity: 1,
+              price: modelo.preco,
+            },
+          ],
         });
       } else if (!virouPedido) {
         // Sem preço fechado o wizard entrega um LEAD — mesma conversão dos
         // formulários. Motor conhecido pelo caminho: o checkout só é montado
         // nas LPs não-industriais.
-        rastrearLead({ formId: 'seletor', motor: 'nao_industrial', eventId: eventIdLead });
+        rastrearLead({ formId: 'checkout_sem_preco', motor: 'nao_industrial', eventId: eventIdLead });
       }
     } else {
       setStatus('error');

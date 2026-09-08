@@ -24,7 +24,16 @@ const {
   rastrearPedidoRegistrado,
 } = await import('@/lib/analytics/eventos');
 
-beforeEach(() => trackEvent.mockClear());
+// `environment: 'node'` neste projeto — os eventos de e-commerce escrevem
+// direto no dataLayer, então o teste monta um `window` mínimo em vez de puxar
+// jsdom só pra isso.
+type JanelaFake = { dataLayer: Record<string, unknown>[]; __somatecGTM?: boolean; gtag?: unknown };
+const janela = () => globalThis.window as unknown as JanelaFake;
+
+beforeEach(() => {
+  trackEvent.mockClear();
+  (globalThis as { window?: unknown }).window = { dataLayer: [], __somatecGTM: true };
+});
 
 const ultimo = () => trackEvent.mock.calls.at(-1) as [string, Record<string, unknown>];
 
@@ -53,6 +62,7 @@ describe('parâmetros comuns — em todo evento', () => {
   it('cada evento tem id próprio — nunca um por sessão', () => {
     const a = rastrearLead({ formId: 'contato', motor: 'industrial' });
     const b = rastrearPedidoRegistrado({ transactionId: 'SB1', value: 10, items: [] });
+    expect(a).toBeTruthy();
     expect(a).not.toBe(b);
     expect(novoEventId()).not.toBe(novoEventId());
   });
@@ -72,10 +82,10 @@ describe('os quatro motores', () => {
   });
 
   it('checkout e pedido são sempre não-industriais', () => {
-    rastrearInicioCheckout({ value: 100, items: [] });
-    expect(ultimo()[1].motor).toBe('nao_industrial');
+        rastrearInicioCheckout({ value: 100, items: [] });
     rastrearPedidoRegistrado({ transactionId: 'SB2', value: 100, items: [] });
-    expect(ultimo()[1].motor).toBe('nao_industrial');
+    const dl = janela().dataLayer;
+    for (const p of dl.filter((x) => x.event)) expect(p.motor).toBe('nao_industrial');
   });
 });
 
@@ -84,13 +94,12 @@ describe('⛔ purchase não existe enquanto o gateway não cobra', () => {
     rastrearPedidoRegistrado({
       transactionId: 'SB2609ABC',
       value: 1234.5,
-      items: [{ item_id: 'MB-03', quantity: 1, price: 1200 }],
+      items: [{ item_id: 'MB-03', item_name: 'Master Block MB-03', quantity: 1, price: 1200 }],
     });
-    const [nome, params] = ultimo();
-    expect(nome).toBe('pedido_registrado');
-    expect(nome).not.toBe('purchase');
-    expect(params.transaction_id).toBe('SB2609ABC');
-    expect(params.currency).toBe('BRL');
+    const push = janela().dataLayer.at(-1)!;
+    expect(push.event).toBe('pedido_registrado');
+    expect(push.event).not.toBe('purchase');
+    expect(push.transaction_id).toBe('SB2609ABC');
   });
 
   it('nenhum arquivo de evento emite purchase hoje', () => {
@@ -106,16 +115,43 @@ describe('⛔ purchase não existe enquanto o gateway não cobra', () => {
   });
 });
 
-describe('begin_checkout', () => {
-  it('leva valor, moeda e itens', () => {
+describe('e-commerce vai no bloco `ecommerce`, com items em ARRAY', () => {
+  // A tag do GA4 lê `ecommerce` nativamente e espera array. String deixaria os
+  // relatórios de item vazios — e some a visão de QUAL modelo converte, que é
+  // o que decide em qual produto anunciar.
+  it('begin_checkout: currency, value e items dentro de ecommerce', () => {
     rastrearInicioCheckout({
       value: 999,
-      items: [{ item_id: 'MB-05', quantity: 1, price: 999 }],
+      items: [{ item_id: 'MB-05', item_name: 'Master Block MB-05', quantity: 1, price: 999 }],
     });
-    const [nome, params] = ultimo();
-    expect(nome).toBe('begin_checkout');
-    expect(params.value).toBe(999);
-    expect(params.currency).toBe('BRL');
-    expect(JSON.parse(String(params.items))[0].item_id).toBe('MB-05');
+    const push = janela().dataLayer.at(-1)!;
+    expect(push.event).toBe('begin_checkout');
+    const ec = push.ecommerce as { currency: string; value: number; items: unknown[] };
+    expect(ec.currency).toBe('BRL');
+    expect(ec.value).toBe(999);
+    expect(Array.isArray(ec.items), 'items TEM que ser array, nunca string').toBe(true);
+    expect((ec.items[0] as { item_id: string }).item_id).toBe('MB-05');
+    // parâmetros comuns ficam no nível de cima
+    expect(push.motor).toBe('nao_industrial');
+    expect(push.event_id).toBeTruthy();
+  });
+
+  it('limpa o ecommerce anterior antes de cada push', () => {
+    // Sem isso, os items de um evento vazam pro seguinte.
+    rastrearInicioCheckout({ value: 1, items: [] });
+    const dl = janela().dataLayer;
+    expect(dl.at(-2)).toEqual({ ecommerce: null });
+  });
+
+  it('pedido_registrado leva transaction_id e o mesmo formato', () => {
+    rastrearPedidoRegistrado({
+      transactionId: 'SB2609ABC',
+      value: 1200,
+      items: [{ item_id: 'MB-03', item_name: 'Master Block MB-03', quantity: 1, price: 1200 }],
+    });
+    const push = janela().dataLayer.at(-1)!;
+    expect(push.event).toBe('pedido_registrado');
+    expect(push.transaction_id).toBe('SB2609ABC');
+    expect(Array.isArray((push.ecommerce as { items: unknown[] }).items)).toBe(true);
   });
 });

@@ -9,6 +9,7 @@ import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
+import { novoEventId, rastrearLead } from '@/lib/analytics/eventos';
 import { PublicoSetorFields } from '@/components/forms/fields/PublicoSetorFields';
 import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
 
@@ -66,6 +67,9 @@ export function CostCalculator() {
       `Inputs: R$/h parada=${custoHora || '-'}, h/mês=${horasMes || '-'}, ` +
       `queimas/ano=${queimasAno || '-'}, custo médio equip.=${custoEquip || '-'}.`;
 
+    // Mesmo id no navegador e no servidor — dedupe do CAPI.
+    const eventId = novoEventId();
+
     try {
       const res = await fetch('/api/forms/submit', {
         method: 'POST',
@@ -86,11 +90,16 @@ export function CostCalculator() {
           website: fd.get('website') ?? '',
           captcha_token: captchaToken,
           formulario: 'custo-de-parada',
+          event_id: eventId,
           ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
         }),
       });
       const data = (await res.json()) as { ok: boolean; message: string };
       if (res.ok && data.ok) {
+        // Estava subcontando: a calculadora entrega lead e não entrava na
+        // conversão. `custo_parada` e não `calculadora_industrial` — são
+        // ferramentas com funis diferentes, e juntar cegaria as duas.
+        rastrearLead({ formId: 'custo_parada', motor: 'industrial', eventId });
         setStatus('success');
         setMessage(
           'Recebido! Nossa engenharia vai analisar seus números e falar com você pelo WhatsApp.',

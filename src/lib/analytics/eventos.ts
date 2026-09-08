@@ -33,9 +33,61 @@ import { getAtribuicao } from '@/lib/attribution';
 export type Motor = 'industrial' | 'nao_industrial' | 'representante' | 'indefinido';
 
 /** De onde veio o lead. Fecha com a taxonomia da sessão de Ads. */
-export type FormId = 'contato' | 'representante' | 'seletor' | 'calculadora_industrial';
+export type FormId =
+  | 'contato'
+  | 'representante'
+  | 'calculadora_industrial'
+  | 'custo_parada'
+  /** Seletor autônomo "qual Master Block é o meu" — exploratório. */
+  | 'seletor'
+  /**
+   * Tentou comprar e o wizard não fechou preço. ⚠️ NÃO é `seletor`: quem chega
+   * aqui está muito mais quente que quem foi só explorar qual modelo serve.
+   * Juntar os dois na mesma linha do relatório cegaria o follow-up.
+   */
+  | 'checkout_sem_preco';
 
-export type ItemEvento = { item_id: string; quantity: number; price: number };
+export type ItemEvento = {
+  item_id: string;
+  item_name: string;
+  quantity: number;
+  price: number;
+};
+
+/**
+ * Eventos de e-commerce vão no bloco `ecommerce`, com `items` como ARRAY —
+ * não como string.
+ *
+ * A tag do GA4 no GTM lê `ecommerce` NATIVAMENTE ("Enviar dados de e-commerce"
+ * → origem "Camada de dados") e espera array. Chegando string, os relatórios de
+ * item do GA4 ficam vazios — e some justamente a visão de QUAL modelo converte,
+ * que é o que decide em qual produto anunciar. (Eu tinha proposto string por
+ * medo de objeto aninhado se perder em variável do GTM; vale pro caso genérico,
+ * mas `ecommerce` é o caso especial com tratamento próprio. Veto da sessão de
+ * Ads, 08/09, e é veto certo.)
+ *
+ * O `ecommerce: null` antes de cada push é prática documentada do Google: sem
+ * ele, os `items` de um evento VAZAM pro evento seguinte.
+ */
+function emitirEcommerce(
+  nome: string,
+  ecommerce: { currency: 'BRL'; value: number; items: ItemEvento[] },
+  extras: Comuns,
+): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (window.__somatecGTM) {
+      window.dataLayer?.push({ ecommerce: null });
+      window.dataLayer?.push({ event: nome, ecommerce, ...extras });
+    } else {
+      // Sem container, o gtag recebe os campos no nível do evento — é o formato
+      // que o GA4 espera quando não há GTM no meio.
+      window.gtag?.('event', nome, { ...ecommerce, ...extras });
+    }
+  } catch {
+    // analytics nunca pode quebrar a UI
+  }
+}
 
 /**
  * ID único DO EVENTO — é o que faz o dedupe entre o disparo do navegador e o
@@ -61,7 +113,7 @@ function campanha(): string | undefined {
   return getAtribuicao()?.primeiro?.utmCampaign;
 }
 
-type Comuns = { motor: Motor; event_id: string; utm_campaign?: string };
+type Comuns = { motor: Motor; event_id: string; utm_campaign?: string; transaction_id?: string };
 
 function comuns(motor: Motor, eventId: string): Comuns {
   const c = campanha();
@@ -88,12 +140,11 @@ export function rastrearInicioCheckout(args: {
   eventId?: string;
 }): string {
   const eventId = args.eventId ?? novoEventId();
-  trackEvent('begin_checkout', {
-    value: args.value,
-    currency: 'BRL',
-    items: JSON.stringify(args.items),
-    ...comuns('nao_industrial', eventId),
-  });
+  emitirEcommerce(
+    'begin_checkout',
+    { currency: 'BRL', value: args.value, items: args.items },
+    comuns('nao_industrial', eventId),
+  );
   return eventId;
 }
 
@@ -109,12 +160,10 @@ export function rastrearPedidoRegistrado(args: {
   eventId?: string;
 }): string {
   const eventId = args.eventId ?? novoEventId();
-  trackEvent('pedido_registrado', {
-    transaction_id: args.transactionId,
-    value: args.value,
-    currency: 'BRL',
-    items: JSON.stringify(args.items),
-    ...comuns('nao_industrial', eventId),
-  });
+  emitirEcommerce(
+    'pedido_registrado',
+    { currency: 'BRL', value: args.value, items: args.items },
+    { ...comuns('nao_industrial', eventId), transaction_id: args.transactionId },
+  );
   return eventId;
 }
