@@ -24,6 +24,12 @@ import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT, LGPD_PUBLIC_IMPLICITO } from '@/lib/lgpd-public';
 import { trackEvent } from '@/lib/analytics';
+import {
+  novoEventId,
+  rastrearInicioCheckout,
+  rastrearLead,
+  rastrearPedidoRegistrado,
+} from '@/lib/analytics/eventos';
 import { enviarLeadOrcamento, type ResultadoEnvio } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { selecionarMasterBlock, formatBRL } from '@/lib/constants/masterblock';
@@ -467,6 +473,25 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const totalPassos = temPreco ? PASSOS_BASE + 1 : PASSOS_BASE;
   const frete = freteDoPedido();
   const totalPedido = totalCarrinho + (Number.isFinite(frete.valor) ? frete.valor : 0);
+
+  // begin_checkout — só ao CHEGAR no passo de endereço/pagamento, e só com
+  // preço fechado: sem preço não há o que comprar e o wizard vira lead.
+  // Disparar na abertura do wizard inflaria o topo do funil com quem só veio
+  // dimensionar. Uma vez por sessão do wizard (o ref), pra ida e volta entre
+  // passos não repetir o evento.
+  //
+  // Fica aqui, e não dentro do `irPara`, porque `totalPedido` e `modelo` só
+  // existem a partir desta linha — lê-los lá em cima fazia o React Compiler
+  // desistir de memoizar o `capturarAbandono`.
+  const beginCheckoutRef = useRef(false);
+  useEffect(() => {
+    if (passo !== 4 || beginCheckoutRef.current || !modelo) return;
+    beginCheckoutRef.current = true;
+    rastrearInicioCheckout({
+      value: totalPedido,
+      items: [{ item_id: modelo.model, quantity: 1, price: modelo.preco }],
+    });
+  }, [passo, modelo, totalPedido]);
   const contatoOk = Boolean(contato.nome.trim() && contato.whatsapp.trim() && contato.email.trim());
 
   async function buscarCep(valor: string) {
@@ -563,6 +588,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     //
     // Vem ANTES do lead de propósito: se o registro falhar, o cliente não
     // recebe um "pedido confirmado" sem ter como consultar depois.
+    // Mesmo id no navegador e no servidor — dedupe do CAPI. Um por evento:
+    // o pedido tem o seu, o lead tem o dele.
+    const eventIdLead = novoEventId();
     let numeroPedido: string | null = null;
     // Quando o /api/pedidos entrega o lead pelo servidor, este envio aqui não
     // acontece — senão o CRM receberia dois.
@@ -573,6 +601,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            event_id: eventIdLead,
             nome: contato.nome,
             email: contato.email,
             whatsapp: contato.whatsapp,
@@ -654,6 +683,22 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
         landing: landingSlug,
         ...(virouPedido ? { total: totalPedido, pagamento, pedido: numeroPedido ?? 'sem-numero' } : {}),
       });
+      // ⛔ `pedido_registrado`, NUNCA `purchase`: com GATEWAY_ATIVO=false o
+      // checkout não cobra. `purchase` aqui ensinaria Google e Meta a caçar
+      // quem registra pedido e não paga — e esse aprendizado não se apaga.
+      // Vira purchase de verdade quando o Asaas confirmar pagamento.
+      if (virouPedido && numeroPedido && modelo) {
+        rastrearPedidoRegistrado({
+          transactionId: numeroPedido,
+          value: totalPedido,
+          items: [{ item_id: modelo.model, quantity: 1, price: modelo.preco }],
+        });
+      } else if (!virouPedido) {
+        // Sem preço fechado o wizard entrega um LEAD — mesma conversão dos
+        // formulários. Motor conhecido pelo caminho: o checkout só é montado
+        // nas LPs não-industriais.
+        rastrearLead({ formId: 'seletor', motor: 'nao_industrial', eventId: eventIdLead });
+      }
     } else {
       setStatus('error');
       setMessage(r.mensagem);

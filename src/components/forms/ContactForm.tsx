@@ -16,6 +16,7 @@ import {
 } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
+import { novoEventId, rastrearLead, type Motor } from '@/lib/analytics/eventos';
 import { PublicoSetorFields } from './fields/PublicoSetorFields';
 import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
 import { validarContato, temErro } from '@/lib/forms/validar-contato';
@@ -83,8 +84,12 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
     setStatus('submitting');
     setMessage(null);
     setErrors({});
+    // Mesmo id no navegador e no servidor: é o que faz o CAPI deduplicar em
+    // vez de contar a conversão duas vezes.
+    const eventId = novoEventId();
     const payload: Record<string, unknown> = {
       form_type: variant,
+      event_id: eventId,
       name: fd.get('name'),
       email: fd.get('email'),
       whatsapp: fd.get('whatsapp'),
@@ -133,6 +138,12 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
       const data = (await res.json()) as { ok: boolean; message: string };
 
       if (res.ok && data.ok) {
+        // ⚠️ `representante` NÃO é motor de venda — é recrutamento, com funil e
+        // campanha próprios. Cair como `industrial` misturaria candidato a rep
+        // com cliente industrial no mesmo público de anúncio.
+        const motor: Motor =
+          payload.interest_type === 'representante' ? 'representante' : 'industrial';
+        rastrearLead({ formId: 'contato', motor, eventId });
         setStatus('success');
         setMessage(data.message);
         (e.target as HTMLFormElement).reset();

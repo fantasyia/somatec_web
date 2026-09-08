@@ -13,6 +13,7 @@ import { FormStatus, type FormStatusKind } from './fields/FormStatus';
 import { BR_STATES } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
+import { novoEventId, rastrearLead } from '@/lib/analytics/eventos';
 
 export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePage?: string }) {
   const [status, setStatus] = useState<FormStatusKind>('idle');
@@ -25,8 +26,11 @@ export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePa
     setMessage(null);
     const fd = new FormData(e.currentTarget);
 
+    // Mesmo id no navegador e no servidor — dedupe do CAPI.
+    const eventId = novoEventId();
     const payload = {
       form_type: 'representante' as const,
+      event_id: eventId,
       interest_type: 'representante' as const,
       name: fd.get('name'),
       email: fd.get('email'),
@@ -52,6 +56,8 @@ export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePa
       });
       const data = (await res.json()) as { ok: boolean; message: string };
       if (res.ok && data.ok) {
+        // Recrutamento, não venda: campanha e público próprios.
+        rastrearLead({ formId: 'representante', motor: 'representante', eventId });
         setStatus('success');
         setMessage(data.message);
         (e.target as HTMLFormElement).reset();

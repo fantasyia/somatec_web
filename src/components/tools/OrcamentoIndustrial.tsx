@@ -25,6 +25,7 @@ import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { trackEvent } from '@/lib/analytics';
+import { rastrearLead } from '@/lib/analytics/eventos';
 import { enviarLeadOrcamento } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { formatBRL } from '@/lib/constants/masterblock';
@@ -201,6 +202,10 @@ export function OrcamentoIndustrial({
         'Recebido! Um representante da Somatec confirma o projeto de proteção em cascata e retorna em até 3 horas úteis.',
       );
       trackEvent('calc_ind_lead', { landing: landingSlug });
+      // É lead de fato e precisa cair na MESMA conversão dos formulários —
+      // senão o Google otimiza só pelos forms e ignora a calculadora, que é a
+      // porta de entrada industrial (pedido da sessão de Ads, 08/09).
+      rastrearLead({ formId: 'calculadora_industrial', motor: 'industrial' });
     } else {
       setStatus('error');
       setMessage(r.mensagem);
