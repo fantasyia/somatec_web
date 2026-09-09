@@ -92,11 +92,40 @@ async function chamar<T>(
 async function garantirCliente(c: Cliente): Promise<string> {
   const doc = c.cpfCnpj.replace(/\D/g, '');
   if (doc) {
-    const busca = await chamar<{ data?: Array<{ id: string }> }>(
-      `/customers?cpfCnpj=${encodeURIComponent(doc)}&limit=1`,
-    );
-    const existente = busca.data?.[0]?.id;
-    if (existente) return existente;
+    const busca = await chamar<{
+      data?: Array<{ id: string; name?: string; email?: string }>;
+    }>(`/customers?cpfCnpj=${encodeURIComponent(doc)}&limit=1`);
+    const existente = busca.data?.[0];
+    if (existente?.id) {
+      // ATUALIZA nome e e-mail quando mudaram.
+      //
+      // Sem isto, quem foi cadastrado uma vez fica congelado: a página de
+      // pagamento mostra "Dados do comprador" com o nome antigo, e as
+      // notificações do gateway vão pro e-mail antigo. Peguei isso no teste — a
+      // fatura de um pedido novo exibia o nome do primeiro cadastro feito com
+      // aquele CNPJ, e o comprador veria um nome que não é o dele na hora de
+      // pagar.
+      //
+      // Best-effort: falhar aqui não pode derrubar a venda — o pior caso volta
+      // a ser o dado velho, que é o comportamento de antes.
+      const mudou =
+        (existente.name ?? '').trim() !== c.nome.trim() ||
+        (existente.email ?? '').trim().toLowerCase() !== c.email.trim().toLowerCase();
+      if (mudou) {
+        await chamar(`/customers/${existente.id}`, {
+          method: 'POST',
+          body: {
+            name: c.nome,
+            email: c.email,
+            cpfCnpj: doc,
+            ...(c.telefone ? { mobilePhone: c.telefone.replace(/\D/g, '') } : {}),
+          },
+        }).catch((err) => {
+          log.warn('cliente nao atualizado no gateway', { erro: String(err) });
+        });
+      }
+      return existente.id;
+    }
   }
   const novo = await chamar<{ id: string }>('/customers', {
     method: 'POST',

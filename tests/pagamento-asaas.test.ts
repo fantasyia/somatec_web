@@ -48,7 +48,7 @@ describe('cobrança', () => {
     // Sem isso, cada compra cria um cadastro novo da mesma pessoa: o painel
     // financeiro vira lista de duplicatas e o histórico de quem já comprou some.
     const f = responder([
-      { data: [{ id: 'cus_existente' }] },
+      { data: [{ id: 'cus_existente', name: 'Ana', email: 'ana@x.com' }] },
       { id: 'pay_1', invoiceUrl: 'https://sandbox.asaas.com/i/1', status: 'PENDING' },
     ]);
 
@@ -61,6 +61,75 @@ describe('cobrança', () => {
 
     expect(f).toHaveBeenCalledTimes(2); // buscou e cobrou — não criou cliente
     expect(corpoDaChamada(f, 1).customer).toBe('cus_existente');
+  });
+
+  it('ATUALIZA o cadastro reaproveitado quando o comprador mudou', async () => {
+    // Peguei isso em teste: a página de pagamento mostrava "Dados do comprador"
+    // com o nome do PRIMEIRO cadastro feito com aquele CNPJ. Quem compra hoje
+    // veria um nome que não é o dele na hora de pagar — e as notificações do
+    // gateway iriam pro e-mail antigo.
+    const f = responder([
+      { data: [{ id: 'cus_1', name: 'Nome Antigo', email: 'antigo@x.com' }] },
+      { id: 'cus_1' },
+      { id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' },
+    ]);
+
+    await criarCobranca({
+      numeroPedido: 'SB-1',
+      cliente: { nome: 'Ana Nova', email: 'ana@x.com', cpfCnpj: '19131243000197' },
+      valorCentavos: 1000,
+      forma: 'PIX',
+    });
+
+    expect(f.mock.calls[1][0]).toContain('/customers/cus_1');
+    expect(corpoDaChamada(f, 1)).toMatchObject({ name: 'Ana Nova', email: 'ana@x.com' });
+    expect(corpoDaChamada(f, 2).customer).toBe('cus_1'); // cobrou no MESMO cadastro
+  });
+
+  it('não gasta chamada quando o cadastro já está igual', async () => {
+    const f = responder([
+      { data: [{ id: 'cus_1', name: 'Ana', email: 'ANA@x.com' }] },
+      { id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' },
+    ]);
+
+    await criarCobranca({
+      numeroPedido: 'SB-1',
+      cliente: { nome: 'Ana', email: 'ana@x.com', cpfCnpj: '19131243000197' },
+      valorCentavos: 1000,
+      forma: 'PIX',
+    });
+
+    expect(f).toHaveBeenCalledTimes(2); // buscou e cobrou, sem update
+  });
+
+  it('falha ao atualizar não derruba a venda', async () => {
+    // O pior caso é voltar a mostrar o dado velho — que é o comportamento de
+    // antes. Perder a cobrança por causa disso seria trocar um defeito cosmético
+    // por um pedido não pago.
+    const f = vi.fn();
+    f.mockResolvedValueOnce({
+      ok: true,
+      text: async () => JSON.stringify({ data: [{ id: 'cus_1', name: 'Velho', email: 'v@x.com' }] }),
+    });
+    f.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ errors: [{ description: 'qualquer coisa' }] }),
+    });
+    f.mockResolvedValueOnce({
+      ok: true,
+      text: async () => JSON.stringify({ id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' }),
+    });
+    vi.stubGlobal('fetch', f);
+
+    const r = await criarCobranca({
+      numeroPedido: 'SB-1',
+      cliente: { nome: 'Ana', email: 'ana@x.com', cpfCnpj: '19131243000197' },
+      valorCentavos: 1000,
+      forma: 'PIX',
+    });
+
+    expect(r.url).toBe('https://x/i/1');
   });
 
   it('cria o cliente quando não existe, só com dígitos no documento', async () => {
@@ -82,7 +151,7 @@ describe('cobrança', () => {
 
   it('manda o VALOR em reais e o NÚMERO DO PEDIDO como referência', async () => {
     const f = responder([
-      { data: [{ id: 'cus_1' }] },
+      { data: [{ id: 'cus_1', name: 'Ana', email: 'ana@x.com' }] },
       { id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' },
     ]);
 
