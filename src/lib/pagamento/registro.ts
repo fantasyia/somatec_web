@@ -68,13 +68,19 @@ export async function registrarEventoPagamento(params: {
 
   // Aviso pra quem separa e fatura. É o elo humano enquanto "pago" não é um
   // estado do pedido: sem isto, o dinheiro entra e ninguém do outro lado sabe.
+  //
+  // O destino é configurável porque em TESTE ele não pode cair na caixa de quem
+  // opera: aviso de "pagamento confirmado" que não corresponde a dinheiro
+  // nenhum treina a pessoa a ignorar o aviso — e o dia em que for de verdade,
+  // ela ignora também. Sem a variável, vai pro canal de sempre.
+  const destino = process.env.PAGAMENTO_ALERTA_EMAIL?.trim() || CONTACT.email;
   const valor = (params.valorCentavos / 100).toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   });
   const pago = params.situacao === 'pago';
   await enviarEmail({
-    para: CONTACT.email,
+    para: destino,
     assunto: pago
       ? `Pagamento confirmado — pedido ${params.numeroPedido} (${valor})`
       : `Pagamento NÃO concluído — pedido ${params.numeroPedido}`,
