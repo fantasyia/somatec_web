@@ -2,6 +2,8 @@ import 'server-only';
 
 import { CONTACT, SITE, whatsappHref } from '@/lib/constants/site';
 import { formatarBRL, type ItemPedido } from '@/lib/pedidos/tipos';
+import { escapar } from '@/lib/email/html';
+import { CORES, botao, layoutEmail } from '@/lib/email/layout';
 
 // =============================================================================
 // E-mail de confirmação do pedido.
@@ -15,13 +17,11 @@ import { formatarBRL, type ItemPedido } from '@/lib/pedidos/tipos';
 //
 // HTML de e-mail não é HTML de site: nada de flexbox, grid ou classe. É tabela
 // e estilo em linha, que é o que Gmail, Outlook e Apple Mail renderizam igual.
+//
+// A casca (barra do topo, botão, rodapé) vem de `layout.ts`, que é a MESMA dos
+// outros e-mails da Somatec. Aqui mora só o miolo — o que este e-mail tem de
+// diferente dos outros.
 // =============================================================================
-
-const NAVY = '#00416E';
-const CIANO = '#008CC8';
-const TEXTO = '#1B2A38';
-const SUAVE = '#5A6B7C';
-const BORDA = '#DCE4EC';
 
 export type DadosEmailPedido = {
   numero: string;
@@ -81,103 +81,66 @@ export function htmlPedido(d: DadosEmailPedido): string {
     .map(
       (i) => `
         <tr>
-          <td style="padding:10px 0;border-bottom:1px solid ${BORDA};font-size:15px;color:${TEXTO};">
+          <td style="padding:10px 0;border-bottom:1px solid #dce4ec;font-size:15px;color:${CORES.texto};">
             ${i.quantidade > 1 ? `${i.quantidade}&times; ` : ''}${escapar(i.descricao)}
-            ${i.modelo ? `<br><span style="font-size:13px;color:${SUAVE};">${escapar(i.modelo)}</span>` : ''}
+            ${i.modelo ? `<br><span style="font-size:13px;color:${CORES.suave};">${escapar(i.modelo)}</span>` : ''}
           </td>
-          <td style="padding:10px 0;border-bottom:1px solid ${BORDA};font-size:15px;color:${TEXTO};text-align:right;white-space:nowrap;">
+          <td style="padding:10px 0;border-bottom:1px solid #dce4ec;font-size:15px;color:${CORES.texto};text-align:right;white-space:nowrap;">
             ${formatarBRL(i.precoCentavos * (i.quantidade || 1))}
           </td>
         </tr>`,
     )
     .join('');
 
-  return `<!doctype html>
-<html lang="pt-BR">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${assuntoPedido(d.numero)}</title></head>
-<body style="margin:0;padding:0;background:#F5F5F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
-  <!-- Pré-cabeçalho: é o texto que aparece na lista de e-mails, ao lado do
-       assunto. Sem ele, o cliente vê o começo do HTML. -->
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
-    Seu número de pedido é ${d.numero}. Guarde para acompanhar a entrega.
-  </div>
+  const corpo = `  <tr><td style="padding:40px 44px 8px 44px;">
+    <p style="margin:0 0 22px 0;font-size:15px;line-height:1.6;color:${CORES.texto};">Olá, ${escapar(primeiroNome(d.nome))}!</p>
+    <p style="margin:0 0 20px 0;font-size:20px;line-height:1.45;color:${CORES.navy};font-weight:600;">Recebemos o seu pedido.</p>
+    <p style="margin:0;font-size:15px;line-height:1.7;color:${CORES.texto};">Guarde o número abaixo — é com ele que você acompanha a entrega.</p>
+  </td></tr>
 
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F5F5F5;padding:24px 12px;">
-    <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:12px;overflow:hidden;">
+  <!-- O número é o motivo deste e-mail existir: vem grande e sozinho. -->
+  <tr><td style="padding:20px 44px 8px 44px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #dce4ec;">
+      <tr><td align="center" style="padding:22px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.4px;color:${CORES.navy};text-transform:uppercase;">Número do pedido</div>
+        <div style="margin-top:8px;font-size:26px;font-weight:700;letter-spacing:2px;color:${CORES.texto};">${d.numero}</div>
+      </td></tr>
+    </table>
+  </td></tr>
 
-        <tr><td style="background:${NAVY};padding:22px 28px;">
-          <span style="color:#FFFFFF;font-size:17px;font-weight:700;letter-spacing:.5px;">SOMATEC BLOCKING</span>
-        </td></tr>
+  <tr><td style="padding:18px 44px 8px 44px;">
+    ${botao(linkDoPedido(d.numero), 'Acompanhar meu pedido')}
+  </td></tr>
 
-        <tr><td style="padding:28px 28px 8px;">
-          <p style="margin:0 0 6px;font-size:16px;color:${TEXTO};">Olá, ${escapar(primeiroNome(d.nome))}!</p>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:${SUAVE};">
-            Recebemos o seu pedido. Guarde o número abaixo — é com ele que você acompanha a entrega.
-          </p>
-        </td></tr>
+  <tr><td style="padding:22px 44px 8px 44px;">
+    <div style="font-size:13px;font-weight:700;color:${CORES.navy};text-transform:uppercase;letter-spacing:.6px;">Resumo</div>
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-top:8px;">
+      ${itens}
+      <tr>
+        <td style="padding:10px 0 0;font-size:14px;color:${CORES.suave};">Frete</td>
+        <td style="padding:10px 0 0;font-size:14px;color:${CORES.texto};text-align:right;">${d.freteCentavos === 0 ? 'Grátis' : formatarBRL(d.freteCentavos)}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0 0;font-size:16px;font-weight:700;color:${CORES.texto};">Total</td>
+        <td style="padding:8px 0 0;font-size:16px;font-weight:700;color:${CORES.texto};text-align:right;">${formatarBRL(d.totalCentavos)}</td>
+      </tr>
+      ${d.formaPagamento ? `<tr><td style="padding:6px 0 0;font-size:14px;color:${CORES.suave};">Pagamento</td><td style="padding:6px 0 0;font-size:14px;color:${CORES.texto};text-align:right;">${escapar(d.formaPagamento)}</td></tr>` : ''}
+    </table>
+    ${d.cidade && d.uf ? `<p style="margin:14px 0 0;font-size:14px;color:${CORES.suave};">Entrega em ${escapar(d.cidade)}/${escapar(d.uf)}.</p>` : ''}
+  </td></tr>
 
-        <!-- O número é o motivo deste e-mail existir: vem grande e sozinho. -->
-        <tr><td style="padding:18px 28px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:rgba(0,140,200,.06);border:1px solid rgba(0,140,200,.3);border-radius:10px;">
-            <tr><td align="center" style="padding:20px;">
-              <div style="font-size:11px;font-weight:700;letter-spacing:1.6px;color:${CIANO};text-transform:uppercase;">Número do pedido</div>
-              <div style="margin-top:8px;font-size:26px;font-weight:700;letter-spacing:2px;color:${TEXTO};">${d.numero}</div>
-            </td></tr>
-          </table>
-        </td></tr>
+  <tr><td style="padding:18px 44px 44px 44px;">
+    <p style="margin:0;font-size:14px;line-height:1.7;color:${CORES.suave};">
+      Nossa equipe entra em contato para finalizar o pedido com você. Qualquer dúvida, é só
+      <a href="${whatsappHref(`Olá! Tenho uma dúvida sobre o pedido ${d.numero}.`)}" style="color:${CORES.navy};text-decoration:underline;">chamar no WhatsApp</a>.
+    </p>
+  </td></tr>
+`;
 
-        <tr><td align="center" style="padding:0 28px 22px;">
-          <a href="${linkDoPedido(d.numero)}" style="display:inline-block;background:${CIANO};color:#FFFFFF;text-decoration:none;font-size:15px;font-weight:600;padding:13px 26px;border-radius:8px;">
-            Acompanhar meu pedido
-          </a>
-        </td></tr>
-
-        <tr><td style="padding:0 28px 8px;">
-          <div style="font-size:13px;font-weight:700;color:${TEXTO};text-transform:uppercase;letter-spacing:.6px;">Resumo</div>
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
-            ${itens}
-            <tr>
-              <td style="padding:10px 0 0;font-size:14px;color:${SUAVE};">Frete</td>
-              <td style="padding:10px 0 0;font-size:14px;color:${TEXTO};text-align:right;">${d.freteCentavos === 0 ? 'Grátis' : formatarBRL(d.freteCentavos)}</td>
-            </tr>
-            <tr>
-              <td style="padding:8px 0 0;font-size:16px;font-weight:700;color:${TEXTO};">Total</td>
-              <td style="padding:8px 0 0;font-size:16px;font-weight:700;color:${TEXTO};text-align:right;">${formatarBRL(d.totalCentavos)}</td>
-            </tr>
-            ${d.formaPagamento ? `<tr><td style="padding:6px 0 0;font-size:14px;color:${SUAVE};">Pagamento</td><td style="padding:6px 0 0;font-size:14px;color:${TEXTO};text-align:right;">${escapar(d.formaPagamento)}</td></tr>` : ''}
-          </table>
-          ${d.cidade && d.uf ? `<p style="margin:14px 0 0;font-size:14px;color:${SUAVE};">Entrega em ${escapar(d.cidade)}/${escapar(d.uf)}.</p>` : ''}
-        </td></tr>
-
-        <tr><td style="padding:20px 28px 26px;">
-          <p style="margin:0;font-size:14px;line-height:1.65;color:${SUAVE};">
-            Nossa equipe entra em contato para finalizar o pedido com você.
-            Qualquer dúvida, é só
-            <a href="${whatsappHref(`Olá! Tenho uma dúvida sobre o pedido ${d.numero}.`)}" style="color:${CIANO};text-decoration:underline;">chamar no WhatsApp</a>.
-          </p>
-        </td></tr>
-
-        <tr><td style="background:#F5F5F5;padding:16px 28px;">
-          <p style="margin:0;font-size:12px;line-height:1.6;color:${SUAVE};">
-            Somatec Blocking — proteção elétrica e qualidade de energia.<br>
-            Você recebeu este e-mail porque fez um pedido no nosso site.
-          </p>
-        </td></tr>
-
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`;
-}
-
-/** O nome do cliente e a descrição do item vêm de formulário — entram no HTML
- *  escapados, senão um `<` no nome quebra o e-mail (ou pior). */
-function escapar(v: string): string {
-  return String(v ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return layoutEmail({
+    titulo: assuntoPedido(d.numero),
+    preheader: `Seu número de pedido é ${d.numero}. Guarde para acompanhar a entrega.`,
+    corpo,
+    motivo: 'Você recebeu este e-mail porque fez um pedido no nosso site.',
+  });
 }

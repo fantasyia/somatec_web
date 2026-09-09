@@ -188,3 +188,71 @@ export async function atualizarStatus(args: {
     return { ok: false, erro: 'falha ao atualizar' };
   }
 }
+
+// =============================================================================
+// O CONTATO DO COMPRADOR — e por que ele NÃO passa pela `consultar_pedido`.
+//
+// O webhook do gateway avisa que o pedido SB… foi pago, e só. Pra escrever pro
+// comprador falta o e-mail dele, e a `consultar_pedido` não devolve isso de
+// propósito (ver o bloco no topo do arquivo): ela é consultável por qualquer um
+// que tenha — ou adivinhe — um número de pedido. Acrescentar o e-mail ali
+// transformaria a página de acompanhamento num coletor de endereço.
+//
+// Então o contato vem por leitura direta, que só existe no servidor:
+//
+//   • a tabela está com RLS ligado e ZERO políticas — pra chave ANON (a que vai
+//     no navegador) esta consulta devolve VAZIO, não erro
+//   • em produção o site roda com a chave `service_role`, que nunca sai daqui
+//
+// Isso é o oposto de uma função no banco: uma função `SECURITY DEFINER` que
+// devolvesse e-mail seria chamável por quem tem a anon — ou seja, por qualquer
+// visitante. A leitura direta falha FECHADA: onde a chave não tem poder, ela
+// não devolve nada.
+//
+// ⚠️ Efeito colateral aceito: em desenvolvimento (chave anon no `.env.local`)
+// isto sempre volta `undefined`, e o e-mail ao cliente não sai. É o mesmo
+// motivo pelo qual o localhost também não cria lead no CRM.
+// =============================================================================
+
+export type ContatoDoPedido = {
+  email: string;
+  primeiroNome: string | null;
+  /** Quando o pedido nasceu — é o que decide se o aviso de pagamento sai. */
+  criadoEm: string;
+  formaPagamento: string | null;
+};
+
+/** `undefined` = não achou, ou a chave não enxerga. Quem chama trata como
+ *  "não dá pra avisar" e registra — nunca como "não precisa avisar". */
+export async function contatoDoPedido(numeroBruto: string): Promise<ContatoDoPedido | undefined> {
+  const numero = normalizarNumero(numeroBruto);
+  if (!numeroValido(numero)) return undefined;
+
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from('pedidos')
+      .select('email, nome, criado_em, forma_pagamento')
+      .eq('numero', numero)
+      .maybeSingle();
+
+    if (error) {
+      log.error('falha lendo contato do pedido', { numero, error });
+      return undefined;
+    }
+    const linha = data as
+      | { email: string; nome: string | null; criado_em: string; forma_pagamento: string | null }
+      | null;
+    if (!linha?.email) return undefined;
+
+    return {
+      email: linha.email,
+      primeiroNome: String(linha.nome || '').trim().split(/\s+/)[0] || null,
+      criadoEm: linha.criado_em,
+      formaPagamento: linha.forma_pagamento,
+    };
+  } catch (e) {
+    log.error('excecao lendo contato do pedido', { error: e });
+    return undefined;
+  }
+}
