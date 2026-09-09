@@ -35,6 +35,19 @@ vi.mock('@/lib/pedidos/servidor', () => ({
   contatoDoPedido: (...a: unknown[]) => contato(...a),
 }));
 
+/** O que o código registrou, com o NÍVEL — é o nível que separa as issues. */
+const logs: Array<{ nivel: string; msg: string }> = [];
+
+vi.mock('@/lib/logger', () => ({
+  createLogger: () => ({
+    debug: () => {},
+    info: (msg: string) => logs.push({ nivel: 'info', msg }),
+    warn: (msg: string) => logs.push({ nivel: 'warn', msg }),
+    error: (msg: string) => logs.push({ nivel: 'error', msg }),
+    child: () => ({ debug: () => {}, info: () => {}, warn: () => {}, error: () => {} }),
+  }),
+}));
+
 const { registrarEventoPagamento } = await import('@/lib/pagamento/registro');
 
 const ORIGINAL = { ...process.env };
@@ -59,6 +72,7 @@ const paraCliente = () =>
   );
 
 beforeEach(() => {
+  logs.length = 0;
   process.env.PAGAMENTO_ALERTA_EMAIL = 'operacao@somatecblocking.com.br';
   redisSet.mockResolvedValue('OK'); // primeiro a gravar = evento novo
   enviar.mockResolvedValue({ enviado: true, id: 'x' });
@@ -209,5 +223,74 @@ describe('venda parcelada', () => {
 
     const chaves = redisSet.mock.calls.map((c) => String(c[0]));
     expect(new Set(chaves).size).toBe(chaves.length);
+  });
+});
+
+describe('os três silêncios são distinguíveis — senão o grave se esconde no ruído', () => {
+  // O Sentry agrupa por MENSAGEM. Enquanto os três motivos de não sair e-mail
+  // dividiam a mesma frase, viravam a MESMA issue — e como webhook de teste com
+  // número inventado acontece às dezenas, o dia em que um cliente real pagasse
+  // sem e-mail no cadastro, o evento dele cairia numa issue já descartada.
+  //
+  // Achado na primeira triagem do Sentry (SOMATEC-WEB-4, 09/09: 5 eventos, todos
+  // `SB-TESTE-PARC-C`). Estes testes travam a distinção.
+
+  const frases = () =>
+    logs.map((l) => `${l.nivel}:${l.msg}`);
+
+  it('pedido que não existe aqui é WARN — não há ninguém sem resposta', async () => {
+    contato.mockResolvedValue(undefined);
+
+    await registrarEventoPagamento(evento({ numeroPedido: 'SB-TESTE-PARC-C' }));
+
+    expect(frases().some((f) => f.startsWith('warn:') && f.includes('nao existe aqui'))).toBe(true);
+    expect(frases().some((f) => f.startsWith('error:'))).toBe(false);
+  });
+
+  it('🔴 pedido que EXISTE e está sem e-mail é ERROR — alguém pagou e não recebe nada', async () => {
+    contato.mockResolvedValue({
+      email: null,
+      primeiroNome: 'João',
+      criadoEm: criadoHa(60),
+      formaPagamento: 'PIX',
+    });
+
+    await registrarEventoPagamento(evento());
+
+    expect(frases().some((f) => f.startsWith('error:') && f.includes('sem e-mail'))).toBe(true);
+    expect(paraCliente()).toBeUndefined();
+  });
+
+  it('as duas mensagens são DIFERENTES — é isso que separa as issues no Sentry', async () => {
+    contato.mockResolvedValue(undefined);
+    await registrarEventoPagamento(evento());
+    const semPedido = logs.find((l) => l.nivel !== 'info')?.msg;
+
+    logs.length = 0;
+    contato.mockResolvedValue({
+      email: null,
+      primeiroNome: null,
+      criadoEm: criadoHa(60),
+      formaPagamento: null,
+    });
+    await registrarEventoPagamento(evento({ eventoId: 'evt_2' }));
+    const semEmail = logs.find((l) => l.nivel !== 'info')?.msg;
+
+    expect(semPedido).toBeTruthy();
+    expect(semEmail).toBeTruthy();
+    expect(semPedido).not.toBe(semEmail);
+  });
+
+  it('dentro da janela de silêncio, e-mail faltando NÃO vira erro — não íamos mandar', async () => {
+    contato.mockResolvedValue({
+      email: null,
+      primeiroNome: 'João',
+      criadoEm: criadoHa(2), // cartão: confirmou logo depois do pedido
+      formaPagamento: 'Cartão de crédito',
+    });
+
+    await registrarEventoPagamento(evento());
+
+    expect(frases().some((f) => f.startsWith('error:'))).toBe(false);
   });
 });

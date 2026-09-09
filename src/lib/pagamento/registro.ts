@@ -162,12 +162,23 @@ async function avisarCliente(params: {
 }): Promise<void> {
   const contato = await contatoDoPedido(params.numeroPedido);
 
-  // Sem e-mail não há o que fazer, mas isso NÃO é rotina: em produção significa
-  // que o pedido sumiu da tabela ou que a chave perdeu poder de leitura. Fica
-  // como erro pra aparecer no Sentry — cliente que pagou e não recebeu nada é
-  // exatamente o silêncio que vira mensagem no WhatsApp.
+  // ⚠️ OS TRÊS MOTIVOS DE NÃO SAIR E-MAIL SÃO SEPARADOS DE PROPÓSITO.
+  //
+  // O Sentry agrupa por mensagem: frase igual = mesma issue. Enquanto os três
+  // dividiam a mesma linha, o caso grave nascia dentro de uma issue já cheia de
+  // ruído de teste e já descartada por quem olhou. Achado na primeira triagem,
+  // em 09/09 (SOMATEC-WEB-4, 5 eventos, todos `SB-TESTE-PARC-C`).
+  //
+  //   pedido não existe aqui  → warn   · webhook de teste ou de outro sistema
+  //   janela de silêncio      → info   · decisão de projeto, está certo
+  //   existe e SEM e-mail     → error  · alguém pagou e não vai receber nada
+
+  // Webhook para um número que não está na nossa tabela. Não é bom sinal, mas
+  // também não é alguém sem resposta: não há ninguém. Fica em `warn`.
   if (!contato) {
-    log.error('sem contato do pedido — cliente nao avisado', { pedido: params.numeroPedido });
+    log.warn('pagamento de pedido que nao existe aqui — nada a avisar', {
+      pedido: params.numeroPedido,
+    });
     return;
   }
 
@@ -175,8 +186,21 @@ async function avisarCliente(params: {
   // e-mail de pedido, e dois e-mails quase iguais em um minuto ensinam a pessoa
   // a ignorar o remetente logo antes da fase em que ela precisa abrir (o
   // rastreio). A regra mora no módulo do e-mail, num lugar só.
+  //
+  // Vem ANTES da checagem de e-mail de propósito: aqui a gente não ia mandar de
+  // qualquer jeito, então faltar e-mail não é falha nenhuma.
   if (!deveAvisarPagamento({ criadoEm: contato.criadoEm })) {
     log.info('confirmacao logo apos o pedido — cliente nao avisado de novo', {
+      pedido: params.numeroPedido,
+    });
+    return;
+  }
+
+  // 🔴 Aqui sim: o pedido existe, a gente QUERIA mandar, e não tem para onde.
+  // É o caso do cliente que pagou e não vai receber nada — o silêncio que vira
+  // mensagem no WhatsApp perguntando se o dinheiro entrou.
+  if (!contato.email) {
+    log.error('pedido sem e-mail — quem pagou nao vai receber aviso', {
       pedido: params.numeroPedido,
     });
     return;

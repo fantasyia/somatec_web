@@ -253,15 +253,32 @@ export async function atualizarStatus(args: {
 // =============================================================================
 
 export type ContatoDoPedido = {
-  email: string;
+  /**
+   * `null` = o pedido existe e está SEM e-mail. É diferente de não achar o
+   * pedido, e quem chama tem que tratar diferente — ver a nota abaixo.
+   */
+  email: string | null;
   primeiroNome: string | null;
   /** Quando o pedido nasceu — é o que decide se o aviso de pagamento sai. */
   criadoEm: string;
   formaPagamento: string | null;
 };
 
-/** `undefined` = não achou, ou a chave não enxerga. Quem chama trata como
- *  "não dá pra avisar" e registra — nunca como "não precisa avisar". */
+/**
+ * `undefined` = **não achou o pedido** (ou a chave não enxerga a tabela).
+ * Objeto com `email: null` = **achou, e está sem e-mail**.
+ *
+ * ⚠️ A distinção não é preciosismo — ela decide se alguém vê o problema.
+ *
+ * Antes esta função devolvia `undefined` nos dois casos, e quem chamava
+ * registrava a mesma frase. O Sentry agrupa por mensagem: os dois viravam a
+ * MESMA issue. Como webhook de teste com número inventado cai no primeiro caso
+ * e acontece às dezenas, a issue nascia cheia de ruído e já descartada — e o
+ * dia em que um cliente de verdade pagasse com o cadastro sem e-mail, o evento
+ * dele cairia lá dentro, com contagem 6 de 5 falsos, e ninguém olharia.
+ *
+ * Achado na primeira triagem do Sentry, em 09/09 (SOMATEC-WEB-4).
+ */
 export async function contatoDoPedido(numeroBruto: string): Promise<ContatoDoPedido | undefined> {
   const numero = normalizarNumero(numeroBruto);
   if (!numeroValido(numero)) return undefined;
@@ -279,12 +296,19 @@ export async function contatoDoPedido(numeroBruto: string): Promise<ContatoDoPed
       return undefined;
     }
     const linha = data as
-      | { email: string; nome: string | null; criado_em: string; forma_pagamento: string | null }
+      | {
+          email: string | null;
+          nome: string | null;
+          criado_em: string;
+          forma_pagamento: string | null;
+        }
       | null;
-    if (!linha?.email) return undefined;
+    // Só `undefined` quando o pedido NÃO EXISTE. Existir sem e-mail devolve o
+    // objeto, com `email: null` — é outro problema e merece outro alarme.
+    if (!linha) return undefined;
 
     return {
-      email: linha.email,
+      email: linha.email || null,
       primeiroNome: String(linha.nome || '').trim().split(/\s+/)[0] || null,
       criadoEm: linha.criado_em,
       formaPagamento: linha.forma_pagamento,
