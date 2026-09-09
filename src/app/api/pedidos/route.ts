@@ -16,7 +16,11 @@ import { buildMullerBotPayload } from '@/lib/mullerbot/payload';
 import { getLgpdConsentText } from '@/lib/lgpd';
 import { entregarLead } from '@/lib/leads/entregar';
 import { asaasConfigurado, criarCobranca } from '@/lib/pagamento/asaas';
-import { FORMA_NO_GATEWAY, type FormaPagamentoId } from '@/lib/constants/pagamento';
+import {
+  FORMA_NO_GATEWAY,
+  parcelasDisponiveis,
+  type FormaPagamentoId,
+} from '@/lib/constants/pagamento';
 import { precificarPedido } from '@/lib/pedidos/precificar';
 import { enviarEventoMeta, montarFbc } from '@/lib/meta/capi';
 import { randomUUID } from 'node:crypto';
@@ -75,6 +79,9 @@ const schema = z.object({
   totalCentavos: z.number().int().min(0).max(100_000_000),
   freteCentavos: z.number().int().min(0).max(10_000_000).default(0),
   formaPagamento: z.string().max(40).nullish(),
+  /** Parcelas escolhidas no cartão. Chega do navegador como INTENÇÃO — o teto
+   *  quem aplica é o servidor, igual ao preço. */
+  parcelas: z.number().int().min(1).max(24).nullish(),
   endereco: z.record(z.string(), z.unknown()).default({}),
   setor: z.string().max(40).nullish(),
   /** Resumo legível do que a pessoa montou no wizard. Vem do CLIENTE porque é
@@ -433,6 +440,7 @@ async function criarCobrancaDoPedido(
     whatsapp?: string | null;
     documento?: string | null;
     formaPagamento?: string | null;
+    parcelas?: number | null;
     endereco?: unknown;
     totalCentavos: number;
     freteCentavos: number;
@@ -448,17 +456,27 @@ async function criarCobrancaDoPedido(
     return null;
   }
   try {
-    // Total + frete: é o que o cliente viu na tela e o que o pedido gravou.
-    const total = Math.round(dados.totalCentavos) + Math.round(dados.freteCentavos ?? 0);
+    // `totalCentavos` JÁ vem do `precificarPedido` com o frete somado — somar de
+    // novo aqui cobraria o frete em dobro. Passa despercebido enquanto o frete é
+    // grátis; no dia em que deixar de ser, o cliente pagaria duas vezes.
+    const total = Math.round(dados.totalCentavos);
     if (total <= 0) {
       log.warn('pedido sem valor faturavel — cobranca nao criada', { numero });
       return null;
     }
     const escolhida = (dados.formaPagamento ?? '').toLowerCase().includes('cart') ? 'cartao' : 'pix';
+    // O TETO DAS PARCELAS É DO SERVIDOR, mesma regra do preço: o corpo diz o que
+    // a pessoa escolheu, não o que é permitido. `parcelasDisponiveis` já cuida
+    // do piso por parcela, e PIX nunca parcela.
+    const permitidas = parcelasDisponiveis(total);
+    const pedidas = Math.max(1, Math.round(dados.parcelas ?? 1));
+    const parcelas =
+      escolhida === 'cartao' ? Math.min(pedidas, permitidas[permitidas.length - 1]) : 1;
     const cobranca = await criarCobranca({
       numeroPedido: numero,
       valorCentavos: total,
       forma: FORMA_NO_GATEWAY[escolhida as FormaPagamentoId],
+      parcelas,
       cliente: {
         nome: dados.nome,
         email: dados.email,

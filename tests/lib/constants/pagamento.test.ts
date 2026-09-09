@@ -7,6 +7,10 @@ import {
   enderecoCompleto,
   enderecoEmUmaLinha,
   freteDoPedido,
+  MAX_PARCELAS,
+  PARCELA_MINIMA_CENTAVOS,
+  parcelasDisponiveis,
+  valorDaParcela,
 } from '@/lib/constants/pagamento';
 
 // O checkout NI fecha pedido de verdade: endereço errado ou frete cobrado por
@@ -87,5 +91,29 @@ describe('enderecoEmUmaLinha', () => {
     expect(enderecoEmUmaLinha({ ...enderecoOk, complemento: 'apto 51' })).toContain(
       '1000, apto 51 —',
     );
+  });
+});
+
+describe('parcelamento no cartão', () => {
+  it('vai até 6x — a regra comercial do Léo (09/09)', () => {
+    expect(MAX_PARCELAS).toBe(6);
+    expect(parcelasDisponiveis(4_350_00)).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+
+  it('pedido pequeno não vira 6 parcelas de trocado', () => {
+    // Cada parcela custa a mesma tarifa fixa do gateway: parcelar R$ 120 em 6
+    // come a margem do pedido inteiro.
+    expect(parcelasDisponiveis(120_00)).toEqual([1, 2]);
+    expect(parcelasDisponiveis(PARCELA_MINIMA_CENTAVOS)).toEqual([1]);
+  });
+
+  it('à vista SEMPRE é opção, mesmo em pedido de valor mínimo', () => {
+    expect(parcelasDisponiveis(0)).toEqual([1]);
+    expect(parcelasDisponiveis(1)).toEqual([1]);
+  });
+
+  it('a parcela exibida é o total dividido — sem juros', () => {
+    expect(valorDaParcela(4_350_00, 6)).toBe(725_00);
+    expect(valorDaParcela(4_350_00, 1)).toBe(4_350_00);
   });
 });

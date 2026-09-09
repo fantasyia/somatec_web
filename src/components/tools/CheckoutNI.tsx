@@ -36,6 +36,7 @@ import { selecionarMasterBlock, formatBRL } from '@/lib/constants/masterblock';
 import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
 import {
   GATEWAY_ATIVO, FORMAS_PAGAMENTO, freteDoPedido, enderecoVazio,
+  parcelasDisponiveis, valorDaParcela,
   enderecoCompleto, enderecoEmUmaLinha,
   type Endereco, type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
@@ -319,6 +320,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [cepBuscando, setCepBuscando] = useState(false);
   const [cepMsg, setCepMsg] = useState<string | null>(null);
   const [pagamento, setPagamento] = useState<FormaPagamentoId | ''>('');
+  /** Parcelas no cartão. 1 = à vista, que é o padrão de propósito: parcelado
+   *  custa mais caro pra Somatec, então é escolha do cliente, não empurrão. */
+  const [parcelas, setParcelas] = useState(1);
   const [freteOpcoes, setFreteOpcoes] = useState<{ nome: string; transportadora: string; valor: number; prazoDias: number | null }[]>([]);
 
   const [status, setStatus] = useState<FormStatusKind>('idle');
@@ -475,6 +479,11 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const totalPassos = temPreco ? PASSOS_BASE + 1 : PASSOS_BASE;
   const frete = freteDoPedido();
   const totalPedido = totalCarrinho + (Number.isFinite(frete.valor) ? frete.valor : 0);
+  const totalCentavosPedido = Math.round(totalPedido * 100);
+  const opcoesParcelas = parcelasDisponiveis(totalCentavosPedido);
+  // Preso ao que o total permite: tirar um item do carrinho pode derrubar o teto
+  // de parcelas, e a escolha antiga viraria uma promessa que o servidor recusa.
+  const parcelasEscolhidas = Math.min(parcelas, opcoesParcelas[opcoesParcelas.length - 1]);
 
   // begin_checkout — só ao CHEGAR no passo de endereço/pagamento, e só com
   // preço fechado: sem preço não há o que comprar e o wizard vira lead.
@@ -621,6 +630,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
             totalCentavos: Math.round(totalPedido * 100),
             freteCentavos: Math.round((Number.isFinite(frete.valor) ? frete.valor : 0) * 100),
             formaPagamento: FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? pagamento,
+            parcelas: pagamento === 'cartao' ? parcelasEscolhidas : 1,
             endereco,
             setor,
             origem: `site:${landingSlug}`,
@@ -1261,6 +1271,37 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       );
                     })}
                   </div>
+
+                  {/* Parcelamento — só no cartão, e só quando há mais de uma
+                      opção. Mostrar "1x" sozinho num pedido pequeno seria
+                      anunciar uma escolha que não existe. */}
+                  {pagamento === 'cartao' && opcoesParcelas.length > 1 && (
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="parcelas"
+                        className="block font-sans text-sm font-semibold text-[rgb(var(--text))]"
+                      >
+                        Em quantas vezes?
+                      </label>
+                      <select
+                        id="parcelas"
+                        value={parcelasEscolhidas}
+                        onChange={(e) => setParcelas(Number(e.target.value))}
+                        className="w-full rounded-card border border-[rgb(var(--border))] bg-[rgb(var(--bg))] p-3 font-sans text-sm text-[rgb(var(--text))]"
+                      >
+                        {opcoesParcelas.map((n) => (
+                          <option key={n} value={n}>
+                            {n === 1
+                              ? `À vista — ${formatBRL(totalPedido)}`
+                              : `${n}x de ${formatBRL(valorDaParcela(totalCentavosPedido, n) / 100)} sem juros`}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-[rgb(var(--text-muted))]">
+                        Sem juros: o valor total é o mesmo em qualquer opção.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <OfertaCheckout />

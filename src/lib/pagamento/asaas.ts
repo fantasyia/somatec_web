@@ -160,17 +160,29 @@ export async function criarCobranca(params: {
   cliente: Cliente;
   valorCentavos: number;
   forma: FormaAsaas;
+  /** Parcelas no cartão (1 = à vista). PIX ignora — não existe PIX parcelado. */
+  parcelas?: number;
   descricao?: string;
 }): Promise<CobrancaCriada> {
   const clienteId = await garantirCliente(params.cliente);
+  // O Asaas trabalha em REAIS com 2 casas; o site inteiro trabalha em centavos.
+  // A conversão mora só aqui.
+  const valor = Number((params.valorCentavos / 100).toFixed(2));
+  // PARCELAMENTO: quem manda é `installmentCount`, e ele vai na CRIAÇÃO da
+  // cobrança. Sem ele a cobrança é à vista e a página do Asaas não oferece
+  // parcelar — o cliente chega lá e só encontra o valor cheio. Mandamos
+  // `totalValue` (o total a dividir) em vez de `installmentValue` pra não
+  // arredondar parcela na nossa mão: a divisão e a sobra de centavo na última
+  // são do gateway, que é quem vai cobrar.
+  const parcelas = params.forma === 'CREDIT_CARD' ? Math.max(1, Math.round(params.parcelas ?? 1)) : 1;
   const cobranca = await chamar<{ id: string; invoiceUrl: string; status: string }>('/payments', {
     method: 'POST',
     body: {
       customer: clienteId,
       billingType: params.forma,
-      // O Asaas trabalha em REAIS com 2 casas; o site inteiro trabalha em
-      // centavos. A conversão mora só aqui.
-      value: Number((params.valorCentavos / 100).toFixed(2)),
+      ...(parcelas > 1
+        ? { installmentCount: parcelas, totalValue: valor }
+        : { value: valor }),
       // PIX vence rápido (o cliente paga na hora); cartão idem — o prazo aqui é
       // só o limite pra a página de pagamento continuar válida.
       dueDate: vencimento(params.forma === 'PIX' ? 1 : 3),
@@ -182,6 +194,7 @@ export async function criarCobranca(params: {
     pedido: params.numeroPedido,
     cobranca: cobranca.id,
     forma: params.forma,
+    parcelas,
   });
   return { id: cobranca.id, url: cobranca.invoiceUrl, status: cobranca.status };
 }

@@ -38,9 +38,43 @@ export type FormaPagamento = {
   detalhe: string;
 };
 
+// ── PARCELAMENTO ─────────────────────────────────────────────────────────────
+//
+// Até 6x SEM JUROS no cartão (Léo, 09/09/2026). "Sem juros" quer dizer que quem
+// paga a diferença é a Somatec: no Asaas, parcelado até 6x custa 2,49% contra
+// 1,99% à vista, e o dinheiro entra parcela a parcela em vez de tudo em ~32
+// dias. Por isso o cliente ESCOLHE — quem ia pagar à vista de qualquer jeito
+// não deve ser empurrado pro parcelado.
+//
+// O número de parcelas não é decoração de tela: ele vai na criação da cobrança
+// (`installmentCount`). Cobrança criada sem ele é à vista, e a página do Asaas
+// não oferece parcelar — foi assim que a promessa dos 6x ficou só no texto.
+
+export const MAX_PARCELAS = 6;
+
+/**
+ * Piso da parcela. Sem ele, um pedido barato vira 6 parcelas de trocado — e
+ * cada uma custa os mesmos R$ 0,49 de tarifa, então o parcelamento come a
+ * margem inteira do pedido.
+ */
+export const PARCELA_MINIMA_CENTAVOS = 5_000;
+
+/** Quantas parcelas cabem neste total. Sempre inclui 1 (à vista). */
+export function parcelasDisponiveis(totalCentavos: number): number[] {
+  const teto = Math.floor(totalCentavos / PARCELA_MINIMA_CENTAVOS);
+  const max = Math.min(MAX_PARCELAS, Math.max(1, teto));
+  return Array.from({ length: max }, (_, i) => i + 1);
+}
+
+/** Valor de cada parcela, em centavos. O Asaas divide igual e ajusta a última. */
+export function valorDaParcela(totalCentavos: number, parcelas: number): number {
+  const n = Math.max(1, Math.round(parcelas));
+  return Math.round(totalCentavos / n);
+}
+
 export const FORMAS_PAGAMENTO: readonly FormaPagamento[] = [
   { id: 'pix', label: 'PIX', detalhe: 'Aprovação na hora' },
-  { id: 'cartao', label: 'Cartão de crédito', detalhe: 'Parcelamento conforme a bandeira' },
+  { id: 'cartao', label: 'Cartão de crédito', detalhe: `Em até ${MAX_PARCELAS}x sem juros` },
 ];
 
 /** Tradução pro vocabulário do gateway. Fica aqui porque a lista acima manda. */

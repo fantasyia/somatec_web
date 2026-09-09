@@ -171,6 +171,70 @@ describe('cobrança', () => {
     expect(r.url).toBe('https://x/i/1');
   });
 
+  it('PARCELADO: manda installmentCount e o total a dividir', async () => {
+    // O parcelamento se define na CRIAÇÃO da cobrança. Sem `installmentCount` a
+    // página do Asaas não oferece parcelar — foi assim que a promessa de "6x
+    // sem juros" do checkout ficou só no texto, com o cliente chegando lá e
+    // encontrando o valor cheio.
+    const f = responder([
+      { data: [{ id: 'cus_1', name: 'Ana', email: 'ana@x.com' }] },
+      { id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' },
+    ]);
+
+    await criarCobranca({
+      numeroPedido: 'SB-1',
+      cliente: { nome: 'Ana', email: 'ana@x.com', cpfCnpj: '19131243000197' },
+      valorCentavos: 4_350_00,
+      forma: 'CREDIT_CARD',
+      parcelas: 6,
+    });
+
+    const corpo = corpoDaChamada(f, 1);
+    expect(corpo.installmentCount).toBe(6);
+    // `totalValue`, não `installmentValue`: a divisão e a sobra de centavo na
+    // última parcela são do gateway, que é quem cobra.
+    expect(corpo.totalValue).toBe(4350);
+    expect(corpo.value).toBeUndefined();
+  });
+
+  it('1x continua sendo cobrança simples, sem campo de parcela', async () => {
+    const f = responder([
+      { data: [{ id: 'cus_1', name: 'Ana', email: 'ana@x.com' }] },
+      { id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' },
+    ]);
+
+    await criarCobranca({
+      numeroPedido: 'SB-1',
+      cliente: { nome: 'Ana', email: 'ana@x.com', cpfCnpj: '19131243000197' },
+      valorCentavos: 4_350_00,
+      forma: 'CREDIT_CARD',
+      parcelas: 1,
+    });
+
+    const corpo = corpoDaChamada(f, 1);
+    expect(corpo.value).toBe(4350);
+    expect(corpo.installmentCount).toBeUndefined();
+  });
+
+  it('PIX ignora parcelas — não existe PIX parcelado', async () => {
+    const f = responder([
+      { data: [{ id: 'cus_1', name: 'Ana', email: 'ana@x.com' }] },
+      { id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' },
+    ]);
+
+    await criarCobranca({
+      numeroPedido: 'SB-1',
+      cliente: { nome: 'Ana', email: 'ana@x.com', cpfCnpj: '19131243000197' },
+      valorCentavos: 4_350_00,
+      forma: 'PIX',
+      parcelas: 6,
+    });
+
+    const corpo = corpoDaChamada(f, 1);
+    expect(corpo.value).toBe(4350);
+    expect(corpo.installmentCount).toBeUndefined();
+  });
+
   it('erro do Asaas vira mensagem legível, não "HTTP 400"', async () => {
     // O motivo vem em `errors[].description`. Sem extrair, ninguém descobre que
     // faltou o CPF — e o log vira um número.
