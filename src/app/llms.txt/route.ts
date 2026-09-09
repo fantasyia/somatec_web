@@ -82,9 +82,12 @@ export async function GET(): Promise<Response> {
   try {
     const posts = (await lerPosts()).filter((p) => !p.placeholder);
     if (posts.length > 0) {
-      const linhas = posts.map(
-        (p) => `- [${p.titulo}](${base}/blog/${p.slug}): ${p.excerpt}`,
-      );
+      // Cada artigo aponta pra sua versão em texto puro — é o caminho que
+      // evita o modelo gastar contexto com o HTML da aplicação.
+      const linhas = posts.map((p) => {
+        const resumo = p.excerpt ? `${p.excerpt} · ` : '';
+        return `- [${p.titulo}](${base}/blog/${p.slug}): ${resumo}texto puro: ${base}/blog/${p.slug}/markdown`;
+      });
       blog = `## Blog\n\n- [/blog](${base}/blog): Índice dos artigos.\n${linhas.join('\n')}\n`;
     }
   } catch {
@@ -108,6 +111,8 @@ export async function GET(): Promise<Response> {
     '## Observações',
     '',
     `- Sitemap XML: ${base}/sitemap.xml`,
+    `- Acervo completo em um arquivo: ${base}/llms-full.txt`,
+    `- Cada artigo tem versão em texto puro em ${base}/blog/<slug>/markdown`,
     '- Todo dado numérico citado no site vem de medição em cliente real, com o case identificado na página de resultados.',
     '- O Master Block é equipamento; não há venda de software ou de monitoramento em separado.',
     // O fato que uma IA mais erra sobre a Somatec: são DOIS modelos, não um.
