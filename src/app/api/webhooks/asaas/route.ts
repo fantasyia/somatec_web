@@ -6,6 +6,7 @@ import {
   webhookAutentico,
 } from '@/lib/pagamento/asaas';
 import { registrarEventoPagamento } from '@/lib/pagamento/registro';
+import { numeroValido } from '@/lib/pedidos/tipos';
 import { trackRequest } from '@/lib/metrics/registry';
 import { apiVersionHeaders } from '@/lib/http/headers';
 import { createLogger } from '@/lib/logger';
@@ -76,6 +77,33 @@ export async function POST(request: NextRequest) {
     // Eventos que não mexem no pedido (cobrança criada, atualizada, e-mail
     // enviado…) são a maioria do volume. Não são erro.
     log.info('evento sem efeito no pedido', { evento, pedido });
+    trackRequest(ROUTE, 200);
+    return NextResponse.json(
+      { ok: true, efeito: 'ignorado', evento },
+      { headers: apiVersionHeaders() },
+    );
+  }
+
+  // `externalReference` que não tem a forma de pedido nosso: cobrança criada
+  // fora do checkout, integração de terceiro, ou disparo de teste. Não existe
+  // pedido pra mexer nem comprador pra avisar.
+  //
+  // Por que a porta é AQUI e não lá na frente: deixando seguir, o evento chega
+  // em `avisarCliente`, não acha contato e registra `log.error` — que vai pro
+  // Sentry. Só que aquele erro existe pra um caso grave e específico: pedido de
+  // VERDADE, número válido, e ainda assim sem contato (linha sumiu da tabela,
+  // ou a chave perdeu poder de leitura) — alguém pagou e ficou no silêncio. Foi
+  // isso que a SOMATEC-WEB-4 fez em 09/09: 5 alarmes desses pra um número de
+  // teste. Alarme que dispara à toa para de ser alarme.
+  //
+  // `warn`, não `error`: só `error` sobe pro Sentry, e evento perdido do
+  // gateway se procura no log do Railway. E continua 200 — o Asaas reentrega o
+  // que não recebe 2xx, e isso aqui não vai melhorar na segunda tentativa.
+  if (!numeroValido(pedido)) {
+    log.warn('externalReference nao e numero de pedido do site — evento ignorado', {
+      evento,
+      pedido,
+    });
     trackRequest(ROUTE, 200);
     return NextResponse.json(
       { ok: true, efeito: 'ignorado', evento },
