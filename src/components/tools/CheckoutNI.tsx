@@ -36,7 +36,7 @@ import { selecionarMasterBlock, formatBRL } from '@/lib/constants/masterblock';
 import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
 import {
   GATEWAY_ATIVO, FORMAS_PAGAMENTO, freteDoPedido, enderecoVazio,
-  parcelasDisponiveis, valorDaParcela,
+  parcelasDisponiveis, valorDaParcela, formatParcelaBRL,
   enderecoCompleto, enderecoEmUmaLinha,
   type Endereco, type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
@@ -1293,7 +1293,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                           <option key={n} value={n}>
                             {n === 1
                               ? `À vista — ${formatBRL(totalPedido)}`
-                              : `${n}x de ${formatBRL(valorDaParcela(totalCentavosPedido, n) / 100)} sem juros`}
+                              : `${n}x de ${formatParcelaBRL(valorDaParcela(totalCentavosPedido, n))} sem juros`}
                           </option>
                         ))}
                       </select>

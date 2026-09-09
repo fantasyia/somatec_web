@@ -11,6 +11,7 @@ import {
   PARCELA_MINIMA_CENTAVOS,
   parcelasDisponiveis,
   valorDaParcela,
+  formatParcelaBRL,
 } from '@/lib/constants/pagamento';
 
 // O checkout NI fecha pedido de verdade: endereço errado ou frete cobrado por
@@ -115,5 +116,16 @@ describe('parcelamento no cartão', () => {
   it('a parcela exibida é o total dividido — sem juros', () => {
     expect(valorDaParcela(4_350_00, 6)).toBe(725_00);
     expect(valorDaParcela(4_350_00, 1)).toBe(4_350_00);
+  });
+});
+
+describe('valor da parcela na tela', () => {
+  it('mostra os CENTAVOS — senão a soma das parcelas não fecha com o total', () => {
+    // R$ 4.350 em 4x dá R$ 1.087,50. Arredondado, "4x de R$ 1.088" anuncia
+    // R$ 4.352 — dois reais que ninguém vai cobrar, num número que o cliente
+    // confere na mão.
+    const limpo = (s: string) => s.replace(/ /g, ' ');
+    expect(limpo(formatParcelaBRL(valorDaParcela(4_350_00, 4)))).toBe('R$ 1.087,50');
+    expect(limpo(formatParcelaBRL(725_00))).toBe('R$ 725,00');
   });
 });

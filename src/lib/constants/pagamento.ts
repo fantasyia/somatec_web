@@ -77,6 +77,18 @@ export const FORMAS_PAGAMENTO: readonly FormaPagamento[] = [
   { id: 'cartao', label: 'Cartão de crédito', detalhe: `Em até ${MAX_PARCELAS}x sem juros` },
 ];
 
+/**
+ * Valor de parcela na tela — COM centavos.
+ *
+ * O `formatBRL` do catálogo arredonda pro real inteiro, o que está certo pra
+ * preço de tabela (são números redondos) e errado pra parcela: R$ 4.350 em 4x
+ * dá R$ 1.087,50, e "4x de R$ 1.088" anuncia R$ 4.352 — dois reais que ninguém
+ * vai cobrar, num número que o cliente confere na mão.
+ */
+export function formatParcelaBRL(centavos: number): string {
+  return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
 /** Tradução pro vocabulário do gateway. Fica aqui porque a lista acima manda. */
 export const FORMA_NO_GATEWAY: Record<FormaPagamentoId, 'PIX' | 'CREDIT_CARD'> = {
   pix: 'PIX',
