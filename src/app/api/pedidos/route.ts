@@ -17,6 +17,7 @@ import { getLgpdConsentText } from '@/lib/lgpd';
 import { entregarLead } from '@/lib/leads/entregar';
 import { asaasConfigurado, criarCobranca } from '@/lib/pagamento/asaas';
 import { FORMA_NO_GATEWAY, type FormaPagamentoId } from '@/lib/constants/pagamento';
+import { precificarPedido } from '@/lib/pedidos/precificar';
 import type { FormSubmitData } from '@/lib/forms/schemas';
 
 const log = createLogger('api-pedidos');
@@ -102,7 +103,64 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, numero: null }, { headers: apiVersionHeaders() });
   }
 
-  const { website: _ignorado, ...dados } = parsed.data;
+  const { website: _ignorado, ...recebido } = parsed.data;
+
+  // ── PREÇO É DO SERVIDOR ────────────────────────────────────────────────
+  //
+  // O corpo traz `precoCentavos` e `totalCentavos`, e o schema valida forma e
+  // teto — mas não a ORIGEM: o número vem do navegador. Enquanto não havia
+  // pagamento online isso só sujava o registro; com o gateway ligado, é ele que
+  // define quanto o cliente PAGA. Um POST com `totalCentavos: 100` gerava
+  // cobrança de R$ 1,00 por um equipamento de R$ 4.350,00.
+  //
+  // A partir daqui o corpo vale como INTENÇÃO (qual modelo, quantas unidades);
+  // preço e frete saem do catálogo.
+  const preco = precificarPedido(recebido.itens, {
+    totalCentavos: recebido.totalCentavos,
+    freteCentavos: recebido.freteCentavos,
+  });
+  if (!preco.ok) {
+    log.warn('pedido recusado na precificacao', { motivo: preco.motivo, detalhe: preco.detalhe });
+    trackRequest(ROUTE, 422);
+    return NextResponse.json(
+      {
+        ok: false,
+        message:
+          'Não conseguimos confirmar o preço deste pedido. Recarregue a página e monte o pedido de novo.',
+      },
+      { status: 422, headers: apiVersionHeaders() },
+    );
+  }
+  if (preco.divergenciaCentavos !== 0) {
+    // Barulho ALTO e recusa. Divergência é uma de duas coisas: adulteração, ou
+    // página velha com preço antigo. Cobrar o valor novo sem a pessoa ver seria
+    // cobrar mais do que foi anunciado; cobrar o antigo é aceitar o número do
+    // cliente, que é a brecha. As duas se resolvem com a página recarregada.
+    log.error('DIVERGENCIA DE PRECO no pedido', {
+      email: recebido.email,
+      afirmadoCentavos: recebido.totalCentavos,
+      realCentavos: preco.totalCentavos,
+      difCentavos: preco.divergenciaCentavos,
+      itens: recebido.itens.map((i) => `${i.modelo ?? '?'}x${i.quantidade ?? 1}`),
+    });
+    trackRequest(ROUTE, 409);
+    return NextResponse.json(
+      {
+        ok: false,
+        message:
+          'O valor do pedido mudou desde que você abriu a página. Recarregue e confira o total antes de confirmar.',
+      },
+      { status: 409, headers: apiVersionHeaders() },
+    );
+  }
+
+  // Daqui pra baixo, os números do SERVIDOR — inclusive no que é gravado.
+  const dados = {
+    ...recebido,
+    itens: preco.itens,
+    totalCentavos: preco.totalCentavos,
+    freteCentavos: preco.freteCentavos,
+  };
   const r = await criarPedido(dados);
 
   if (!r.ok) {
