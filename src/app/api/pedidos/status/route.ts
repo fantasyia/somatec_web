@@ -75,10 +75,23 @@ export async function POST(req: NextRequest) {
 
   const r = await atualizarStatus(parsed.data);
   if (!r.ok) {
-    trackRequest(ROUTE, 400);
+    // 400 diz "sua requisição está errada, não repita" — e é o que o chamador
+    // faz: não repete. Usar isso pra um soluço do banco perde a atualização
+    // PARA SEMPRE, e a página que o cliente acompanha congela sem ninguém
+    // receber erro. Foi o SOMATEC-WEB-3 no Sentry, em 09/09.
+    //
+    // Falha que passa vira 503 + Retry-After: é o código que autoriza tentar de
+    // novo. Falha que fica continua 400.
+    const codigo = r.transitorio ? 503 : 400;
+    trackRequest(ROUTE, codigo);
     return NextResponse.json(
-      { ok: false, message: r.erro },
-      { status: 400, headers: apiVersionHeaders() },
+      { ok: false, message: r.erro, transitorio: Boolean(r.transitorio) },
+      {
+        status: codigo,
+        headers: r.transitorio
+          ? { ...apiVersionHeaders(), 'retry-after': '30' }
+          : apiVersionHeaders(),
+      },
     );
   }
 

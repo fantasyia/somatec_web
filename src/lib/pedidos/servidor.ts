@@ -145,7 +145,42 @@ export async function consultarPedido(numeroBruto: string): Promise<PedidoPublic
 
 export type ResultadoStatus =
   | { ok: true; numero: string; status: StatusPedido }
-  | { ok: false; erro: string };
+  | { ok: false; erro: string; transitorio?: boolean };
+
+// =============================================================================
+// FALHA QUE PASSA ≠ FALHA QUE FICA — e a diferença vale um pedido.
+//
+// Achado pelo Sentry em 09/09 (SOMATEC-WEB-3): o Supabase respondeu
+// "Gateway Timeout" numa atualização de status vinda do ERP. Soluço de
+// infraestrutura, o tipo de coisa que some sozinha na segunda tentativa.
+//
+// Só que a rota devolvia 400 pra QUALQUER falha, e 400 quer dizer "sua
+// requisição está errada, não adianta repetir". Chamador correto não repete.
+// Resultado: o status ficou velho no site pra sempre, a página que o cliente
+// acompanha congelou, e ninguém recebeu erro nenhum.
+//
+// Por isso a falha agora se declara. Transitório vira 503 na rota, que é o
+// código que AUTORIZA nova tentativa; o resto continua 400.
+//
+// ⚠️ Errar pro lado do transitório é de graça (o chamador tenta de novo e
+// recebe o mesmo 400 se o problema for permanente). Errar pro outro lado custa
+// um pedido parado. Na dúvida, transitório.
+// =============================================================================
+
+/** Códigos do Postgres que significam "tenta de novo": timeout de statement,
+ *  banco sem conexão sobrando, conexão derrubada no meio. */
+const CODIGOS_TRANSITORIOS = new Set(['57014', '53300', '53400', '08000', '08003', '08006']);
+
+const TEXTO_TRANSITORIO =
+  /timeout|timed out|gateway|temporarily|unavailable|too many connections|fetch failed|socket hang up|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|502|503|504/i;
+
+function ehTransitorio(erro: unknown): boolean {
+  if (!erro) return false;
+  const e = erro as { code?: string; message?: string; status?: number };
+  if (e.code && CODIGOS_TRANSITORIOS.has(e.code)) return true;
+  if (typeof e.status === 'number' && e.status >= 500) return true;
+  return TEXTO_TRANSITORIO.test(String(e.message ?? erro));
+}
 
 /** Move o pedido. Não existe tela pra isso — o /admin do site saiu em 25/08 —
  *  então o caminho é a rota `/api/pedidos/status`, com segredo.
@@ -175,8 +210,9 @@ export async function atualizarStatus(args: {
       p_rastreio_url: args.rastreioUrl ?? null,
     });
     if (error) {
-      log.error('falha atualizando status', { error });
-      return { ok: false, erro: error.message };
+      const transitorio = ehTransitorio(error);
+      log.error('falha atualizando status', { error, transitorio });
+      return { ok: false, erro: error.message, transitorio };
     }
     const linha = (Array.isArray(data) ? data[0] : data) as
       | { numero: string; status: StatusPedido }
@@ -184,8 +220,10 @@ export async function atualizarStatus(args: {
     if (!linha) return { ok: false, erro: 'pedido nao encontrado' };
     return { ok: true, numero: linha.numero, status: linha.status };
   } catch (e) {
+    // Exceção aqui é quase sempre rede: o fetch pro Supabase não completou.
+    // Isso é transitório por natureza — quem chamou tem que poder repetir.
     log.error('excecao atualizando status', { error: e });
-    return { ok: false, erro: 'falha ao atualizar' };
+    return { ok: false, erro: 'falha ao atualizar', transitorio: true };
   }
 }
 
