@@ -45,6 +45,23 @@ export async function GET(
   const html = (await lerHtmlBruto(slug)) ?? '';
   const corpo = htmlParaMarkdown(html);
 
+  // Sem corpo, 404 — não serve cabeçalho sozinho.
+  //
+  // Acontece de verdade: artigo que vem do acervo em ARQUIVO (fallback quando
+  // o banco não responde) tem o texto em `blog-content.ts`, não no HTML do
+  // CMS, então `lerHtmlBruto` volta vazio. Entregar título + resumo e mais
+  // nada é o mesmo problema do stub: a IA cita como se fosse a resposta da
+  // Somatec sobre o tema, e a resposta é uma casca.
+  //
+  // O `/llms-full.txt` já pulava esse caso (`if (!corpo) continue`); aqui
+  // faltava — achado conferindo a rota em produção.
+  if (!corpo) {
+    return new Response('Artigo sem conteúdo em texto.\n', {
+      status: 404,
+      headers: { 'content-type': 'text/plain; charset=utf-8' },
+    });
+  }
+
   const cabecalho = [
     `# ${post.titulo}`,
     '',

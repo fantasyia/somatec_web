@@ -35,6 +35,12 @@ describe('🔒 só sai o que já é público', () => {
     expect(fonte).toMatch(/status:\s*404/);
   });
 
+  it('artigo sem corpo dá 404 — cabeçalho sozinho é casca, e a IA cita casca', () => {
+    // Acontece com artigo do acervo em ARQUIVO: o texto mora em
+    // blog-content.ts, não no HTML do CMS, e lerHtmlBruto volta vazio.
+    expect(ler(ROTA_MD)).toMatch(/if \(!corpo\)[\s\S]{0,160}status:\s*404/);
+  });
+
   it('o llms-full também filtra placeholder e usa lerPosts', () => {
     const fonte = ler(ROTA_FULL);
     expect(fonte).toContain('lerPosts');
