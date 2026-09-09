@@ -25,9 +25,15 @@ export async function register() {
     dsn,
     debug: process.env.SENTRY_DEBUG === 'true',
     environment: process.env.NODE_ENV,
-    // Amostragem de performance DESLIGADA de propósito: consome a mesma cota
-    // dos erros e hoje não responde nenhuma pergunta que a gente tenha. Liga
-    // quando houver tráfego real e uma pergunta de lentidão pra responder.
+    // Amostragem de performance DESLIGADA — mas NÃO por cota: errors e spans
+    // são categorias de cobrança separadas no Sentry, e gastar uma não mexe na
+    // outra (conferido na conta em 09/09: 3 errors de 1M, spans em 0,5% da
+    // franquia). O motivo é que hoje o site não tem tráfego nem pergunta de
+    // lentidão pra responder — trace sem volume não vira padrão, vira anedota.
+    //
+    // ⚠️ Liga quando houver tráfego real. O caso que já pediria isso: o
+    // `betinna:pedido` que levou 6,5s (SOMATEC-WEB-2) — sabemos o total e não
+    // sabemos onde foi o tempo, que é exatamente o que o trace mostraria.
     tracesSampleRate: 0,
     sendDefaultPii: false,
     beforeSend: limparEvento,
