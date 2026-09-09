@@ -18,6 +18,8 @@ import { entregarLead } from '@/lib/leads/entregar';
 import { asaasConfigurado, criarCobranca } from '@/lib/pagamento/asaas';
 import { FORMA_NO_GATEWAY, type FormaPagamentoId } from '@/lib/constants/pagamento';
 import { precificarPedido } from '@/lib/pedidos/precificar';
+import { enviarEventoMeta, montarFbc } from '@/lib/meta/capi';
+import { randomUUID } from 'node:crypto';
 import type { FormSubmitData } from '@/lib/forms/schemas';
 
 const log = createLogger('api-pedidos');
@@ -42,6 +44,25 @@ const itemSchema = z.object({
   precoCentavos: z.number().int().min(0).max(100_000_000),
 });
 
+/**
+ * Tira o `fbclid` do cookie de atribuição (`stc_attrib`, first-party, escrito
+ * na chegada). É ele que vira `fbc` e liga a conversão ao clique no anúncio —
+ * o sinal de match mais forte que a gente tem, e já estava guardado.
+ */
+function fbclidDaRequisicao(req: NextRequest): string | null {
+  const bruto = req.cookies.get('stc_attrib')?.value;
+  if (!bruto) return null;
+  try {
+    const attr = JSON.parse(decodeURIComponent(bruto)) as {
+      primeiro?: { fbclid?: string };
+      ultimo?: { fbclid?: string };
+    };
+    return attr.ultimo?.fbclid ?? attr.primeiro?.fbclid ?? null;
+  } catch {
+    return null;
+  }
+}
+
 const schema = z.object({
   nome: z.string().min(2).max(120),
   email: z.string().email().max(160),
@@ -65,6 +86,8 @@ const schema = z.object({
   origem: z.string().max(80).nullish(),
   // Armadilha de robô: campo escondido que gente não preenche.
   website: z.string().max(200).optional(),
+  /** Mesmo id do evento do navegador — dedupe do CAPI. */
+  event_id: z.string().max(64).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -204,6 +227,32 @@ export async function POST(req: NextRequest) {
   //
   // Aguardado, e não disparado solto, porque em serverless a função pode ser
   // congelada assim que a resposta sai: "fire and forget" viraria "forget".
+  // CAPI da Meta — o MESMO evento que o navegador empurrou, pelo servidor.
+  // Sobrevive a bloqueador de anúncio e a iOS; o `event_id` igual nos dois
+  // caminhos é o que impede a conversão de ser contada duas vezes.
+  //
+  // ⛔ `pedido_registrado`, NUNCA `Purchase`: enquanto o gateway não confirma
+  // pagamento, marcar como compra ensinaria a Meta a caçar quem registra
+  // pedido e não paga. Purchase nasce na confirmação do Asaas, não aqui.
+  await enviarEventoMeta({
+    nome: 'pedido_registrado',
+    eventId: recebido.event_id ?? randomUUID(),
+    urlOrigem: req.headers.get('referer'),
+    usuario: {
+      email: dados.email,
+      telefone: dados.whatsapp,
+      fbc: montarFbc(fbclidDaRequisicao(req)),
+      fbp: req.cookies.get('_fbp')?.value ?? null,
+      ip: getClientIp(req.headers),
+      userAgent: req.headers.get('user-agent'),
+    },
+    dados: {
+      currency: 'BRL',
+      value: (dados.totalCentavos ?? 0) / 100,
+      order_id: r.numero,
+    },
+  });
+
   const endereco = dados.endereco as { cidade?: string; uf?: string };
   await enviarEmail({
     para: dados.email,

@@ -12,6 +12,7 @@ import { getClientIp as clientIpFromHeaders } from '@/lib/http/client-ip';
 const ROUTE = '/api/forms/submit';
 import { buildMullerBotPayload } from '@/lib/mullerbot/payload';
 import { sendToBetinna } from '@/lib/betinna/client';
+import { enviarEventoMeta, montarFbc } from '@/lib/meta/capi';
 import {
   enqueueSubmission,
   markSent,
@@ -171,6 +172,36 @@ export async function POST(req: NextRequest) {
       { status: 500, headers: apiVersionHeaders() },
     );
   }
+
+  // CAPI da Meta — o MESMO evento `generate_lead` que o navegador empurrou,
+  // agora pelo servidor. Sobrevive a bloqueador de anúncio e ao ITP do iOS, e
+  // o `event_id` idêntico nos dois caminhos é o que impede a conversão de ser
+  // contada duas vezes.
+  //
+  // ⚠️ Fallback de id: se o navegador não mandou (JS quebrado, bundle velho em
+  // cache, request montada fora do fluxo), o servidor gera um. Mandar SEM
+  // event_id seria pior que não mandar — sem ele não há dedupe, e o evento
+  // server-side viraria conversão dobrada.
+  //
+  // Aguardado e ignorado: analytics não pode transformar lead bom em erro.
+  await enviarEventoMeta({
+    nome: 'Lead',
+    eventId: parsed.data.event_id ?? randomUUID(),
+    urlOrigem: req.headers.get('referer'),
+    usuario: {
+      email: parsed.data.email || null,
+      telefone: parsed.data.whatsapp || null,
+      // O fbclid já estava guardado no cookie de atribuição desde a chegada.
+      fbc: montarFbc(
+        parsed.data.atribuicao?.ultimo?.fbclid ?? parsed.data.atribuicao?.primeiro?.fbclid ?? null,
+        parsed.data.atribuicao?.primeiro?.capturadoEm ?? null,
+      ),
+      fbp: req.cookies.get('_fbp')?.value ?? null,
+      ip,
+      userAgent: req.headers.get('user-agent'),
+    },
+    dados: { form_id: parsed.data.formulario ?? null },
+  });
 
   // Tentativa síncrona imediata (encaminha o lead ao Betinna.ai)
   const sendResult = await sendToBetinna(payload);

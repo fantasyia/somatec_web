@@ -89,6 +89,11 @@ const baseFields = {
   source_page: z.string().max(200).optional().default('/contato'),
   website: honeypotSchema, // honeypot
   captcha_token: turnstileSchema,
+  /** ID do evento emitido pelo NAVEGADOR. O servidor reusa o mesmo valor no
+   *  CAPI da Meta — é o que faz os dois disparos virarem um evento só. Sem
+   *  declarar aqui o Zod descartava em silêncio (ele STRIP campo desconhecido,
+   *  não reclama), e o CAPI acabaria gerando um id novo: conversão em dobro. */
+  event_id: z.string().max(64).optional(),
   // Qual FERRAMENTA do site converteu. Um slug por ferramenta, estável — é por
   // ele que o Betinna roteia o fluxo. Antes, três ferramentas com jornadas
   // opostas mandavam o mesmo 'calculadora' e a única coisa que as separava era
