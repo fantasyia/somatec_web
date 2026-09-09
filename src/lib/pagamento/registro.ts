@@ -42,8 +42,22 @@ export async function registrarEventoPagamento(params: {
   cobrancaId: string | null;
   situacao: SituacaoPagamento;
   valorCentavos: number;
+  /** Venda parcelada: o gateway manda UM evento POR PARCELA. */
+  parcelamento?: { id: string; totalCentavos: number; parcelas: number } | null;
 }): Promise<EfeitoRegistro> {
-  const chave = `somatec:pagamento:${params.eventoId}`;
+  // A CHAVE DE IDEMPOTÊNCIA MUDA QUANDO A VENDA É PARCELADA.
+  //
+  // Pagar em 6x confirma as seis parcelas de uma vez, e o Asaas manda seis
+  // eventos — cada um com id próprio e com o valor da PARCELA. Casando por
+  // evento, isso vira seis avisos de "pagamento confirmado — R$ 725,00" num
+  // pedido de R$ 4.350: quem lê conclui que entrou menos do que entrou, ou que
+  // existem seis pedidos.
+  //
+  // Casando pelo PARCELAMENTO + situação, a venda avisa UMA vez — e um estorno
+  // depois ainda avisa, porque a situação faz parte da chave.
+  const chave = params.parcelamento
+    ? `somatec:pagamento:parc:${params.parcelamento.id}:${params.situacao}`
+    : `somatec:pagamento:${params.eventoId}`;
   const redis = getRedis();
 
   if (redis) {
@@ -81,15 +95,21 @@ export async function registrarEventoPagamento(params: {
   // nenhum treina a pessoa a ignorar o aviso — e o dia em que for de verdade,
   // ela ignora também. Sem a variável, vai pro canal de sempre.
   const destino = process.env.PAGAMENTO_ALERTA_EMAIL?.trim() || CONTACT.email;
-  const valor = (params.valorCentavos / 100).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
+  const emReais = (centavos: number) =>
+    (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  // Na venda parcelada o que importa pra quem separa é o TOTAL; o parcelamento
+  // vai junto porque muda quando o dinheiro entra na conta.
+  const valor = params.parcelamento
+    ? `${emReais(params.parcelamento.totalCentavos)} em ${params.parcelamento.parcelas}x de ${emReais(params.valorCentavos)}`
+    : emReais(params.valorCentavos);
+  const valorNoAssunto = params.parcelamento
+    ? emReais(params.parcelamento.totalCentavos)
+    : emReais(params.valorCentavos);
   const pago = params.situacao === 'pago';
   await enviarEmail({
     para: destino,
     assunto: pago
-      ? `Pagamento confirmado — pedido ${params.numeroPedido} (${valor})`
+      ? `Pagamento confirmado — pedido ${params.numeroPedido} (${valorNoAssunto})`
       : `Pagamento NÃO concluído — pedido ${params.numeroPedido}`,
     html: pago
       ? `<p>O pedido <strong>${params.numeroPedido}</strong> foi pago: <strong>${valor}</strong>.</p>
@@ -114,7 +134,13 @@ export async function registrarEventoPagamento(params: {
   // dizendo que o pagamento falhou, quando o mais provável é que a pessoa tenha
   // só desistido no cartão, cria um problema que não existia.
   if (pago) {
-    await avisarCliente(params).catch((err) => {
+    await avisarCliente({
+      ...params,
+      // O cliente tem que ver o TOTAL que ele comprou, não a parcela: "R$ 725,00
+      // confirmados" numa compra de R$ 4.350 parece cobrança errada, e a
+      // primeira reação é ligar perguntando o que aconteceu.
+      valorCentavos: params.parcelamento?.totalCentavos ?? params.valorCentavos,
+    }).catch((err) => {
       log.error('e-mail de pagamento ao cliente falhou', { pedido: params.numeroPedido }, err);
     });
   }

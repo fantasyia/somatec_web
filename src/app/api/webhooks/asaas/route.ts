@@ -1,5 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { EVENTOS_CANCELADO, EVENTOS_PAGO, webhookAutentico } from '@/lib/pagamento/asaas';
+import {
+  EVENTOS_CANCELADO,
+  EVENTOS_PAGO,
+  consultarParcelamento,
+  webhookAutentico,
+} from '@/lib/pagamento/asaas';
 import { registrarEventoPagamento } from '@/lib/pagamento/registro';
 import { trackRequest } from '@/lib/metrics/registry';
 import { apiVersionHeaders } from '@/lib/http/headers';
@@ -41,7 +46,14 @@ export async function POST(request: NextRequest) {
   let corpo: {
     id?: string;
     event?: string;
-    payment?: { id?: string; externalReference?: string; value?: number; status?: string };
+    payment?: {
+      id?: string;
+      externalReference?: string;
+      value?: number;
+      status?: string;
+      /** Id do PARCELAMENTO, quando a venda foi em Nx. */
+      installment?: string | null;
+    };
   };
   try {
     corpo = (await request.json()) as typeof corpo;
@@ -71,6 +83,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Venda parcelada: o evento chega POR PARCELA, com o valor da parcela. O
+  // total e o número de parcelas só existem no parcelamento — sem consultar,
+  // o aviso informaria menos dinheiro do que entrou.
+  const idParcelamento = corpo.payment?.installment ?? null;
+  const parcelamento = idParcelamento
+    ? await consultarParcelamento(idParcelamento).then((p) => (p ? { id: idParcelamento, ...p } : null))
+    : null;
+
   const efeito = await registrarEventoPagamento({
     eventoId: corpo.id ?? `${evento}:${corpo.payment?.id ?? ''}`,
     evento,
@@ -78,6 +98,7 @@ export async function POST(request: NextRequest) {
     cobrancaId: corpo.payment?.id ?? null,
     situacao,
     valorCentavos: Math.round((corpo.payment?.value ?? 0) * 100),
+    parcelamento,
   });
 
   log.info('pagamento registrado', { evento, pedido, efeito });

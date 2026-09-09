@@ -3,6 +3,7 @@ import {
   EVENTOS_CANCELADO,
   EVENTOS_PAGO,
   asaasConfigurado,
+  consultarParcelamento,
   criarCobranca,
   webhookAutentico,
 } from '@/lib/pagamento/asaas';
@@ -303,5 +304,45 @@ describe('formas de pagamento', () => {
     for (const f of FORMAS_PAGAMENTO) {
       expect(FORMA_NO_GATEWAY[f.id]).toBeTruthy();
     }
+  });
+});
+
+describe('parcelamento no aviso de pagamento', () => {
+  it('lê o TOTAL e o número de parcelas do parcelamento', async () => {
+    // O webhook chega POR PARCELA, com o valor da parcela: pagar em 6x confirma
+    // as seis e manda seis eventos de R$ 725 num pedido de R$ 4.350. O total só
+    // existe no parcelamento.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        text: async () => JSON.stringify({ value: 4350, installmentCount: 6, paymentValue: 725 }),
+      }),
+    );
+
+    expect(await consultarParcelamento('parc_1')).toEqual({
+      totalCentavos: 435_000,
+      parcelas: 6,
+    });
+  });
+
+  it('falha na consulta devolve null em vez de derrubar o webhook', async () => {
+    // Aviso com o valor da parcela é ruim; webhook em erro é pior — o Asaas
+    // reentrega, e a idempotência já teria marcado o evento como visto.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: false, status: 500, text: async () => '{}' }),
+    );
+
+    expect(await consultarParcelamento('parc_1')).toBeNull();
+  });
+
+  it('parcelamento sem valor ou sem contagem não vira aviso pela metade', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, text: async () => JSON.stringify({ value: 4350 }) }),
+    );
+
+    expect(await consultarParcelamento('parc_1')).toBeNull();
   });
 });

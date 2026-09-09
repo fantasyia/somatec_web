@@ -153,3 +153,61 @@ describe('nada disso pode derrubar o webhook', () => {
     expect(enviar).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('venda parcelada', () => {
+  const parcelado = {
+    eventoId: 'evt_parcela_1',
+    evento: 'PAYMENT_CONFIRMED',
+    numeroPedido: 'SB-PARC',
+    cobrancaId: 'pay_1',
+    situacao: 'pago' as const,
+    valorCentavos: 725_00,
+    parcelamento: { id: 'parc_abc', totalCentavos: 4_350_00, parcelas: 6 },
+  };
+
+  it('avisa UMA vez por venda, não uma por parcela', async () => {
+    // Pagar em 6x confirma as seis parcelas de uma vez e o Asaas manda seis
+    // eventos, cada um com id próprio. Casando por evento, o operador recebia
+    // seis e-mails de "pagamento confirmado" pela mesma venda.
+    redisSet.mockResolvedValueOnce('OK').mockResolvedValueOnce(null);
+
+    expect(await registrarEventoPagamento(parcelado)).toBe('registrado');
+    expect(await registrarEventoPagamento({ ...parcelado, eventoId: 'evt_parcela_2' })).toBe(
+      'repetido',
+    );
+
+    // A chave é do PARCELAMENTO, não do evento — é isso que junta as seis.
+    expect(String(redisSet.mock.calls[0][0])).toContain('parc_abc');
+  });
+
+  it('o aviso mostra o TOTAL da venda, não o valor da parcela', async () => {
+    // "R$ 725,00 confirmados" num pedido de R$ 4.350 faz quem separa achar que
+    // entrou menos do que entrou.
+    redisSet.mockResolvedValueOnce('OK');
+
+    await registrarEventoPagamento(parcelado);
+
+    // calls[0] é o aviso INTERNO (quem separa e fatura); o do cliente vem depois.
+    const interno = enviar.mock.calls[0]?.[0] as { assunto: string; html: string };
+    expect(interno.assunto).toContain('4.350,00');
+    expect(interno.html).toContain('6x');
+
+    // E o cliente recebe o total da compra, não a parcela.
+    const doCliente = enviar.mock.calls.at(-1)?.[0] as { html: string; texto: string };
+    expect(`${doCliente.html}${doCliente.texto}`).toContain('4.350,00');
+  });
+
+  it('estorno depois do pagamento ainda avisa — a situação faz parte da chave', async () => {
+    redisSet.mockResolvedValue('OK');
+
+    await registrarEventoPagamento(parcelado);
+    await registrarEventoPagamento({
+      ...parcelado,
+      evento: 'PAYMENT_REFUNDED',
+      situacao: 'nao_pago',
+    });
+
+    const chaves = redisSet.mock.calls.map((c) => String(c[0]));
+    expect(new Set(chaves).size).toBe(chaves.length);
+  });
+});

@@ -200,6 +200,33 @@ export async function criarCobranca(params: {
 }
 
 /**
+ * Total de uma venda PARCELADA, a partir do id do parcelamento.
+ *
+ * O webhook chega POR PARCELA: pagar em 6x confirma as seis de uma vez e o
+ * Asaas manda seis eventos, cada um com o valor da PARCELA. Sem consultar o
+ * parcelamento, o aviso diria "pagamento confirmado — R$ 725,00" seis vezes
+ * num pedido de R$ 4.350 — e quem lê conclui que entrou menos do que entrou,
+ * ou que existem seis pedidos.
+ *
+ * Devolve `null` quando a consulta falha: aviso com o valor da parcela e o
+ * rótulo certo é ruim, mas mentir o total é pior.
+ */
+export async function consultarParcelamento(
+  id: string,
+): Promise<{ totalCentavos: number; parcelas: number } | null> {
+  try {
+    const p = await chamar<{ value?: number; installmentCount?: number }>(
+      `/installments/${encodeURIComponent(id)}`,
+    );
+    if (!p.value || !p.installmentCount) return null;
+    return { totalCentavos: Math.round(p.value * 100), parcelas: p.installmentCount };
+  } catch (err) {
+    log.warn('parcelamento nao consultado', { id, erro: String(err) });
+    return null;
+  }
+}
+
+/**
  * O evento do webhook é confiável? Conferimos o token que NÓS cadastramos no
  * painel do Asaas — ele devolve em todo evento.
  *
