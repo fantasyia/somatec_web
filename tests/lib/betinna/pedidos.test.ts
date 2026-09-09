@@ -181,3 +181,19 @@ describe('o que a NF e a etiqueta exigem', () => {
     expect(p.itens).toHaveLength(1);
   });
 });
+
+describe('forma de pagamento no push', () => {
+  it('cartão do checkout chega como CARTAO_CREDITO', () => {
+    // O app gravava PIX fixo em todo pedido do site. Com o gateway ligado, o
+    // cliente pode ter pago no cartão — e aí o ERP registrava o recebimento na
+    // forma errada, que é justamente o que a conciliação com o Asaas usa.
+    const p = montarPedidoBetinna({ ...base, formaPagamento: 'Cartão de crédito' })!;
+
+    expect(p.formaPagamento).toBe('CARTAO_CREDITO');
+  });
+
+  it('PIX continua PIX, e sem forma escolhida não inventa nenhuma', () => {
+    expect(montarPedidoBetinna({ ...base, formaPagamento: 'PIX' })!.formaPagamento).toBe('PIX');
+    expect(montarPedidoBetinna({ ...base, formaPagamento: null })!.formaPagamento).toBeUndefined();
+  });
+});

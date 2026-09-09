@@ -69,8 +69,21 @@ export type PedidoBetinna = {
   };
   itens: Array<{ sku: string; quantidade: number; valorUnitario: number }>;
   valorFrete: number;
+  /** Vocabulário do Betinna (≠ do gateway, que fala CREDIT_CARD). O app
+   *  gravava PIX fixo em todo pedido do site — resquício de quando não havia
+   *  gateway. Com cartão no checkout, isso é dado errado já na ORIGEM, e
+   *  nenhum mapeamento do lado de lá conserta: quem sabe como o cliente
+   *  escolheu pagar é esta tela. */
+  formaPagamento?: 'PIX' | 'CARTAO_CREDITO';
   observacoes: string;
 };
+
+/** Rótulo da tela ("Cartão de crédito") → vocabulário do Betinna. */
+function formaParaBetinna(rotulo?: string | null): 'PIX' | 'CARTAO_CREDITO' | undefined {
+  const t = (rotulo ?? '').toLowerCase();
+  if (!t) return undefined;
+  return t.includes('cart') ? 'CARTAO_CREDITO' : 'PIX';
+}
 
 /** Endereço de entrega em uma linha. Duplica `enderecoEmUmaLinha` de propósito:
  *  aqui o objeto chega como JSON solto (veio do corpo da requisição), sem a
@@ -121,8 +134,11 @@ export function montarPedidoBetinna(p: EntradaPedidoBetinna): PedidoBetinna | nu
 
   const doc = (p.documento ?? '').replace(/\D/g, '');
 
+  const forma = formaParaBetinna(p.formaPagamento);
+
   return {
     numeroSite: p.numero,
+    ...(forma ? { formaPagamento: forma } : {}),
     cliente: {
       nome: p.nome.trim().slice(0, 160),
       ...(doc ? { cpfCnpj: doc } : {}),
