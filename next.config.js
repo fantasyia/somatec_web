@@ -16,16 +16,29 @@
 // regrediria o ISR da home (fix do 503). O vetor concreto (GA ID) já é
 // validado/escapado no servidor (ver settings/route + layout).
 const isDev = process.env.NODE_ENV !== 'production';
-const scriptSrc = `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com https://cdn.jsdelivr.net`;
+// ⚠️ TAG NOVA = LIBERAR NO CSP, SENÃO ELA MORRE CALADA. Em 08/09 o container
+// GTM foi ligado (seo_gtm_id) e o `gtm.js` passou a ser BLOQUEADO aqui — o
+// console dizia "violates Content Security Policy" e mais nada: nenhuma tag
+// carregava, e a validação por requisição de rede parecia certa porque o
+// pedido chega a sair. Google Tag Manager, GA4 e Meta Pixel abaixo.
+const GOOGLE_TAGS = 'https://www.googletagmanager.com https://www.google-analytics.com';
+const META_TAGS = 'https://connect.facebook.net';
+const scriptSrc = `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://cdn.jsdelivr.net ${GOOGLE_TAGS} ${META_TAGS}`;
 
 const cspDirectives = [
   "default-src 'self'",
   scriptSrc,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-  "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://picsum.photos https://i.picsum.photos https://fastly.picsum.photos https://placehold.co",
+  // GA4 e Pixel medem por imagem (pixel 1x1) quando o navegador bloqueia fetch.
+  `img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://picsum.photos https://i.picsum.photos https://fastly.picsum.photos https://placehold.co ${GOOGLE_TAGS} https://www.facebook.com`,
   "media-src 'self' https://*.supabase.co https://*.supabase.in https://commondatastorage.googleapis.com",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io",
-  "frame-src https://challenges.cloudflare.com",
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io ${GOOGLE_TAGS} https://analytics.google.com ${META_TAGS} https://www.facebook.com`,
+  // Turnstile monta o desafio em IFRAME — sem isto, token sempre vazio e 400 em
+  // todo formulário. E o desafio conversa com SUBDOMÍNIOS (hagen.challenges…),
+  // não só com o host principal: medido em 09/09, a chamada pro `hagen.` era a
+  // única que abortava. Por isso o curinga, aqui e no connect-src. O GTM usa
+  // iframe no modo Preview.
+  `frame-src https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://www.googletagmanager.com https://www.facebook.com`,
   "font-src 'self' data: https://fonts.gstatic.com",
   "base-uri 'self'",
   "form-action 'self'",

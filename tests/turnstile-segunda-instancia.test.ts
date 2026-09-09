@@ -67,6 +67,20 @@ describe('o widget não depende só do onLoad', () => {
 
   it('a varredura está lendo o arquivo certo (âncora anti-falso-verde)', () => {
     expect(CODIGO).toContain('challenges.cloudflare.com');
-    expect(CODIGO).toContain("size: 'invisible'");
+    expect(CODIGO).toContain("appearance: 'interaction-only'");
+  });
+
+  // ⛔ A ÂNCORA ACIMA ERA `size: 'invisible'` — e isso era o próprio bug servindo
+  // de prova de que o teste lia o arquivo certo. O valor existiu no beta do
+  // Turnstile e foi removido; passado hoje, o `render` devolve id e cria o input
+  // escondido (parece OK), mas o desafio nunca monta: token sempre vazio, e o
+  // servidor responde 400 em TODO formulário — sem erro visível na tela.
+  // Achado pela Master Testador de Fluxo em 09/09, medido em produção: input
+  // presente, zero iframe, token vazio.
+  it('⛔ `size` inválido não volta — era isso que derrubava todos os leads', () => {
+    expect(CODIGO).not.toMatch(/size:\s*'invisible'/);
+    // Se um dia precisar de `size`, só estes três existem hoje.
+    const size = CODIGO.match(/^\s*size:\s*'([a-z]+)'/m);
+    if (size) expect(['normal', 'flexible', 'compact']).toContain(size[1]);
   });
 });

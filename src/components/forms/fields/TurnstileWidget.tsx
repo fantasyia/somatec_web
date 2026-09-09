@@ -3,7 +3,8 @@
 import Script from 'next/script';
 import { useCallback, useEffect, useRef } from 'react';
 
-// Cloudflare Turnstile widget — modo invisível (size: 'invisible').
+// Cloudflare Turnstile widget — invisível pelo `appearance: 'interaction-only'`
+// (⛔ NÃO por `size: 'invisible'`, que não existe mais — ver o render abaixo).
 // Renderiza apenas se NEXT_PUBLIC_TURNSTILE_SITE_KEY estiver definida.
 // Em dev sem chave, exporta um <span/> e o token fica vazio (o servidor tolera com warning).
 
@@ -14,7 +15,7 @@ declare global {
         container: string | HTMLElement,
         opts: {
           sitekey: string;
-          size?: 'normal' | 'compact' | 'invisible';
+          size?: 'normal' | 'flexible' | 'compact';
           theme?: 'light' | 'dark' | 'auto';
           callback?: (token: string) => void;
           'error-callback'?: () => void;
@@ -44,7 +45,13 @@ export function TurnstileWidget({ onToken, theme = 'auto' }: Props) {
     if (widgetIdRef.current) return; // já renderizado
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
-      size: 'invisible',
+      // ⛔ NÃO voltar `size: 'invisible'`. O valor existiu no beta do Turnstile e
+      // foi REMOVIDO — hoje `size` aceita normal | flexible | compact. Passando
+      // um valor inválido, o `render` devolve um id e cria o input escondido
+      // (parece que funcionou), mas o desafio nunca monta: zero iframe, token
+      // sempre vazio. E token vazio é `missing_token` no servidor, que responde
+      // 400 — ou seja, NENHUM lead entrava por formulário nenhum, sem erro
+      // visível na tela. Quem fica invisível hoje é o `appearance` abaixo.
       theme,
       appearance: 'interaction-only',
       callback: (token) => onToken(token),
