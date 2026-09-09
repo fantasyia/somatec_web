@@ -120,9 +120,28 @@ const REDIGIDO = '[redigido]';
  * de amostragem do próprio Sentry. Telefone agora exige formato (parênteses,
  * separador ou DDI) e CPF/CNPJ exige a máscara ou fronteira de palavra.
  */
+/**
+ * Segredo viajando em URL — `?secret=…`, `?token=…`.
+ *
+ * ⚠️ Este padrão nasceu de um furo REAL, achado em 09/09 pela sessão do app:
+ * o segredo do webhook do Tiny era um segmento da URL, e **todo lugar que
+ * ecoava a URL publicava o segredo** — resposta, log e contexto do Sentry.
+ * O filtro deles estava limpo; o vazamento entrou pelo caminho.
+ *
+ * O site tem o mesmo formato em `/api/blog/revalidar`, que aceita
+ * `BLOG_REVALIDATE_SECRET` por header **ou** por query. Se aquela rota
+ * estourasse tendo sido chamada com `?secret=`, o valor vinha junto no evento.
+ *
+ * O nome do parâmetro é PRESERVADO de propósito: saber que veio um `secret=`
+ * ajuda a entender a chamada; o que não pode viajar é o valor.
+ */
+const SEGREDO_EM_URL =
+  /(^|[?&#])((?:secret|segredo|token|access_token|refresh_token|key|apikey|api_key|password|senha|auth|signature|sig)=)[^&\s#"']*/gi;
+
 export function limparTexto(txt: string): string {
   return (
     txt
+      .replace(SEGREDO_EM_URL, `$1$2${REDIGIDO}`)
       .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, REDIGIDO)
       // (11) 99999-0000 · 11 99999-0000 · +55 11 99999 0000 — sempre com forma
       .replace(/(?:\+?55[\s.-]?)?\(\d{2}\)[\s.-]?\d{4,5}[\s.-]?\d{4}\b/g, REDIGIDO)
@@ -182,9 +201,17 @@ export function limparEvento(evento: ErrorEvent, hint?: EventHint): ErrorEvent |
     delete evento.request.data;
     delete evento.request.cookies;
     // A query string carrega UTM (ok), mas também pode carregar e-mail em link
-    // de descadastro. Limpa como texto.
+    // de descadastro — e SEGREDO, em rota que aceita `?secret=`. Limpa como
+    // texto, que agora cobre os dois.
     if (typeof evento.request.query_string === 'string') {
       evento.request.query_string = limparTexto(evento.request.query_string);
+    }
+    // A URL vem separada da query string no evento do Sentry, e o SDK muitas
+    // vezes monta a URL COMPLETA aqui. Limpar só a query deixava o segredo
+    // passar pelo outro campo — foi assim que o furo do Tiny sobreviveu a um
+    // filtro que parecia certo.
+    if (typeof evento.request.url === 'string') {
+      evento.request.url = limparTexto(evento.request.url);
     }
     if (evento.request.headers) {
       for (const k of Object.keys(evento.request.headers)) {
