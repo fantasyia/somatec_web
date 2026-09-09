@@ -52,21 +52,50 @@ export type Logger = {
   child: (subScope: string) => Logger;
 };
 
+/**
+ * O erro que representa um `log.error` sem exceção por baixo.
+ *
+ * ⚠️ `Error.captureStackTrace` aqui NÃO é detalhe. Sem ele, o quadro do topo da
+ * pilha é esta própria função — e o Sentry usa o topo pra dizer de ONDE o erro
+ * veio. Como o bundler joga o logger num pedaço qualquer, em produção TODO
+ * `log.error` do site aparecia como se tivesse nascido em
+ * `api/lgpd/consent/route.js`, que é só onde o módulo caiu. Três erros de três
+ * lugares diferentes, todos com o mesmo culpado errado.
+ *
+ * O segundo argumento corta a pilha ABAIXO desta função, então o topo passa a
+ * ser quem chamou `log.error` de verdade. Funciona independente de como o
+ * bundler nomeou o arquivo — que é o motivo de não dar pra resolver isso
+ * filtrando quadro por nome.
+ */
+function erroDoLog(msg: string, cortarAte: (...args: never[]) => unknown): Error {
+  const e = new Error(msg);
+  // Remove `cortarAte` e tudo acima dele — ou seja, esta função E o método do
+  // logger. O topo passa a ser quem chamou `log.error`.
+  Error.captureStackTrace?.(e, cortarAte);
+  return e;
+}
+
 export function createLogger(scope: string): Logger {
+  // Função NOMEADA de propósito: o `erroDoLog` precisa de uma referência a ela
+  // pra saber até onde cortar a pilha. Como arrow anônima dentro do objeto, não
+  // haveria o que passar — e o topo continuaria sendo o logger.
+  function erro(msg: string, context?: LogContext, error?: unknown): void {
+    emit('error', scope, msg, context, error);
+    // Métrica: incrementa counter de erros por scope para alertas em Grafana/etc
+    incrementCounter('msm_errors_total', { scope });
+    // Vai pro Sentry pelo SDK — é o que faz o evento passar pelo filtro de
+    // dado pessoal. Sem DSN, no-op.
+    reportError(error ?? erroDoLog(msg, erro), {
+      scope,
+      extra: { msg, ...(context ?? {}) },
+    });
+  }
+
   return {
     debug: (msg, context) => emit('debug', scope, msg, context),
     info: (msg, context) => emit('info', scope, msg, context),
     warn: (msg, context, error) => emit('warn', scope, msg, context, error),
-    error: (msg, context, error) => {
-      emit('error', scope, msg, context, error);
-      // Métrica: incrementa counter de erros por scope para alertas em Grafana/etc
-      incrementCounter('msm_errors_total', { scope });
-      // Reporta automaticamente para Sentry se DSN configurado (no-op caso contrário)
-      reportError(error ?? new Error(msg), {
-        scope,
-        extra: { msg, ...(context ?? {}) },
-      });
-    },
+    error: erro,
     child: (subScope) => createLogger(`${scope}:${subScope}`),
   };
 }

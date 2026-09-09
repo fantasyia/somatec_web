@@ -1,108 +1,116 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { ErrorEvent } from '@sentry/nextjs';
+import { limparEvento } from '@/lib/observabilidade/sentry-limpeza';
 
-// Importação dinâmica para resetar o estado (parsed cache) entre testes
-async function freshReporter() {
-  vi.resetModules();
-  return await import('@/lib/error-reporter');
-}
+// =============================================================================
+// ⚠️ ESTE ARQUIVO EXISTE POR CAUSA DE UM VAZAMENTO QUE PASSOU DESPERCEBIDO.
+//
+// Até 09/09, `reportError` montava o envelope do Sentry à mão e mandava por
+// `fetch`. Foi escrito antes do SDK existir aqui, e funcionava.
+//
+// O problema apareceu quando o SDK entrou, no mesmo dia, trazendo o `beforeSend`
+// que varre dado pessoal. `beforeSend` é do SDK: **evento que sai por fetch
+// próprio não passa por ele**. Como todo `log.error` do site (33 chamadas)
+// passava por aqui, o filtro que a gente acabara de instalar não cobria
+// praticamente nada do que realmente era enviado.
+//
+// A versão anterior DESTE arquivo travava o comportamento errado: afirmava, com
+// teste verde, que `user.email` chegava intacto no Sentry. Certo sobre o fato,
+// errado sobre o que devia acontecer.
+//
+// Agora `reportError` só chama o SDK. Os testes abaixo travam as duas metades:
+// que ele usa o SDK (e não fetch), e que o que sai por ele é limpo.
+// =============================================================================
 
-describe('reportError', () => {
-  let fetchSpy: ReturnType<typeof vi.fn>;
+const captureException = vi.fn();
 
-  beforeEach(() => {
-    fetchSpy = vi.fn().mockResolvedValue(new Response('', { status: 200 }));
-    vi.stubGlobal('fetch', fetchSpy);
+vi.mock('@sentry/nextjs', () => ({
+  captureException: (...a: unknown[]) => captureException(...a),
+}));
+
+const { reportError } = await import('@/lib/error-reporter');
+
+let fetchSpy: ReturnType<typeof vi.fn>;
+
+beforeEach(() => {
+  fetchSpy = vi.fn().mockResolvedValue(new Response('', { status: 200 }));
+  vi.stubGlobal('fetch', fetchSpy);
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+  vi.clearAllMocks();
+});
+
+describe('o evento sai pelo SDK — que é o que faz o filtro valer', () => {
+  it('chama captureException com o erro', () => {
+    const erro = new Error('boom');
+    reportError(erro);
+
+    expect(captureException).toHaveBeenCalledOnce();
+    expect(captureException.mock.calls[0][0]).toBe(erro);
   });
 
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.unstubAllEnvs();
-  });
+  it('⛔ NÃO manda envelope na mão — era esse caminho que escapava do beforeSend', () => {
+    reportError(new Error('boom'), { extra: { email: 'cliente@empresa.com.br' } });
 
-  it('vira no-op quando SENTRY_DSN ausente', async () => {
-    vi.stubEnv('SENTRY_DSN', '');
-    const { reportError } = await freshReporter();
-    reportError(new Error('boom'));
-    await new Promise((r) => setTimeout(r, 10));
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('vira no-op com DSN malformada', async () => {
-    vi.stubEnv('SENTRY_DSN', 'not-a-url');
-    const { reportError } = await freshReporter();
-    reportError(new Error('boom'));
-    await new Promise((r) => setTimeout(r, 10));
-    expect(fetchSpy).not.toHaveBeenCalled();
-  });
-
-  it('envia envelope para URL correta', async () => {
-    vi.stubEnv('SENTRY_DSN', 'https://abc123@o12345.ingest.sentry.io/678901');
-    const { reportError } = await freshReporter();
-    reportError(new Error('boom'));
-    await new Promise((r) => setTimeout(r, 10));
-
-    expect(fetchSpy).toHaveBeenCalledOnce();
-    const [url, init] = fetchSpy.mock.calls[0]!;
-    expect(url).toBe('https://o12345.ingest.sentry.io/api/678901/envelope/');
-    const headers = (init as RequestInit).headers as Record<string, string>;
-    expect(headers['Content-Type']).toBe('application/x-sentry-envelope');
-    expect(headers['X-Sentry-Auth']).toContain('sentry_key=abc123');
-  });
-
-  it('envelope contém event_id, type=event e mensagem', async () => {
-    vi.stubEnv('SENTRY_DSN', 'https://k@h/1');
-    const { reportError } = await freshReporter();
-    reportError(new Error('falhou geral'));
-    await new Promise((r) => setTimeout(r, 10));
-
-    const [, init] = fetchSpy.mock.calls[0]!;
-    const envelope = init.body as string;
-    const lines = envelope.split('\n');
-    expect(lines).toHaveLength(3);
-
-    const header = JSON.parse(lines[0]!);
-    const itemHeader = JSON.parse(lines[1]!);
-    const event = JSON.parse(lines[2]!);
-
-    expect(header.event_id).toMatch(/^[a-f0-9]{32}$/);
-    expect(itemHeader.type).toBe('event');
-    expect(event.exception.values[0].value).toBe('falhou geral');
-    expect(event.exception.values[0].type).toBe('Error');
-  });
-
-  it('inclui tags, extra, user, scope', async () => {
-    vi.stubEnv('SENTRY_DSN', 'https://k@h/1');
-    const { reportError } = await freshReporter();
+  it('leva scope, tags, extra e user pro SDK', () => {
     reportError(new Error('x'), {
       scope: 'forms',
       tags: { route: '/api/forms/submit' },
-      extra: { ip: '1.2.3.4' },
-      user: { id: 'u1', email: 'u@msm.com.br' },
+      extra: { setor: 'metalurgia' },
+      user: { id: 'u1', email: 'u@empresa.com.br' },
     });
-    await new Promise((r) => setTimeout(r, 10));
 
-    const event = JSON.parse((fetchSpy.mock.calls[0]![1] as RequestInit).body!.toString().split('\n')[2]!);
-    expect(event.tags.scope).toBe('forms');
-    expect(event.tags.route).toBe('/api/forms/submit');
-    expect(event.extra.ip).toBe('1.2.3.4');
-    expect(event.user.email).toBe('u@msm.com.br');
+    const ctx = captureException.mock.calls[0][1] as {
+      tags: Record<string, string>;
+      extra: Record<string, unknown>;
+      user: { email?: string };
+    };
+    expect(ctx.tags.scope).toBe('forms');
+    expect(ctx.tags.route).toBe('/api/forms/submit');
+    expect(ctx.extra.setor).toBe('metalurgia');
+    expect(ctx.user.email).toBe('u@empresa.com.br');
   });
 
-  it('lida com não-Error (string thrown)', async () => {
-    vi.stubEnv('SENTRY_DSN', 'https://k@h/1');
-    const { reportError } = await freshReporter();
-    reportError('string error');
-    await new Promise((r) => setTimeout(r, 10));
-
-    const event = JSON.parse((fetchSpy.mock.calls[0]![1] as RequestInit).body!.toString().split('\n')[2]!);
-    expect(event.exception.values[0].type).toBe('NonError');
-    expect(event.exception.values[0].value).toBe('string error');
+  it('sem scope, o padrão é "app"', () => {
+    reportError(new Error('x'));
+    const ctx = captureException.mock.calls[0][1] as { tags: Record<string, string> };
+    expect(ctx.tags.scope).toBe('app');
   });
+});
 
-  it('não lança quando fetch rejeita (fire-and-forget seguro)', async () => {
-    vi.stubEnv('SENTRY_DSN', 'https://k@h/1');
-    fetchSpy.mockRejectedValue(new Error('network'));
-    const { reportError } = await freshReporter();
+describe('reporter quebrado não pode quebrar quem chamou', () => {
+  it('SDK lançando não propaga', () => {
+    captureException.mockImplementation(() => {
+      throw new Error('sdk fora do ar');
+    });
+
     expect(() => reportError(new Error('boom'))).not.toThrow();
+  });
+});
+
+describe('a outra metade: o que sai por essa porta é limpo', () => {
+  // O `reportError` entrega ao SDK; o SDK aplica `beforeSend`. Aqui o evento é
+  // montado como o SDK monta, com o que a versão antiga deixava passar cru.
+  it('e-mail em user e em extra não chega ao Sentry', () => {
+    const evento = {
+      exception: { values: [{ type: 'Error', value: 'falha ao entregar lead' }] },
+      tags: { scope: 'forms' },
+      extra: { msg: 'falha ao entregar lead', email: 'cliente@empresa.com.br', setor: 'metalurgia' },
+      user: { id: 'u1', email: 'u@empresa.com.br' },
+    } as unknown as ErrorEvent;
+
+    const limpo = JSON.stringify(limparEvento(evento));
+
+    expect(limpo).not.toContain('cliente@empresa.com.br');
+    expect(limpo).not.toContain('u@empresa.com.br');
+    // e o que dá contexto ao erro continua legível
+    expect(limpo).toContain('metalurgia');
+    expect(limpo).toContain('falha ao entregar lead');
   });
 });

@@ -1,42 +1,29 @@
 import 'server-only';
+import * as Sentry from '@sentry/nextjs';
 
 // =============================================================================
-// Error reporter para Sentry — implementação leve via HTTP envelope.
-// Sem dependência do SDK @sentry/nextjs (que adiciona ~500KB).
+// Ponte entre o `log.error` do site e o Sentry.
 //
-// Para upgrade futuro: trocar reportError() por Sentry.captureException()
-// e adicionar sentry.{client,server,edge}.config.ts.
+// ⚠️ ESTE ARQUIVO MANDAVA O EVENTO À MÃO, E ISSO ERA UM VAZAMENTO.
 //
-// Ativação: defina SENTRY_DSN. Se ausente, vira no-op silencioso.
+// Até 09/09 aqui morava um remetente próprio: montava o envelope do Sentry na
+// unha e dava `fetch` direto na ingestão. Foi escrito quando o SDK não estava
+// instalado, e a nota do próprio arquivo dizia "trocar por captureException
+// quando o SDK entrar".
+//
+// O SDK entrou em 09/09 — e com ele o `beforeSend` que varre dado pessoal
+// (`src/lib/observabilidade/sentry-limpeza.ts`). Só que o `beforeSend` é do
+// SDK: evento que sai por `fetch` próprio NÃO PASSA POR ELE. Na prática, os 33
+// `log.error` do site — que são a origem de praticamente todo evento em
+// produção — continuavam mandando `extra` e `user` crus pro Sentry, incluindo
+// e-mail e o que mais o contexto carregasse.
+//
+// O teste antigo deste arquivo até travava esse comportamento: ele afirmava que
+// `user.email` chegava intacto do outro lado. Estava certo sobre o fato e
+// errado sobre o que devia acontecer.
+//
+// Agora tudo passa pelo SDK. Uma porta só, e ela tem filtro.
 // =============================================================================
-
-type SentryEnvelopeMeta = { dsn: string; key: string; projectId: string; host: string };
-
-let parsed: SentryEnvelopeMeta | null | undefined;
-
-function getMeta(): SentryEnvelopeMeta | null {
-  if (parsed !== undefined) return parsed;
-  const dsn = process.env.SENTRY_DSN;
-  if (!dsn) {
-    parsed = null;
-    return null;
-  }
-  try {
-    // DSN format: https://<key>@<host>/<projectId>
-    const u = new URL(dsn);
-    const projectId = u.pathname.replace(/^\//, '');
-    parsed = {
-      dsn,
-      key: u.username,
-      projectId,
-      host: u.host,
-    };
-    return parsed;
-  } catch {
-    parsed = null;
-    return null;
-  }
-}
 
 export type ErrorContext = {
   scope?: string;
@@ -46,103 +33,22 @@ export type ErrorContext = {
 };
 
 /**
- * Envia um erro para o Sentry (fire-and-forget). Se SENTRY_DSN não estiver
- * configurado, vira no-op. Não bloqueia o fluxo do request.
+ * Manda um erro pro Sentry. Sem DSN, `captureException` é no-op — o SDK nem foi
+ * inicializado (ver `src/instrumentation.ts`), então nada sai em dev nem no
+ * build.
+ *
+ * Não lança, nunca: quem chama é o `log.error`, e reporter que quebra o caller
+ * transforma um erro registrado em dois erros, sendo um deles sem registro.
  */
 export function reportError(error: unknown, ctx: ErrorContext = {}): void {
-  const meta = getMeta();
-  if (!meta) return;
-
-  const errObj =
-    error instanceof Error
-      ? { type: error.name, value: error.message, stacktrace: stringifyStack(error.stack) }
-      : { type: 'NonError', value: String(error), stacktrace: undefined };
-
-  const event = {
-    event_id: cryptoRandomHex(32),
-    timestamp: Date.now() / 1000,
-    platform: 'node',
-    level: 'error',
-    environment: process.env.NODE_ENV ?? 'unknown',
-    release: process.env.RAILWAY_GIT_COMMIT_SHA ?? undefined,
-    server_name: process.env.RAILWAY_SERVICE_NAME ?? 'msm-site',
-    tags: { scope: ctx.scope ?? 'app', ...(ctx.tags ?? {}) },
-    extra: ctx.extra,
-    user: ctx.user,
-    exception: {
-      values: [
-        {
-          type: errObj.type,
-          value: errObj.value,
-          stacktrace: errObj.stacktrace
-            ? { frames: parseStackFrames(errObj.stacktrace) }
-            : undefined,
-        },
-      ],
-    },
-  };
-
-  const envelope = [
-    JSON.stringify({ event_id: event.event_id, sent_at: new Date().toISOString() }),
-    JSON.stringify({ type: 'event' }),
-    JSON.stringify(event),
-  ].join('\n');
-
-  const url = `https://${meta.host}/api/${meta.projectId}/envelope/`;
-  const auth = `Sentry sentry_version=7,sentry_key=${meta.key},sentry_client=msm-site/1.0`;
-
-  // Fire-and-forget — não esperamos resposta nem bloqueamos
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-sentry-envelope',
-      'X-Sentry-Auth': auth,
-    },
-    body: envelope,
-    signal: AbortSignal.timeout(3000),
-  }).catch(() => {
-    // não pode lançar — error reporter falhando não pode quebrar o caller
-  });
-}
-
-function stringifyStack(stack: string | undefined): string | undefined {
-  if (!stack) return undefined;
-  return stack;
-}
-
-function parseStackFrames(stack: string): Array<{ filename: string; function: string; lineno?: number; colno?: number }> {
-  const lines = stack.split('\n').slice(1); // pula a primeira linha (mensagem)
-  const frames: Array<{ filename: string; function: string; lineno?: number; colno?: number }> = [];
-  for (const line of lines) {
-    const m = line.match(/at\s+(.*?)\s+\((.*?):(\d+):(\d+)\)/) ?? line.match(/at\s+(.*?):(\d+):(\d+)/);
-    if (!m) continue;
-    if (m.length === 5) {
-      frames.push({
-        function: m[1] ?? '?',
-        filename: m[2] ?? '?',
-        lineno: Number(m[3]),
-        colno: Number(m[4]),
-      });
-    } else if (m.length === 4) {
-      frames.push({
-        function: '?',
-        filename: m[1] ?? '?',
-        lineno: Number(m[2]),
-        colno: Number(m[3]),
-      });
-    }
+  try {
+    Sentry.captureException(error, {
+      tags: { scope: ctx.scope ?? 'app', ...(ctx.tags ?? {}) },
+      extra: ctx.extra,
+      // O `beforeSend` redige o que for sensível daqui — inclusive o e-mail.
+      user: ctx.user,
+    });
+  } catch {
+    // Silêncio proposital: ver acima.
   }
-  // Sentry espera frames na ordem inversa (mais recente por último)
-  return frames.reverse();
-}
-
-function cryptoRandomHex(length: number): string {
-  // length em chars hex; bytes = length/2
-  const bytes = new Uint8Array(length / 2);
-  if (typeof globalThis.crypto?.getRandomValues === 'function') {
-    globalThis.crypto.getRandomValues(bytes);
-  } else {
-    for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
-  }
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
