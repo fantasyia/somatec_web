@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { precificarPedido, precoDoModelo } from '@/lib/pedidos/precificar';
+import { precificarPedido, precoDoModelo, SKU_TESTE } from '@/lib/pedidos/precificar';
 import { MASTER_BLOCK_MODELS } from '@/lib/constants/masterblock';
 
 /**
@@ -102,5 +102,35 @@ describe('preço do pedido', () => {
     }
     expect(precoDoModelo('mb-01')).toBe(precoDoModelo('MB-01')); // caixa não importa
     expect(precoDoModelo('')).toBeNull();
+  });
+});
+
+describe('SKU de teste da operação', () => {
+  const itemTeste = { descricao: 'NF de homologação', modelo: SKU_TESTE, quantidade: 1 };
+
+  it('é RECUSADO por padrão — pra quem vem da rua não existe', () => {
+    // Sem esta recusa, o SKU de teste seria a brecha de preço reaberta com
+    // outro nome: qualquer um pediria R$ 10 no lugar de R$ 4.350.
+    const r = precificarPedido([itemTeste]);
+
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.motivo).toBe('modelo_desconhecido');
+  });
+
+  it('vale R$ 10,00 quando a operação autoriza', () => {
+    const r = precificarPedido([itemTeste], undefined, true);
+
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.totalCentavos).toBe(1_000);
+  });
+
+  it('autorizar o teste NÃO afrouxa o resto do catálogo', () => {
+    // O perigo do atalho é virar atalho pra tudo: com a autorização ligada,
+    // modelo inexistente continua recusado e MB-01 continua R$ 4.350.
+    expect(precificarPedido([{ descricao: 'x', modelo: 'MB-99' }], undefined, true).ok).toBe(false);
+    expect(precoDoModelo('MB-01', true)).toBe(Math.round(MB01.preco * 100));
+    expect(precoDoModelo(SKU_TESTE)).toBeNull();
   });
 });

@@ -1,5 +1,6 @@
 import 'server-only';
 import { MASTER_BLOCK_MODELS } from '@/lib/constants/masterblock';
+import { SKU_TESTE } from '@/lib/pedidos/precificar';
 import { withTiming } from '@/lib/perf/timing';
 import type { SendOutcome } from '@/lib/mullerbot/client';
 
@@ -22,7 +23,12 @@ const TIMEOUT_MS = 8000;
  *  "acima-da-linha" e "nao-sei" são quadros a dimensionar: viram contexto na
  *  observação, não linha de venda (o Betinna recusaria o pedido INTEIRO por
  *  SKU inexistente, e um item a dimensionar derrubaria a venda toda). */
-const SKUS_VALIDOS = new Set(MASTER_BLOCK_MODELS.map((m) => m.model));
+const SKUS_VALIDOS = new Set([
+  ...MASTER_BLOCK_MODELS.map((m) => m.model),
+  // O SKU de teste passa aqui porque um item só CHEGA a este ponto se a
+  // precificação já o aceitou — e ela só aceita com o segredo da operação.
+  SKU_TESTE,
+]);
 
 export type ItemDoCheckout = {
   descricao: string;

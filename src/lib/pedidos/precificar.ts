@@ -46,10 +46,26 @@ const PRECO_POR_MODELO = new Map<string, number>(
   MASTER_BLOCK_MODELS.map((m) => [m.model.toUpperCase(), Math.round(m.preco * 100)] as const),
 );
 
+/**
+ * SKU de TESTE do ERP — produto fictício de R$ 10,00 ("TESTE-NF", não vender).
+ *
+ * Existe pra homologar a nota fiscal: a NF de teste precisa sair barata, e o
+ * único produto do ERP com NCM cadastrado é este. Emitir NF de homologação num
+ * pedido de R$ 4.350 seria pôr o valor cheio pra circular à toa.
+ *
+ * ⚠️ **Fora do catálogo do site de propósito.** Ele não aparece em página, nem
+ * no wizard, nem na tabela de modelos — só é aceito quando a requisição prova
+ * que é da operação (ver `permitirTeste`). Sem isso, seria a brecha de preço
+ * reaberta com outro nome.
+ */
+export const SKU_TESTE = 'TESTE-NF';
+const PRECO_TESTE_CENTAVOS = 1_000;
+
 /** Preço de tabela de um modelo, ou `null` se ele não existe. */
-export function precoDoModelo(modelo?: string | null): number | null {
+export function precoDoModelo(modelo?: string | null, permitirTeste = false): number | null {
   const chave = (modelo ?? '').trim().toUpperCase();
   if (!chave) return null;
+  if (chave === SKU_TESTE) return permitirTeste ? PRECO_TESTE_CENTAVOS : null;
   return PRECO_POR_MODELO.get(chave) ?? null;
 }
 
@@ -72,6 +88,8 @@ const MAX_QTD = 50;
 export function precificarPedido(
   itens: ItemPedidoEntrada[],
   afirmadoPeloCliente?: { totalCentavos?: number; freteCentavos?: number },
+  /** Libera o SKU de teste. Só a rota decide, e só com o segredo da operação. */
+  permitirTeste = false,
 ): ResultadoPreco {
   const precificados: ItemPrecificado[] = [];
 
@@ -85,7 +103,7 @@ export function precificarPedido(
       continue;
     }
 
-    const preco = precoDoModelo(modelo);
+    const preco = precoDoModelo(modelo, permitirTeste);
     if (preco === null) {
       return {
         ok: false,

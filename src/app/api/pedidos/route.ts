@@ -145,10 +145,27 @@ export async function POST(req: NextRequest) {
   //
   // A partir daqui o corpo vale como INTENÇÃO (qual modelo, quantas unidades);
   // preço e frete saem do catálogo.
-  const preco = precificarPedido(recebido.itens, {
-    totalCentavos: recebido.totalCentavos,
-    freteCentavos: recebido.freteCentavos,
-  });
+  // ── PEDIDO DE TESTE DA OPERAÇÃO ───────────────────────────────────────
+  //
+  // Libera o SKU fictício `TESTE-NF` (R$ 10,00), e SÓ ele. Serve pra homologar
+  // a nota fiscal no ERP sem pôr um pedido de R$ 4.350 pra circular — e pra
+  // repetir o ciclo inteiro (site → app → ERP → etiqueta → NF) quantas vezes
+  // for preciso.
+  //
+  // A chave é o MESMO segredo da rota de status: quem pode mover o pedido pela
+  // régua já é a operação, e criar pedido de teste não é poder maior que esse.
+  // Sem o cabeçalho, nada muda — o SKU de teste volta a ser modelo inexistente
+  // e cai no 422, igual a qualquer tentativa de comprar o que não existe.
+  const segredoOperacao = process.env.PEDIDOS_STATUS_SECRET ?? '';
+  const pedidoDeTeste =
+    segredoOperacao.length > 0 && req.headers.get('x-pedido-teste') === segredoOperacao;
+  if (pedidoDeTeste) log.warn('PEDIDO DE TESTE autorizado pela operacao', { email: recebido.email });
+
+  const preco = precificarPedido(
+    recebido.itens,
+    { totalCentavos: recebido.totalCentavos, freteCentavos: recebido.freteCentavos },
+    pedidoDeTeste,
+  );
   if (!preco.ok) {
     log.warn('pedido recusado na precificacao', { motivo: preco.motivo, detalhe: preco.detalhe });
     trackRequest(ROUTE, 422);
