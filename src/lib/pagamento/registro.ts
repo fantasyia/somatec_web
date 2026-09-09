@@ -2,6 +2,7 @@ import 'server-only';
 import { getRedis } from '@/lib/redis';
 import { createLogger } from '@/lib/logger';
 import { enviarEmail } from '@/lib/email/enviar';
+import { assuntoInterno, htmlInterno, textoInterno } from '@/lib/email/pagamento-interno';
 import {
   assuntoPagamento,
   deveAvisarPagamento,
@@ -95,31 +96,23 @@ export async function registrarEventoPagamento(params: {
   // nenhum treina a pessoa a ignorar o aviso — e o dia em que for de verdade,
   // ela ignora também. Sem a variável, vai pro canal de sempre.
   const destino = process.env.PAGAMENTO_ALERTA_EMAIL?.trim() || CONTACT.email;
-  const emReais = (centavos: number) =>
-    (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  // Na venda parcelada o que importa pra quem separa é o TOTAL; o parcelamento
-  // vai junto porque muda quando o dinheiro entra na conta.
-  const valor = params.parcelamento
-    ? `${emReais(params.parcelamento.totalCentavos)} em ${params.parcelamento.parcelas}x de ${emReais(params.valorCentavos)}`
-    : emReais(params.valorCentavos);
-  const valorNoAssunto = params.parcelamento
-    ? emReais(params.parcelamento.totalCentavos)
-    : emReais(params.valorCentavos);
   const pago = params.situacao === 'pago';
+  // O corpo do aviso mora em `pagamento-interno.ts`, na MESMA casca dos e-mails
+  // de cliente. Até 09/09 era HTML cru montado aqui — três parágrafos sem marca,
+  // que é o que chegava na caixa de quem opera.
+  const aviso = {
+    numeroPedido: params.numeroPedido,
+    evento: params.evento,
+    cobrancaId: params.cobrancaId,
+    pago,
+    valorCentavos: params.valorCentavos,
+    parcelamento: params.parcelamento,
+  };
   await enviarEmail({
     para: destino,
-    assunto: pago
-      ? `Pagamento confirmado — pedido ${params.numeroPedido} (${valorNoAssunto})`
-      : `Pagamento NÃO concluído — pedido ${params.numeroPedido}`,
-    html: pago
-      ? `<p>O pedido <strong>${params.numeroPedido}</strong> foi pago: <strong>${valor}</strong>.</p>
-         <p>Evento do gateway: ${params.evento}${params.cobrancaId ? ` · cobrança ${params.cobrancaId}` : ''}.</p>
-         <p>Pode seguir com a separação e o faturamento.</p>`
-      : `<p>O pagamento do pedido <strong>${params.numeroPedido}</strong> não se concretizou (${params.evento}).</p>
-         <p>Vale confirmar com o cliente antes de separar.</p>`,
-    texto: pago
-      ? `Pedido ${params.numeroPedido} pago (${valor}). Evento ${params.evento}.`
-      : `Pedido ${params.numeroPedido}: pagamento não concluído (${params.evento}).`,
+    assunto: assuntoInterno(aviso),
+    html: htmlInterno(aviso),
+    texto: textoInterno(aviso),
     marcador: `pagamento:${params.eventoId}`,
   }).catch((err) => {
     // O aviso falhar não pode derrubar o webhook: o Asaas reentregaria, e a

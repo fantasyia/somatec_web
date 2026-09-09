@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { htmlPedido } from '@/lib/email/pedido-confirmado';
 import { htmlPagamento } from '@/lib/email/pagamento-confirmado';
+import { assuntoInterno, htmlInterno, textoInterno } from '@/lib/email/pagamento-interno';
 
 // =============================================================================
 // O PADRÃO, travado para TODO e-mail do site.
@@ -90,5 +91,68 @@ describe.each(EMAILS)('padrão do e-mail — %s', (_nome, html) => {
 
   it('tem pré-cabeçalho escondido, senão a lista mostra o começo do HTML', () => {
     expect(html).toMatch(/<div style="display:none[^"]*">[^<]{20,}<\/div>/);
+  });
+});
+
+// =============================================================================
+// O aviso INTERNO usa a mesma casca, mas não é e-mail de consumidor: a
+// identificação legal (razão social, CNPJ, endereço) não entra. Por isso ele
+// tem bloco próprio, e não entra no `describe.each` acima.
+// =============================================================================
+
+const INTERNO = htmlInterno({
+  numeroPedido: 'SB26086E6ACW',
+  evento: 'PAYMENT_CONFIRMED',
+  cobrancaId: 'pay_93lhfvc291h2hi1a',
+  pago: true,
+  valorCentavos: 72500,
+  parcelamento: { totalCentavos: 435000, parcelas: 6 },
+});
+
+describe('padrão do e-mail — aviso interno de pagamento', () => {
+  it('usa a mesma casca: barra com logo, botão em tabela com bgcolor', () => {
+    expect(INTERNO).toMatch(/background-color:#00416E;?"[^>]*>\s*<img src="[^"]*\/email\/bar-navy\.png"/);
+    expect(INTERNO).toMatch(/<td bgcolor="#F39200"[^>]*>\s*<a /);
+    expect(INTERNO).toContain("'Segoe UI',Roboto,Helvetica,Arial,sans-serif");
+    expect(INTERNO).not.toMatch(/display:\s*flex|display:\s*grid|class=/);
+  });
+
+  it('NÃO leva a identificação legal — ela é pro consumidor, não pra dentro de casa', () => {
+    expect(INTERNO).not.toContain('16.774.052/0001-55');
+    expect(INTERNO).not.toContain('Av. Fagundes Filho');
+  });
+
+  it('diz o que fazer, não só o que aconteceu', () => {
+    expect(INTERNO).toMatch(/separação/);
+    expect(INTERNO).toMatch(/faturamento/);
+  });
+
+  it('mostra o TOTAL da venda, não o valor da parcela', () => {
+    // Numa venda de R$ 4.350 em 6x, "R$ 725,00" faz quem lê concluir que entrou
+    // menos do que entrou — ou que existem seis pedidos.
+    expect(INTERNO).toContain('4.350,00');
+    expect(INTERNO).toMatch(/6x de[^<]*725,00/);
+    expect(assuntoInterno({ numeroPedido: 'SB1', evento: 'x', cobrancaId: null, pago: true, valorCentavos: 72500, parcelamento: { totalCentavos: 435000, parcelas: 6 } })).toContain('4.350,00');
+  });
+
+  it('leva os dados do gateway, pra conferir na conta quando não bater', () => {
+    expect(INTERNO).toContain('PAYMENT_CONFIRMED');
+    expect(INTERNO).toContain('pay_93lhfvc291h2hi1a');
+  });
+
+  it('o botão abre o pedido', () => {
+    expect(INTERNO).toMatch(/href="https?:\/\/[^"]*\/pedido\/SB26086E6ACW"/);
+  });
+
+  it('a versão em texto é texto de verdade', () => {
+    const t = textoInterno({
+      numeroPedido: 'SB26086E6ACW',
+      evento: 'PAYMENT_CONFIRMED',
+      cobrancaId: null,
+      pago: false,
+      valorCentavos: 10000,
+    });
+    expect(t).not.toMatch(/<[a-z]/i);
+    expect(t).toMatch(/confirmar com o cliente/);
   });
 });

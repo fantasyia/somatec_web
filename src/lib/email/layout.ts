@@ -76,7 +76,21 @@ export function layoutEmail(args: {
   /** As `<tr>` do miolo. */
   corpo: string;
   motivo: string;
+  /**
+   * `true` (padrão) inclui razão social, CNPJ, endereço e e-mail no rodapé.
+   *
+   * Passe `false` em e-mail que vai pra DENTRO de casa. Essa identificação
+   * existe pra cumprir o Decreto 7.962/2013 — identificar o fornecedor pro
+   * CONSUMIDOR. Num aviso operacional pra quem separa e fatura, ela só ocupa
+   * espaço e empurra pra baixo o que a pessoa precisa ler.
+   */
+  identificacao?: boolean;
 }): string {
+  const rodape =
+    args.identificacao === false
+      ? args.motivo
+      : `${EMPRESA.linha} &middot; ${CONTACT.email}<br>${CONTACT.address}<br>${args.motivo}`;
+
   return `<!doctype html>
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${args.titulo}</title></head>
@@ -95,7 +109,7 @@ ${args.corpo}
 
   <tr><td style="background:${CORES.navy};padding:26px 44px;">
     <p style="margin:0 0 8px 0;font-size:11px;color:#ffffff;font-weight:700;letter-spacing:1.4px;">SOMATEC BLOCKING</p>
-    <p style="margin:0;font-size:11px;line-height:1.7;color:${CORES.rodapeTexto};">${EMPRESA.linha} &middot; ${CONTACT.email}<br>${CONTACT.address}<br>${args.motivo}</p>
+    <p style="margin:0;font-size:11px;line-height:1.7;color:${CORES.rodapeTexto};">${rodape}</p>
   </td></tr>
 
 </table></td></tr></table></body></html>`;
