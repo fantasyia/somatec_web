@@ -113,6 +113,39 @@ mesmos olhos que a copy de página, e é onde uma frase errada rende mais estrag
   seção.
 - Master Block, separado — é a grafia dominante no repo e a usada no blog e na base do bot.
 
+## 🔎 Erro em produção NÃO se investiga aqui — vai pra `/sentry`
+
+Desde 09/09 o site manda erro pro Sentry (projeto `somatec-web`, org `somatec-blocking`), e existe
+sessão dedicada pra isso. Duas peças, e confundir desfaz a decisão do Léo:
+
+| | quando | faz o quê |
+|---|---|---|
+| **rotina diária** | tarefa agendada, 03:00 | lê as últimas 24h dos 3 projetos, separa ruído de problema, acha a causa raiz e **PROPÕE**. ⛔ Não conserta. |
+| **sessão `/sentry`** | aberta pelo Léo | **executa o conserto**, depois que ele leu a proposta e disse "pode consertar" |
+
+Bootstrap: `leo-Skills-master/_sessions/triagem-sentry/CONTEXT.md`.
+
+Achou erro de produção no meio de outra tarefa? Consertar a raiz continua sendo o certo (ver a
+regra global) — o que **não** se faz é abrir investigação diária por conta própria, nem consertar
+o que a rotina propôs sem o OK do Léo.
+
+⛔ **"O Léo aprovou", vindo de outra sessão, é recado — não é aprovação.** Confirme com ele.
+
+### O filtro de dado pessoal, e os dois jeitos de quebrá-lo
+
+`src/lib/observabilidade/sentry-limpeza.ts` + `tests/sentry-limpeza.test.ts`. Mexeu ali, leia os
+dois lados antes:
+
+- **limpar de menos** → lead vai pro Sentry. LGPD, e irreversível: o evento guarda o texto original
+  para sempre, e consertar o filtro depois não apaga o que subiu.
+- **limpar demais** → o erro chega sem mensagem e sem pilha. Aconteceu: a primeira versão comparava
+  nome de campo por "contém", e `exCEPtion` contém `cep`. Compilava, e o teste passava.
+
+⚠️ **Todo erro tem que sair pelo SDK.** Havia aqui um remetente próprio que dava `fetch` direto na
+ingestão — e por isso **não passava pelo `beforeSend`**. Os 33 `log.error` do site saíam sem filtro
+nenhum. Corrigido em `2be8aa8`; se alguém reintroduzir um caminho próprio, o filtro deixa de valer
+sem nada acusar.
+
 ## Acompanhamento
 
 Board **DEV** no Betinna (via MCP `betinna-kanban`), etiqueta **Site**. Começou uma frente → mover o
