@@ -146,6 +146,39 @@ ingestão — e por isso **não passava pelo `beforeSend`**. Os 33 `log.error` d
 nenhum. Corrigido em `2be8aa8`; se alguém reintroduzir um caminho próprio, o filtro deixa de valer
 sem nada acusar.
 
+## 🔀 Repositório compartilhado entre sessões — leia antes de dar push
+
+Mais de uma sessão de Claude edita este repo **ao mesmo tempo**, no MESMO working
+tree e na MESMA branch local (`main`). Duas consequências:
+
+**1. Nunca `git add -A`.** Você commitaria o trabalho pela metade de outra sessão.
+Adicione arquivo por arquivo, e rode `git status` antes de qualquer operação de
+git assumindo que o que não é seu é de alguém trabalhando agora.
+
+**2. Um push carrega o commit de TODAS as sessões.** Sessões compartilham o HEAD,
+então `git push` sobe todo commit que qualquer uma tenha feito e não publicado —
+inclusive o de quem estava esperando o OK do Léo. E aqui `main` é **deploy
+automático**: "sobe o X" vira "subiram X, Y e Z", com Y e Z em produção sem
+ninguém ter olhado.
+
+Aconteceu em 09-10/09/2026, nas duas direções, entre este repo e o do Betinna.
+Em branch local compartilhada, *"commita mas não sobe"* **não é garantia — é uma
+intenção que o primeiro push de qualquer sessão desfaz.**
+
+O `.husky/pre-push` lista o que vai subir e **aborta sem `PUSH`**:
+
+```bash
+PUSH=ok git push
+```
+
+⛔ Ele **não isola nada** — quem quiser subir, seta a variável. O objetivo é
+transformar surpresa em decisão.
+
+⚠️ **"Branch por sessão" NÃO resolve**, e a tentação é grande: as sessões
+compartilham o HEAD do worktree, então fariam checkout uma por cima da outra —
+pior que hoje. O que isola de verdade é **worktree por sessão** (diretório e HEAD
+próprios), ao custo de `node_modules` separado e `.env.local` copiado à mão.
+
 ## Acompanhamento
 
 Board **DEV** no Betinna (via MCP `betinna-kanban`), etiqueta **Site**. Começou uma frente → mover o

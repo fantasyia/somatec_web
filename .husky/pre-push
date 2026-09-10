@@ -1,0 +1,62 @@
+# Pre-push — mostra o que vai subir e exige confirmação.
+#
+# POR QUE ISSO EXISTE
+#
+# Mais de uma sessão de Claude trabalha neste repo ao mesmo tempo, no MESMO
+# working tree e na MESMA branch local. Sessões compartilham o HEAD, então um
+# `git push` sobe TODO commit que qualquer uma tenha feito e não publicado —
+# inclusive o de quem estava esperando aprovação do Léo pra publicar.
+#
+# E aqui `main` é DEPLOY AUTOMÁTICO. Então "sobe o commit X" pode virar
+# "subiram X, Y e Z", com Y e Z indo pra produção sem ninguém ter olhado.
+#
+# Aconteceu de verdade em 09-10/09/2026, nas duas direções, entre este repo e o
+# do Betinna. Em branch local compartilhada, "commita mas não sobe" NÃO é uma
+# garantia — é uma intenção que o primeiro push de qualquer sessão desfaz.
+#
+# Pra subir:  PUSH=ok git push
+#
+# ⚠️ Ele pede confirmação SEMPRE, mesmo pra um commit só. A versão "só avisa
+# quando tem mais de um" ensina a setar a variável por reflexo — e aviso que
+# vira reflexo deixa de proteger.
+#
+# ⛔ Isto NÃO isola nada: quem quiser subir, seta a variável e sobe. O objetivo
+# é transformar surpresa em decisão. Isolar de verdade pede um worktree por
+# sessão (diretório e HEAD próprios), que custa node_modules separado.
+
+remoto_zero='0000000000000000000000000000000000000000'
+
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  # Branch sendo apagada — nada a listar.
+  [ "$local_sha" = "$remoto_zero" ] && continue
+
+  if [ "$remote_sha" = "$remoto_zero" ]; then
+    faixa="$local_sha"          # branch nova: tudo que ela traz
+  else
+    faixa="$remote_sha..$local_sha"
+  fi
+
+  echo ""
+  echo "  O QUE VAI SUBIR (main = deploy automático)"
+  echo ""
+  # Sem coluna de autor DE PROPÓSITO: todas as sessões commitam com a mesma
+  # identidade git, então autor não distingue quem fez o quê — e uma coluna que
+  # parece identificar sem identificar é pior que nenhuma. O que separa é a
+  # MENSAGEM, e a hora ajuda a lembrar o que era seu.
+  git log --format='   %h  %cr  —  %s' "$faixa" 2>/dev/null || true
+  echo ""
+done
+
+if [ -z "$PUSH" ]; then
+  echo "  ⛔ Push abortado."
+  echo ""
+  echo "     Confira a lista acima. Commit que você NÃO RECONHECE é de outra"
+  echo "     sessão — fale com ela antes de publicar o trabalho dela."
+  echo ""
+  echo "     Pra subir:  PUSH=ok git push"
+  echo ""
+  exit 1
+fi
+
+echo "  ✔ PUSH confirmado — subindo."
+echo ""
