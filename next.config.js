@@ -139,6 +139,58 @@ const nextConfig = {
       { source: '/marcas/:slug', destination: '/produtos', permanent: true },
       { source: '/receitas', destination: '/', permanent: true },
       { source: '/receitas/:path*', destination: '/', permanent: true },
+
+      // ── O SITE ANTIGO DO DOMÍNIO — 32 URLs ainda indexadas ────────────
+      //
+      // Medido em 11/09 pelo Search Console + índice do Google. Existiu um site
+      // neste domínio, em três idiomas, com blog (`/conteudos`) e páginas de
+      // produto. Todas as 32 respondem 404 hoje.
+      //
+      // ⚠️ Isto corrige uma premissa errada que estava escrita em dois cards:
+      // "não existe site antigo, o domínio nunca serviu nada". A medição por
+      // DNS de 07/09 estava certa sobre o PRESENTE (o apex não tinha A/AAAA) e
+      // foi lida como se valesse pro passado.
+      //
+      // 🔴 O MOTIVO PRINCIPAL não é SEO — é a OFERTA EXTINTA:
+      //
+      //   /produto/servico-de-medicoes-e-laudos
+      //
+      // "Serviço de Medições e Laudos" é a mecânica que morreu em 20/08: ir
+      // medir na planta ANTES do contrato. A página não serve nada (404), mas o
+      // RESULTADO DE BUSCA existe, com o título e a descrição da época. O 301 é
+      // o que faz o Google substituir aquela entrada por /produtos no recrawl.
+      //
+      // Sobre equity: não há. Search Console, 16 meses — 9 páginas com
+      // impressão, ZERO cliques, a maior com 4 impressões. Isto é higiene de
+      // índice e de link velho, não resgate de autoridade. Por isso são cinco
+      // regras com curinga, e não um mapa de 32 linhas.
+      //
+      // ⏱️ Só vale ANTES do go-live: depois de o NOINDEX sair, o Google já terá
+      // recrawleado e registrado as 404.
+      //
+      // ⚠️ ORDEM IMPORTA: o Next usa a PRIMEIRA regra que casa. As específicas
+      // de /en e /es vêm antes do curinga de idioma, senão `/en/product/x` cairia
+      // na home em vez de /produtos.
+      { source: '/produto', destination: '/produtos', permanent: true },
+      { source: '/produto/:slug*', destination: '/produtos', permanent: true },
+      { source: '/en/product/:slug*', destination: '/produtos', permanent: true },
+      { source: '/es/producto/:slug*', destination: '/produtos', permanent: true },
+      // O blog antigo. `/en/contents` tinha querystring (?c=…&page=…) — o Next
+      // preserva a query no 301, e /blog simplesmente ignora o que não conhece.
+      { source: '/conteudos', destination: '/blog', permanent: true },
+      { source: '/conteudos/:slug*', destination: '/blog', permanent: true },
+      { source: '/en/contents', destination: '/blog', permanent: true },
+      { source: '/en/contents/:slug*', destination: '/blog', permanent: true },
+      { source: '/es/contenido/:slug*', destination: '/blog', permanent: true },
+      // A página de clientes do site antigo virou a de resultados.
+      { source: '/clientes', destination: '/resultados', permanent: true },
+      // Curinga de idioma, POR ÚLTIMO: o site novo é só PT. O multilíngue
+      // PT/EN/ES aparecia no plano antigo e nunca saiu do papel — mandar pra
+      // home é melhor que 404 pra quem chega de link velho em espanhol.
+      { source: '/en', destination: '/', permanent: true },
+      { source: '/en/:path*', destination: '/', permanent: true },
+      { source: '/es', destination: '/', permanent: true },
+      { source: '/es/:path*', destination: '/', permanent: true },
     ];
   },
 };
