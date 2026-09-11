@@ -19,6 +19,8 @@
 // antes de ele carregar — então vale já no primeiro evento, sem corrida.
 // =============================================================================
 
+import { paramsTrafegoInterno } from '@/lib/analytics/trafego-interno';
+
 type EventParams = Record<string, string | number | boolean | undefined>;
 
 declare global {
@@ -30,14 +32,21 @@ declare global {
   }
 }
 
-/** Emite um evento de funil. Seguro em SSR e sem gtag (vira no-op). */
+/**
+ * Emite um evento de funil. Seguro em SSR e sem gtag (vira no-op).
+ *
+ * `traffic_type` entra em TODO evento de visita interna — é o que o filtro
+ * "Internal Traffic" do GA4 procura. Marcado aqui, no emissor, e não em cada
+ * chamador: evento novo nasce marcado sem ninguém lembrar.
+ */
 export function trackEvent(name: string, params: EventParams = {}): void {
   if (typeof window === 'undefined') return;
   try {
+    const todos = { ...params, ...paramsTrafegoInterno() };
     if (window.__somatecGTM) {
-      window.dataLayer?.push({ event: name, ...params });
+      window.dataLayer?.push({ event: name, ...todos });
     } else {
-      window.gtag?.('event', name, params);
+      window.gtag?.('event', name, todos);
     }
   } catch {
     // analytics nunca pode quebrar a UI

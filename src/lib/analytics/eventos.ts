@@ -15,6 +15,7 @@
 // =============================================================================
 
 import { trackEvent } from '@/lib/analytics';
+import { paramsTrafegoInterno } from '@/lib/analytics/trafego-interno';
 import { getAtribuicao } from '@/lib/attribution';
 
 /**
@@ -76,13 +77,17 @@ function emitirEcommerce(
 ): void {
   if (typeof window === 'undefined') return;
   try {
+    // Mesma marcação de tráfego interno do `trackEvent` — este caminho não
+    // passa por lá, e sem repetir aqui o pedido de teste voltaria a contar como
+    // receita de visitante real.
+    const todos = { ...extras, ...paramsTrafegoInterno() };
     if (window.__somatecGTM) {
       window.dataLayer?.push({ ecommerce: null });
-      window.dataLayer?.push({ event: nome, ecommerce, ...extras });
+      window.dataLayer?.push({ event: nome, ecommerce, ...todos });
     } else {
       // Sem container, o gtag recebe os campos no nível do evento — é o formato
       // que o GA4 espera quando não há GTM no meio.
-      window.gtag?.('event', nome, { ...ecommerce, ...extras });
+      window.gtag?.('event', nome, { ...ecommerce, ...todos });
     }
   } catch {
     // analytics nunca pode quebrar a UI

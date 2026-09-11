@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { CONSENT_DEFAULT_SNIPPET } from '@/lib/consent';
+import { TRAFEGO_INTERNO_SNIPPET } from '@/lib/analytics/trafego-interno';
 import { Source_Sans_3, Poppins } from 'next/font/google';
 import { unstable_cache } from 'next/cache';
 import './globals.css';
@@ -181,6 +182,13 @@ export default async function RootLayout({
             Texto único em `@/lib/consent`. */}
         <Script id="consent-default" strategy="beforeInteractive">
           {CONSENT_DEFAULT_SNIPPET}
+        </Script>
+        {/* 🏷️ TRÁFEGO INTERNO — marca a visita de teste antes do container.
+            Tem que ser `beforeInteractive`: o `page_view` sai quando o GTM
+            carrega, e o componente React que marca nas trocas de rota só existe
+            depois da hidratação. Detalhe do porquê em `@/lib/analytics/trafego-interno`. */}
+        <Script id="trafego-interno" strategy="beforeInteractive">
+          {TRAFEGO_INTERNO_SNIPPET}
         </Script>
       </head>
       <body className="font-sans antialiased min-h-screen flex flex-col">
