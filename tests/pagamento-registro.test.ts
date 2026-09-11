@@ -33,6 +33,15 @@ vi.mock('@/lib/email/enviar', () => ({
 
 vi.mock('@/lib/pedidos/servidor', () => ({
   contatoDoPedido: (...a: unknown[]) => contato(...a),
+  // Este arquivo cuida do E-MAIL. `consultarPedido` é o que alimenta o
+  // `purchase` do GA4 — devolvendo undefined, aquele caminho sai cedo e não
+  // entra no meio das asserções daqui. O GA4 tem arquivo próprio
+  // (`ga4-purchase.test.ts`).
+  //
+  // ⚠️ Precisa estar no mock mesmo assim: sem a chave, a chamada estoura, o
+  // `.catch` do registro engole, e os testes continuariam verdes com o caminho
+  // do GA4 quebrado.
+  consultarPedido: () => undefined,
 }));
 
 /** O que o código registrou, com o NÍVEL — é o nível que separa as issues. */

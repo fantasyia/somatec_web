@@ -23,6 +23,12 @@ import {
 } from '@/lib/constants/pagamento';
 import { precificarPedido } from '@/lib/pedidos/precificar';
 import { enviarEventoMeta, montarFbc } from '@/lib/meta/capi';
+import {
+  clientIdDoCookieGa,
+  cookieDeSessaoGa4,
+  guardarIdentidadeGa4,
+  sessionIdDoCookieGa,
+} from '@/lib/analytics/ga4-servidor';
 import { randomUUID } from 'node:crypto';
 import type { FormSubmitData } from '@/lib/forms/schemas';
 
@@ -233,6 +239,25 @@ export async function POST(req: NextRequest) {
   }
 
   log.info('pedido registrado', { numero: r.numero });
+
+  // ── Quem navegou, guardado pra quando o dinheiro entrar ────────────────
+  //
+  // O `purchase` do GA4 nasce no webhook do Asaas, onde não existe navegador:
+  // o checkout é hospedado, o cliente sai do site pra pagar e o PIX confirma
+  // minutos depois, em outro app. O `client_id` só pode ser lido AQUI, que é
+  // a última vez que a requisição vem do navegador dele.
+  //
+  // Sem isso o GA4 recebe a receita e a atribui a um usuário inventado — e o
+  // público "Purchasers", que existe pra remarketing, enche de fantasma.
+  //
+  // Best-effort de ponta a ponta: falhar aqui não pode transformar um pedido
+  // bom em erro na tela.
+  await guardarIdentidadeGa4(r.numero, {
+    clientId: clientIdDoCookieGa(req.cookies.get('_ga')?.value),
+    sessionId: sessionIdDoCookieGa(
+      req.cookies.get(cookieDeSessaoGa4(process.env.GA4_MEASUREMENT_ID ?? ''))?.value,
+    ),
+  });
 
   // ── O pedido sobe pro Betinna, e de lá pro ERP ─────────────────────────
   //

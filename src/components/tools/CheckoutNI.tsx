@@ -704,7 +704,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       // ⛔ `pedido_registrado`, NUNCA `purchase`: com GATEWAY_ATIVO=false o
       // checkout não cobra. `purchase` aqui ensinaria Google e Meta a caçar
       // quem registra pedido e não paga — e esse aprendizado não se apaga.
-      // Vira purchase de verdade quando o Asaas confirmar pagamento.
+      // O `purchase` sai do SERVIDOR quando o Asaas confirma o pagamento
+      // (`@/lib/analytics/ga4-servidor`), com o mesmo `transaction_id`.
       if (virouPedido && numeroPedido && modelo) {
         rastrearPedidoRegistrado({
           transactionId: numeroPedido,

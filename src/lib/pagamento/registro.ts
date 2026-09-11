@@ -9,7 +9,8 @@ import {
   htmlPagamento,
   textoPagamento,
 } from '@/lib/email/pagamento-confirmado';
-import { contatoDoPedido } from '@/lib/pedidos/servidor';
+import { consultarPedido, contatoDoPedido } from '@/lib/pedidos/servidor';
+import { enviarPurchaseGa4, type ItemGa4 } from '@/lib/analytics/ga4-servidor';
 import { CONTACT } from '@/lib/constants/site';
 
 const log = createLogger('pagamento-registro');
@@ -136,9 +137,67 @@ export async function registrarEventoPagamento(params: {
     }).catch((err) => {
       log.error('e-mail de pagamento ao cliente falhou', { pedido: params.numeroPedido }, err);
     });
+
+    // O `purchase` do GA4 — POR ÚLTIMO, de propósito.
+    //
+    // Tudo acima é operação: o aviso interno destrava separação e faturamento,
+    // o e-mail avisa quem pagou. Isto é relatório. Se o GA4 estiver fora, a
+    // venda não pode esperar por ele.
+    //
+    // Herda a idempotência do `SET NX` lá em cima: reentrega do Asaas sai por
+    // `'repetido'` e não chega aqui. Importa porque o GA4 deduplica por
+    // `transaction_id` mas não some com o evento repetido no mesmo instante —
+    // e uma venda contada duas vezes na receita é pior que não contada.
+    await avisarGa4(params).catch((err) => {
+      log.warn('purchase do GA4 nao saiu', { pedido: params.numeroPedido, erro: String(err) });
+    });
   }
 
   return 'registrado';
+}
+
+/**
+ * Manda pro GA4 o evento que faz a venda aparecer na receita.
+ *
+ * O `pedido_registrado` do navegador leva `value` e `items` e o GA4 guarda —
+ * mas `purchaseRevenue` fica em zero e o público "Purchasers" fica vazio,
+ * porque só nome PADRÃO da especificação alimenta relatório de e-commerce.
+ * Detalhe do porquê em `@/lib/analytics/ga4-servidor`.
+ */
+async function avisarGa4(params: {
+  numeroPedido: string;
+  valorCentavos: number;
+  parcelamento?: { id: string; totalCentavos: number; parcelas: number } | null;
+}): Promise<void> {
+  const pedido = await consultarPedido(params.numeroPedido);
+  if (!pedido) {
+    // Webhook de um número que não está na nossa tabela. Sem itens e sem
+    // total, mandar `purchase` seria inventar uma venda no relatório.
+    log.info('sem pedido pra montar o purchase do GA4', { pedido: params.numeroPedido });
+    return;
+  }
+
+  const items: ItemGa4[] = pedido.itens.map((i) => ({
+    // MESMO formato que o navegador usa no `pedido_registrado` — `item_id` é o
+    // modelo (MB-04), `item_name` é "Master Block MB-04". Divergir aqui
+    // quebraria o relatório de item em dois: metade por modelo, metade pela
+    // descrição do quadro, e some a visão de QUAL modelo vende.
+    item_id: i.modelo ?? i.descricao,
+    item_name: i.modelo ? `Master Block ${i.modelo}` : i.descricao,
+    quantity: i.quantidade,
+    price: i.precoCentavos / 100,
+  }));
+
+  // O TOTAL do pedido, não o valor do evento.
+  //
+  // Parcelado, o Asaas manda um evento por parcela: contar `payment.value`
+  // registraria R$ 725 numa venda de R$ 4.350. E o total do pedido é também o
+  // que o navegador mandou no `pedido_registrado` — os dois têm que bater, ou
+  // a mesma venda aparece com dois valores.
+  const valorCentavos =
+    pedido.totalCentavos || params.parcelamento?.totalCentavos || params.valorCentavos;
+
+  await enviarPurchaseGa4({ numeroPedido: params.numeroPedido, valorCentavos, items });
 }
 
 /**

@@ -10,8 +10,18 @@
 // `purchase` aí ensinaria Google e Meta a caçar quem REGISTRA pedido e não
 // paga — e esse aprendizado não se apaga: o algoritmo carrega o viés depois de
 // corrigido. Por isso o evento do pedido é `pedido_registrado`, custom, e a
-// sessão de Ads não vai marcá-lo como conversão em plataforma nenhuma. Vira
-// `purchase` de verdade quando o Asaas confirmar pagamento, server-side.
+// sessão de Ads não vai marcá-lo como conversão em plataforma nenhuma.
+//
+// ✅ Desde 11/09 o `purchase` EXISTE — no servidor, em
+// `@/lib/analytics/ga4-servidor`, disparado quando o Asaas confirma que o
+// dinheiro entrou. Não é o mesmo evento com outro nome: `pedido_registrado`
+// é "o cliente enviou o pedido", `purchase` é "pagou". O do navegador fica
+// como está.
+//
+// ⛔ NÃO marcar `purchase` como conversão no Google Ads sem falar com a sessão
+// de Ads. Hoje `pedido_registrado` já é a conversão de compra importada lá;
+// ativar os dois contaria a mesma venda duas vezes e derrubaria o custo por
+// aquisição pela metade — número bom que não corresponde a nada.
 // =============================================================================
 
 import { trackEvent } from '@/lib/analytics';
