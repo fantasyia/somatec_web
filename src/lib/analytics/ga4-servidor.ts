@@ -36,10 +36,25 @@ const log = createLogger('ga4-servidor');
 // Admin → Fluxos de dados → o fluxo do site → Measurement Protocol API secrets.
 //
 // ⚠️ O MEASUREMENT PROTOCOL FALHA CALADO. Ele responde 204 para requisição
-// aceita E para evento inválido — nome errado, parâmetro fora do formato,
-// segredo de outro fluxo. Por isso existe `GA4_MP_DEBUG`: liga o endpoint de
-// validação do Google, que devolve o motivo em texto, e a gente registra no
-// log. Ligar na primeira verificação e desligar depois.
+// aceita E para evento recusado. Por isso existe `GA4_MP_DEBUG`: manda pro
+// endpoint de validação do Google, que devolve o motivo em texto, e a gente
+// registra no log. Ligar na primeira verificação e desligar depois — em modo
+// debug o evento NÃO é gravado.
+//
+// 🔴 E O DEBUG NÃO RESPONDE A PERGUNTA QUE MAIS IMPORTA. Medido contra o
+// endpoint de verdade em 11/09, com controle:
+//
+//   pega    → measurement_id vazio, client_id ausente, nome de evento inválido
+//   NÃO pega → API SECRET ERRADO, e measurement_id de outro fluxo (bem formado)
+//
+// Com um segredo inventado a resposta é `validationMessages: []`, idêntica à do
+// segredo certo. Ou seja: o debug confere a FORMA do evento, não a credencial.
+// "Passou no debug" não quer dizer "chegou no GA4".
+//
+// O único jeito de provar a credencial é o evento APARECER no GA4 (Tempo real /
+// DebugView) depois de um pagamento de verdade. Não existe atalho — e essa é
+// exatamente a razão de este arquivo registrar `purchase enviado ao GA4` no
+// log: o log prova que NÓS mandamos, e só o painel prova que ELES receberam.
 // =============================================================================
 
 const URL_PADRAO = 'https://www.google-analytics.com/mp/collect';
