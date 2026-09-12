@@ -147,15 +147,10 @@ describe('honeypot', () => {
 
 describe('contato_geral interest_type enum', () => {
   it('aceita todos os tipos de interesse', () => {
-    const tipos = [
-      'food_service',
-      'b2b',
-      'terceirizacao',
-      'envase',
-      'marcas_proprias',
-      'distribuicao',
-      'representante',
-    ] as const;
+    // Os mesmos dois de INTEREST_TYPE_OPTIONS. Os segmentos de alimento da MSM
+    // ('food_service', 'terceirizacao', 'envase', 'marcas_proprias',
+    // 'distribuicao') saíram do enum em 12/09/2026.
+    const tipos = ['b2b', 'representante'] as const;
     for (const interest_type of tipos) {
       const result = contatoGeralSchema.safeParse({
         ...validBase,

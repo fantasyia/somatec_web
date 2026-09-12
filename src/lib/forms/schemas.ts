@@ -143,50 +143,24 @@ export const representanteSchema = z.object({
   experience: z.string().trim().max(500).optional().default(''),
 });
 
-export const foodServiceSchema = z.object({
-  ...baseFields,
-  interest_type: z.literal('food_service'),
-  ...cityStateFields,
-  company: z.string().trim().max(160).optional().default(''),
-  operation_type: z.string().trim().max(160).optional().default(''),
-});
-
+// ⚠️ RESÍDUO CROSS-CLIENTE: aqui moravam foodServiceSchema, terceirizacaoSchema
+// e envaseSchema — herdados do template da MSM Alimentos, com os campos
+// operation_type, product_interest, product_type e packaging_type. Removidos em
+// 12/09/2026: nenhuma página do site os enviava. O `estimated_volume` do b2b caiu
+// junto — volume em kg/mês é medida de alimento, e a Somatec vende proteção
+// elétrica. NÃO reintroduzir campo de alimento neste arquivo.
 export const b2bSchema = z.object({
   ...baseFields,
   interest_type: z.literal('b2b'),
   company: z.string().trim().max(160).optional().default(''),
   segment: z.string().trim().max(160).optional().default(''),
-  estimated_volume: z.string().trim().max(160).optional().default(''),
-});
-
-export const terceirizacaoSchema = z.object({
-  ...baseFields,
-  interest_type: z.literal('terceirizacao'),
-  company: z.string().trim().max(160).optional().default(''),
-  product_interest: z.string().trim().max(160).optional().default(''),
-  estimated_volume: z.string().trim().max(160).optional().default(''),
-});
-
-export const envaseSchema = z.object({
-  ...baseFields,
-  interest_type: z.literal('envase'),
-  company: z.string().trim().max(160).optional().default(''),
-  product_type: z.string().trim().max(160).optional().default(''),
-  packaging_type: z.string().trim().max(160).optional().default(''),
-  estimated_volume: z.string().trim().max(160).optional().default(''),
 });
 
 export const contatoGeralSchema = z.object({
   ...baseFields,
-  interest_type: z.enum([
-    'food_service',
-    'b2b',
-    'terceirizacao',
-    'envase',
-    'marcas_proprias',
-    'distribuicao',
-    'representante',
-  ]),
+  // Os mesmos dois valores de INTEREST_TYPE_OPTIONS. 'marcas_proprias' e
+  // 'distribuicao' eram modelos de negócio da MSM Alimentos e saíram em 12/09.
+  interest_type: z.enum(['b2b', 'representante']),
   ...cityStateFields,
   company: z.string().trim().max(160).optional().default(''),
 });
@@ -197,14 +171,11 @@ export const contatoGeralSchema = z.object({
 
 export const formSubmitSchema = z.discriminatedUnion('form_type', [
   z.object({ form_type: z.literal('representante') }).merge(representanteSchema),
-  z.object({ form_type: z.literal('food_service') }).merge(foodServiceSchema),
   z.object({ form_type: z.literal('b2b') }).merge(b2bSchema),
-  z.object({ form_type: z.literal('terceirizacao') }).merge(terceirizacaoSchema),
-  z.object({ form_type: z.literal('envase') }).merge(envaseSchema),
   z.object({ form_type: z.literal('contato_geral') }).merge(contatoGeralSchema),
 ]).superRefine((d, ctx) => {
   // Contrapeso do vazio permitido em baseFields. A regra é uma só e mora aqui,
-  // pra não ficar espalhada por seis schemas que podem divergir com o tempo.
+  // pra não ficar espalhada pelos schemas, que podem divergir com o tempo.
   const abandono = 'formulario' in d && d.formulario === 'checkout-ni-abandono';
   const temEmail = Boolean(d.email);
   const temWhats = Boolean(d.whatsapp);
@@ -238,26 +209,14 @@ export const formSubmitSchema = z.discriminatedUnion('form_type', [
 export type FormSubmitInput = z.input<typeof formSubmitSchema>;
 export type FormSubmitData = z.output<typeof formSubmitSchema>;
 
-export type ContactFormType =
-  | 'representante'
-  | 'food_service'
-  | 'b2b'
-  | 'terceirizacao'
-  | 'envase'
-  | 'contato_geral';
+export type ContactFormType = 'representante' | 'b2b' | 'contato_geral';
 
 export type RepresentanteData = z.output<typeof representanteSchema>;
-export type FoodServiceData = z.output<typeof foodServiceSchema>;
 export type B2bData = z.output<typeof b2bSchema>;
-export type TerceirizacaoData = z.output<typeof terceirizacaoSchema>;
-export type EnvaseData = z.output<typeof envaseSchema>;
 export type ContatoGeralData = z.output<typeof contatoGeralSchema>;
 
 export const SCHEMA_BY_TYPE = {
   representante: representanteSchema,
-  food_service: foodServiceSchema,
   b2b: b2bSchema,
-  terceirizacao: terceirizacaoSchema,
-  envase: envaseSchema,
   contato_geral: contatoGeralSchema,
 } as const;

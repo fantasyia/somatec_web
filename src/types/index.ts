@@ -14,19 +14,9 @@ export type SeoFields = {
   robots_follow: boolean;
 };
 
-export type FormInterestType =
-  | 'food_service'
-  | 'b2b'
-  | 'terceirizacao'
-  | 'envase'
-  | 'marcas_proprias'
-  | 'distribuicao'
-  | 'representante';
+// ⚠️ RESÍDUO CROSS-CLIENTE: 'food_service', 'terceirizacao', 'envase',
+// 'marcas_proprias' e 'distribuicao' eram segmentos da MSM Alimentos. Saíram em
+// 12/09/2026. Estes tipos espelham schemas.ts — mudou lá, muda aqui.
+export type FormInterestType = 'b2b' | 'representante';
 
-export type FormType =
-  | 'representante'
-  | 'food_service'
-  | 'b2b'
-  | 'terceirizacao'
-  | 'envase'
-  | 'contato_geral';
+export type FormType = 'representante' | 'b2b' | 'contato_geral';

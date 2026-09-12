@@ -9,11 +9,7 @@ import { CheckboxField } from './fields/CheckboxField';
 import { HoneypotField } from './fields/HoneypotField';
 import { TurnstileWidget } from './fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from './fields/FormStatus';
-import {
-  BR_STATES,
-  INTEREST_TYPE_OPTIONS,
-  OPERATION_TYPE_OPTIONS,
-} from '@/lib/constants/form-options';
+import { INTEREST_TYPE_OPTIONS } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
 import { novoEventId, rastrearLead, type Motor } from '@/lib/analytics/eventos';
@@ -22,24 +18,18 @@ import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
 import { validarContato, temErro } from '@/lib/forms/validar-contato';
 import Link from 'next/link';
 
-export type ContactFormVariant =
-  | 'contato_geral'
-  | 'food_service'
-  | 'b2b'
-  | 'terceirizacao'
-  | 'envase';
+// ⚠️ RESÍDUO CROSS-CLIENTE: este site nasceu de um template da MSM Alimentos.
+// As variantes 'food_service' / 'terceirizacao' / 'envase' (e os campos de
+// volume em kg/mês, tipo de embalagem, produto de interesse) eram do negócio
+// de alimentos e foram removidas em 12/09/2026 — nenhuma página as usava.
+// NÃO reintroduzir campo de alimento aqui: a Somatec vende proteção elétrica.
+export type ContactFormVariant = 'contato_geral' | 'b2b';
 
 type Props = {
   variant: ContactFormVariant;
   sourcePage?: string;
-  defaultInterestType?:
-    | 'food_service'
-    | 'b2b'
-    | 'terceirizacao'
-    | 'envase'
-    | 'marcas_proprias'
-    | 'distribuicao'
-    | 'representante';
+  /** Só os valores que INTEREST_TYPE_OPTIONS oferece de fato. */
+  defaultInterestType?: 'b2b' | 'representante';
 };
 
 export function ContactForm({ variant, sourcePage = '/contato', defaultInterestType }: Props) {
@@ -52,12 +42,6 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
   const [setor, setSetor] = useState('');
 
   const showCompany = variant !== 'contato_geral'; // todos os segmentados têm empresa
-  const showCityState = variant === 'food_service';
-  const showOperationType = variant === 'food_service';
-  const showProductInterest = variant === 'terceirizacao';
-  const showProductType = variant === 'envase';
-  const showPackagingType = variant === 'envase';
-  const showVolume = variant === 'b2b' || variant === 'terceirizacao' || variant === 'envase';
   const showInterestSelect = variant === 'contato_geral';
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -106,17 +90,12 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
 
     // Interest type — variant segmentado já define
     if (variant === 'contato_geral') {
-      payload.interest_type = fd.get('interest_type') ?? defaultInterestType ?? 'food_service';
+      payload.interest_type = fd.get('interest_type') ?? defaultInterestType ?? 'b2b';
     } else {
       payload.interest_type = variant;
     }
 
     if (showCompany) payload.company = fd.get('company') ?? '';
-    if (showCityState) {
-      payload.city = fd.get('city') ?? '';
-      payload.state = fd.get('state') ?? '';
-    }
-    if (showOperationType) payload.operation_type = fd.get('operation_type') ?? '';
     // Público + setor viram etiqueta no Betinna; `segment` continua indo com o
     // rótulo legível, que é o que o CRM mostra no campo "segmento".
     if (publico) payload.publico = publico;
@@ -124,10 +103,6 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
       payload.setor = setor;
       payload.segment = rotuloSetor(publico, setor);
     }
-    if (showProductInterest) payload.product_interest = fd.get('product_interest') ?? '';
-    if (showProductType) payload.product_type = fd.get('product_type') ?? '';
-    if (showPackagingType) payload.packaging_type = fd.get('packaging_type') ?? '';
-    if (showVolume) payload.estimated_volume = fd.get('estimated_volume') ?? '';
 
     try {
       const res = await fetch('/api/forms/submit', {
@@ -215,7 +190,7 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
           label="Tipo de interesse"
           name="interest_type"
           options={[...INTEREST_TYPE_OPTIONS]}
-          defaultValue={defaultInterestType ?? 'food_service'}
+          defaultValue={defaultInterestType ?? 'b2b'}
           required
         />
       )}
@@ -227,38 +202,6 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
           name="company"
           autoComplete="organization"
           maxLength={160}
-        />
-      )}
-
-      {/* Cidade / UF */}
-      {showCityState && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <TextField
-              label="Cidade"
-              name="city"
-              autoComplete="address-level2"
-              maxLength={80}
-            />
-          </div>
-          <SelectField
-            label="UF"
-            name="state"
-            options={[...BR_STATES]}
-            placeholder="—"
-            defaultValue=""
-          />
-        </div>
-      )}
-
-      {/* Operação (food service) */}
-      {showOperationType && (
-        <SelectField
-          label="Tipo de operação"
-          name="operation_type"
-          options={[...OPERATION_TYPE_OPTIONS]}
-          placeholder="Selecione"
-          defaultValue=""
         />
       )}
 
@@ -274,44 +217,6 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
         erroPublico={errors.publico}
         erroSetor={errors.setor}
       />
-
-      {/* Terceirização */}
-      {showProductInterest && (
-        <TextField
-          label="Produto de interesse"
-          name="product_interest"
-          placeholder="Ex: maionese, ketchup, molho barbecue"
-          maxLength={160}
-        />
-      )}
-
-      {/* Envase */}
-      {showProductType && (
-        <TextField
-          label="Tipo de produto"
-          name="product_type"
-          placeholder="Ex: molho líquido, pasta"
-          maxLength={160}
-        />
-      )}
-      {showPackagingType && (
-        <TextField
-          label="Tipo de embalagem"
-          name="packaging_type"
-          placeholder="Ex: sachê, bisnaga, balde, garrafa"
-          maxLength={160}
-        />
-      )}
-
-      {/* Volume estimado */}
-      {showVolume && (
-        <TextField
-          label="Volume estimado (opcional)"
-          name="estimated_volume"
-          placeholder="Ex: 5.000 kg/mês"
-          maxLength={160}
-        />
-      )}
 
       {/* Mensagem */}
       <TextareaField

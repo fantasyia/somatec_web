@@ -53,11 +53,8 @@ export const INTEREST_TYPE_OPTIONS = [
   { value: 'representante', label: 'Quero ser representante / parceiro' },
 ] as const;
 
-export const OPERATION_TYPE_OPTIONS = [
-  { value: 'restaurante', label: 'Restaurante' },
-  { value: 'cozinha_industrial', label: 'Cozinha industrial' },
-  { value: 'rede_food_service', label: 'Rede de food service' },
-  { value: 'padaria', label: 'Padaria / Confeitaria' },
-  { value: 'hotel', label: 'Hotelaria' },
-  { value: 'outro', label: 'Outro' },
-] as const;
+// ⚠️ RESÍDUO CROSS-CLIENTE: aqui morava OPERATION_TYPE_OPTIONS (restaurante,
+// cozinha industrial, rede de food service, padaria, hotelaria) — herdado do
+// template da MSM Alimentos. Removido em 12/09/2026 junto com as variantes de
+// alimentos do ContactForm. Este site é de proteção elétrica: quem é o
+// visitante sai de PublicoSetorFields (lib/constants/setores.ts), não daqui.

@@ -63,12 +63,13 @@ export type BuildPayloadInput = {
   captchaUnverified?: boolean;
 };
 
+// ⚠️ RESÍDUO CROSS-CLIENTE: as chaves food_service / terceirizacao / envase
+// (operation_type, product_interest, product_type, packaging_type,
+// estimated_volume) vinham do template da MSM Alimentos e saíram em 12/09/2026
+// junto com os schemas. Só acrescente aqui campo que exista em schemas.ts.
 const PICK_AS_EXTRA: Partial<Record<FormSubmitData['form_type'], string[]>> = {
   representante: ['region', 'experience'],
-  food_service: ['operation_type'],
-  b2b: ['segment', 'estimated_volume'],
-  terceirizacao: ['product_interest', 'estimated_volume'],
-  envase: ['product_type', 'packaging_type', 'estimated_volume'],
+  b2b: ['segment'],
   contato_geral: [],
 };
 

@@ -5,7 +5,7 @@ import type { FormSubmitData } from '@/lib/forms/schemas';
 const baseInput = {
   ip: '10.0.0.1',
   userAgent: 'TestAgent/1.0',
-  referer: 'https://msm.com.br/contato',
+  referer: 'https://somatecblocking.com.br/contato',
   lgpdTextVersion: 'v1.0',
   lgpdTextRaw: 'Texto LGPD de teste',
 };
@@ -24,7 +24,6 @@ function makeValidated(overrides: Partial<FormSubmitData> = {}): FormSubmitData 
     captcha_token: 'tk',
     company: 'Acme S/A',
     segment: 'industria',
-    estimated_volume: '10t/mês',
     ...overrides,
   } as FormSubmitData;
 }
@@ -58,7 +57,7 @@ describe('buildMullerBotPayload', () => {
       validated: makeValidated(),
     });
     expect(payload.site_metadata.user_agent).toBe('TestAgent/1.0');
-    expect(payload.site_metadata.referer).toBe('https://msm.com.br/contato');
+    expect(payload.site_metadata.referer).toBe('https://somatecblocking.com.br/contato');
     expect(payload.site_metadata.submitted_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
@@ -91,14 +90,13 @@ describe('buildMullerBotPayload', () => {
     expect(p1.lgpd_consent.text_hash).not.toBe(p2.lgpd_consent.text_hash);
   });
 
-  it('extra_fields b2b: segment + estimated_volume', () => {
+  it('extra_fields b2b: só segment', () => {
     const payload = buildMullerBotPayload({
       ...baseInput,
       validated: makeValidated(),
     });
     expect(payload.extra_fields).toEqual({
       segment: 'industria',
-      estimated_volume: '10t/mês',
     });
   });
 
@@ -123,8 +121,8 @@ describe('buildMullerBotPayload', () => {
     const payload = buildMullerBotPayload({
       ...baseInput,
       validated: makeValidated({
-        form_type: 'food_service',
-        interest_type: 'food_service',
+        form_type: 'contato_geral',
+        interest_type: 'b2b',
         state: 'sp',
         city: 'São Paulo',
       } as Partial<FormSubmitData>),
