@@ -15,7 +15,7 @@ import { CheckoutNI } from '@/components/tools/CheckoutNI';
 import { BlogDoPublico } from '@/components/lp/BlogDoPublico';
 import { LpCta } from '@/components/lp/LpCta';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { masterBlockProductSchema } from '@/lib/seo/structured-data';
+import { masterBlockProdutoNiSchema } from '@/lib/seo/structured-data';
 import {
   buildCommercialCtaHref,
   getWhatsAppButtonConfig,
@@ -32,9 +32,9 @@ import type { LucideIcon } from 'lucide-react';
 const SLUG = 'protecao-residencial';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Proteção contra surtos para casa de alto padrão | Master Block' },
+  title: { absolute: 'Protetor de surto para casa de alto padrão | Master Block' },
   description:
-    'Automação, home theater, inversor solar e carro elétrico na mesma rede. Basta um pico de energia para levar tudo junto. Monte sua proteção em minutos, com frete grátis e despacho em até 1 dia útil.',
+    'Um protetor de surto no quadro de entrada protege automação, home theater, inversor solar e carro elétrico de uma vez. Monte o seu em minutos, com frete grátis.',
   alternates: { canonical: `/${SLUG}` },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
@@ -81,7 +81,7 @@ export default async function ProtecaoResidencialPage() {
 
   return (
     <>
-      <JsonLd data={[masterBlockProductSchema(), faqSchemaData]} />
+      <JsonLd data={[masterBlockProdutoNiSchema(`/${SLUG}`), faqSchemaData]} />
 
       {/* ── R1 · HERO (navy sobre imagem) ─────────────────────────── */}
       <section

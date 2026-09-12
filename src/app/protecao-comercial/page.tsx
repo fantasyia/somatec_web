@@ -17,7 +17,7 @@ import { CheckoutNI } from '@/components/tools/CheckoutNI';
 import { BlogDoPublico } from '@/components/lp/BlogDoPublico';
 import { LpCta } from '@/components/lp/LpCta';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { masterBlockProductSchema } from '@/lib/seo/structured-data';
+import { masterBlockProdutoNiSchema } from '@/lib/seo/structured-data';
 import {
   buildCommercialCtaHref,
   getWhatsAppButtonConfig,
@@ -35,9 +35,9 @@ import type { LucideIcon } from 'lucide-react';
 const SLUG = 'protecao-comercial';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Proteção elétrica para comércio — câmara fria, PDV e freezers | Master Block' },
+  title: { absolute: 'Protetor de surto para comércio: câmara fria, PDV e freezer | Master Block' },
   description:
-    'Um pico de energia derruba a câmara fria, o forno e o PDV de uma vez: estoque perdido + venda parada + conserto. Monte a proteção do seu negócio em minutos.',
+    'Um pico de energia derruba câmara fria, forno e PDV de uma vez. Um protetor de surto no quadro segura o pico antes de chegar neles. Monte o seu em minutos.',
   alternates: { canonical: `/${SLUG}` },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
@@ -96,7 +96,7 @@ export default async function ProtecaoComercialPage() {
 
   return (
     <>
-      <JsonLd data={[masterBlockProductSchema(), faqSchemaData]} />
+      <JsonLd data={[masterBlockProdutoNiSchema(`/${SLUG}`), faqSchemaData]} />
 
       {/* ── C1 · HERO (navy sobre imagem) ─────────────────────────── */}
       <section

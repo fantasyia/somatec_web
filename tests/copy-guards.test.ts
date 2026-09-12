@@ -95,10 +95,23 @@ describe('trilha NI — vocabulário de cliente no corpo das LPs', () => {
   it.each(['src/app/protecao-residencial/page.tsx', 'src/app/protecao-comercial/page.tsx'])(
     '%s só usa termo técnico fora do corpo',
     (arquivo) => {
+      // Tira o BLOCO de metadata inteiro, não linha a linha.
+      //
+      // O filtro antigo era por CHAVE (`title:`, `canonical`…) e tinha um
+      // buraco: o valor de `description` mora na linha SEGUINTE à chave, então
+      // a linha do texto não casava com nada e era varrida como se fosse
+      // corpo. Ficou invisível enquanto nenhuma description tinha termo
+      // técnico — e reprovou na hora em que a master mandou "protetor de
+      // surto" pro campo (12/09), que é exatamente onde ele DEVE estar.
+      //
+      // Meta description é campo de BUSCA, igual ao title: o visitante não a lê
+      // na página, ela aparece no resultado do Google. Tirar o bloco todo ainda
+      // APERTA a guarda — `title:` e `description:` de objeto no corpo (card,
+      // feature, FAQ) deixam de ser isentos, e eram.
       const fonte = lerCopy(arquivo)
+        .replace(/export const metadata[\s\S]*?\n};\n/, '')
         .split('\n')
-        // tira as linhas de metadata/SEO, onde o termo técnico é proposital
-        .filter((l) => !/title:|alternates:|canonical|url:/.test(l))
+        .filter((l) => !/canonical|url:/.test(l))
         .join('\n');
       for (const padrao of TECNIQUES) {
         expect(fonte, `"${padrao}" não pode aparecer no corpo de ${arquivo}`).not.toMatch(padrao);

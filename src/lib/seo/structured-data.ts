@@ -58,19 +58,45 @@ export function organizationSchema() {
   };
 }
 
-/** Product — MasterBlock (produto-herói, usado na home pra SEO + GEO). */
-export function masterBlockProductSchema() {
+// ─────────────────────────────────────────────────────────────────────────
+// PRODUCT — DOIS schemas, não um. Decisão da master /plano-somatec (12/09).
+//
+// Era um só (`masterBlockProductSchema`) servido em TRÊS páginas: /produtos,
+// /protecao-comercial e /protecao-residencial. Isso deixou de funcionar quando
+// o vocabulário passou a depender do público:
+//
+//   não-industrial → "protetor de surto" é como o cliente BUSCA
+//                    (~2.900/mês no termo-cabeça)
+//   industrial     → "supressor de surtos e transientes" é o termo do
+//                    especificador, e continua
+//
+// Um schema não atende os dois sem mentir pra um deles. Dois atendem, e o
+// `alternateName` faz a ponte: cada um declara o vocabulário do outro, então
+// nenhum dos dois perde a correspondência quando a busca vem pelo outro termo.
+//
+// ⚠️ "supressor" NÃO está errado — o Master Block é um supressor de surtos. O
+// que pertence a componente de painel (contator, diodo, bloco WEG) é a CAUDA
+// DE BUSCA da palavra, não a palavra. O problema sempre foi descoberta, nunca
+// precisão: o site estava certo e invisível.
+//
+// ⛔ FALTA `offers` (preço + disponibilidade) nos dois. É o que habilita o rich
+// result de produto — sem ele o Google não monta o card com preço, que é
+// justamente o formato com que Clamper, Intelbras e Mercado Livre ocupam esse
+// SERP. Não é esquecimento: depende de PUBLICAR PREÇO na página, decisão
+// comercial do Léo que ainda não foi tomada. Os preços existem em
+// `constants/masterblock.ts` e hoje só o checkout os lê.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** O que os dois schemas têm em comum — ficha técnica não muda com o público. */
+function produtoBase() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: 'MasterBlock',
-    category: 'Supressor de surtos elétricos · DPS Classe III',
-    url: absoluteUrl('/produtos'),
     image: absoluteUrl(SITE.ogImage),
-    brand: { '@type': 'Brand', name: 'MasterBlock' },
+    brand: { '@type': 'Brand', name: 'Master Block' },
     manufacturer: { '@type': 'Organization', name: SITE.fullName, url: SITE.url },
     description:
-      'Supressor e protetor contra surtos elétricos com filtro passivo atuante em 100 kHz. Diferente dos DPS comuns (que atuam até 10 kHz), o MasterBlock protege equipamentos automatizados — CLPs, servos e inversores — contra transientes de alta frequência. Linha MB-01 a MB-12 (8 a 100 kA), DPS Classe III conforme ABNT NBR 5410 e IEC 61643-1.',
+      'Supressor e protetor contra surtos elétricos com filtro passivo atuante em 100 kHz. Diferente dos DPS comuns (que atuam até 10 kHz), o Master Block protege equipamentos automatizados — CLPs, servos e inversores — contra transientes de alta frequência. Linha MB-01 a MB-12 (8 a 100 kA), DPS Classe III conforme ABNT NBR 5410 e IEC 61643-1.',
     additionalProperty: [
       { '@type': 'PropertyValue', name: 'Faixa de atuação', value: '100 kHz' },
       { '@type': 'PropertyValue', name: 'Corrente máxima de surto', value: '8 kA a 100 kA' },
@@ -79,6 +105,28 @@ export function masterBlockProductSchema() {
       { '@type': 'PropertyValue', name: 'Temperatura de operação', value: '-40 °C a 60 °C' },
       { '@type': 'PropertyValue', name: 'Normas', value: 'ABNT NBR 5410 · IEC 61643-1' },
     ],
+  };
+}
+
+/** Product INDUSTRIAL — `/produtos`, o catálogo. Vocabulário do especificador. */
+export function masterBlockProductSchema() {
+  return {
+    ...produtoBase(),
+    name: 'Master Block — supressor de surtos e transientes (DPS Classe III)',
+    alternateName: 'protetor de surto',
+    category: 'Supressor de surtos elétricos · DPS Classe III',
+    url: absoluteUrl('/produtos'),
+  };
+}
+
+/** Product NÃO-INDUSTRIAL — LPs de comércio e residência. Vocabulário de quem compra. */
+export function masterBlockProdutoNiSchema(caminho: string) {
+  return {
+    ...produtoBase(),
+    name: 'Master Block — protetor de surto para o quadro de entrada',
+    alternateName: 'supressor de surtos e transientes',
+    category: 'Protetor de surto',
+    url: absoluteUrl(caminho),
   };
 }
 

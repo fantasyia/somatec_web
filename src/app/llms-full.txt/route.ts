@@ -69,7 +69,7 @@ export async function GET(): Promise<Response> {
     '',
     `> ${SITE.description}`,
     '',
-    'Fabricante brasileiro de supressores de surto e soluções de qualidade de energia.',
+    'Fabricante brasileiro do Master Block, protetor de surto com filtro passivo até 100 kHz (supressor de surtos e transientes, DPS Classe III), e de soluções de qualidade de energia para indústria, comércio e residência.',
     `Contato comercial: ${CONTACT.email} · WhatsApp ${CONTACT.whatsappDisplay}`,
     `Endereço: ${CONTACT.address}`,
     '',
