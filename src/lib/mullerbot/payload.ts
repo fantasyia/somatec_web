@@ -70,7 +70,11 @@ export type BuildPayloadInput = {
 const PICK_AS_EXTRA: Partial<Record<FormSubmitData['form_type'], string[]>> = {
   representante: ['region', 'experience'],
   b2b: ['segment'],
-  contato_geral: [],
+  // ⚠️ 'segment' aqui NÃO é opcional: é a segunda porta. Declarar o campo em
+  // schemas.ts só o faz sobreviver ao parse — quem o entrega ao CRM é esta
+  // lista, porque client.ts lê o "segmento" de extra_fields. Faltando aqui, o
+  // lead do /contato chega sem segmento e nada acusa.
+  contato_geral: ['segment'],
 };
 
 function sha256(input: string): string {

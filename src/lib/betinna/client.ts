@@ -26,8 +26,9 @@ function cut(v: string | null | undefined, max: number): string | undefined {
  *  seção "Dados da captura" do lead no CRM. Só o que não tem campo
  *  correspondente (volume estimado, etc.) vai para `mensagem`. */
 function buildBody(p: MullerBotPayload) {
-  // Campos estruturados por tipo de formulário (region/experience = representante,
-  // segment = b2b). O restante dos extra_fields fica como contexto na mensagem.
+  // Campos estruturados por tipo de formulário (region/experience =
+  // representante; segment = b2b e contato_geral). O restante dos extra_fields
+  // fica como contexto na mensagem.
   const { region, experience, segment, ...outrosExtras } = p.extra_fields;
 
   const ctx: string[] = [];

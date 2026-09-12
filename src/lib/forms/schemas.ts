@@ -124,6 +124,15 @@ const baseFields = {
   // formato pra não deixar entrar valor inventado.
   publico: z.enum(['industria', 'comercio', 'residencia']).optional(),
   setor: z.string().trim().max(60).optional(),
+  // Rótulo LEGÍVEL do par público+setor (rotuloSetor). É o que o Betinna
+  // grava no campo "segmento" do lead, via extra_fields.
+  //
+  // ⚠️ Mora aqui, e não num schema só, porque o /contato manda desde sempre e
+  // ficava de fora: declarado apenas no b2bSchema, o contato_geral caía no
+  // strip silencioso do Zod (campo não declarado some sem erro nenhum) e o
+  // campo "segmento" do CRM chegava vazio. Mesma armadilha do event_id.
+  // Max 60 = o limite que o client.ts corta antes de mandar.
+  segment: z.string().trim().max(60).optional().default(''),
 };
 
 // -----------------------------------------------------------------------------
@@ -153,7 +162,6 @@ export const b2bSchema = z.object({
   ...baseFields,
   interest_type: z.literal('b2b'),
   company: z.string().trim().max(160).optional().default(''),
-  segment: z.string().trim().max(160).optional().default(''),
 });
 
 export const contatoGeralSchema = z.object({
