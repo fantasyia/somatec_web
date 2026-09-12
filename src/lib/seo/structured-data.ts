@@ -1,4 +1,5 @@
 import { SITE, CONTACT, SOCIALS, EMPRESA } from '@/lib/constants/site';
+import { MASTER_BLOCK_MODELS } from '@/lib/constants/masterblock';
 
 /**
  * Helpers para gerar Schema.org JSON-LD structured data.
@@ -87,6 +88,38 @@ export function organizationSchema() {
 // `constants/masterblock.ts` e hoje só o checkout os lê.
 // ─────────────────────────────────────────────────────────────────────────
 
+/**
+ * A OFERTA DE COMPRA, derivada do catálogo — nunca digitada.
+ *
+ * `AggregateOffer` e não `Offer`: são 12 modelos com 12 preços, e o que o
+ * Google monta a partir disso é a faixa ("a partir de R$ 4.350"). Um `Offer`
+ * único obrigaria a escolher UM preço pra representar a linha inteira, e
+ * qualquer escolha seria mentira sobre os outros onze.
+ *
+ * Os números saem de `MASTER_BLOCK_MODELS`, a mesma fonte que a tabela da
+ * página e que o checkout usam. Preço de schema divergindo do preço da tela é
+ * o tipo de erro que o Google pune (structured data que não corresponde ao
+ * conteúdo visível) e que ninguém vê, porque os dois textos vivem longe um do
+ * outro. Derivando, não tem como divergir.
+ *
+ * ⚠️ É a oferta de COMPRA DIRETA — comércio e residência. Na indústria o
+ * modelo é LOCAÇÃO, e vender equipamento pro industrial é oferta que morreu em
+ * 25/08. Por isso a tabela da página declara "compra direta" na coluna e no
+ * rodapé: o schema espelha o que a página diz, nunca o contrário.
+ */
+function ofertaDeCompra() {
+  const precos = MASTER_BLOCK_MODELS.map((m) => m.preco);
+  return {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'BRL',
+    lowPrice: Math.min(...precos),
+    highPrice: Math.max(...precos),
+    offerCount: precos.length,
+    availability: 'https://schema.org/InStock',
+    seller: { '@type': 'Organization', name: SITE.fullName },
+  };
+}
+
 /** O que os dois schemas têm em comum — ficha técnica não muda com o público. */
 function produtoBase() {
   return {
@@ -116,6 +149,7 @@ export function masterBlockProductSchema() {
     alternateName: 'protetor de surto',
     category: 'Supressor de surtos elétricos · DPS Classe III',
     url: absoluteUrl('/produtos'),
+    offers: ofertaDeCompra(),
   };
 }
 
@@ -127,6 +161,7 @@ export function masterBlockProdutoNiSchema(caminho: string) {
     alternateName: 'supressor de surtos e transientes',
     category: 'Protetor de surto',
     url: absoluteUrl(caminho),
+    offers: ofertaDeCompra(),
   };
 }
 
