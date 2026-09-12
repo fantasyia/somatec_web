@@ -59,6 +59,23 @@ export const CLUSTER_PUBLICO: Readonly<Record<string, PublicoNI>> = {
   'nichos-digitais': 'residencial',
   'Nichos digitais': 'residencial',
   //
+  // ── 2026-09-12: silo 32, `casa` — "Casa (quem instala)" ──────────────
+  //
+  // Nasceu da pesquisa de busca (volume + SERP real): ~8.700 buscas/mês em
+  // "aterramento residencial" e "para que serve o DPS" — o maior bolsão NI que
+  // o conteúdo consegue disputar, porque o SERP ali NÃO tem loja vendendo
+  // proteção (diferente de "protetor de surto", que é do e-commerce).
+  //
+  // O LEITOR é o eletricista/instalador, não o morador — mas o público da LP é
+  // `residencial`: é instalação residencial que ele atende, e é a LP
+  // residencial que faz sentido pro artigo dele levar.
+  //
+  // ⚠️ NÃO confundir com o silo `residencial`, que é alto padrão e fala com
+  // ARQUITETO. Os dois são 'residencial' aqui de propósito — a distinção entre
+  // eles é editorial (quem especifica), não de público de LP.
+  casa: 'residencial',
+  'Casa (quem instala)': 'residencial',
+
   // ⚠️ `data-center-telecom`, a outra metade do antigo `tecnologia`, é
   // INDUSTRIAL e por isso NÃO entra aqui. O mesmo vale pros outros silos novos
   // (autodiagnostico, decisores, parceiros, processo, equipamentos,
