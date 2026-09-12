@@ -5,7 +5,7 @@ import { AcompanharPedido } from '@/components/pedidos/AcompanharPedido';
 import { DEFAULT_OG_IMAGES, whatsappHref } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
-  title: 'Acompanhar pedido | Somatec Blocking',
+  title: { absolute: 'Acompanhar pedido | Somatec Blocking' },
   description:
     'Consulte o andamento do seu pedido do Master Block pelo número que você recebeu por e-mail.',
   alternates: { canonical: '/pedido' },

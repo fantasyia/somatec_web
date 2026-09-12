@@ -27,7 +27,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: 'Seu pedido | Somatec Blocking',
+  title: { absolute: 'Seu pedido | Somatec Blocking' },
   robots: { index: false, follow: false, nocache: true },
 };
 

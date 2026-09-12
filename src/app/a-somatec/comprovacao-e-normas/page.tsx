@@ -6,7 +6,7 @@ import { CommercialCta } from '@/components/ui/CommercialCta';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
-  title: 'Comprovação, normas e segurança — Somatec Blocking',
+  title: { absolute: 'Comprovação, normas e segurança — Somatec Blocking' },
   description:
     'Proteção comprovada por medição antes e depois, dentro das normas ABNT NBR 5410 e IEC 61643-1, alinhada à ISO 50001. 26 anos de atuação, sem nenhum acidente.',
   alternates: { canonical: '/a-somatec/comprovacao-e-normas' },

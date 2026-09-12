@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { CONTACT, whatsappHref } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
-  title: 'Contato — Somatec Blocking',
+  title: { absolute: 'Contato — Somatec Blocking' },
   description:
     'Fale com a engenharia da Somatec Blocking. Diagnóstico de qualidade de energia e proteção contra surtos (Master Block) para a indústria. São Paulo-SP.',
   alternates: { canonical: '/contato' },

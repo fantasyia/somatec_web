@@ -7,7 +7,7 @@ import { CustoHeroCta } from '@/components/tools/CustoHeroCta';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 
 export const metadata: Metadata = {
-  title: 'Quanto custa sua parada? Calculadora + diagnóstico de VTCD — Somatec Blocking',
+  title: { absolute: 'Quanto custa sua parada? Calculadora + diagnóstico de VTCD — Somatec Blocking' },
   description:
     'Descubra em 2 minutos quanto as paradas e queimas custam por ano na sua operação — e se os sintomas apontam VTCD. Na indústria, o Master Block é locação: a cobrança só começa 45 dias depois da nota fiscal.',
   alternates: { canonical: '/ferramentas/custo-de-parada' },

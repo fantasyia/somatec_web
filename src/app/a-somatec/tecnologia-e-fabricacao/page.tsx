@@ -5,7 +5,7 @@ import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 
 export const metadata: Metadata = {
-  title: 'Tecnologia e fabricação — Somatec Blocking',
+  title: { absolute: 'Tecnologia e fabricação — Somatec Blocking' },
   description:
     'Sistema Master Block IoT: filtro híbrido patenteado que atua em 100 kHz, software de gestão on-line de qualidade de energia e inspeções periódicas. Fabricação exclusiva.',
   alternates: { canonical: '/a-somatec/tecnologia-e-fabricacao' },

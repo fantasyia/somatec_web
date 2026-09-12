@@ -17,7 +17,7 @@ import { masterBlockProductSchema } from '@/lib/seo/structured-data';
 import { MASTER_BLOCK_MODELS, MB_TENSAO } from '@/lib/constants/masterblock';
 
 export const metadata: Metadata = {
-  title: 'Master Block: protetor de surto de 100 kHz, MB-01 a MB-12 | Somatec Blocking',
+  title: { absolute: 'Master Block: protetor de surto de 100 kHz, MB-01 a MB-12 | Somatec Blocking' },
   description:
     'Protetor de surto com filtro passivo até 100 kHz — supressor de surtos e transientes, DPS Classe III (ABNT NBR IEC 61643-1 / NBR 5410). 12 modelos: MB-01 para casa e comércio, cascata para a indústria.',
   alternates: { canonical: '/produtos' },

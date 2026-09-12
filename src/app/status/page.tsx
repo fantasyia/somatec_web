@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: 'Status do sistema — Somatec Blocking',
+  title: { absolute: 'Status do sistema — Somatec Blocking' },
   description: 'Estado operacional do site da Somatec Blocking em tempo real.',
   robots: { index: false, follow: false },
 };

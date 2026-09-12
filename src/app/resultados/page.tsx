@@ -10,7 +10,7 @@ import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
-  title: 'Resultados — cases reais medidos na planta | Somatec Blocking',
+  title: { absolute: 'Resultados — cases reais medidos na planta | Somatec Blocking' },
   description:
     'Cases reais com número: Cinpal (92% de supressão de VTCD), Nissin (~R$1 mi/ano), Stampline (R$560 mil/ano), Grow Up (4 dias/mês). Medição antes e depois da instalação do Master Block.',
   alternates: { canonical: '/resultados' },

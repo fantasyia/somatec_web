@@ -6,7 +6,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
-  title: 'Perguntas frequentes — Somatec Blocking',
+  title: { absolute: 'Perguntas frequentes — Somatec Blocking' },
   description:
     'Dúvidas sobre o Master Block, VTCD, qualidade de energia e o modelo de locação da Somatec Blocking. Respostas técnicas para a indústria.',
   alternates: { canonical: '/faq' },
