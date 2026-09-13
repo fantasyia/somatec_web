@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Zap,
   Activity,
@@ -225,7 +226,8 @@ export default function ProdutosPage() {
           aprovada ainda. */}
       <div className="tone-surface">
         <section className="container-msm py-12 md:py-16" aria-label="Master Block IoT">
-          <Reveal className="max-w-3xl space-y-4">
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
+            <Reveal className="space-y-4 lg:col-span-6">
             <span className="inline-block rounded-btn border border-cyan/40 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-cyan">
               Sistema IoT
             </span>
@@ -244,9 +246,51 @@ export default function ProdutosPage() {
               aponta quando os níveis já não são adequados e sugere um plano de ação preventivo.{' '}
               <span className="font-semibold text-[rgb(var(--text))]">
                 É a diferença entre proteger e comprovar que está protegendo.
-              </span>
-            </p>
-          </Reveal>
+                </span>
+              </p>
+            </Reveal>
+
+            {/* ── A TELA DO SISTEMA ─────────────────────────────────────────
+                Pedido do Léo (13/09): "aqui nesse espaço vazio, eu queria
+                colocar a tela de como funciona o software, pelo menos uma tela
+                ilustrativa". Antes disto o texto ocupava metade da largura e a
+                outra metade ficava vazia em tela larga.
+
+                🔴 A LEGENDA NÃO É ENFEITE — É O QUE TORNA A IMAGEM HONESTA.
+                Não existe captura do software: varrido o `public/` (137
+                imagens), a pasta da marca e o Drive, e confirmado com o Léo,
+                que autorizou a ilustração. Numa página comercial, uma imagem
+                de interface AFIRMA — o cliente passa a esperar aquela tela
+                depois de contratar. O `figcaption` é a única coisa que separa
+                "assim funciona" de "assim é". Sem ela a página afirma por
+                imagem o que ninguém escreveu em texto.
+
+                O conteúdo da tela sai da copy que já está no ar nesta seção:
+                tensão da rede em 24 h com os picos retidos, THDv, tempo de uso
+                do ativo e plano de ação preventivo — os três cartões abaixo
+                têm correspondência visual. Nenhum número quantifica o
+                desempenho do Master Block; o que aparece é leitura de rede de
+                um caso hipotético.
+
+                Origem editável: `leo-Skills-master/clients/somatec/reports/
+                site/masterblock-iot-tela/`. */}
+            <Reveal className="lg:col-span-6">
+              <figure className="space-y-2">
+                <Image
+                  src="/produtos/tela-master-block-iot@2x.webp"
+                  alt="Painel do Master Block IoT: gráfico da tensão da rede nas últimas 24 horas com os picos retidos, distorção harmônica (THDv), tempo de uso do ativo e plano de ação preventivo."
+                  width={2240}
+                  height={1400}
+                  loading="lazy"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="w-full rounded-card border border-[rgb(var(--border))] shadow-lg"
+                />
+                <figcaption className="text-xs text-[rgb(var(--text-muted))]">
+                  Tela ilustrativa do Master Block IoT.
+                </figcaption>
+              </figure>
+            </Reveal>
+          </div>
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
             {[
