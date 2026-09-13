@@ -101,6 +101,17 @@ mesmos olhos que a copy de página, e é onde uma frase errada rende mais estrag
   juntas, e só com OK do Léo.
 - **Push na `main` = deploy automático** (Railway observa a main). Autorizar merge **é** autorizar
   publicação — não existe passo de deploy separado.
+- **O domínio JÁ é o site novo, e `/api/version` é como se prova.** O cutover aconteceu em
+  **07/09**: `www.somatecblocking.com.br` e o apex servem este repo. Pra conferir um deploy, use
+  `/api/version` — é rota do Next e devolve o **SHA do commit no ar**; bate com `origin/main` = o
+  deploy assentou. Título de página não serve: prova menos e engana mais.
+  ⚠️ **A premissa de que "o domínio serve um site antigo em PHP" está MORTA e insiste em voltar.**
+  Ela nasceu de sondar o domínio em 25/08, virou memória, e em **12/09** ainda foi usada por outra
+  sessão pra desqualificar uma verificação de produção que estava certa. A medição de DNS de 07/09
+  mostrou que o apex **nunca teve A, AAAA nem CNAME** — o domínio não servia site nenhum, só e-mail.
+  O que existiu foi um site antigo **indexado** (32 URLs), tratado com 308 em `next.config.js`.
+  ℹ️ O host do Railway (`api-production-29e1f.up.railway.app`) ainda responde 200 e **não deve ser
+  desligado** — só deixou de ser o endereço de referência.
 - **Meta de SEO mora no banco**, não no código: `site_settings` no Supabase
   (`seo_global_title`, `seo_global_title_template`, `seo_global_description`, `seo_og_default_title`,
   `seo_og_default_description`, `seo_og_default_image`). Troca sem deploy.
