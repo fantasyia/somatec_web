@@ -24,7 +24,7 @@ export function HomeFrequency() {
             <span className="font-semibold text-white">10 kHz</span>. Só que os
             distúrbios que travam máquinas, queimam placas e param a produção — surtos,
             transientes e VTCD — acontecem em frequências muito mais altas. O filtro passivo do
-            Master Block atua em{' '}
+            Master Block atua até{' '}
             <span className="font-semibold text-gold">100 kHz</span>: exatamente na faixa em que
             o resto do mercado é cego.
           </p>

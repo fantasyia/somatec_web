@@ -54,7 +54,7 @@ export async function generateMetadata({
   const ind = getIndustria(setor);
   if (!ind) return {};
   return {
-    title: `Master Block para ${ind.nome} — proteção contra surtos e VTCD | Somatec Blocking`,
+    title: { absolute: `Master Block para ${ind.nome} — proteção contra surtos e VTCD | Somatec Blocking` },
     description: `${ind.intro.slice(0, 150)}…`,
     alternates: { canonical: `/industrias/${ind.slug}` },
     openGraph: {

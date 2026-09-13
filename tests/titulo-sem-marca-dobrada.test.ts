@@ -45,7 +45,7 @@ function paginas(dir: string): string[] {
 }
 
 /** `title: '…'` — a forma que o template ENVOLVE. `{ absolute: … }` não conta. */
-const TITULO_STRING = /title:\s*'([^']+)'/g;
+const TITULO_STRING = /title:\s*(?:'([^']*)'|`([^`]*)`)/g;
 
 describe('o nome da empresa não aparece duas vezes no <title>', () => {
   const arquivos = paginas(APP);
@@ -65,8 +65,9 @@ describe('o nome da empresa não aparece duas vezes no <title>', () => {
 
     for (const bloco of blocos) {
       for (const m of bloco.matchAll(TITULO_STRING)) {
+        const texto = m[1] ?? m[2] ?? '';
         expect(
-          m[1],
+          texto,
           `${rel}: o título já termina com "${SITE.fullName}" e o template do layout ` +
             `acrescenta de novo. Use title: { absolute: '…' } — o texto não muda.`,
         ).not.toContain(SITE.fullName);

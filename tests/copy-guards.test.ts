@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, resolve, relative } from 'node:path';
 
 // =============================================================================
 // Guardas de COPY que são risco, não estilo — as que um engenheiro (ou um
@@ -819,23 +819,70 @@ describe('trilha NI — "projeto" e cascata não atravessam do industrial', () =
 // =============================================================================
 
 describe('a faixa de atuação é "até 100 kHz"', () => {
-  const ARQUIVOS = [
-    'src/app/a-somatec/page.tsx',
-    'src/app/a-somatec/tecnologia-e-fabricacao/page.tsx',
-    'src/app/faq/page.tsx',
-    'src/app/llms.txt/route.ts',
-    'src/app/produtos/page.tsx',
-    'src/app/representantes/page.tsx',
-    'src/components/graphics/FrequencySpectrum.tsx',
-    'src/components/graphics/MasterBlockRender.tsx',
-    'src/components/home/HomeHero.tsx',
-    'src/components/home/HomeManifesto.tsx',
-    'src/lib/constants/navigation.ts',
-    'src/lib/seo/structured-data.ts',
-  ];
+  /** ⛔ NADA DE LISTA ESCRITA À MÃO.
+   *
+   *  A versão anterior desta guarda tinha 12 arquivos listados, e a lista
+   *  nasceu de um `grep` pelo literal `em 100 kHz`. Só que o `HomeFrequency`
+   *  escreve a frase PARTIDA POR JSX — o literal não existe no arquivo — e
+   *  por isso ele nunca entrou na lista. A guarda cobria doze arquivos e
+   *  deixava de fora justamente o único que estava errado, na primeira dobra
+   *  da home.
+   *
+   *  Lista feita à mão é uma varredura que decide de antemão o que não vai
+   *  encontrar. Aqui ela anda o `src/` inteiro. */
+  function todosOsArquivos(dir: string): string[] {
+    const achados: string[] = [];
+    for (const nome of readdirSync(dir)) {
+      const caminho = join(dir, nome);
+      if (statSync(caminho).isDirectory()) achados.push(...todosOsArquivos(caminho));
+      else if (/\.(ts|tsx)$/.test(nome)) achados.push(relative(process.cwd(), caminho));
+    }
+    return achados;
+  }
 
-  it.each(ARQUIVOS)('%s não diz "em 100 kHz"', (arq) => {
-    expect(lerCopy(arq)).not.toContain('em 100 kHz');
+  const ARQUIVOS = todosOsArquivos(resolve(process.cwd(), 'src')).filter(
+    // o H1 do surto é a exceção declarada, com teste próprio logo abaixo
+    (f) => !f.endsWith('home-fallback.ts'),
+  );
+  /** Texto como ele CHEGA NA TELA: sem comentário, sem marcação JSX, sem
+   *  expressão `{' '}`, espaço colapsado.
+   *
+   *  🔴 Isto existe por uma falha real desta guarda, em 13/09. O `HomeFrequency`
+   *  dizia, na tela, "o filtro passivo do Master Block atua em 100 kHz" — e
+   *  passou por TODA varredura, minha e da guarda, porque no arquivo a frase é:
+   *
+   *      Master Block atua em{' '}
+   *      <span className="…">100 kHz</span>
+   *
+   *  A string "em 100 kHz" NUNCA existe no fonte. Quem lê o arquivo procurando
+   *  o literal não acha; quem lê a página, acha na primeira linha. Foi o Léo que
+   *  viu, olhando o site.
+   *
+   *  Mesma lição que o `lerCopyCorrida` já registrava aqui em cima — colapsar
+   *  espaço não bastava, porque o que separa as palavras é MARCAÇÃO. */
+  function comoNaTela(rel: string): string {
+    return lerCopy(rel)
+      .replace(/\{\s*'\s*'\s*\}/g, ' ')  // {' '} — o separador invisível
+      .replace(/<[^>]*>/g, ' ')            // tags
+      .replace(/\{[^{}]*\}/g, ' ')         // expressões JSX
+      .replace(/\s+/g, ' ');
+  }
+
+  it.each(ARQUIVOS)('%s não diz "em 100 kHz" — nem partido por JSX', (arq) => {
+    expect(comoNaTela(arq)).not.toMatch(/\bem 100 ?kHz/i);
+  });
+
+  it('⚠️ a guarda enxerga a frase PARTIDA, não só o literal', () => {
+    // Âncora: este é o texto exato que escapou. Se a leitura voltar a ser do
+    // arquivo cru, esta asserção cai e explica por quê.
+    const partido = ['Master Block atua em{\' \'}', '  <span className="x">100 kHz</span>'].join('\n');
+    const plano = partido
+      .replace(/\{\s*'\s*'\s*\}/g, ' ')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\{[^{}]*\}/g, ' ')
+      .replace(/\s+/g, ' ');
+    expect(plano).toMatch(/\bem 100 ?kHz/i);
+    expect(partido).not.toContain('em 100 kHz'); // o fonte não contém
   });
 
   it('⛔ A EXCEÇÃO: o SURTO opera EM 100 kHz — sujeito diferente, frase diferente', () => {
