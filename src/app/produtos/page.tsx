@@ -14,7 +14,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { DEFAULT_OG_IMAGES, EMPRESA } from '@/lib/constants/site';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { masterBlockProductSchema } from '@/lib/seo/structured-data';
-import { MASTER_BLOCK_MODELS, MB_TENSAO, formatBRL } from '@/lib/constants/masterblock';
+import { MASTER_BLOCK_MODELS, MB_TENSAO } from '@/lib/constants/masterblock';
 
 export const metadata: Metadata = {
   title: { absolute: 'Master Block: protetor de surto de 100 kHz, MB-01 a MB-12 | Somatec Blocking' },
@@ -160,7 +160,7 @@ export default function ProdutosPage() {
           Arraste a tabela para o lado pra ver todas as colunas →
         </p>
         <Reveal className="overflow-x-auto rounded-card border border-[rgb(var(--border))]">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="bg-deep_navy text-white text-left">
                 <th scope="col" className="px-4 py-3 font-sans font-semibold">Modelo</th>
@@ -179,15 +179,6 @@ export default function ProdutosPage() {
                   Dimensões <span className="text-white/60 font-normal">(C×L×A mm)</span>
                 </th>
                 <th scope="col" className="px-4 py-3 font-sans font-semibold">Peso (kg)</th>
-                {/* ⚠️ "compra direta" no cabeçalho, não só no rodapé.
-                    Esta página serve os DOIS motores, e vender equipamento pro
-                    INDUSTRIAL é oferta que morreu em 25/08 — lá o modelo é
-                    locação. Uma coluna "Preço" pelada faz o visitante
-                    industrial ler um preço de compra que não existe pra ele, e
-                    quem lê tabela não desce até a nota de rodapé. */}
-                <th scope="col" className="px-4 py-3 font-sans font-semibold whitespace-nowrap">
-                  Preço <span className="text-white/60 font-normal">(compra direta)</span>
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -203,12 +194,6 @@ export default function ProdutosPage() {
                   <td className="px-4 py-3 font-semibold text-[rgb(var(--text))]">{m.icc}</td>
                   <td className="px-4 py-3 text-[rgb(var(--text-muted))] whitespace-nowrap">{m.dim}</td>
                   <td className="px-4 py-3 text-[rgb(var(--text-muted))]">{m.weight}</td>
-                  {/* Mesma fonte (`m.preco`) e mesmo formatador que o checkout
-                      cobra. Tabela e carrinho divergirem em preço é a pior
-                      falha possível aqui. */}
-                  <td className="px-4 py-3 font-semibold text-gold tabular-nums whitespace-nowrap">
-                    {formatBRL(m.preco)}
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -221,22 +206,6 @@ export default function ProdutosPage() {
           conforme a folha de dados. Especificações sujeitas a revisão técnica.
         </p>
 
-        {/* ⛔ A NOTA QUE IMPEDE A TABELA DE PUBLICAR OFERTA MORTA.
-            Os 12 modelos servem os dois motores, mas o PREÇO só vale pra um:
-            comércio e residência compram, a indústria aluga. Vender
-            equipamento pro industrial é oferta que morreu em 25/08. A coluna
-            já diz "compra direta"; esta linha diz o que vale do outro lado,
-            pra ninguém sair da tabela achando que a indústria compra. */}
-        <p className="mt-2 text-xs text-[rgb(var(--text-muted))]">
-          Preço de compra direta, para comércio e residência. Na indústria o modelo é locação
-          —{' '}
-          <Link
-            href="/orcamento-industrial"
-            className="font-semibold text-[rgb(var(--text))] underline-offset-2 hover:underline"
-          >
-            estudo, projeto e proposta sem custo →
-          </Link>
-        </p>
       </section>
 
       {/* ── Master Block IoT — a gestão de energia ────────────────────

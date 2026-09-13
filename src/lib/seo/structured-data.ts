@@ -1,5 +1,4 @@
 import { SITE, CONTACT, SOCIALS, EMPRESA } from '@/lib/constants/site';
-import { MASTER_BLOCK_MODELS } from '@/lib/constants/masterblock';
 
 /**
  * Helpers para gerar Schema.org JSON-LD structured data.
@@ -79,46 +78,28 @@ export function organizationSchema() {
 // que pertence a componente de painel (contator, diodo, bloco WEG) é a CAUDA
 // DE BUSCA da palavra, não a palavra. O problema sempre foi descoberta, nunca
 // precisão: o site estava certo e invisível.
-//
-// ⛔ FALTA `offers` (preço + disponibilidade) nos dois. É o que habilita o rich
-// result de produto — sem ele o Google não monta o card com preço, que é
-// justamente o formato com que Clamper, Intelbras e Mercado Livre ocupam esse
-// SERP. Não é esquecimento: depende de PUBLICAR PREÇO na página, decisão
-// comercial do Léo que ainda não foi tomada. Os preços existem em
-// `constants/masterblock.ts` e hoje só o checkout os lê.
 // ─────────────────────────────────────────────────────────────────────────
 
-/**
- * A OFERTA DE COMPRA, derivada do catálogo — nunca digitada.
- *
- * `AggregateOffer` e não `Offer`: são 12 modelos com 12 preços, e o que o
- * Google monta a partir disso é a faixa ("a partir de R$ 4.350"). Um `Offer`
- * único obrigaria a escolher UM preço pra representar a linha inteira, e
- * qualquer escolha seria mentira sobre os outros onze.
- *
- * Os números saem de `MASTER_BLOCK_MODELS`, a mesma fonte que a tabela da
- * página e que o checkout usam. Preço de schema divergindo do preço da tela é
- * o tipo de erro que o Google pune (structured data que não corresponde ao
- * conteúdo visível) e que ninguém vê, porque os dois textos vivem longe um do
- * outro. Derivando, não tem como divergir.
- *
- * ⚠️ É a oferta de COMPRA DIRETA — comércio e residência. Na indústria o
- * modelo é LOCAÇÃO, e vender equipamento pro industrial é oferta que morreu em
- * 25/08. Por isso a tabela da página declara "compra direta" na coluna e no
- * rodapé: o schema espelha o que a página diz, nunca o contrário.
- */
-function ofertaDeCompra() {
-  const precos = MASTER_BLOCK_MODELS.map((m) => m.preco);
-  return {
-    '@type': 'AggregateOffer',
-    priceCurrency: 'BRL',
-    lowPrice: Math.min(...precos),
-    highPrice: Math.max(...precos),
-    offerCount: precos.length,
-    availability: 'https://schema.org/InStock',
-    seller: { '@type': 'Organization', name: SITE.fullName },
-  };
-}
+// ⛔ NÃO EXISTE `offers` NESTES SCHEMAS — e a ausência é deliberada.
+//
+// Em 12/09 entrou um `AggregateOffer` (R$ 4.350 – R$ 83.750) junto com uma
+// coluna de preço na tabela da `/produtos`. Em 13/09 o Léo tirou o preço da
+// página: os 12 modelos são o MESMO produto em potências diferentes, e a
+// página tem que falar de desempenho, do que o equipamento faz e dos
+// diferenciais — não ser uma lista de preço.
+//
+// O `offers` caiu JUNTO, e não por simetria estética: structured data que não
+// corresponde ao conteúdo visível é violação de política do Google. Schema
+// anunciando preço numa página que não mostra preço é exatamente isso.
+//
+// ⚠️ O QUE SE PERDE, pra ficar registrado: sem `offers` não há rich result com
+// preço — o formato com que Clamper, Intelbras e Mercado Livre ocupam o
+// resultado de "protetor de surto". A decisão é comercial e é do Léo; o custo
+// em busca é este. Se um dia o preço voltar a alguma página, o `offers` volta
+// COM ele, derivado de `MASTER_BLOCK_MODELS`, nunca digitado.
+//
+// O preço segue público onde ele tem função: no checkout, que mostra valor por
+// item e total antes de cobrar.
 
 /** O que os dois schemas têm em comum — ficha técnica não muda com o público. */
 function produtoBase() {
@@ -149,7 +130,6 @@ export function masterBlockProductSchema() {
     alternateName: 'protetor de surto',
     category: 'Supressor de surtos elétricos · DPS Classe III',
     url: absoluteUrl('/produtos'),
-    offers: ofertaDeCompra(),
   };
 }
 
@@ -161,7 +141,6 @@ export function masterBlockProdutoNiSchema(caminho: string) {
     alternateName: 'supressor de surtos e transientes',
     category: 'Protetor de surto',
     url: absoluteUrl(caminho),
-    offers: ofertaDeCompra(),
   };
 }
 
