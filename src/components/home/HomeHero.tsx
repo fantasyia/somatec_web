@@ -73,7 +73,7 @@ export function HomeHero({ data }: Props) {
       title: data?.title ?? HERO_FALLBACK.title,
       subtitle: data?.description ?? data?.subtitle ?? HERO_FALLBACK.subtitle,
       apoio:
-        'MasterBlock + software de qualidade de energia: o filtro híbrido age em 100 kHz, e o software de gestão on-line mede antes e depois, comprovando a proteção em dados.',
+        'MasterBlock + software de qualidade de energia: o filtro híbrido age até 100 kHz, e o software de gestão on-line mede antes e depois, comprovando a proteção em dados.',
       ctas: [
         {
           label: data?.primary_cta_label ?? HERO_FALLBACK.primary.label,

@@ -9,7 +9,7 @@ export function MasterBlockRender({ className }: { className?: string }) {
     <svg
       viewBox="0 0 680 480"
       role="img"
-      aria-label="MasterBlock — supressor de surtos que atua em 100 kHz"
+      aria-label="MasterBlock — supressor de surtos que atua até 100 kHz"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
     >

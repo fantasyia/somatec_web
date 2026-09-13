@@ -21,7 +21,7 @@ type QA = { q: string; a: string };
 const FAQS: readonly QA[] = [
   {
     q: 'O que é o Master Block?',
-    a: 'O Master Block é um filtro híbrido — supressor e protetor contra surtos elétricos — que atua em 100 kHz, fabricado e patenteado pela Somatec Blocking. Faz parte do Sistema Master Block IoT, que reúne o filtro, um software de gestão on-line de qualidade de energia e inspeções periódicas. Protege equipamentos e sistemas de automação contra os picos de tensão que causam queimas e paradas.',
+    a: 'O Master Block é um filtro híbrido — supressor e protetor contra surtos elétricos — que atua até 100 kHz, fabricado e patenteado pela Somatec Blocking. Faz parte do Sistema Master Block IoT, que reúne o filtro, um software de gestão on-line de qualidade de energia e inspeções periódicas. Protege equipamentos e sistemas de automação contra os picos de tensão que causam queimas e paradas.',
   },
   {
     q: 'O que é VTCD e por que ele danifica meus equipamentos?',
@@ -29,7 +29,7 @@ const FAQS: readonly QA[] = [
   },
   {
     q: 'Qual a diferença do Master Block para um DPS comum?',
-    a: 'O DPS comum atua em frequências abaixo de 10 kHz. O Master Block atua em 100 kHz — a faixa onde estão os transientes de alta frequência que mais danificam CLPs, servos, inversores e placas eletrônicas. Ele complementa (não substitui) DPS, no-break, estabilizador e aterramento.',
+    a: 'O DPS comum atua em frequências abaixo de 10 kHz. O Master Block atua até 100 kHz — a faixa onde estão os transientes de alta frequência que mais danificam CLPs, servos, inversores e placas eletrônicas. Ele complementa (não substitui) DPS, no-break, estabilizador e aterramento.',
   },
   {
     q: 'Já tenho aterramento, DPS, no-break e estou dentro das normas. Ainda faz sentido?',

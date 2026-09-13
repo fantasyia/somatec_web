@@ -177,7 +177,7 @@ export function FrequencySpectrum({ className }: { className?: string }) {
           <circle cx={X1} cy={96} r={9} fill="#F39200" />
           <circle cx={X1} cy={96} r={16} fill="#F39200" opacity={0.25} className="animate-led-pulse motion-reduce:animate-none" />
           <text x={X1 - 6} y={66} textAnchor="end" fontSize={17} fontWeight={700} fill="#008CC8" fontFamily="var(--font-inter)">
-            Master Block · atua em 100 kHz
+            Master Block · atua até 100 kHz
           </text>
         </g>
       </svg>

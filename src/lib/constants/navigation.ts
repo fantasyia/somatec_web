@@ -43,7 +43,7 @@ export const HEADER_NAV: NavItem[] = [
       {
         label: 'Master Block',
         href: '/produtos',
-        description: 'Supressor com filtro passivo atuante em 100 kHz — não é um DPS comum.',
+        description: 'Supressor com filtro passivo atuante até 100 kHz — não é um DPS comum.',
       },
       {
         label: 'Comprovação e normas',

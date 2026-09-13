@@ -24,7 +24,7 @@ export function organizationSchema() {
     logo: absoluteUrl('/logo-somatec.png'),
     image: absoluteUrl(SITE.ogImage),
     description: SITE.description,
-    slogan: 'Proteção contra surtos elétricos em 100 kHz',
+    slogan: 'Proteção contra surtos elétricos até 100 kHz',
     foundingDate: '1999',
     areaServed: 'BR',
     address: {
@@ -129,7 +129,7 @@ function produtoBase() {
     brand: { '@type': 'Brand', name: 'Master Block' },
     manufacturer: { '@type': 'Organization', name: SITE.fullName, url: SITE.url },
     description:
-      'Supressor e protetor contra surtos elétricos com filtro passivo atuante em 100 kHz. Diferente dos DPS comuns (que atuam até 10 kHz), o Master Block protege equipamentos automatizados — CLPs, servos e inversores — contra transientes de alta frequência. Linha MB-01 a MB-12 (8 a 100 kA), DPS Classe III conforme ABNT NBR 5410 e IEC 61643-1.',
+      'Supressor e protetor contra surtos elétricos com filtro passivo atuante até 100 kHz. Diferente dos DPS comuns (que atuam até 10 kHz), o Master Block protege equipamentos automatizados — CLPs, servos e inversores — contra transientes de alta frequência. Linha MB-01 a MB-12 (8 a 100 kA), DPS Classe III conforme ABNT NBR 5410 e IEC 61643-1.',
     additionalProperty: [
       { '@type': 'PropertyValue', name: 'Faixa de atuação', value: '100 kHz' },
       { '@type': 'PropertyValue', name: 'Corrente máxima de surto', value: '8 kA a 100 kA' },
@@ -170,11 +170,11 @@ export function faqSchema() {
   const faqs: { q: string; a: string }[] = [
     {
       q: 'O que é o MasterBlock?',
-      a: 'O MasterBlock é um supressor e protetor contra surtos elétricos com filtro passivo que atua em 100 kHz, fabricado pela Somatec Blocking. Protege equipamentos eletroeletrônicos e automatizados contra picos de tensão causados por descargas atmosféricas, comutação de motores e oscilações da rede.',
+      a: 'O MasterBlock é um supressor e protetor contra surtos elétricos com filtro passivo que atua até 100 kHz, fabricado pela Somatec Blocking. Protege equipamentos eletroeletrônicos e automatizados contra picos de tensão causados por descargas atmosféricas, comutação de motores e oscilações da rede.',
     },
     {
       q: 'Qual a diferença do MasterBlock para um DPS comum?',
-      a: 'O DPS comum atua em frequências abaixo de 10 kHz. O MasterBlock atua em 100 kHz — a faixa onde estão os transientes de alta frequência que mais danificam equipamentos automatizados, CLPs, servos e inversores.',
+      a: 'O DPS comum atua em frequências abaixo de 10 kHz. O MasterBlock atua até 100 kHz — a faixa onde estão os transientes de alta frequência que mais danificam equipamentos automatizados, CLPs, servos e inversores.',
     },
     {
       q: 'O MasterBlock atende quais normas?',

@@ -7,7 +7,7 @@ import { CommercialCta } from '@/components/ui/CommercialCta';
 export const metadata: Metadata = {
   title: { absolute: 'Tecnologia e fabricação — Somatec Blocking' },
   description:
-    'Sistema Master Block IoT: filtro híbrido patenteado que atua em 100 kHz, software de gestão on-line de qualidade de energia e inspeções periódicas. Fabricação exclusiva.',
+    'Sistema Master Block IoT: filtro híbrido patenteado que atua até 100 kHz, software de gestão on-line de qualidade de energia e inspeções periódicas. Fabricação exclusiva.',
   alternates: { canonical: '/a-somatec/tecnologia-e-fabricacao' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 };
@@ -17,7 +17,7 @@ const capabilities = [
     icon: Layers,
     title: 'Filtro híbrido patenteado',
     description:
-      'O Master Block é um supressor com filtro passivo, patenteado e de fabricação exclusiva. Atua em 100 kHz — a faixa dos VTCD e transientes que os DPS comuns não alcançam.',
+      'O Master Block é um supressor com filtro passivo, patenteado e de fabricação exclusiva. Atua até 100 kHz — a faixa dos VTCD e transientes que os DPS comuns não alcançam.',
   },
   {
     icon: Gauge,

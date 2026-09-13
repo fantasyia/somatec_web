@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Master Block — protetor de surto de 100 kHz (MB-01 a MB-12)',
     description:
-      'Supressor de surtos e transientes com filtro passivo em 100 kHz. 12 modelos, de 8 kA a 100 kA. DPS Classe III conforme ABNT NBR IEC 61643-1 e NBR 5410.',
+      'Supressor de surtos e transientes com filtro passivo até 100 kHz. 12 modelos, de 8 kA a 100 kA. DPS Classe III conforme ABNT NBR IEC 61643-1 e NBR 5410.',
     url: '/produtos',
     type: 'website',
     images: [...DEFAULT_OG_IMAGES],
@@ -38,7 +38,7 @@ export const revalidate = 3600;
 const FEATURES = [
   {
     Icon: Activity,
-    title: 'Filtro de harmônicos em 100 kHz',
+    title: 'Filtro de harmônicos até 100 kHz',
     description:
       'Atenua os dV/dt gerados nas comutações das cargas — a frequência em que o dano realmente acontece.',
   },
@@ -80,8 +80,8 @@ export default function ProdutosPage() {
       <JsonLd data={masterBlockProductSchema()} />
 
       <PageHero
-        title="Não é um DPS comum. É o supressor que atua em 100 kHz."
-        description="O DPS de mercado atua abaixo de 10 kHz. O MasterBlock é um supressor e protetor contra surtos elétricos com filtro passivo e circuitos atuantes em 100 kHz — a frequência em que os transientes destroem seus equipamentos. Uma linha de 12 modelos, de 8 kA a 100 kA."
+        title="Não é um DPS comum. É o supressor que atua até 100 kHz."
+        description="O DPS de mercado atua abaixo de 10 kHz. O MasterBlock é um supressor e protetor contra surtos elétricos com filtro passivo e circuitos atuantes até 100 kHz — a frequência em que os transientes destroem seus equipamentos. Uma linha de 12 modelos, de 8 kA a 100 kA."
         breadcrumbs={[{ label: 'Produtos' }]}
       />
 

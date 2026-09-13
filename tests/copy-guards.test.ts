@@ -802,3 +802,62 @@ describe('trilha NI — "projeto" e cascata não atravessam do industrial', () =
     expect(lerCopyCorrida('src/components/tools/OrcamentoIndustrial.tsx')).toMatch(/\bprojeto\b/i);
   });
 });
+
+// =============================================================================
+// "ATÉ 100 kHz", NÃO "EM 100 kHz" — decisão da master /plano-somatec (12/09),
+// levantada pelo Léo: *"esse negocio de atua em, nao seria melhor atua até
+// 100khz pq fica meio estranho assim"*.
+//
+// Não é estilo. "Em 100 kHz" lê como um PONTO; a atuação é uma FAIXA, e a
+// comparação que sustenta o produto inteiro é de faixa contra faixa — o DPS
+// comum protege ATÉ 10 kHz, o Master Block segue ATÉ 100 kHz.
+//
+// O que forçou a decisão foi o site se contradizer: o gráfico de frequência
+// (`FrequencySpectrum`) já dizia "até" no comentário e no aria-label, e o
+// RÓTULO desenhado em cima do mesmo gráfico dizia "atua em 100 kHz". A prosa
+// tinha 21 ocorrências de "em"; a peça que desenha a física dizia "até".
+// =============================================================================
+
+describe('a faixa de atuação é "até 100 kHz"', () => {
+  const ARQUIVOS = [
+    'src/app/a-somatec/page.tsx',
+    'src/app/a-somatec/tecnologia-e-fabricacao/page.tsx',
+    'src/app/faq/page.tsx',
+    'src/app/llms.txt/route.ts',
+    'src/app/produtos/page.tsx',
+    'src/app/representantes/page.tsx',
+    'src/components/graphics/FrequencySpectrum.tsx',
+    'src/components/graphics/MasterBlockRender.tsx',
+    'src/components/home/HomeHero.tsx',
+    'src/components/home/HomeManifesto.tsx',
+    'src/lib/constants/navigation.ts',
+    'src/lib/seo/structured-data.ts',
+  ];
+
+  it.each(ARQUIVOS)('%s não diz "em 100 kHz"', (arq) => {
+    expect(lerCopy(arq)).not.toContain('em 100 kHz');
+  });
+
+  it('⛔ A EXCEÇÃO: o SURTO opera EM 100 kHz — sujeito diferente, frase diferente', () => {
+    // `home-fallback` é o H1 da home: "O surto que destrói seu equipamento
+    // OPERA em 100 kHz". Aqui quem está em 100 kHz é o surto, não a proteção —
+    // trocar pra "opera até 100 kHz" mudaria o sentido da frase, não o
+    // vocabulário. Ficou de fora da troca DE PROPÓSITO, e esta asserção existe
+    // pra que a próxima varredura não a "conserte" achando que escapou.
+    const fallback = lerCopy('src/lib/constants/home-fallback.ts');
+    expect(fallback).toContain('opera em 100 kHz');
+    // E o subtítulo ao lado já usa "até" pro DPS — a distinção é consciente.
+    expect(fallback).toMatch(/DPS comum atua só até 10 kHz/);
+  });
+
+  it('o rótulo do gráfico concorda com o próprio gráfico', () => {
+    // Era aqui que a contradição ficava visível: o texto desenhado em cima da
+    // curva dizia "em", a curva (e o aria-label) diziam "até".
+    const grafico = readFileSync(
+      resolve(process.cwd(), 'src/components/graphics/FrequencySpectrum.tsx'),
+      'utf-8',
+    );
+    expect(grafico).toContain('atua até 100 kHz');
+    expect(grafico).toMatch(/protege até 10 kHz/);
+  });
+});

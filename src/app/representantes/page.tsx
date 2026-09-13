@@ -46,7 +46,7 @@ export default function RepresentantesPage() {
                 {/* ⛔ Citava "e Banco de Capacitores". Saiu em 04/09: a Somatec
                     passou a oferecer só Master Block, e o representante não
                     pode sair vendendo o que a empresa não vende mais. */}
-                <span>Sistema Master Block: o supressor que atua em 100 kHz + o software de gestão de energia on-line.</span>
+                <span>Sistema Master Block: o supressor que atua até 100 kHz + o software de gestão de energia on-line.</span>
               </li>
               <li className="flex gap-2">
                 <span className="text-gold mt-1">·</span>

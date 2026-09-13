@@ -27,7 +27,7 @@ const sections = [
     eyebrow: 'Tecnologia',
     title: 'Sistema Master Block IoT',
     description:
-      'O filtro híbrido que atua em 100 kHz, o software de gestão on-line de qualidade de energia e as inspeções periódicas — proteção que se comprova em dados.',
+      'O filtro híbrido que atua até 100 kHz, o software de gestão on-line de qualidade de energia e as inspeções periódicas — proteção que se comprova em dados.',
   },
   {
     href: '/a-somatec/comprovacao-e-normas',
@@ -47,7 +47,7 @@ const sections = [
     eyebrow: 'Produto',
     title: 'Sistema Master Block',
     description:
-      'O supressor que atua em 100 kHz, nos 12 modelos da linha — com o software de gestão de energia on-line que comprova a proteção depois de instalado.',
+      'O supressor que atua até 100 kHz, nos 12 modelos da linha — com o software de gestão de energia on-line que comprova a proteção depois de instalado.',
   },
 ];
 
