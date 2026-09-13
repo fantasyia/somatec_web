@@ -81,7 +81,7 @@ export default function ProdutosPage() {
 
       <PageHero
         title="Não é um DPS comum. É o supressor que atua até 100 kHz."
-        description="O DPS de mercado atua abaixo de 10 kHz. O MasterBlock é um supressor e protetor contra surtos elétricos com filtro passivo e circuitos atuantes até 100 kHz — a frequência em que os transientes destroem seus equipamentos. Uma linha de 12 modelos, de 8 kA a 100 kA."
+        description="O DPS de mercado atua abaixo de 10 kHz. O Master Block é um supressor e protetor contra surtos elétricos com filtro passivo e circuitos atuantes até 100 kHz — a frequência em que os transientes destroem seus equipamentos. Uma linha de 12 modelos, de 8 kA a 100 kA."
         breadcrumbs={[{ label: 'Produtos' }]}
       />
 
@@ -333,7 +333,7 @@ export default function ProdutosPage() {
                 Numa planta industrial — com subestação, vários quadros e equipamento
                 crítico espalhado pela produção — um único supressor junto à máquina não
                 basta: ele fica sujeito a um surto acima da sua capacidade de escoamento.
-                Nesses casos a Somatec projeta a proteção em cascata: um MasterBlock na
+                Nesses casos a Somatec projeta a proteção em cascata: um Master Block na
                 entrada da instalação, outro no quadro de distribuição e outro próximo ao
                 equipamento crítico, atenuando o surto gradativamente.
               </p>
@@ -365,7 +365,7 @@ export default function ProdutosPage() {
       <section className="container-msm py-14 md:py-20">
         <div className="max-w-2xl mx-auto text-center space-y-6">
           <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">
-            Qual MasterBlock a sua planta precisa?
+            Qual Master Block a sua planta precisa?
           </h2>
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
             Calcule quanto as paradas e queimas custam por ano na sua operação — em 2 minutos. Ou

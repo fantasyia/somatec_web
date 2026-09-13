@@ -5,16 +5,16 @@
  */
 
 export const HERO_FALLBACK = {
-  eyebrow: 'MasterBlock · Supressor de surtos',
+  eyebrow: 'Master Block · Supressor de surtos',
   title: 'O surto que destrói seu equipamento opera em 100 kHz',
   subtitle:
-    'O DPS comum atua só até 10 kHz. O MasterBlock é a única proteção que age na frequência do dano — instalada nas maiores indústrias do Brasil.',
+    'O DPS comum atua só até 10 kHz. O Master Block é a única proteção que age na frequência do dano — instalada nas maiores indústrias do Brasil.',
   // ⛔ Era "Receba um diagnóstico de risco" — a medição prévia que a Somatec
   // parou de fazer em 20/08. ⚠️ Este arquivo é só FALLBACK: o rótulo que
   // aparece na tela vem de `home_hero.primary_cta_label` no Supabase. Mudar
   // aqui e não lá não muda nada pro visitante.
   primary: { label: 'Falar com a engenharia', href: '/contato' },
-  secondary: { label: 'Conheça o MasterBlock', href: '/produtos' },
+  secondary: { label: 'Conheça o Master Block', href: '/produtos' },
   fallback_image_url: null as string | null,
   // Hero estático, sem vídeo. Para usar vídeo, cadastrar em Admin → Home → Hero.
   video_url: null as string | null,

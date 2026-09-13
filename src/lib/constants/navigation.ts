@@ -150,7 +150,7 @@ export const FOOTER_COLUMNS: { title: string; links: NavItem[] }[] = [
   {
     title: 'Tecnologia',
     links: [
-      { label: 'MasterBlock', href: '/produtos' },
+      { label: 'Master Block', href: '/produtos' },
       { label: 'Modelos MB-01 a MB-12', href: '/produtos' },
     ],
   },

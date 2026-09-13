@@ -169,23 +169,23 @@ export function masterBlockProdutoNiSchema(caminho: string) {
 export function faqSchema() {
   const faqs: { q: string; a: string }[] = [
     {
-      q: 'O que é o MasterBlock?',
-      a: 'O MasterBlock é um supressor e protetor contra surtos elétricos com filtro passivo que atua até 100 kHz, fabricado pela Somatec Blocking. Protege equipamentos eletroeletrônicos e automatizados contra picos de tensão causados por descargas atmosféricas, comutação de motores e oscilações da rede.',
+      q: 'O que é o Master Block?',
+      a: 'O Master Block é um supressor e protetor contra surtos elétricos com filtro passivo que atua até 100 kHz, fabricado pela Somatec Blocking. Protege equipamentos eletroeletrônicos e automatizados contra picos de tensão causados por descargas atmosféricas, comutação de motores e oscilações da rede.',
     },
     {
-      q: 'Qual a diferença do MasterBlock para um DPS comum?',
-      a: 'O DPS comum atua em frequências abaixo de 10 kHz. O MasterBlock atua até 100 kHz — a faixa onde estão os transientes de alta frequência que mais danificam equipamentos automatizados, CLPs, servos e inversores.',
+      q: 'Qual a diferença do Master Block para um DPS comum?',
+      a: 'O DPS comum atua em frequências abaixo de 10 kHz. O Master Block atua até 100 kHz — a faixa onde estão os transientes de alta frequência que mais danificam equipamentos automatizados, CLPs, servos e inversores.',
     },
     {
-      q: 'O MasterBlock atende quais normas?',
+      q: 'O Master Block atende quais normas?',
       a: 'É classificado como DPS Classe III conforme a ABNT NBR 5410 e a IEC 61643-1, com grau de proteção IP-65 e operação de -40 °C a 60 °C.',
     },
     {
-      q: 'Como o MasterBlock é instalado?',
+      q: 'Como o Master Block é instalado?',
       a: 'É instalado em paralelo no quadro de distribuição, com proteção em cascata (entrada da instalação, quadro e próximo ao equipamento sensível) e um sistema de aterramento dedicado projetado pela Somatec conforme a NBR 5410.',
     },
     {
-      q: 'Para quais indústrias o MasterBlock é indicado?',
+      q: 'Para quais indústrias o Master Block é indicado?',
       a: 'Para qualquer planta com equipamentos críticos ou automatizados: frigoríficos, metalurgia, automação industrial, agronegócio, data centers, telecom e hospitais.',
     },
   ];

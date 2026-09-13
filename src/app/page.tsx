@@ -54,7 +54,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Structured data (Schema.org) — Organization + Product (MasterBlock) + FAQ (SEO/GEO) */}
+      {/* Structured data (Schema.org) — Organization + Product (Master Block) + FAQ (SEO/GEO) */}
       <JsonLd data={[organizationSchema(), masterBlockProductSchema(), faqSchema()]} />
 
       {/* Hero e carrossel: render imediato (acima da dobra). Demais seções

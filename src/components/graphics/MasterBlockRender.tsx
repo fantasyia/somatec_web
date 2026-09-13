@@ -1,5 +1,5 @@
 /**
- * Releitura vetorial (profissional) do produto MasterBlock — usada na hero.
+ * Releitura vetorial (profissional) do produto Master Block — usada na hero.
  * SVG nítido em qualquer tamanho, sem artefatos de recorte. Paleta oficial:
  * laranja Master Block + navy/ciano. Substitui a foto recortada do datasheet.
  */
@@ -9,7 +9,7 @@ export function MasterBlockRender({ className }: { className?: string }) {
     <svg
       viewBox="0 0 680 480"
       role="img"
-      aria-label="MasterBlock — supressor de surtos que atua até 100 kHz"
+      aria-label="Master Block — supressor de surtos que atua até 100 kHz"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
     >

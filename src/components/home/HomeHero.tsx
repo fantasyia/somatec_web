@@ -38,7 +38,7 @@ type Slide = {
   id: string;
   title: string;
   subtitle?: string;
-  /** Texto de apoio menor (slide 1 = conteúdo "MasterBlock + software"). */
+  /** Texto de apoio menor (slide 1 = conteúdo "Master Block + software"). */
   apoio?: string;
   ctas: { label: string; href: string; primary?: boolean }[];
   /** Art direction (despacho #8): wide ≥1024 · tablet 768–1023 · tall <768. */
@@ -73,7 +73,7 @@ export function HomeHero({ data }: Props) {
       title: data?.title ?? HERO_FALLBACK.title,
       subtitle: data?.description ?? data?.subtitle ?? HERO_FALLBACK.subtitle,
       apoio:
-        'MasterBlock + software de qualidade de energia: o filtro híbrido age até 100 kHz, e o software de gestão on-line mede antes e depois, comprovando a proteção em dados.',
+        'Master Block + software de qualidade de energia: o filtro híbrido age até 100 kHz, e o software de gestão on-line mede antes e depois, comprovando a proteção em dados.',
       ctas: [
         {
           label: data?.primary_cta_label ?? HERO_FALLBACK.primary.label,

@@ -861,3 +861,55 @@ describe('a faixa de atuação é "até 100 kHz"', () => {
     expect(grafico).toMatch(/protege até 10 kHz/);
   });
 });
+
+// =============================================================================
+// A MARCA É "Master Block", SEPARADO — e o teste tem que saber a diferença
+// entre TEXTO e IDENTIFICADOR.
+//
+// A grafia junta veio do template e sobreviveu em 19 lugares: FAQ do schema,
+// fallback da home, corpo da /produtos, texto de apoio do hero. Em 13/09 o Léo
+// mandou arrumar.
+//
+// ⚠️ O que torna esta guarda delicada: `MasterBlockRender`,
+// `selecionarMasterBlock` e `MasterBlockModel` são NOMES DE CÓDIGO e estão
+// certos como estão — renomear não melhora nada e quebra import. Uma guarda
+// que proíbe "MasterBlock" cru reprova código correto, e a saída fácil
+// (excluir os arquivos inteiros) abriria buraco justamente onde mora a FAQ.
+//
+// O recorte é PALAVRA ISOLADA: casa só quando não há letra colada dos dois
+// lados. `O MasterBlock é` casa; `selecionarMasterBlock(` não.
+// =============================================================================
+
+describe('a marca se escreve "Master Block", separado', () => {
+  /** Palavra isolada — deixa identificador em paz de propósito. */
+  const JUNTO = /(?<![A-Za-z])MasterBlock(?![A-Za-z])/;
+
+  const ARQUIVOS = [
+    'src/app/page.tsx',
+    'src/app/produtos/page.tsx',
+    'src/components/graphics/MasterBlockRender.tsx',
+    'src/components/home/HomeHero.tsx',
+    'src/lib/constants/home-fallback.ts',
+    'src/lib/constants/navigation.ts',
+    'src/lib/seo/structured-data.ts',
+  ];
+
+  it.each(ARQUIVOS)('%s', (arq) => {
+    const fonte = readFileSync(resolve(process.cwd(), arq), 'utf-8');
+    const achado = fonte.split('\n').find((l) => JUNTO.test(l));
+    expect(achado, `grafia junta em ${arq}: ${achado?.trim()}`).toBeUndefined();
+  });
+
+  it('⛔ e NÃO reprova nome de código, que está certo junto', () => {
+    // Se esta cair, a guarda virou lint cego e vai pedir pra renomear função.
+    const constantes = readFileSync(
+      resolve(process.cwd(), 'src/lib/constants/masterblock.ts'),
+      'utf-8',
+    );
+    expect(constantes).toContain('selecionarMasterBlock');
+    expect(JUNTO.test('export function selecionarMasterBlock(')).toBe(false);
+    expect(JUNTO.test('export function MasterBlockRender(')).toBe(false);
+    // e casa o que É texto
+    expect(JUNTO.test('O MasterBlock é um supressor')).toBe(true);
+  });
+});
