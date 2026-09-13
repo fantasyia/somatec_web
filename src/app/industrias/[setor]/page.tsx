@@ -9,8 +9,37 @@ import { INDUSTRIAS, getIndustria } from '@/lib/constants/industrias';
 import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
-// Só os setores listados existem — qualquer outro slug → 404 real (SEO).
-export const dynamicParams = false;
+// 🔴 `dynamicParams = false` SAIU DAQUI — ele derrubava as 4 páginas em produção.
+//
+// O sintoma: `/industrias/alimenticia`, `/autopecas`, `/metalurgia` e `/textil`
+// respondiam **404** no ar, com `x-nextjs-prerender: 1`, enquanto o log de build
+// listava as quatro como prerenderizadas e o MESMO commit servia 200 num
+// `next start` local. O log do servidor deu o nome:
+//
+//     Error: Internal: NoFallbackError
+//         at responseGenerator (.next/server/app/industrias/[setor]/page.js)
+//
+// `NoFallbackError` é o que o Next lança quando um caminho dinâmico precisa ser
+// gerado e não PODE: com `dynamicParams = false` não existe fallback, então
+// qualquer requisição que não caia numa entrada de cache viva vira 404 seco.
+//
+// E esta página é ISR (`revalidate` abaixo). Quando a entrada expira, é
+// despejada, ou é invalidada por tag — ela carrega `site_settings`, `footer` e
+// `whatsapp_button` nas tags do layout — o Next tenta regenerar, não tem
+// fallback, e devolve 404. Local não reproduz porque o cache nasce junto com o
+// build e nunca esvazia.
+//
+// ⚠️ O par `dynamicParams = false` + `revalidate` é a armadilha: o primeiro diz
+// "só existe o que foi gerado no build", o segundo diz "regenere de tempos em
+// tempos". Na hora de regenerar, um contradiz o outro.
+//
+// A intenção original — slug inventado tem que dar 404 de verdade, não página
+// vazia indexável — CONTINUA VALENDO, e é o `notFound()` do corpo que a
+// garante. Ele sempre garantiu; o `dynamicParams` era redundante, e foi só o
+// lado redundante que quebrou.
+//
+// `/blog/[slug]`, a outra rota dinâmica do site, sempre usou
+// `dynamicParams = true` e nunca teve este problema.
 
 export function generateStaticParams() {
   return INDUSTRIAS.map((i) => ({ setor: i.slug }));
