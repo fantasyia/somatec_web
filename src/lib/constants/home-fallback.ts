@@ -6,7 +6,7 @@
 
 export const HERO_FALLBACK = {
   eyebrow: 'Master Block · Supressor de surtos',
-  title: 'O surto que destrói seu equipamento opera em 100 kHz',
+  title: 'O surto que destrói seu equipamento opera até 100 kHz',
   subtitle:
     'O DPS comum atua só até 10 kHz. O Master Block é a única proteção que age na frequência do dano — instalada nas maiores indústrias do Brasil.',
   // ⛔ Era "Receba um diagnóstico de risco" — a medição prévia que a Somatec

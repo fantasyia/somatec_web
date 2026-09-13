@@ -840,10 +840,12 @@ describe('a faixa de atuação é "até 100 kHz"', () => {
     return achados;
   }
 
-  const ARQUIVOS = todosOsArquivos(resolve(process.cwd(), 'src')).filter(
-    // o H1 do surto é a exceção declarada, com teste próprio logo abaixo
-    (f) => !f.endsWith('home-fallback.ts'),
-  );
+  // ⛔ SEM EXCEÇÃO. O H1 da home ("O surto … opera até 100 kHz") era a única,
+  // segurada por mim com o argumento de que ali o sujeito é o SURTO e não a
+  // proteção. O Léo decidiu em 13/09: "deixa em tudo". A regra passou a ser
+  // uma só, e regra sem exceção é a que sobrevive — a exceção exigia que cada
+  // pessoa que varresse soubesse por que aquele caso era diferente.
+  const ARQUIVOS = todosOsArquivos(resolve(process.cwd(), 'src'));
   /** Texto como ele CHEGA NA TELA: sem comentário, sem marcação JSX, sem
    *  expressão `{' '}`, espaço colapsado.
    *
@@ -885,16 +887,13 @@ describe('a faixa de atuação é "até 100 kHz"', () => {
     expect(partido).not.toContain('em 100 kHz'); // o fonte não contém
   });
 
-  it('⛔ A EXCEÇÃO: o SURTO opera EM 100 kHz — sujeito diferente, frase diferente', () => {
-    // `home-fallback` é o H1 da home: "O surto que destrói seu equipamento
-    // OPERA em 100 kHz". Aqui quem está em 100 kHz é o surto, não a proteção —
-    // trocar pra "opera até 100 kHz" mudaria o sentido da frase, não o
-    // vocabulário. Ficou de fora da troca DE PROPÓSITO, e esta asserção existe
-    // pra que a próxima varredura não a "conserte" achando que escapou.
+  it('o H1 da home também usa "até" — a exceção foi removida em 13/09', () => {
+    // Este teste era o inverso: exigia `opera em 100 kHz` no H1. O Léo mandou
+    // aplicar a regra em tudo, então ele passou a cobrar o contrário. Fica
+    // como registro de que a exceção existiu e de quem a encerrou.
     const fallback = lerCopy('src/lib/constants/home-fallback.ts');
-    expect(fallback).toContain('opera em 100 kHz');
-    // E o subtítulo ao lado já usa "até" pro DPS — a distinção é consciente.
-    expect(fallback).toMatch(/DPS comum atua só até 10 kHz/);
+    expect(fallback).toContain('opera até 100 kHz');
+    expect(fallback).not.toContain('opera em 100 kHz');
   });
 
   it('o rótulo do gráfico concorda com o próprio gráfico', () => {
