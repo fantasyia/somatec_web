@@ -34,6 +34,12 @@ import type { LucideIcon } from 'lucide-react';
 
 const SLUG = 'protecao-comercial';
 
+/* ⚠️ TÍTULO DE PÁGINA DE DESTINO DE CAMPANHA — avise a sessão de Ads ANTES de mexer.
+   O Grupo 2 da primeira campanha de Google Ads compra "protetor de surto" em
+   correspondência de frase, e o termo estar no <title> é o que dá Índice de
+   qualidade. Trocar o título com a campanha no ar mexe no Índice, e o efeito
+   aparece no CPC dias depois — ninguém liga uma coisa na outra.
+   Combinado com a sessão de Ads em 12/09: mudança aqui é avisada antes. */
 export const metadata: Metadata = {
   title: { absolute: 'Protetor de surto para comércio: câmara fria, PDV e freezer | Master Block' },
   description:
