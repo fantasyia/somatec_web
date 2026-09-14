@@ -93,12 +93,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(SUCCESS, { status: 200, headers: apiVersionHeaders() });
   }
 
-  // Turnstile — valida ANTES do Zod (adendo v1.1 §5.3)
+  const ip = getClientIp(req);
+
+  // Rate limit ANTES do Turnstile (F2-M12 da auditoria): verificar o captcha
+  // primeiro fazia todo POST anônimo custar uma chamada ao siteverify da
+  // Cloudflare, sem teto — um alvo barato de flood. O rate limit é local
+  // (Redis) e corta antes de gastar a chamada externa.
+  const rl = await limitFormSubmit(ip);
+  if (!rl.allowed) {
+    trackRequest(ROUTE, 429);
+    return NextResponse.json(
+      { ok: false, message: 'Muitas tentativas. Aguarde um momento e tente novamente.' },
+      { status: 429, headers: { ...rateLimitHeaders(rl), ...apiVersionHeaders() } },
+    );
+  }
+
+  // Turnstile — valida ANTES do Zod (adendo v1.1 §5.3), depois do rate limit.
   const tokenCandidate =
     raw && typeof raw === 'object'
       ? ((raw as Record<string, unknown>).captcha_token as string | undefined)
       : undefined;
-  const ip = getClientIp(req);
   const tsOutcome = await verifyTurnstile(tokenCandidate, ip);
   // Fail-open controlado: se NÃO deu pra VERIFICAR por falha de infra (Cloudflare
   // lenta/fora — não é culpa do usuário), aceita o lead mas marca captcha_unverified
@@ -118,16 +132,6 @@ export async function POST(req: NextRequest) {
         400,
       );
     }
-  }
-
-  // Rate limit (v1.1 §6)
-  const rl = await limitFormSubmit(ip);
-  if (!rl.allowed) {
-    trackRequest(ROUTE, 429);
-    return NextResponse.json(
-      { ok: false, message: 'Muitas tentativas. Aguarde um momento e tente novamente.' },
-      { status: 429, headers: { ...rateLimitHeaders(rl), ...apiVersionHeaders() } },
-    );
   }
 
   // Zod

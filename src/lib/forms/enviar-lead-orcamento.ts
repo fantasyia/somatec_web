@@ -43,6 +43,12 @@ export async function enviarLeadOrcamento(d: LeadOrcamento): Promise<ResultadoEn
   try {
     const res = await fetch('/api/forms/submit', {
       method: 'POST',
+      // keepalive: o lead de abandono é disparado no `pagehide` (aba fechando).
+      // Sem isto o navegador ABORTA a requisição junto com o descarregamento da
+      // página — e some justamente o lead de "quem só some", que é o caso que a
+      // feature existe pra pegar (F2-A1 da auditoria 13/09). Payload é pequeno,
+      // bem abaixo do teto de 64 KB do keepalive.
+      keepalive: true,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         form_type: 'b2b',

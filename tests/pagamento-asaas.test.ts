@@ -64,13 +64,12 @@ describe('cobrança', () => {
     expect(corpoDaChamada(f, 1).customer).toBe('cus_existente');
   });
 
-  it('ATUALIZA o cadastro reaproveitado quando o comprador mudou', async () => {
-    // Peguei isso em teste: a página de pagamento mostrava "Dados do comprador"
-    // com o nome do PRIMEIRO cadastro feito com aquele CNPJ. Quem compra hoje
-    // veria um nome que não é o dele na hora de pagar — e as notificações do
-    // gateway iriam pro e-mail antigo.
+  it('atualiza o NOME quando o e-mail confere (mesma pessoa corrigindo)', async () => {
+    // E-mail igual = prova de posse: é a mesma pessoa, pode corrigir o nome.
+    // ⚠️ NÃO manda `email` no corpo do update — o e-mail é a âncora de posse,
+    // não algo que este caminho reescreve.
     const f = responder([
-      { data: [{ id: 'cus_1', name: 'Nome Antigo', email: 'antigo@x.com' }] },
+      { data: [{ id: 'cus_1', name: 'Nome Antigo', email: 'ana@x.com' }] },
       { id: 'cus_1' },
       { id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' },
     ]);
@@ -83,8 +82,32 @@ describe('cobrança', () => {
     });
 
     expect(f.mock.calls[1][0]).toContain('/customers/cus_1');
-    expect(corpoDaChamada(f, 1)).toMatchObject({ name: 'Ana Nova', email: 'ana@x.com' });
-    expect(corpoDaChamada(f, 2).customer).toBe('cus_1'); // cobrou no MESMO cadastro
+    expect(corpoDaChamada(f, 1)).toMatchObject({ name: 'Ana Nova' });
+    expect(corpoDaChamada(f, 1)).not.toHaveProperty('email');
+    expect(corpoDaChamada(f, 2).customer).toBe('cus_1');
+  });
+
+  it('🔴 NÃO sobrescreve o cadastro quando o e-mail difere (CNPJ é público)', async () => {
+    // A3 da auditoria: a busca é por CPF/CNPJ, dado público. Reescrever
+    // nome/e-mail/telefone a partir só do documento deixava sequestrar o
+    // cadastro de um cliente real. E-mail diferente → usa o cadastro como
+    // está, sem update, e cobra no mesmo id.
+    const f = responder([
+      { data: [{ id: 'cus_1', name: 'Dona Real', email: 'dona@real.com' }] },
+      { id: 'pay_1', invoiceUrl: 'https://x/i/1', status: 'PENDING' },
+    ]);
+
+    await criarCobranca({
+      numeroPedido: 'SB-1',
+      cliente: { nome: 'Atacante', email: 'atacante@x.com', cpfCnpj: '19131243000197' },
+      valorCentavos: 1000,
+      forma: 'PIX',
+    });
+
+    // Só buscou e cobrou — nenhuma chamada de update (POST /customers/cus_1).
+    expect(f).toHaveBeenCalledTimes(2);
+    expect(f.mock.calls.some((c) => String(c[0]).includes('/customers/cus_1'))).toBe(false);
+    expect(corpoDaChamada(f, 1).customer).toBe('cus_1');
   });
 
   it('não gasta chamada quando o cadastro já está igual', async () => {
@@ -107,10 +130,12 @@ describe('cobrança', () => {
     // O pior caso é voltar a mostrar o dado velho — que é o comportamento de
     // antes. Perder a cobrança por causa disso seria trocar um defeito cosmético
     // por um pedido não pago.
+    // E-mail IGUAL (pra o update ser tentado) mas nome diferente → tenta
+    // atualizar, e o update falha. A venda tem que seguir mesmo assim.
     const f = vi.fn();
     f.mockResolvedValueOnce({
       ok: true,
-      text: async () => JSON.stringify({ data: [{ id: 'cus_1', name: 'Velho', email: 'v@x.com' }] }),
+      text: async () => JSON.stringify({ data: [{ id: 'cus_1', name: 'Velho', email: 'ana@x.com' }] }),
     });
     f.mockResolvedValueOnce({
       ok: false,
@@ -125,7 +150,7 @@ describe('cobrança', () => {
 
     const r = await criarCobranca({
       numeroPedido: 'SB-1',
-      cliente: { nome: 'Ana', email: 'ana@x.com', cpfCnpj: '19131243000197' },
+      cliente: { nome: 'Ana Nova', email: 'ana@x.com', cpfCnpj: '19131243000197' },
       valorCentavos: 1000,
       forma: 'PIX',
     });

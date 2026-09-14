@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { CONTACT } from '@/lib/constants/site';
+import { documentoValido } from '@/lib/constants/documento';
 import { z } from 'zod';
 import { criarPedido } from '@/lib/pedidos/servidor';
 import { limitFormSubmit } from '@/lib/ratelimit/upstash';
@@ -79,8 +80,15 @@ const schema = z.object({
   whatsapp: z.string().max(40).nullish(),
   empresa: z.string().max(160).nullish(),
   /** CPF/CNPJ do comprador. Sem ele o ERP não emite nota — e sem nota não sai
-   *  etiqueta. O checkout valida dígito verificador antes de mandar. */
-  documento: z.string().max(20).nullish(),
+   *  etiqueta. O checkout já valida o dígito verificador; o servidor reconfere
+   *  (M2 da auditoria) — um POST direto com documento inválido gerava pedido no
+   *  Tiny que a NF nunca autoriza e cobrança que o Asaas recusa em silêncio.
+   *  Vazio continua aceito (nem todo lead tem documento na hora). */
+  documento: z
+    .string()
+    .max(20)
+    .nullish()
+    .refine((v) => !v || documentoValido(v), 'CPF/CNPJ inválido'),
   itens: z.array(itemSchema).max(30).default([]),
   totalCentavos: z.number().int().min(0).max(100_000_000),
   freteCentavos: z.number().int().min(0).max(10_000_000).default(0),

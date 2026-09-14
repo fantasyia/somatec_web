@@ -233,6 +233,23 @@ describe('venda parcelada', () => {
     const chaves = redisSet.mock.calls.map((c) => String(c[0]));
     expect(new Set(chaves).size).toBe(chaves.length);
   });
+
+  it('CONFIRMED e RECEIVED da MESMA cobrança colapsam numa chave só (M1)', async () => {
+    redisSet.mockResolvedValue('OK');
+
+    // À vista, o Asaas manda os dois pra o mesmo pagamento: aprovação e
+    // liquidação (~30 dias depois), com eventoId diferente e situação 'pago'.
+    await registrarEventoPagamento(evento({ eventoId: 'evt_confirmed', evento: 'PAYMENT_CONFIRMED' }));
+    await registrarEventoPagamento(evento({ eventoId: 'evt_received', evento: 'PAYMENT_RECEIVED' }));
+
+    const chaves = redisSet.mock.calls.map((c) => String(c[0]));
+    // Mesma cobrança (pay_1) + mesma situação (pago) → MESMA chave. Num Redis
+    // real o segundo sairia por 'repetido' e o cliente não recebe dois e-mails.
+    expect(chaves[0]).toBe(chaves[1]);
+    expect(chaves[0]).toContain('cob:pay_1:pago');
+    // E a chave NÃO é mais o eventoId (que difere entre os dois).
+    expect(chaves[0]).not.toContain('evt_confirmed');
+  });
 });
 
 describe('os três silêncios são distinguíveis — senão o grave se esconde no ruído', () => {

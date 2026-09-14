@@ -57,9 +57,21 @@ export async function registrarEventoPagamento(params: {
   //
   // Casando pelo PARCELAMENTO + situação, a venda avisa UMA vez — e um estorno
   // depois ainda avisa, porque a situação faz parte da chave.
+  // NO CARTÃO, O MESMO PAGAMENTO GERA DOIS EVENTOS COM ID DIFERENTE.
+  //
+  // PAYMENT_CONFIRMED sai na aprovação; PAYMENT_RECEIVED na liquidação (~30
+  // dias depois). Os dois são `situacao: 'pago'`, cada um com `eventoId`
+  // próprio. Casando por evento (o que valia até a auditoria de 13/09), a
+  // mesma venda avisava DUAS vezes — e o segundo e-mail "pagamento confirmado"
+  // caía na caixa do cliente um mês depois. Casando por COBRANÇA + situação
+  // (mesma lógica do parcelado), os dois colapsam num aviso só, e um estorno
+  // futuro ainda avisa porque a situação faz parte da chave. Sem cobrancaId
+  // (evento fora do padrão), cai no id do evento — melhor duplicar que perder.
   const chave = params.parcelamento
     ? `somatec:pagamento:parc:${params.parcelamento.id}:${params.situacao}`
-    : `somatec:pagamento:${params.eventoId}`;
+    : params.cobrancaId
+      ? `somatec:pagamento:cob:${params.cobrancaId}:${params.situacao}`
+      : `somatec:pagamento:${params.eventoId}`;
   const redis = getRedis();
 
   if (redis) {
@@ -196,6 +208,20 @@ async function avisarGa4(params: {
   // a mesma venda aparece com dois valores.
   const valorCentavos =
     pedido.totalCentavos || params.parcelamento?.totalCentavos || params.valorCentavos;
+
+  // Pagamento MENOR que o total do pedido (M1 da auditoria): à vista o
+  // `payment.value` deveria cobrir o total; parcelado, o total das parcelas.
+  // Se veio menos, é pagamento parcial/divergente — não suprimimos o aviso
+  // (poderia ser arredondamento/frete), mas registramos ALTO pra operação
+  // conferir antes de separar, em vez de tratar como "pago integral" calado.
+  const pagoCentavos = params.parcelamento?.totalCentavos ?? params.valorCentavos;
+  if (pedido.totalCentavos > 0 && pagoCentavos > 0 && pagoCentavos < pedido.totalCentavos) {
+    log.error('pagamento MENOR que o total do pedido — conferir antes de separar', {
+      pedido: params.numeroPedido,
+      pagoCentavos,
+      totalPedidoCentavos: pedido.totalCentavos,
+    });
+  }
 
   await enviarPurchaseGa4({ numeroPedido: params.numeroPedido, valorCentavos, items });
 }

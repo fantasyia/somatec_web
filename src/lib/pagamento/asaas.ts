@@ -97,31 +97,36 @@ async function garantirCliente(c: Cliente): Promise<string> {
     }>(`/customers?cpfCnpj=${encodeURIComponent(doc)}&limit=1`);
     const existente = busca.data?.[0];
     if (existente?.id) {
-      // ATUALIZA nome e e-mail quando mudaram.
+      // 🔴 SÓ ATUALIZA SE O E-MAIL CONFERIR (A3 da auditoria 13/09).
       //
-      // Sem isto, quem foi cadastrado uma vez fica congelado: a página de
-      // pagamento mostra "Dados do comprador" com o nome antigo, e as
-      // notificações do gateway vão pro e-mail antigo. Peguei isso no teste — a
-      // fatura de um pedido novo exibia o nome do primeiro cadastro feito com
-      // aquele CNPJ, e o comprador veria um nome que não é o dele na hora de
-      // pagar.
+      // A busca é por CPF/CNPJ, que é dado PÚBLICO. Atualizar nome/e-mail/
+      // telefone a partir só do documento deixava qualquer um reescrever o
+      // cadastro de um cliente real: bastava mandar um pedido com o CNPJ da
+      // vítima e o próprio e-mail/telefone, e as notificações de cobrança
+      // passavam a ir pro atacante (`notificationDisabled: false`).
       //
-      // Best-effort: falhar aqui não pode derrubar a venda — o pior caso volta
-      // a ser o dado velho, que é o comportamento de antes.
-      const mudou =
-        (existente.name ?? '').trim() !== c.nome.trim() ||
-        (existente.email ?? '').trim().toLowerCase() !== c.email.trim().toLowerCase();
-      if (mudou) {
+      // A prova de posse que temos é o e-mail bater com o já cadastrado. Se
+      // bater, é a mesma pessoa corrigindo o nome — pode atualizar. Se não
+      // bater, NÃO sobrescreve: usa o cadastro como está e registra. O preço é
+      // um cliente que trocou de e-mail de verdade ver o nome antigo na fatura
+      // — muito menor que o sequestro de cadastro.
+      const emailConfere =
+        (existente.email ?? '').trim().toLowerCase() === c.email.trim().toLowerCase();
+      const nomeDiferente = (existente.name ?? '').trim() !== c.nome.trim();
+      if (emailConfere && nomeDiferente) {
         await chamar(`/customers/${existente.id}`, {
           method: 'POST',
           body: {
             name: c.nome,
-            email: c.email,
             cpfCnpj: doc,
             ...(c.telefone ? { mobilePhone: c.telefone.replace(/\D/g, '') } : {}),
           },
         }).catch((err) => {
           log.warn('cliente nao atualizado no gateway', { erro: String(err) });
+        });
+      } else if (!emailConfere) {
+        log.warn('cadastro existente com e-mail diferente — nao sobrescrevo (CNPJ e publico)', {
+          clienteId: existente.id,
         });
       }
       return existente.id;

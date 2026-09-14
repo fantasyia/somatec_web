@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { z } from 'zod';
 import { cotarFreteErp } from '@/lib/erp/frete';
 import { validateBearer } from '@/lib/auth/bearer';
 
@@ -25,16 +26,34 @@ import { validateBearer } from '@/lib/auth/bearer';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type ItemPedido = { model: string; quantidade: number };
+// ⚠️ Zod, não checagem de `.length` na mão. Até 13/09 o corpo era só
+// castado, e `itens: "abc"` passava (uma string tem `.length` 3) — aí o
+// `montarItens` fazia `.flatMap` numa string e estourava um 500 genérico
+// (M6 da auditoria). Também põe teto no tamanho e na quantidade, pra o
+// endpoint não virar amplificador contra o ERP.
+const freteSchema = z.object({
+  cepDestino: z.string().max(20),
+  itens: z
+    .array(
+      z.object({
+        model: z.string().min(1).max(60),
+        quantidade: z.number().int().min(1).max(99).default(1),
+      }),
+    )
+    .min(1)
+    .max(30),
+});
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json().catch(() => null)) as
-    | { cepDestino?: string; itens?: ItemPedido[] }
-    | null;
-  const destino = (body?.cepDestino ?? '').replace(/\D/g, '');
-  const itens = body?.itens ?? [];
+  const corpoBruto = await req.json().catch(() => null);
+  const parsed = freteSchema.safeParse(corpoBruto);
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, motivo: 'dados_invalidos' }, { status: 400 });
+  }
+  const destino = parsed.data.cepDestino.replace(/\D/g, '');
+  const itens = parsed.data.itens;
 
-  if (destino.length !== 8 || itens.length === 0) {
+  if (destino.length !== 8) {
     return NextResponse.json({ ok: false, motivo: 'dados_invalidos' }, { status: 400 });
   }
 
