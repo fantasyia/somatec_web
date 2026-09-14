@@ -25,10 +25,14 @@ export async function GET(req: NextRequest) {
     process.env.GITHUB_SHA ||
     null;
 
+  // ⚠️ SEM versão do Next nem do Node aqui. Até 13/09 este endpoint publicava
+  // `next_version` e `node_version` pra qualquer um — e a auditoria daquele
+  // dia achou o site num Next abaixo do patch de RCE do otimizador de imagens.
+  // Quem procura alvo pra CVE publicada acha em uma requisição. O
+  // `commit_short` é a âncora de deploy e basta; versão de framework é assunto
+  // do `package.json`, não da rota pública.
   const body = {
     api_version: API_VERSION,
-    next_version: '16.2.6',
-    node_version: process.versions.node,
     environment: process.env.NODE_ENV ?? 'unknown',
     commit_sha: commitSha,
     commit_short: commitSha ? commitSha.slice(0, 7) : null,

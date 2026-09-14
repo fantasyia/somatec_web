@@ -15,9 +15,16 @@ describe('GET /api/version', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.api_version).toMatch(/^\d+\.\d+/);
-    expect(json.next_version).toBeDefined();
-    expect(json.node_version).toMatch(/^\d+\.\d+/);
     expect(json.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it('⛔ não publica versão do Next nem do Node (mapa pra CVE)', async () => {
+    // Até 13/09 saía `next_version: '16.2.6'` — e o site estava abaixo do patch
+    // de RCE do otimizador de imagens. Quem procura alvo acha em um GET.
+    const json = await (await GET(makeRequest())).json();
+    expect(json).not.toHaveProperty('next_version');
+    expect(json).not.toHaveProperty('node_version');
+    expect(JSON.stringify(json)).not.toMatch(/\b16\.\d+\.\d+\b/);
   });
 
   it('expõe commit_sha quando env presente', async () => {

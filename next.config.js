@@ -4,9 +4,9 @@
 // Permissões abaixo refletem fontes legítimas do projeto:
 //   - script-src: self + Turnstile + Swagger UI (jsdelivr). unsafe-inline+eval mandatórios pro Next.js dev/runtime.
 //   - style-src: self + Google Fonts (CSS) + Swagger UI (jsdelivr).
-//   - img-src: self + data/blob + Supabase storage + placeholders (picsum, placehold).
-//   - media-src: self + Supabase + Google CDN (vídeo hero placeholder).
-//   - connect-src: self + Supabase REST/realtime + Turnstile + Sentry envelope (qualquer host com /api/envelope).
+//   - img-src: self + data/blob + Storage do NOSSO projeto Supabase (+ placeholders picsum/placehold só em dev).
+//   - media-src: self + nosso Supabase + Google CDN (vídeo hero placeholder).
+//   - connect-src: self + nosso Supabase REST/realtime + Turnstile + Sentry envelope (qualquer host com /api/envelope).
 //   - frame-src: Turnstile.
 //   - font-src: self + Google Fonts.
 //   - report-uri: /api/csp-report (legacy spec; Chrome usa, mas browsers modernos preferem report-to).
@@ -16,6 +16,19 @@
 // regrediria o ISR da home (fix do 503). O vetor concreto (GA ID) já é
 // validado/escapado no servidor (ver settings/route + layout).
 const isDev = process.env.NODE_ENV !== 'production';
+
+// Host do Storage do projeto — o único de fora que o otimizador de imagens e o
+// CSP aceitam em produção. Vem da env quando ela existe (Railway e .env.local),
+// com o projeto real como fallback pro build sem env (CI).
+const SUPABASE_HOST = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').hostname || 'iwtltrzpzidehumypepy.supabase.co';
+  } catch {
+    return 'iwtltrzpzidehumypepy.supabase.co';
+  }
+})();
+const PLACEHOLDER_HOSTS = ['placehold.co', 'picsum.photos', 'i.picsum.photos', 'fastly.picsum.photos'];
+const PLACEHOLDER_SRC = isDev ? ' ' + PLACEHOLDER_HOSTS.map((h) => `https://${h}`).join(' ') : '';
 // ⚠️ TAG NOVA = LIBERAR NO CSP, SENÃO ELA MORRE CALADA. Em 08/09 o container
 // GTM foi ligado (seo_gtm_id) e o `gtm.js` passou a ser BLOQUEADO aqui — o
 // console dizia "violates Content Security Policy" e mais nada: nenhuma tag
@@ -30,9 +43,9 @@ const cspDirectives = [
   scriptSrc,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
   // GA4 e Pixel medem por imagem (pixel 1x1) quando o navegador bloqueia fetch.
-  `img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://picsum.photos https://i.picsum.photos https://fastly.picsum.photos https://placehold.co ${GOOGLE_TAGS} https://www.facebook.com`,
-  "media-src 'self' https://*.supabase.co https://*.supabase.in https://commondatastorage.googleapis.com",
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io ${GOOGLE_TAGS} https://analytics.google.com ${META_TAGS} https://www.facebook.com`,
+  `img-src 'self' data: blob: https://${SUPABASE_HOST}${PLACEHOLDER_SRC} ${GOOGLE_TAGS} https://www.facebook.com`,
+  `media-src 'self' https://${SUPABASE_HOST} https://commondatastorage.googleapis.com`,
+  `connect-src 'self' https://${SUPABASE_HOST} wss://${SUPABASE_HOST} https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io ${GOOGLE_TAGS} https://analytics.google.com ${META_TAGS} https://www.facebook.com`,
   // Turnstile monta o desafio em IFRAME — sem isto, token sempre vazio e 400 em
   // todo formulário. E o desafio conversa com SUBDOMÍNIOS (hagen.challenges…),
   // não só com o host principal: medido em 09/09, a chamada pro `hagen.` era a
@@ -71,13 +84,19 @@ const nextConfig = {
     // q75 (padrão) + q90 (imagens de marca em alta qualidade, ex.: faixa
     // industrial da home — despacho de qualidade).
     qualities: [75, 90],
+    // ⚠️ SÓ O NOSSO PROJETO. Até 13/09 isto era `*.supabase.co` — e o curinga
+    // aceita QUALQUER projeto Supabase, inclusive um criado por quem ataca.
+    // Medido em produção: `/_next/image?url=https://<inventado>.supabase.co/…`
+    // passava do filtro de host (500 ao buscar), `example.com` não (400).
+    // Com o RCE do otimizador via AVIF (GHSA-2xp9-vwfh-vxw4, Next < 16.3.3),
+    // isso era o caminho inteiro: subir um AVIF malicioso num bucket público
+    // de graça e pedir pro nosso servidor processar.
+    //
+    // Placeholders (picsum/placehold) são só de desenvolvimento e ficam fora do
+    // build de produção — junto com o `img-src` do CSP acima.
     remotePatterns: [
-      { protocol: 'https', hostname: '*.supabase.co' },
-      { protocol: 'https', hostname: '*.supabase.in' },
-      { protocol: 'https', hostname: 'placehold.co' },
-      { protocol: 'https', hostname: 'picsum.photos' },
-      { protocol: 'https', hostname: 'i.picsum.photos' },
-      { protocol: 'https', hostname: 'fastly.picsum.photos' },
+      { protocol: 'https', hostname: SUPABASE_HOST },
+      ...(isDev ? PLACEHOLDER_HOSTS.map((hostname) => ({ protocol: 'https', hostname })) : []),
     ],
   },
   async headers() {
