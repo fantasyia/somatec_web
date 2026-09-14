@@ -3,11 +3,12 @@ import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import Link from 'next/link';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
+import { anosDeAtuacao } from '@/lib/constants/site';
 
 export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Quem somos — Somatec Blocking' },
   description:
-    'Fundada em 1999 em Dracena-SP, a Somatec Blocking é especialista em eficiência energética e qualidade de energia. 26 anos de atuação técnica, sem nenhum acidente.',
+    `Fundada em 1999 em Dracena-SP, a Somatec Blocking é especialista em eficiência energética e qualidade de energia. ${anosDeAtuacao()} anos de atuação técnica, sem nenhum acidente.`,
   alternates: { canonical: '/a-somatec/quem-somos' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 });
@@ -46,7 +47,7 @@ export default function QuemSomosPage() {
             Cada projeto é criado de forma única, considerando as necessidades da planta elétrica
             de cada cliente. Não abordamos pelos problemas — abordamos pelas necessidades reais de
             cada operação, comprovando nossa eficácia por meio de laudos e confirmações
-            laboratoriais. Em <strong className="text-[rgb(var(--text))]">26 anos de atuação, não
+            laboratoriais. Em <strong className="text-[rgb(var(--text))]">{anosDeAtuacao()} anos de atuação, não
             registramos nenhum acidente</strong>: nossas instalações são feitas com a rede
             desligada e nossos produtos atuam de forma passiva, em paralelo ao circuito.
           </p>

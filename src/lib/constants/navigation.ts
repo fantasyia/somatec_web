@@ -22,7 +22,7 @@ export const HEADER_NAV: NavItem[] = [
       {
         label: 'Quem somos',
         href: '/a-somatec/quem-somos',
-        description: 'Quem está por trás da tecnologia, desde 1998.',
+        description: 'Quem está por trás da tecnologia, desde 1999.',
       },
       {
         label: 'Tecnologia e fabricação',

@@ -5,6 +5,7 @@ import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
+import { anosDeAtuacao } from '@/lib/constants/site';
 
 export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Perguntas frequentes — Somatec Blocking' },
@@ -50,7 +51,7 @@ const FAQS: readonly QA[] = [
   },
   {
     q: 'A instalação pode causar algum acidente na minha rede?',
-    a: 'Não. Em 26 anos de atuação não registramos nenhum acidente. As instalações são sempre feitas com a rede desligada, e os produtos são instalados em paralelo, atuando de forma passiva em relação ao circuito.',
+    a: `Não. Em ${anosDeAtuacao()} anos de atuação não registramos nenhum acidente. As instalações são sempre feitas com a rede desligada, e os produtos são instalados em paralelo, atuando de forma passiva em relação ao circuito.`,
   },
   {
     q: 'Como funciona a locação do Master Block?',

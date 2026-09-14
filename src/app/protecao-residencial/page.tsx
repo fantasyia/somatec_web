@@ -23,6 +23,7 @@ import {
   isExternalCtaHref,
 } from '@/lib/whatsapp-button';
 import type { LucideIcon } from 'lucide-react';
+import { anosDeAtuacao } from '@/lib/constants/site';
 
 /**
  * LP RESIDENCIAL (compra direta / self-service) — spec: lp-ni-spec.md (R1-R8).
@@ -171,14 +172,14 @@ export default async function ProtecaoResidencialPage() {
                 A proteção de uma fábrica inteira — do tamanho de uma caixa no seu quadro.
               </h2>
               <p className="leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
-                O Master Block é um equipamento brasileiro, patenteado, que há 26 anos
+                O Master Block é um equipamento brasileiro, patenteado, que há {anosDeAtuacao()} anos
                 protege linhas de produção onde uma placa queimada custa a fábrica parada. É uma
                 caixa compacta instalada no seu quadro de energia —{' '}
                 <span className="font-semibold text-[rgb(var(--text))]">pelo seu eletricista de confiança</span>,
                 com manual e suporte.
               </p>
               <ul className="space-y-2.5">
-                {['26 anos sem um acidente', 'Patenteado, fabricação exclusiva', 'Garantia de 12 meses · reposição em até 3 dias'].map((b) => (
+                {[`${anosDeAtuacao()} anos sem um acidente`, 'Patenteado, fabricação exclusiva', 'Garantia de 12 meses · reposição em até 3 dias'].map((b) => (
                   <li key={b} className="flex items-start gap-2.5 text-sm text-[rgb(var(--text))]">
                     <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
                     <span className="font-medium">{b}</span>

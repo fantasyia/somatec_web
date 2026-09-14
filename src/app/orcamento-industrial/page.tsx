@@ -11,6 +11,7 @@ import {
   isExternalCtaHref,
 } from '@/lib/whatsapp-button';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
+import { anosDeAtuacao } from '@/lib/constants/site';
 
 /**
  * Auto-orçamento INDUSTRIAL (trilha de LOCAÇÃO) — o cliente remonta a árvore da
@@ -70,7 +71,7 @@ export default async function OrcamentoIndustrialPage() {
             <div className="flex flex-wrap gap-6 pt-2 text-sm text-white/80">
               <span className="inline-flex items-center gap-2"><Network className="h-4 w-4 text-gold" strokeWidth={1.75} aria-hidden="true" /> Mapa em cascata</span>
               <span className="inline-flex items-center gap-2"><Clock className="h-4 w-4 text-gold" strokeWidth={1.75} aria-hidden="true" /> Resposta em ≤3h úteis</span>
-              <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-gold" strokeWidth={1.75} aria-hidden="true" /> 26 anos sem acidentes</span>
+              <span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-gold" strokeWidth={1.75} aria-hidden="true" /> {anosDeAtuacao()} anos sem acidentes</span>
             </div>
           </div>
         </div>

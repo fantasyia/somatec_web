@@ -25,6 +25,7 @@ import {
   isExternalCtaHref,
 } from '@/lib/whatsapp-button';
 import type { LucideIcon } from 'lucide-react';
+import { anosDeAtuacao } from '@/lib/constants/site';
 
 /**
  * LP COMERCIAL (compra direta / self-service) — spec: lp-ni-spec.md (C1-C8).
@@ -194,12 +195,12 @@ export default async function ProtecaoComercialPage() {
                 A mesma proteção das grandes indústrias, dimensionada pro seu negócio.
               </h2>
               <p className="leading-relaxed text-[rgb(var(--text-muted))] text-pretty">
-                O Master Block protege há 26 anos fábricas onde 40 minutos de parada custam caro
+                O Master Block protege há {anosDeAtuacao()} anos fábricas onde 40 minutos de parada custam caro
                 demais pra arriscar. É o mesmo equipamento, dimensionado pro quadro do seu negócio,
                 instalado pelo seu eletricista, com manual e suporte.
               </p>
               <ul className="space-y-2.5">
-                {['26 anos sem um acidente', 'Patenteado, fabricação exclusiva no Brasil', 'Garantia de 12 meses · reposição em até 3 dias'].map((b) => (
+                {[`${anosDeAtuacao()} anos sem um acidente`, 'Patenteado, fabricação exclusiva no Brasil', 'Garantia de 12 meses · reposição em até 3 dias'].map((b) => (
                   <li key={b} className="flex items-start gap-2.5 text-sm text-[rgb(var(--text))]">
                     <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan" strokeWidth={1.75} aria-hidden="true" />
                     <span className="font-medium">{b}</span>

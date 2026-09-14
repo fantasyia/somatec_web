@@ -5,11 +5,12 @@ import { ShieldCheck, ClipboardCheck, LineChart, Leaf } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
+import { anosDeAtuacao } from '@/lib/constants/site';
 
 export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Comprovação, normas e segurança — Somatec Blocking' },
   description:
-    'Proteção comprovada por medição antes e depois, dentro das normas ABNT NBR 5410 e IEC 61643-1, alinhada à ISO 50001. 26 anos de atuação, sem nenhum acidente.',
+    `Proteção comprovada por medição antes e depois, dentro das normas ABNT NBR 5410 e IEC 61643-1, alinhada à ISO 50001. ${anosDeAtuacao()} anos de atuação, sem nenhum acidente.`,
   alternates: { canonical: '/a-somatec/comprovacao-e-normas' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
 });
@@ -39,7 +40,7 @@ const pillars = [
     icon: ShieldCheck,
     title: 'Segurança total na instalação',
     description:
-      'Em 26 anos de atuação, nenhum acidente registrado. As instalações são feitas com a rede desligada, e os produtos atuam de forma passiva, em paralelo ao circuito.',
+      `Em ${anosDeAtuacao()} anos de atuação, nenhum acidente registrado. As instalações são feitas com a rede desligada, e os produtos atuam de forma passiva, em paralelo ao circuito.`,
   },
 ];
 
@@ -68,7 +69,7 @@ export default function ComprovacaoNormasPage() {
           <p className="text-[rgb(var(--text-muted))] leading-relaxed">
             Toda a atuação respeita as normas técnicas e de segurança — do dimensionamento do DPS
             Classe III ao aterramento conforme a NBR 5410 — e as instalações seguem os procedimentos
-            de segurança que nos permitiram chegar a 26 anos sem nenhum acidente.
+            de segurança que nos permitiram chegar a {anosDeAtuacao()} anos sem nenhum acidente.
           </p>
         </div>
 

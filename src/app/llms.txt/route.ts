@@ -1,4 +1,4 @@
-import { SITE, CONTACT } from '@/lib/constants/site';
+import { SITE, CONTACT, anosDeAtuacao } from '@/lib/constants/site';
 import { lerPosts } from '@/lib/blog/fonte';
 
 /**
@@ -34,7 +34,7 @@ const INSTITUCIONAL: Link[] = [
   // convite pra ela inventar o número.
   { href: '/produtos', desc: 'Master Block: os 12 modelos por faixa de corrente, com Icc e especificação técnica.' },
   { href: '/a-somatec', desc: 'Índice institucional da empresa.' },
-  { href: '/a-somatec/quem-somos', desc: 'História, 26 anos de mercado e Prêmio FIESP Acelera Startup 2015.' },
+  { href: '/a-somatec/quem-somos', desc: `História, ${anosDeAtuacao()} anos de mercado e Prêmio FIESP Acelera Startup 2015.` },
   { href: '/a-somatec/tecnologia-e-fabricacao', desc: 'Como o filtro híbrido funciona e por que atua até 100 kHz, contra os 10 kHz do DPS comum. Fabricação própria.' },
   // "depois de instalado" não é enfeite: medição como PROVA pós-instalação
   // existe (é o software do Master Block), mas sem essa marcação a frase fica

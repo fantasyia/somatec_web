@@ -41,7 +41,7 @@ import {
   type Endereco, type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
 import { documentoValido, mascararDocumento, apenasDigitos } from '@/lib/constants/documento';
-import { CONTACT, EMPRESA } from '@/lib/constants/site';
+import { CONTACT, EMPRESA, anosDeAtuacao } from '@/lib/constants/site';
 import { GARANTIA } from '@/lib/constants/oferta-industrial';
 
 // A corrente dimensiona o Master Block — texto ali não significa nada. O campo
@@ -215,7 +215,7 @@ function ConfiancaCheckout({ href, externo }: { href: string; externo: boolean }
   const itens = [
     { Icon: ShieldCheck, titulo: 'Garantia de 12 meses', texto: GARANTIA.niCurta },
     { Icon: Chave, titulo: 'Instale com seu eletricista', texto: 'Vai com manual. Não precisa de técnico da Somatec.' },
-    { Icon: HardHat, titulo: '26 anos sem um acidente', texto: 'Prêmio FIESP Acelera Startup 2015.' },
+    { Icon: HardHat, titulo: `${anosDeAtuacao()} anos sem um acidente`, texto: 'Prêmio FIESP Acelera Startup 2015.' },
     { Icon: BadgeCheck, titulo: 'Produto patenteado', texto: 'Fabricação exclusiva no Brasil.' },
   ];
 

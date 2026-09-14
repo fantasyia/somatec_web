@@ -63,7 +63,36 @@ export const EMPRESA = {
   cnpj: '16.774.052/0001-55',
   /** Razão social · CNPJ, como vai no rodapé e no checkout. */
   linha: 'Somatecblocking UF Eletroeletrônicos LTDA · CNPJ 16.774.052/0001-55',
+  /** Ano de fundação. FONTE: `clients/somatec/brand/kit-perfis-digitais.md`
+   *  ("Fundação | 1999 · 26 anos").
+   *
+   *  ⚠️ Estava digitado solto em 6 arquivos, e por isso o MENU dizia 1998
+   *  enquanto a página institucional, a de quem-somos e o `foundingDate` do
+   *  JSON-LD diziam 1999 (B18 da auditoria 13/09). Nada acusava: cada arquivo
+   *  estava internamente coerente. Agora o número mora aqui. */
+  fundacao: 1999,
 } as const;
+
+/**
+ * Anos de atuação — CALCULADO, nunca digitado.
+ *
+ * ⚠️ O número estava na mão em 12 pontos do site (páginas, FAQ, llms.txt,
+ * selos de prova, checkout). Ele envelhece sozinho: no aniversário, o site
+ * inteiro passa a dizer um ano a menos do que a empresa tem, em 12 lugares, e
+ * ninguém é avisado. É a mesma família do `lastModified` falso do sitemap —
+ * dado que parece certo porque um dia foi.
+ *
+ * 🔒 CONSERVADOR DE PROPÓSITO. O Léo confirmou o último trimestre de 1999 e
+ * não o mês exato, então a conta assume 31/12: o site prefere dizer 26 quando
+ * já são 27 a dizer 27 quando ainda são 26. A frase que acompanha o número é
+ * "sem nenhum acidente" — inflar o tempo infla o histórico de segurança junto,
+ * e isso é afirmação que não se arredonda pra cima.
+ */
+export function anosDeAtuacao(hoje = new Date()): number {
+  const aniversario = new Date(Date.UTC(hoje.getUTCFullYear(), 11, 31));
+  const completou = hoje.getTime() >= aniversario.getTime();
+  return hoje.getUTCFullYear() - EMPRESA.fundacao - (completou ? 0 : 1);
+}
 
 /** Link do WhatsApp comercial. `texto` vira a mensagem já digitada pro cliente. */
 export function whatsappHref(texto?: string): string {

@@ -1,5 +1,6 @@
 import { Award, ShieldCheck, BadgeCheck, HardHat } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { anosDeAtuacao } from '@/lib/constants/site';
 
 // =============================================================================
 // ProofBadges — as 4 provas REAIS e comprováveis da Somatec, desenhadas na
@@ -16,7 +17,7 @@ export const PROOFS: readonly Proof[] = [
   { Icon: Award, main: 'Prêmio FIESP', sub: 'Acelera Startup 2015' },
   { Icon: ShieldCheck, main: 'DPS Classe III', sub: 'ABNT NBR IEC 61643-1 · NBR 5410' },
   { Icon: BadgeCheck, main: 'Produto patenteado', sub: 'Fabricação exclusiva' },
-  { Icon: HardHat, main: '26 anos', sub: 'sem acidente' },
+  { Icon: HardHat, main: `${anosDeAtuacao()} anos`, sub: 'sem acidente' },
 ];
 
 type Props = {
