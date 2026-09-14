@@ -332,6 +332,17 @@ export type MullerBotCallback = {
   processed_at: string | null;
 };
 
+export type LgpdConsent = {
+  id: string;
+  accepted: boolean;
+  ip: string | null;
+  user_agent: string | null;
+  text_version: string;
+  text_hash: string;
+  origem: string;
+  criado_em: string;
+};
+
 // -----------------------------------------------------------------------------
 // Schema do Supabase (formato esperado pelo SupabaseClient<Database>)
 // -----------------------------------------------------------------------------
@@ -396,6 +407,18 @@ export interface Database {
           source_ip?: string | null;
         };
         Update: Partial<MullerBotCallback>;
+        Relationships: [];
+      };
+      lgpd_consent: {
+        Row: LgpdConsent;
+        Insert: Omit<LgpdConsent, 'id' | 'criado_em' | 'origem'> & {
+          id?: string;
+          criado_em?: string;
+          origem?: string;
+          ip?: string | null;
+          user_agent?: string | null;
+        };
+        Update: Partial<LgpdConsent>;
         Relationships: [];
       };
     };
