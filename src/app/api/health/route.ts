@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import { publicResponseHeaders, corsHeaders, apiVersionHeaders } from '@/lib/http/headers';
+import { corsHeaders, apiVersionHeaders } from '@/lib/http/headers';
 import { validateBearer } from '@/lib/auth/bearer';
 import { getRedis, idadeDoRedisS } from '@/lib/redis';
 
@@ -240,7 +240,6 @@ export async function GET(req: NextRequest) {
   registrarMudanca(overall, checks);
 
   const status = overall === 'down' ? 503 : 200;
-  const origin = req.headers.get('origin');
 
   // ── QUEM VÊ O QUÊ (M9 da auditoria 13/09) ─────────────────────────────
   //
@@ -285,7 +284,11 @@ export async function GET(req: NextRequest) {
       // agora significa "acabou de subir", não "está tudo bem faz tempo".
       degrades_recentes: { desde: processoDesde, eventos: historico },
     },
-    { status, headers: publicResponseHeaders(origin) },
+    // Sem CORS aqui: este corpo só sai com Bearer, e Bearer não é coisa que
+    // página de navegador tenha. `publicResponseHeaders` anunciava
+    // `Access-Control-Allow-Origin: *` também na resposta detalhada — o corpo
+    // público, que é o que navegador busca, já sai sem CORS nenhum.
+    { status, headers: apiVersionHeaders() },
   );
 }
 

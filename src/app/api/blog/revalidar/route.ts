@@ -24,13 +24,21 @@ const log = createLogger('blog-revalidar');
 
 export const dynamic = 'force-dynamic';
 
+// ⛔ SÓ CABEÇALHO, E EM TEMPO CONSTANTE (M7 da auditoria 13/09).
+//
+// Duas coisas estavam erradas aqui, e a segunda é a que já custou um segredo:
+//
+// 1. `===` em segredo vaza o tamanho do prefixo certo pelo tempo de resposta.
+//    `constantTimeEquals` não sai mais cedo no primeiro byte diferente.
+// 2. O segredo também era aceito em `?secret=`, e query string entra em log de
+//    servidor, de proxy, de CDN e no Referer. Foi por esse caminho que o valor
+//    antigo apareceu em saída de sessão em 25/08 — e por isso ele teve de ser
+//    rotacionado em 14/09. Manter a porta aberta seria repetir o vazamento com
+//    o segredo novo.
 function autorizado(req: Request): boolean {
   const segredo = process.env.BLOG_REVALIDATE_SECRET;
   if (!segredo) return false;
-  const cabecalho = req.headers.get('x-revalidate-secret') || '';
-  const url = new URL(req.url);
-  const query = url.searchParams.get('secret') || '';
-  return cabecalho === segredo || query === segredo;
+  return constantTimeEquals(req.headers.get('x-revalidate-secret') || '', segredo);
 }
 
 async function revalidar(req: Request) {
@@ -65,11 +73,9 @@ async function revalidar(req: Request) {
   return NextResponse.json({ ok: true, slug: slug ?? null, revalidadoEm: new Date().toISOString() });
 }
 
+// POST e nada mais. O GET existia "pra testar do navegador com o segredo na
+// query" — ou seja, era o próprio convite a colocar o segredo na URL. Quem
+// chama isto é o CMS (`lib/site-remoto.ts`), que já usa POST com o cabeçalho.
 export async function POST(req: Request) {
-  return revalidar(req);
-}
-
-// GET aceito pra dar pra testar do navegador com o segredo na query.
-export async function GET(req: Request) {
   return revalidar(req);
 }

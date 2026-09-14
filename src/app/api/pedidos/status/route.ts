@@ -34,10 +34,19 @@ const schema = z.object({
   rastreioUrl: z.string().url().max(500).nullish(),
 });
 
+// B4 da auditoria 13/09. O `===` sai no primeiro byte diferente, então o
+// tempo de resposta conta quantos caracteres do segredo já estão certos — dá
+// pra descobrir o valor byte a byte sem nunca acertar a chave inteira. Esta
+// rota é o caminho do ERP mexer no status de pedido.
+//
+// ⚠️ Este import já existia e não era usado: o conserto tinha sido dado como
+// feito e só a metade dele (o `x-pedido-teste`, em /api/pedidos) estava no
+// código. Import órfão não reprova no lint deste projeto — por isso agora há
+// teste.
 function autorizado(req: NextRequest): boolean {
   const esperado = process.env.PEDIDOS_STATUS_SECRET;
   if (!esperado) return false;
-  return (req.headers.get('x-pedidos-secret') || '') === esperado;
+  return constantTimeEquals(req.headers.get('x-pedidos-secret') || '', esperado);
 }
 
 export async function POST(req: NextRequest) {
