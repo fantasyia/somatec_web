@@ -639,9 +639,6 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     const eventIdLead = novoEventId();
     let numeroPedido: string | null = null;
     let pagamentoUrl: string | null = null;
-    // Quando o /api/pedidos entrega o lead pelo servidor, este envio aqui não
-    // acontece — senão o CRM receberia dois.
-    let leadJaEntregue = false;
     // Desfecho REAL do registro do pedido (A1 da auditoria 13/09). Até então a
     // tela dizia "Pedido registrado!" sempre que o formulário estava completo,
     // mesmo com o servidor recusando (409/422/500) — reproduzido no navegador.
@@ -651,9 +648,18 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       try {
         const resp = await fetch('/api/pedidos', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            // Idempotência (M4): um retry de rede do MESMO envio replica a
+            // resposta em vez de criar segundo pedido/cobrança. Uma chave por
+            // tentativa de submit.
+            'Idempotency-Key': eventIdLead,
+          },
           body: JSON.stringify({
             event_id: eventIdLead,
+            // Turnstile (A2): o token do passo do checkout. Consumido aqui e só
+            // aqui — o lead do pedido é entregue pelo servidor, não reusa o token.
+            captcha_token: captchaToken,
             nome: contato.nome,
             email: contato.email,
             whatsapp: contato.whatsapp,
@@ -689,7 +695,6 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
         if (resp.ok && j?.ok && j.numero) {
           numeroPedido = j.numero;
           if (j.pagamentoUrl) pagamentoUrl = j.pagamentoUrl;
-          if (j.leadEnviado) leadJaEntregue = true; // servidor já entregou o lead
         } else if (resp.status === 409) {
           // Preço/condição mudou entre montar e confirmar. É acionável: a
           // pessoa precisa recarregar e revisar — mostramos a mensagem do
@@ -710,17 +715,17 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       }
     }
 
-    // O lead do PEDIDO agora sai do servidor, junto com o pedido — assim ele
-    // entra na fila com retentativa em vez de depender desta segunda chamada
-    // do navegador, que some se a aba fechar.
-    //
-    // Este caminho segue valendo pra dois casos: o ORÇAMENTO (que não cria
-    // pedido nenhum) e o pedido cujo registro falhou — aí não houve servidor
-    // pra entregar, e é melhor um lead pelo navegador que lead nenhum.
+    // O lead do PEDIDO sai do SERVIDOR (junto do pedido, na fila com
+    // retentativa). Aqui no cliente só o ORÇAMENTO manda lead — e é ele que usa
+    // o `captchaToken`. Se o pedido FALHAR, não reenviamos daqui: o token já
+    // foi consumido pelo /api/pedidos (Turnstile é uso único), e reusar daria
+    // 400. Quem cobre a falha é o abandono do `pagehide`, que tem token próprio
+    // (`captchaContato`) — por isso o branch de recusa abaixo NÃO marca o
+    // abandono como resolvido.
     let r: ResultadoEnvio = { ok: true };
-    if (!leadJaEntregue) {
+    if (!virouPedido) {
       r = await enviarLeadOrcamento({
-        formulario: virouPedido ? 'checkout-ni-pedido' : 'checkout-ni-orcamento',
+        formulario: 'checkout-ni-orcamento',
         nome: contato.nome,
         email: contato.email,
         whatsapp: contato.whatsapp,
@@ -728,7 +733,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
         segmento: `NI · ${setor}`,
         // A LP já define o público — o lead sai roteável sem perguntar de novo.
         publico: setor === 'residencial' ? 'residencia' : 'comercio',
-        resumo: numeroPedido ? `[Pedido ${numeroPedido}] ${resumoLimpo}` : resumoLimpo,
+        resumo: resumoLimpo,
         sourcePage: `/${landingSlug}`,
         lgpdConsent: fd.get('lgpd_consent') === 'on',
         honeypot: fd.get('website'),
@@ -741,9 +746,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     // O lead foi capturado acima (a venda não se perde), mas isso é detalhe de
     // bastidor: pra ela, o pedido não entrou.
     if (pedidoRecusadoMsg) {
-      // Concluiu a interação (mesmo sem pedido): não deixa o pagehide disparar
-      // um lead de "abandono" pra quem chegou até aqui.
-      abandonoEnviadoRef.current = `${contato.email.trim().toLowerCase()}|${contato.whatsapp.replace(/\D/g, '')}`;
+      // NÃO marca o abandono como resolvido: o pedido não entrou, e o lead
+      // ainda não foi capturado por aqui (o token já foi consumido). Deixando
+      // o abandonoEnviadoRef livre, o `pagehide` captura o lead com o token
+      // próprio dele quando a pessoa sair — é a rede de segurança da falha.
       setStatus('error');
       setNumeroPedido(null);
       setUrlPagamento(null);

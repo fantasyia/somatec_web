@@ -6,6 +6,8 @@ import { criarPedido } from '@/lib/pedidos/servidor';
 import { limitFormSubmit } from '@/lib/ratelimit/upstash';
 import { rateLimitHeaders } from '@/lib/ratelimit/headers';
 import { getClientIp } from '@/lib/http/client-ip';
+import { verifyTurnstile } from '@/lib/turnstile/verify';
+import { checkIdempotency, storeResponse, isValidIdempotencyKey } from '@/lib/idempotency';
 import { apiVersionHeaders } from '@/lib/http/headers';
 import { trackRequest } from '@/lib/metrics/registry';
 import { createLogger } from '@/lib/logger';
@@ -109,6 +111,9 @@ const schema = z.object({
   website: z.string().max(200).optional(),
   /** Mesmo id do evento do navegador — dedupe do CAPI. */
   event_id: z.string().max(64).optional(),
+  /** Token do Turnstile (A2 da auditoria): fechar pedido exige captcha, senão
+   *  cada POST vira cobrança + e-mail da marca — abusável com o gateway ligado. */
+  captcha_token: z.string().max(2048).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -121,6 +126,33 @@ export async function POST(req: NextRequest) {
       { ok: false, message: 'Muitas tentativas. Aguarde um instante.' },
       { status: 429, headers: { ...apiVersionHeaders(), ...rateLimitHeaders(limite) } },
     );
+  }
+
+  // ── IDEMPOTÊNCIA (M4) ──────────────────────────────────────────────────
+  // Retry de rede depois de um timeout (o handler faz Betinna + e-mail + Asaas
+  // em série, ~8s cada) criava um SEGUNDO pedido e uma segunda cobrança. Com a
+  // chave, o retry do MESMO envio replica a resposta guardada em vez de criar
+  // de novo. Chave inválida → 400 (não silencioso).
+  const idempotencyKey = req.headers.get('idempotency-key');
+  if (idempotencyKey && !isValidIdempotencyKey(idempotencyKey)) {
+    trackRequest(ROUTE, 400);
+    return NextResponse.json(
+      { ok: false, message: 'Idempotency-Key inválida.' },
+      { status: 400, headers: apiVersionHeaders() },
+    );
+  }
+  if (idempotencyKey) {
+    const idem = await checkIdempotency(idempotencyKey);
+    if (idem.mode === 'replay') {
+      return new NextResponse(idem.response.body, {
+        status: idem.response.status,
+        headers: {
+          'Content-Type': idem.response.contentType,
+          'X-Idempotent-Replay': 'true',
+          ...apiVersionHeaders(),
+        },
+      });
+    }
   }
 
   let corpo: unknown;
@@ -147,7 +179,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, numero: null }, { headers: apiVersionHeaders() });
   }
 
-  const { website: _ignorado, ...recebido } = parsed.data;
+  // ── TURNSTILE (A2) ─────────────────────────────────────────────────────
+  // Fechar pedido exige captcha, como o formulário de contato. Fail-open só
+  // em falha de INFRA da Cloudflare (não é culpa de quem compra); token
+  // inválido/ausente, ou segredo ausente em produção, bloqueia (400) — senão
+  // um pool de IPs geraria cobranças e e-mails da marca em série.
+  const ts = await verifyTurnstile(parsed.data.captcha_token, ip);
+  if (!ts.ok && !ts.infraFailure) {
+    trackRequest(ROUTE, 400);
+    return NextResponse.json(
+      { ok: false, message: 'Validação de segurança falhou. Recarregue a página e tente de novo.' },
+      { status: 400, headers: apiVersionHeaders() },
+    );
+  }
+  if (!ts.ok && ts.infraFailure) {
+    log.warn('turnstile infra failure no pedido — seguindo', { reason: ts.reason });
+  }
+
+  const { website: _ignorado, captcha_token: _captcha, ...recebido } = parsed.data;
 
   // ── PREÇO É DO SERVIDOR ────────────────────────────────────────────────
   //
@@ -354,14 +403,24 @@ export async function POST(req: NextRequest) {
   const pagamentoUrl = await criarCobrancaDoPedido(dados, r.numero);
 
   trackRequest(ROUTE, 201);
-  return NextResponse.json(
-    // `leadEnviado` diz ao checkout que ele NÃO precisa mandar o lead de novo.
-    // Sem isso, os dois mandariam e o CRM receberia em duplicidade.
-    // `pagamentoUrl` ausente = checkout mostra o caminho de sempre (equipe
-    // finaliza). Presente = o navegador redireciona pra página de pagamento.
-    { ok: true, numero: r.numero, leadEnviado, pagamentoUrl },
-    { status: 201, headers: { ...apiVersionHeaders(), ...rateLimitHeaders(limite) } },
-  );
+  // `leadEnviado` diz ao checkout que ele NÃO precisa mandar o lead de novo.
+  // Sem isso, os dois mandariam e o CRM receberia em duplicidade.
+  // `pagamentoUrl` ausente = checkout mostra o caminho de sempre (equipe
+  // finaliza). Presente = o navegador redireciona pra página de pagamento.
+  const corpoOk = JSON.stringify({ ok: true, numero: r.numero, leadEnviado, pagamentoUrl });
+  // Guarda a resposta do pedido CRIADO sob a chave: um retry do mesmo envio
+  // replica isto em vez de criar outro pedido e outra cobrança (M4).
+  if (idempotencyKey) {
+    await storeResponse(idempotencyKey, {
+      status: 201,
+      body: corpoOk,
+      contentType: 'application/json',
+    });
+  }
+  return new NextResponse(corpoOk, {
+    status: 201,
+    headers: { 'Content-Type': 'application/json', ...apiVersionHeaders(), ...rateLimitHeaders(limite) },
+  });
 }
 
 /**

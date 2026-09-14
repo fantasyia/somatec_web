@@ -71,7 +71,11 @@ describe('o que o site ENVIA bate com o vocabulário', () => {
   /** Todo literal `formulario: '<x>'` no código do site. */
   function slugsEnviados(): { arquivo: string; slug: string }[] {
     const achados: { arquivo: string; slug: string }[] = [];
-    for (const arquivo of [...arquivosFonte('src/components'), ...arquivosFonte('src/lib')]) {
+    for (const arquivo of [
+      ...arquivosFonte('src/components'),
+      ...arquivosFonte('src/lib'),
+      ...arquivosFonte('src/app'),
+    ]) {
       const fonte = readFileSync(resolve(process.cwd(), arquivo), 'utf-8');
       for (const m of fonte.matchAll(/formulario:\s*'([a-z-]+)'/g)) {
         achados.push({ arquivo, slug: m[1] });
@@ -89,16 +93,19 @@ describe('o que o site ENVIA bate com o vocabulário', () => {
     ).toHaveLength(0);
   });
 
-  it('o CheckoutNI escolhe o slug em tempo de envio', () => {
-    // Ele manda por ternário (`virouPedido ? … : …`), então não cai na varredura
-    // de literal acima — precisa de checagem própria, senão o par pedido/
-    // orçamento poderia sumir sem nenhum teste reclamar.
-    const fonte = readFileSync(
+  it('o par PEDIDO/ORÇAMENTO existe, cada um no seu lugar', () => {
+    // Depois do bundle 3 da auditoria, o lead do PEDIDO é entregue pelo
+    // SERVIDOR (com token próprio e fila com retentativa) — o cliente só manda
+    // o do ORÇAMENTO. Então os dois slugs continuam existindo, mas em arquivos
+    // diferentes: 'checkout-ni-orcamento' no componente, 'checkout-ni-pedido'
+    // na rota /api/pedidos. Se algum sumir, a distinção pro CRM se perde.
+    const checkout = readFileSync(
       resolve(process.cwd(), 'src/components/tools/CheckoutNI.tsx'),
       'utf-8',
     );
-    expect(fonte).toContain("'checkout-ni-pedido'");
-    expect(fonte).toContain("'checkout-ni-orcamento'");
+    const rota = readFileSync(resolve(process.cwd(), 'src/app/api/pedidos/route.ts'), 'utf-8');
+    expect(checkout).toContain("'checkout-ni-orcamento'");
+    expect(rota).toContain("'checkout-ni-pedido'");
   });
 
   it('a varredura está mesmo achando os envios (âncora anti-falso-verde)', () => {

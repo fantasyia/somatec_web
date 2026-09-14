@@ -142,9 +142,14 @@ describe('o checkout não manda o lead duas vezes', () => {
     expect(ROTA).toMatch(/lgpdConsent !== true/);
   });
 
-  it('o checkout PULA o envio quando o servidor já entregou', () => {
-    expect(CHECKOUT).toMatch(/leadJaEntregue/);
-    expect(CHECKOUT).toMatch(/if \(!leadJaEntregue\)/);
+  it('o checkout NÃO manda o lead do pedido pelo cliente — só o do orçamento', () => {
+    // Depois do bundle 3 da auditoria, a garantia ficou estrutural: o cliente
+    // só entrega lead no caminho de ORÇAMENTO (`if (!virouPedido)`). No caminho
+    // de PEDIDO quem entrega é o servidor (fila + retentativa), e o cliente
+    // sequer emite o slug 'checkout-ni-pedido' — some o risco de duplicidade e
+    // o de reusar o token do Turnstile (uso único), já gasto no /api/pedidos.
+    expect(CHECKOUT).toMatch(/if \(!virouPedido\)/);
+    expect(CHECKOUT).not.toContain("'checkout-ni-pedido'");
   });
 
   it('o checkout manda resumo e consentimento pra rota montar o lead', () => {
