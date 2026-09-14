@@ -26,6 +26,18 @@ import { whatsappHref } from '@/lib/constants/site';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+/** O Next já entrega o param de rota DECODIFICADO. Chamar decodeURIComponent
+ *  de novo redecodifica: `/pedido/%25E0` chega como "%E0" e decodeURIComponent
+ *  lança URIError → tela 500 (F2-M13 da auditoria). Aqui é tolerante: se algo
+ *  vier meio-codificado, devolve como está em vez de derrubar a página. */
+function numeroSeguro(bruto: string): string {
+  try {
+    return decodeURIComponent(bruto);
+  } catch {
+    return bruto;
+  }
+}
+
 export const metadata: Metadata = {
   title: { absolute: 'Seu pedido | Somatec Blocking' },
   robots: { index: false, follow: false, nocache: true },
@@ -114,7 +126,7 @@ export default async function PedidoDetalhePage({
   params: Promise<{ numero: string }>;
 }) {
   const { numero } = await params;
-  const pedido = await consultarPedido(decodeURIComponent(numero));
+  const pedido = await consultarPedido(numeroSeguro(numero));
 
   // ── Não achou ────────────────────────────────────────────────────────
   // Não é 404: a pessoa pode ter digitado errado, e mandar ela pra uma
@@ -135,7 +147,7 @@ export default async function PedidoDetalhePage({
             começando com <span className="font-semibold text-[rgb(var(--text))]">SB</span>, sem
             espaço nem traço. Você digitou{' '}
             <span className="font-semibold text-[rgb(var(--text))]">
-              {normalizarNumero(decodeURIComponent(numero))}
+              {normalizarNumero(numeroSeguro(numero))}
             </span>
             .
           </p>

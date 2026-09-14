@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight,
@@ -312,6 +312,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
 
   // Contato vira estado (não FormData): o passo 3 desmonta ao ir pro checkout.
   const [contato, setContato] = useState({ nome: '', whatsapp: '', email: '', empresa: '' });
+  const [contatoTocado, setContatoTocado] = useState<{ nome?: boolean; whatsapp?: boolean; email?: boolean }>({});
   const [endereco, setEndereco] = useState<Endereco>(enderecoVazio);
   // CPF/CNPJ: sem ele não se emite nota, e sem nota não sai etiqueta. Fica no
   // passo do checkout (não no de contato) pra não pedir documento de quem só
@@ -319,6 +320,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [documento, setDocumento] = useState('');
   const [cepBuscando, setCepBuscando] = useState(false);
   const [cepMsg, setCepMsg] = useState<string | null>(null);
+  /** Cancela a busca de CEP/frete anterior quando o CEP muda rápido (B9). */
+  const cepAbortRef = useRef<AbortController | null>(null);
   const [pagamento, setPagamento] = useState<FormaPagamentoId | ''>('');
   /** Parcelas no cartão. 1 = à vista, que é o padrão de propósito: parcelado
    *  custa mais caro pra Somatec, então é escolha do cliente, não empurrão. */
@@ -505,16 +508,43 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       ],
     });
   }, [passo, modelo, totalPedido]);
-  const contatoOk = Boolean(contato.nome.trim() && contato.whatsapp.trim() && contato.email.trim());
+  // F2-M4 da auditoria: até 13/09 o passo 3 só checava não-vazio, e e-mail sem
+  // TLD ("joao@gmail") ou WhatsApp curto passavam — o erro só aparecia no passo
+  // 4, dois passos à frente, pra um campo lá atrás. As regras aqui são as
+  // MESMAS do servidor (validar-contato.ts / schemas.ts): e-mail com formato
+  // e WhatsApp 10–13 dígitos.
+  const errosContato = useMemo(() => {
+    const e: { nome?: string; whatsapp?: string; email?: string } = {};
+    const nome = contato.nome.trim();
+    const email = contato.email.trim();
+    const zap = contato.whatsapp.replace(/\D/g, '');
+    if (nome.length < 2) e.nome = 'Nome é obrigatório';
+    if (!email) e.email = 'E-mail é obrigatório';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) e.email = 'E-mail inválido';
+    if (!zap) e.whatsapp = 'WhatsApp é obrigatório';
+    else if (zap.length < 10 || zap.length > 13) e.whatsapp = 'WhatsApp inválido — inclua o DDD';
+    return e;
+  }, [contato.nome, contato.email, contato.whatsapp]);
+  const contatoOk = Object.keys(errosContato).length === 0;
+  /** Mostra o erro do campo só depois que a pessoa saiu dele (blur) — não
+   *  acusa "inválido" enquanto ainda está digitando. */
+  const erroSeTocado = (campo: 'nome' | 'whatsapp' | 'email') =>
+    contatoTocado[campo] ? errosContato[campo] : undefined;
 
   async function buscarCep(valor: string) {
     const cep = valor.replace(/\D/g, '');
     setEndereco((e) => ({ ...e, cep }));
     if (cep.length !== 8) return;
+    // B9 da auditoria: dois fetches por CEP (ViaCEP + frete). Editar o CEP
+    // rápido deixava a resposta de um CEP antigo sobrescrever o novo. O
+    // AbortController cancela a busca anterior antes de começar a próxima.
+    cepAbortRef.current?.abort();
+    const ctrl = new AbortController();
+    cepAbortRef.current = ctrl;
     setCepBuscando(true);
     setCepMsg(null);
     try {
-      const r = await fetch(`/api/cep?cep=${cep}`);
+      const r = await fetch(`/api/cep?cep=${cep}`, { signal: ctrl.signal });
       const d = (await r.json()) as { ok: boolean; endereco?: Endereco; message?: string };
       if (d.ok && d.endereco) {
         // Preserva número/complemento, que o ViaCEP não tem.
@@ -522,10 +552,11 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       } else {
         setCepMsg(d.message ?? 'CEP não encontrado.');
       }
-    } catch {
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') return; // CEP trocou, ignora
       setCepMsg('Não consegui buscar o CEP. Preencha o endereço à mão.');
     } finally {
-      setCepBuscando(false);
+      if (cepAbortRef.current === ctrl) setCepBuscando(false);
     }
     // Frete real (Melhor Envio). Sem credencial devolve lista vazia e o
     // checkout segue: a promoção já zera o valor, só falta o prazo.
@@ -537,10 +568,12 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cepDestino: cep, itens }),
+        signal: ctrl.signal,
       });
       const d = (await r.json()) as { ok: boolean; opcoes?: typeof freteOpcoes };
-      setFreteOpcoes(d.ok && d.opcoes ? d.opcoes : []);
-    } catch {
+      if (cepAbortRef.current === ctrl) setFreteOpcoes(d.ok && d.opcoes ? d.opcoes : []);
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') return;
       setFreteOpcoes([]);
     }
   }
@@ -609,6 +642,11 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     // Quando o /api/pedidos entrega o lead pelo servidor, este envio aqui não
     // acontece — senão o CRM receberia dois.
     let leadJaEntregue = false;
+    // Desfecho REAL do registro do pedido (A1 da auditoria 13/09). Até então a
+    // tela dizia "Pedido registrado!" sempre que o formulário estava completo,
+    // mesmo com o servidor recusando (409/422/500) — reproduzido no navegador.
+    // Agora a mensagem depende disto, não do estado do formulário.
+    let pedidoRecusadoMsg: string | null = null;
     if (virouPedido) {
       try {
         const resp = await fetch('/api/pedidos', {
@@ -641,21 +679,34 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
             lgpdConsent: fd.get('lgpd_consent') === 'on',
           }),
         });
-        const j = (await resp.json()) as {
+        const j = (await resp.json().catch(() => ({}))) as {
           ok?: boolean;
           numero?: string | null;
           leadEnviado?: boolean;
           pagamentoUrl?: string | null;
+          message?: string;
         };
-        if (j?.ok && j.numero) numeroPedido = j.numero;
-        if (j?.pagamentoUrl) pagamentoUrl = j.pagamentoUrl;
-        // O servidor já entregou o lead (ou o pôs na fila, que dá no mesmo).
-        // Mandar de novo daqui só duplicaria no CRM.
-        if (j?.leadEnviado) leadJaEntregue = true;
+        if (resp.ok && j?.ok && j.numero) {
+          numeroPedido = j.numero;
+          if (j.pagamentoUrl) pagamentoUrl = j.pagamentoUrl;
+          if (j.leadEnviado) leadJaEntregue = true; // servidor já entregou o lead
+        } else if (resp.status === 409) {
+          // Preço/condição mudou entre montar e confirmar. É acionável: a
+          // pessoa precisa recarregar e revisar — mostramos a mensagem do
+          // servidor, não um "pedido registrado" falso.
+          pedidoRecusadoMsg =
+            j?.message ??
+            'O valor ou as condições do pedido mudaram. Recarregue a página e confira antes de confirmar.';
+        } else {
+          // 422/429/500: o registro não aconteceu. O lead ainda vai pro CRM
+          // abaixo (a venda não se perde, a equipe fecha na mão), mas a
+          // mensagem final NÃO promete um pedido que não existe.
+          pedidoRecusadoMsg =
+            j?.message ?? 'Não consegui registrar o pedido agora. Nossa equipe vai te chamar pra concluir.';
+        }
       } catch {
-        // Registro do pedido falhou. O lead ainda vai pro CRM logo abaixo, e
-        // a equipe fecha na mão — a venda não se perde. O que muda é a
-        // mensagem final, que não promete acompanhamento que não existe.
+        // Rede caiu no meio. Idem: lead abaixo, mensagem honesta.
+        pedidoRecusadoMsg = 'Não consegui registrar o pedido agora. Nossa equipe vai te chamar pra concluir.';
       }
     }
 
@@ -685,28 +736,47 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       });
     }
 
+    // A pessoa QUIS fechar pedido e o servidor recusou (409/422/500/rede).
+    // Não mostramos "Pedido registrado!" — a mensagem é o que de fato houve.
+    // O lead foi capturado acima (a venda não se perde), mas isso é detalhe de
+    // bastidor: pra ela, o pedido não entrou.
+    if (pedidoRecusadoMsg) {
+      // Concluiu a interação (mesmo sem pedido): não deixa o pagehide disparar
+      // um lead de "abandono" pra quem chegou até aqui.
+      abandonoEnviadoRef.current = `${contato.email.trim().toLowerCase()}|${contato.whatsapp.replace(/\D/g, '')}`;
+      setStatus('error');
+      setNumeroPedido(null);
+      setUrlPagamento(null);
+      setMessage(pedidoRecusadoMsg);
+      trackEvent('checkout_pedido_recusado', { setor, landing: landingSlug });
+      return;
+    }
+
     if (r.ok) {
       setStatus('success');
       setNumeroPedido(numeroPedido);
       setUrlPagamento(pagamentoUrl);
+      // F2-M1: concluiu — marca o abandono como já resolvido pra esta pessoa,
+      // senão o pagehide manda um lead "não concluiu" pra quem concluiu.
+      abandonoEnviadoRef.current = `${contato.email.trim().toLowerCase()}|${contato.whatsapp.replace(/\D/g, '')}`;
       setMessage(
-        virouPedido
+        numeroPedido
           ? `Pedido registrado! Você vai receber a confirmação por e-mail e nossa equipe finaliza o pedido com você (${
               FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? 'pagamento'
             }). Frete e prazo já valem como mostrado.`
           : 'Recebido! Nossa equipe dimensiona o seu Master Block e te retorna com o valor — sem compromisso.',
       );
-      trackEvent(virouPedido ? 'checkout_pedido' : 'calc_lead', {
+      trackEvent(numeroPedido ? 'checkout_pedido' : 'calc_lead', {
         setor,
         landing: landingSlug,
-        ...(virouPedido ? { total: totalPedido, pagamento, pedido: numeroPedido ?? 'sem-numero' } : {}),
+        ...(numeroPedido ? { total: totalPedido, pagamento, pedido: numeroPedido } : {}),
       });
       // ⛔ `pedido_registrado`, NUNCA `purchase`: com GATEWAY_ATIVO=false o
       // checkout não cobra. `purchase` aqui ensinaria Google e Meta a caçar
       // quem registra pedido e não paga — e esse aprendizado não se apaga.
       // O `purchase` sai do SERVIDOR quando o Asaas confirma o pagamento
       // (`@/lib/analytics/ga4-servidor`), com o mesmo `transaction_id`.
-      if (virouPedido && numeroPedido && modelo) {
+      if (numeroPedido && modelo) {
         rastrearPedidoRegistrado({
           transactionId: numeroPedido,
           value: totalPedido,
@@ -719,7 +789,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
             },
           ],
         });
-      } else if (!virouPedido) {
+      } else if (!numeroPedido) {
         // Sem preço fechado o wizard entrega um LEAD — mesma conversão dos
         // formulários. Motor conhecido pelo caminho: o checkout só é montado
         // nas LPs não-industriais.
@@ -1051,12 +1121,16 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                     <TextField
                       label="Seu nome" name="name" autoComplete="name" required
                       value={contato.nome}
+                      error={erroSeTocado('nome')}
+                      onBlur={() => setContatoTocado((t) => ({ ...t, nome: true }))}
                       onChange={(e) => setContato((c) => ({ ...c, nome: e.target.value }))}
                     />
                     <TextField
                       label="WhatsApp" name="whatsapp" inputMode="tel" autoComplete="tel"
                       placeholder="(11) 99999-9999" required
                       value={contato.whatsapp}
+                      error={erroSeTocado('whatsapp')}
+                      onBlur={() => setContatoTocado((t) => ({ ...t, whatsapp: true }))}
                       onChange={(e) => setContato((c) => ({ ...c, whatsapp: e.target.value }))}
                     />
                     {/* O wrapper leva o col-span, não o TextField: o
@@ -1068,6 +1142,8 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       <TextField
                         label="E-mail" name="email" type="email" autoComplete="email" required
                         value={contato.email}
+                        error={erroSeTocado('email')}
+                        onBlur={() => setContatoTocado((t) => ({ ...t, email: true }))}
                         onChange={(e) => setContato((c) => ({ ...c, email: e.target.value }))}
                       />
                     </div>

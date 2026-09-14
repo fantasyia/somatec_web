@@ -71,7 +71,13 @@ export function StickyCta() {
     const onScroll = () => {
       // Dispensa persistida na sessão: checada aqui (não no corpo do efeito)
       // pra não fazer setState síncrono no mount (react-hooks/set-state-in-effect).
-      if (sessionStorage.getItem('stc-sticky-cta-dismissed') === '1') return;
+      // try/catch: sessionStorage lança em navegador com storage bloqueado, e
+      // isto roda a cada scroll — sem o guard, um erro por evento (F2-M2).
+      try {
+        if (sessionStorage.getItem('stc-sticky-cta-dismissed') === '1') return;
+      } catch {
+        /* storage bloqueado — sem dispensa persistida, a barra pode aparecer */
+      }
       const doc = document.documentElement;
       const progress = doc.scrollTop / Math.max(1, doc.scrollHeight - doc.clientHeight);
       setVisible(progress > 0.6);
@@ -109,7 +115,11 @@ export function StickyCta() {
               type="button"
               aria-label={oferta.fecharLabel}
               onClick={() => {
-                sessionStorage.setItem('stc-sticky-cta-dismissed', '1');
+                try {
+                  sessionStorage.setItem('stc-sticky-cta-dismissed', '1');
+                } catch {
+                  /* storage bloqueado — fecha nesta sessão, sem persistir */
+                }
                 setDismissed(true);
               }}
               className="flex h-8 w-8 items-center justify-center rounded-full text-white/60 transition-colors hover:text-white"

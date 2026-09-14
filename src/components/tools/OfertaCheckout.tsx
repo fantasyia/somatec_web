@@ -19,15 +19,21 @@ const CHAVE = 'stc_oferta_checkout';
 
 function inicio(): number {
   if (typeof window === 'undefined') return Date.now();
-  const salvo = Number(window.sessionStorage.getItem(CHAVE));
-  if (salvo && Number.isFinite(salvo)) return salvo;
-  const agora = Date.now();
+  // ⚠️ O acesso a sessionStorage precisa estar TODO dentro do try. Em navegador
+  // com "bloquear todos os cookies" (e Safari restrito), o próprio getItem
+  // lança SecurityError — e como isto roda dentro de um useEffect, a exceção
+  // caía no error boundary e derrubava a LP inteira na hora de deixar o
+  // contato (F2-M2 da auditoria 13/09).
   try {
+    const salvo = Number(window.sessionStorage.getItem(CHAVE));
+    if (salvo && Number.isFinite(salvo)) return salvo;
+    const agora = Date.now();
     window.sessionStorage.setItem(CHAVE, String(agora));
+    return agora;
   } catch {
-    /* modo privado / storage bloqueado — só não persiste */
+    // storage bloqueado — só não persiste; a oferta parte de agora.
+    return Date.now();
   }
-  return agora;
 }
 
 const doisDigitos = (n: number) => String(n).padStart(2, '0');

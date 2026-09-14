@@ -23,9 +23,29 @@ import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
 const brl = (v: number) =>
   v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
-// Aceita "1.500", "1500,50", "R$ 1.500" — retorna número ou 0.
+// Aceita "1.500", "1500,50", "R$ 1.500" e também "8000.50"/"1.5" — retorna
+// número ou 0.
+//
+// ⚠️ F2-M5 da auditoria: antes todo "." era tratado como separador de milhar,
+// então "8000.50" (ponto decimal, comum em teclado en-US com inputMode
+// decimal) virava 800050 e "1.5" virava 15 — o prejuízo mostrado e gravado no
+// lead saía 100× maior. Agora: se há vírgula, ela é o decimal e o ponto é
+// milhar (padrão BR); senão, um único ponto seguido de 1–2 dígitos no fim é
+// decimal, e qualquer outro ponto é milhar.
 function parseBrl(s: string): number {
-  const n = parseFloat(s.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.'));
+  const limpo = s.replace(/[^\d,.]/g, '');
+  let normalizado: string;
+  if (limpo.includes(',')) {
+    // BR: ponto = milhar, vírgula = decimal.
+    normalizado = limpo.replace(/\./g, '').replace(',', '.');
+  } else if (/\.\d{1,2}$/.test(limpo) && (limpo.match(/\./g)?.length ?? 0) === 1) {
+    // Um único ponto com 1–2 casas no fim = decimal (ex.: "8000.50", "1.5").
+    normalizado = limpo;
+  } else {
+    // Pontos são separador de milhar (ex.: "1.500", "1.200.000").
+    normalizado = limpo.replace(/\./g, '');
+  }
+  const n = parseFloat(normalizado);
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
