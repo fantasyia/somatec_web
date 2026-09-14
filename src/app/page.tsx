@@ -17,7 +17,7 @@ import { HomeBlogTeaser } from '@/components/home/HomeBlogTeaser';
 import { BLOG_TEASER_ENABLED } from '@/lib/constants/flags';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Reveal } from '@/components/ui/Reveal';
-import { organizationSchema, masterBlockProductSchema, faqSchema } from '@/lib/seo/structured-data';
+import { organizationSchema, faqSchema } from '@/lib/seo/structured-data';
 
 /**
  * A home NÃO declara `openGraph`, `twitter` nem `description` de propósito.
@@ -55,7 +55,13 @@ export default async function HomePage() {
   return (
     <>
       {/* Structured data (Schema.org) — Organization + Product (Master Block) + FAQ (SEO/GEO) */}
-      <JsonLd data={[organizationSchema(), masterBlockProductSchema(), faqSchema()]} />
+      {/* ⚠️ O `Product` saiu daqui (B19 da auditoria 13/09).
+          Ele declara `url: /produtos` — ou seja, a home emitia a ficha de um
+          produto cuja página é OUTRA, e a /produtos emite a MESMA ficha. Duas
+          páginas declarando a mesma entidade com a mesma URL é sinal
+          contraditório: o Google escolhe uma e a outra vira ruído. A home
+          segue com Organization + FAQ, que são dela. */}
+      <JsonLd data={[organizationSchema(), faqSchema()]} />
 
       {/* Hero e carrossel: render imediato (acima da dobra). Demais seções
           entram com fade-up ao scroll (§20.14). HomeIndicators tem stagger

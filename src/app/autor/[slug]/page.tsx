@@ -35,7 +35,8 @@ export async function generateMetadata({
   if (!autor) return {};
   const descricao = autor.bio || `${autor.papel} — artigos assinados e revisados no blog da ${SITE.fullName}.`;
   return {
-    title: `${autor.nome} | Blog Somatec`,
+    // `absolute` pelo mesmo motivo do artigo — ver M20 da auditoria.
+    title: { absolute: `${autor.nome} | Blog Somatec` },
     description: descricao,
     alternates: { canonical: `/autor/${autor.slug}` },
     // Página de autor é sinal de E-E-A-T: precisa entrar no índice junto

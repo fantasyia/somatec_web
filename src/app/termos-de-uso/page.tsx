@@ -1,14 +1,15 @@
 ﻿import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import Link from 'next/link';
 import { PageHero } from '@/components/layout/PageHero';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: 'Termos de Uso',
   description:
     'Termos de Uso do site institucional da Somatec Blocking — condições de acesso e utilização do conteúdo, destinado a profissionais do mercado industrial e de engenharia elétrica.',
   alternates: { canonical: '/termos-de-uso' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 const sections = [
   {

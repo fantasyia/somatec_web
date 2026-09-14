@@ -1,15 +1,16 @@
 import { EMPRESA } from '@/lib/constants/site';
 import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import Link from 'next/link';
 import { PageHero } from '@/components/layout/PageHero';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: 'Política de Privacidade',
   description:
     'Política de Privacidade da Somatec Blocking — como tratamos os dados informados nos formulários de contato, em conformidade com a LGPD.',
   alternates: { canonical: '/politica-de-privacidade' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 const sections = [
   {

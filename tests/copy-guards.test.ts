@@ -109,7 +109,7 @@ describe('trilha NI — vocabulário de cliente no corpo das LPs', () => {
       // APERTA a guarda — `title:` e `description:` de objeto no corpo (card,
       // feature, FAQ) deixam de ser isentos, e eram.
       const fonte = lerCopy(arquivo)
-        .replace(/export const metadata[\s\S]*?\n};\n/, '')
+        .replace(/export const metadata[\s\S]*?\n\}\)?;\n/, '')
         .split('\n')
         .filter((l) => !/canonical|url:/.test(l))
         .join('\n');

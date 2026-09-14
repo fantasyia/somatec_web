@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import Link from 'next/link';
 import { ChevronRight, Cpu, Award, ShieldCheck, Users } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'A Somatec Blocking — Autoridade em qualidade de energia' },
   description:
     'A Somatec Blocking é uma empresa nacional de eficiência energética e qualidade de energia, fundada em 1999. Criamos o Master Block e projetos de proteção elétrica para a indústria.',
   alternates: { canonical: '/a-somatec' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 const sections = [
   {

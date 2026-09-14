@@ -45,7 +45,7 @@ const ler = (p: string) => readFileSync(resolve(process.cwd(), p), 'utf-8');
 
 /** Só o bloco `export const metadata` — é o campo de busca. */
 function metadata(arquivo: string): string {
-  const m = ler(arquivo).match(/export const metadata[\s\S]*?\n};\n/);
+  const m = ler(arquivo).match(/export const metadata[\s\S]*?\n\}\)?;\n/);
   expect(m, `${arquivo} precisa ter um bloco de metadata`).not.toBeNull();
   return m![0];
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import { Network, Clock, ShieldCheck } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { ProofBadges } from '@/components/ui/ProofBadges';
@@ -21,13 +22,13 @@ import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 const SLUG = 'orcamento-industrial';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Monte o projeto de proteção da sua planta | Master Block' },
   description:
     'Remonte a árvore da sua planta — da entrada de energia a cada máquina — e receba a proposta de proteção em cascata do Master Block. Resposta do representante em até 3 horas úteis.',
   alternates: { canonical: `/${SLUG}` },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 export const revalidate = 3600;
 

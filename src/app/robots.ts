@@ -18,6 +18,9 @@ const FORA_DO_INDICE = [
   '/api',
   '/login',
   '/blog/*/markdown',
+  // B22: `/api` cobre `/api-docs` por prefixo, mas o JSON que ele carrega mora
+  // em `/openapi.json` — arquivo estático, fora do prefixo, e indexável.
+  '/openapi.json',
   '/cluster-mapa.html',
   '/mapa-visual-fluxos.html',
 ];
@@ -28,10 +31,28 @@ const FORA_DO_INDICE = [
  *
  * Motivo de ser explícito: `Google-Extended` é o token que controla o uso do
  * conteúdo nas respostas de IA do Google, separado do Googlebot. Deixar os
- * quatro por escrito também protege de alguém, no futuro, apertar o grupo `*`
+ * lista por escrito também protege de alguém, no futuro, apertar o grupo `*`
  * sem perceber que está cortando a citação em ChatGPT e Perplexity junto.
  */
-const ROBOS_DE_IA = ['GPTBot', 'ChatGPT-User', 'ClaudeBot', 'PerplexityBot', 'Google-Extended'];
+const ROBOS_DE_IA = [
+  // Treinamento / uso do conteúdo em resposta de IA
+  'GPTBot',
+  'ClaudeBot',
+  'anthropic-ai',
+  'Google-Extended',
+  'Applebot-Extended',
+  // BUSCA por IA — são ESTES que geram a CITAÇÃO com link.
+  //
+  // B17 da auditoria 13/09: a lista tinha só GPTBot e ChatGPT-User. Mas quem
+  // rastreia pro ChatGPT Search é o `OAI-SearchBot` (o GPTBot é treino), e no
+  // Perplexity a busca ao vivo é o `Perplexity-User`. Como hoje o grupo `*`
+  // permite, os dois funcionavam por herança — e era exatamente isso que o
+  // comentário abaixo dizia que a lista existia pra evitar.
+  'OAI-SearchBot',
+  'ChatGPT-User',
+  'PerplexityBot',
+  'Perplexity-User',
+];
 
 export default function robots(): MetadataRoute.Robots {
   // Staging/provisório: bloqueia tudo, inclusive os robôs de IA. Desligar

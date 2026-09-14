@@ -123,6 +123,34 @@ function produtoBase() {
 }
 
 /** Product INDUSTRIAL — `/produtos`, o catálogo. Vocabulário do especificador. */
+/**
+ * BreadcrumbList a partir da MESMA lista que a página desenha na tela.
+ *
+ * B13 da auditoria 13/09: o artigo mostrava "Início › Blog › <cluster>" e
+ * marcava "Início › Blog › <título>" — nomes diferentes nos dois. E as quatro
+ * páginas de setor desenhavam breadcrumb e não marcavam nada. Structured data
+ * que não bate com o visível é violação de política do Google; marcação
+ * ausente é rich result que não acontece.
+ *
+ * Passar a MESMA fonte pros dois lados é o que impede os dois de divergirem de
+ * novo — o último item herda a URL da própria página quando não tem href.
+ */
+export function breadcrumbSchema(
+  itens: { nome: string; caminho?: string }[],
+  caminhoDaPagina: string,
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: itens.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.nome,
+      item: absoluteUrl(item.caminho ?? (i === itens.length - 1 ? caminhoDaPagina : '/')),
+    })),
+  };
+}
+
 export function masterBlockProductSchema() {
   return {
     ...produtoBase(),

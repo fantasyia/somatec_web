@@ -7,7 +7,9 @@ import { DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
 export const metadata: Metadata = {
-  title: 'Blog Somatec — proteção elétrica, VTCD e custo de parada',
+  // `absolute`: o template do layout acrescentaria "· Somatec Blocking" a um
+  // título que já diz "Blog Somatec" (M20).
+  title: { absolute: 'Blog Somatec — proteção elétrica, VTCD e custo de parada' },
   description:
     'Artigos técnicos diretos sobre proteção contra surtos, transientes de 100 kHz, VTCD e o custo real das paradas na indústria.',
   alternates: { canonical: '/blog' },

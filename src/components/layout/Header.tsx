@@ -361,6 +361,11 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
               sobra um CTA de verdade no header, que é o Comercial. */}
           <Link
             href={HEADER_CTAS.representative.href}
+            // `/login` é só um redirect 307 pro app do representante (outro
+            // domínio). O prefetch do Next disparava uma requisição RSC em
+            // TODA página, que o navegador abortava — 1 a 2 pedidos perdidos
+            // por page view, visíveis na varredura de 13/09.
+            prefetch={false}
             className={cn(
               'hidden md:inline-flex items-center gap-1.5 font-sans text-sm transition-colors',
               isTransparent
@@ -466,7 +471,11 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
                   <PackageSearch className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                   {HEADER_CTAS.pedido.label}
                 </Link>
-                <Link href={HEADER_CTAS.representative.href} className="btn-secondary w-full text-[rgb(var(--text))]">
+                <Link
+                  href={HEADER_CTAS.representative.href}
+                  prefetch={false}
+                  className="btn-secondary w-full text-[rgb(var(--text))]"
+                >
                   {HEADER_CTAS.representative.label}
                 </Link>
                 <a

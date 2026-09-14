@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import Link from 'next/link';
 import { Cpu, Gauge, ClipboardCheck, Layers } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Tecnologia e fabricação — Somatec Blocking' },
   description:
     'Sistema Master Block IoT: filtro híbrido patenteado que atua até 100 kHz, software de gestão on-line de qualidade de energia e inspeções periódicas. Fabricação exclusiva.',
   alternates: { canonical: '/a-somatec/tecnologia-e-fabricacao' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 const capabilities = [
   {

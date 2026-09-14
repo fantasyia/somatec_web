@@ -1,17 +1,18 @@
 import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import { ChevronDown } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Perguntas frequentes — Somatec Blocking' },
   description:
     'Dúvidas sobre o Master Block, VTCD, qualidade de energia e o modelo de locação da Somatec Blocking. Respostas técnicas para a indústria.',
   alternates: { canonical: '/faq' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 export const revalidate = 3600;
 

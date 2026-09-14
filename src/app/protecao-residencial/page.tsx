@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import Image from 'next/image';
 import {
   Cpu,
@@ -37,13 +38,13 @@ const SLUG = 'protecao-residencial';
    qualidade. Trocar o título com a campanha no ar mexe no Índice, e o efeito
    aparece no CPC dias depois — ninguém liga uma coisa na outra.
    Combinado com a sessão de Ads em 12/09: mudança aqui é avisada antes. */
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Protetor de surto para casa de alto padrão | Master Block' },
   description:
     'Um protetor de surto no quadro de entrada protege automação, home theater, inversor solar e carro elétrico de uma vez. Monte o seu em minutos, com frete grátis.',
   alternates: { canonical: `/${SLUG}` },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 export const revalidate = 3600;
 

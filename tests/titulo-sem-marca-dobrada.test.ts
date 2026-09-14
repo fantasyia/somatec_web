@@ -47,6 +47,37 @@ function paginas(dir: string): string[] {
 /** `title: '…'` — a forma que o template ENVOLVE. `{ absolute: … }` não conta. */
 const TITULO_STRING = /title:\s*(?:'([^']*)'|`([^`]*)`)/g;
 
+/**
+ * Tira os sub-blocos `openGraph` e `twitter` antes de procurar título.
+ *
+ * ⚠️ Só o `title` DE TOPO passa pelo template do layout. `openGraph.title` e
+ * `twitter.title` vão pro HTML como estão — e citam a marca de propósito
+ * ("Blog Somatec — conteúdo técnico…"). Sem esta poda, a guarda acusa os dois
+ * e obriga a mexer em copy que está certa.
+ */
+function semSubBlocosDeSocial(bloco: string): string {
+  let fora = bloco;
+  for (const chave of ['openGraph', 'twitter']) {
+    let i = fora.indexOf(`${chave}:`);
+    while (i !== -1) {
+      const abre = fora.indexOf('{', i);
+      if (abre === -1) break;
+      let nivel = 0;
+      let fim = abre;
+      for (; fim < fora.length; fim++) {
+        if (fora[fim] === '{') nivel++;
+        else if (fora[fim] === '}') {
+          nivel--;
+          if (nivel === 0) break;
+        }
+      }
+      fora = fora.slice(0, i) + fora.slice(fim + 1);
+      i = fora.indexOf(`${chave}:`);
+    }
+  }
+  return fora;
+}
+
 describe('o nome da empresa não aparece duas vezes no <title>', () => {
   const arquivos = paginas(APP);
 
@@ -59,18 +90,24 @@ describe('o nome da empresa não aparece duas vezes no <title>', () => {
     // Só o bloco de metadata: `title:` de objeto no corpo (card, feature, FAQ)
     // não vira <title> de página e pode citar a marca à vontade.
     const blocos = [
-      ...fonte.matchAll(/export const metadata[\s\S]*?\n};\n/g),
+      ...fonte.matchAll(/export const metadata[\s\S]*?\n\}\)?;\n/g),
       ...fonte.matchAll(/return\s*\{[\s\S]*?title:[\s\S]*?\n\s*\};/g),
-    ].map((m) => m[0]);
+    ].map((m) => semSubBlocosDeSocial(m[0]));
 
     for (const bloco of blocos) {
       for (const m of bloco.matchAll(TITULO_STRING)) {
         const texto = m[1] ?? m[2] ?? '';
+        // ⚠️ Não basta procurar "Somatec Blocking" inteiro. Em 13/09 os títulos
+        // do blog e do autor terminavam em "| Blog Somatec" — marca, mas sem o
+        // "Blocking" — e o template ainda acrescentava "· Somatec Blocking" em
+        // cima: 87 a 114 caracteres, com a marca duas vezes. A guarda passava.
+        // Agora o alvo é a MARCA, em qualquer forma.
         expect(
           texto,
-          `${rel}: o título já termina com "${SITE.fullName}" e o template do layout ` +
-            `acrescenta de novo. Use title: { absolute: '…' } — o texto não muda.`,
-        ).not.toContain(SITE.fullName);
+          `${rel}: o título já cita a marca e o template do layout ` +
+            `("%s · ${SITE.fullName}") acrescenta de novo. ` +
+            `Use title: { absolute: '…' } — o texto não muda.`,
+        ).not.toMatch(/somatec/i);
       }
     }
   });

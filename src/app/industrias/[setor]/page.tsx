@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { AlertTriangle, ShieldCheck, ChevronRight } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbSchema } from '@/lib/seo/structured-data';
 import { Reveal } from '@/components/ui/Reveal';
 import { CountUp } from '@/components/ui/CountUp';
 import { INDUSTRIAS, getIndustria } from '@/lib/constants/industrias';
@@ -45,6 +47,19 @@ export function generateStaticParams() {
   return INDUSTRIAS.map((i) => ({ setor: i.slug }));
 }
 
+/** Corta no limite de PALAVRA, não no caractere 150.
+ *
+ *  M24 da auditoria 13/09: `intro.slice(0, 150)` cortava no meio da palavra e
+ *  a meta description das quatro páginas de setor terminava em coisas como
+ *  "Empa…". Texto não muda — só o ponto do corte. */
+function resumir(texto: string, max: number): string {
+  const limpo = texto.trim();
+  if (limpo.length <= max) return limpo;
+  const corte = limpo.slice(0, max);
+  const ultimoEspaco = corte.lastIndexOf(' ');
+  return `${(ultimoEspaco > max * 0.6 ? corte.slice(0, ultimoEspaco) : corte).replace(/[\s,;:.–-]+$/, '')}…`;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -55,7 +70,7 @@ export async function generateMetadata({
   if (!ind) return {};
   return {
     title: { absolute: `Master Block para ${ind.nome} — proteção contra surtos e VTCD | Somatec Blocking` },
-    description: `${ind.intro.slice(0, 150)}…`,
+    description: resumir(ind.intro, 150),
     alternates: { canonical: `/industrias/${ind.slug}` },
     openGraph: {
       title: `Proteção elétrica para ${ind.nome} — Master Block`,
@@ -79,16 +94,22 @@ export default async function IndustriaPage({
   const ind = getIndustria(setor);
   if (!ind) notFound();
 
+  // Uma fonte só pra trilha: o que o PageHero desenha é o que o JSON-LD marca.
+  // As quatro páginas de setor desenhavam breadcrumb e não marcavam nada
+  // (B13 da auditoria) — rich result que simplesmente não acontecia.
+  const trilha = [
+    { nome: 'Home', caminho: '/' },
+    { nome: 'Resultados', caminho: '/resultados' },
+    { nome: ind.nome },
+  ];
+
   return (
     <>
+      <JsonLd data={breadcrumbSchema(trilha, `/industrias/${ind.slug}`)} />
       <PageHero
         title={ind.heroTitle}
         description={ind.intro}
-        breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Resultados', href: '/resultados' },
-          { label: ind.nome },
-        ]}
+        breadcrumbs={trilha.map((t) => ({ label: t.nome, href: t.caminho }))}
       />
 
       {/* Sintomas do setor */}

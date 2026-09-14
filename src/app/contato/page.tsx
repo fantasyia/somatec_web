@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import { Mail, MapPin, MessageCircle } from 'lucide-react';
 import { ContactForm } from '@/components/forms/ContactForm';
 import Link from 'next/link';
 import { CONTACT, whatsappHref } from '@/lib/constants/site';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Contato — Somatec Blocking' },
   description:
     'Fale com a engenharia da Somatec Blocking. Diagnóstico de qualidade de energia e proteção contra surtos (Master Block) para a indústria. São Paulo-SP.',
   alternates: { canonical: '/contato' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 // Tudo sai de lib/constants/site.ts — antes esses valores estavam escritos à
 // mão aqui, no JSON-LD e no rodapé, e trocar um deixava os outros mentindo.

@@ -13,6 +13,7 @@ import { lerAssinatura, lerConteudo, lerHtmlBruto, lerPost, lerPosts } from '@/l
 import { extrairJsonLd } from '@/lib/blog/html-para-artigo';
 import { AuthorBox, BylineArtigo } from '@/components/blog/AssinaturaArtigo';
 import { autorDoArtigo, revisorDoArtigo } from '@/lib/blog/schema-autor';
+import { breadcrumbSchema } from '@/lib/seo/structured-data';
 import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
 import { publicoDoCluster } from '@/lib/constants/publico-clusters';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
@@ -65,7 +66,11 @@ export async function generateMetadata({
   const post = await lerPost(slug);
   if (!post) return {};
   return {
-    title: `${post.titulo} | Blog Somatec`,
+    // `absolute` — senão o template do layout (`%s · Somatec Blocking`)
+    // envolve e o <title> sai "… | Blog Somatec · Somatec Blocking", com a
+    // marca duas vezes e 87–114 caracteres (M20 da auditoria). Nenhuma palavra
+    // muda: só deixa de ser envolvido.
+    title: { absolute: `${post.titulo} | Blog Somatec` },
     description: post.excerpt,
     alternates: {
       canonical: `/blog/${post.slug}`,
@@ -173,15 +178,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       },
       mainEntityOfPage: { '@type': 'WebPage', '@id': absUrl },
     },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Início', item: SITE.url },
-        { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE.url}/blog` },
-        { '@type': 'ListItem', position: 3, name: post.titulo, item: absUrl },
-      ],
-    },
+    // Mesma trilha que o <nav> desenha logo abaixo: Início › Blog › <cluster>.
+    // Marcava `post.titulo` no 3º item enquanto a tela mostrava o cluster
+    // (B13 da auditoria) — nome divergente entre marcação e visível.
+    breadcrumbSchema(
+      [{ nome: 'Início', caminho: '/' }, { nome: 'Blog', caminho: '/blog' }, { nome: post.cluster }],
+      `/blog/${post.slug}`,
+    ),
     ...(content && content.faq.length > 0
       ? [
           {

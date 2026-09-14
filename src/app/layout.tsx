@@ -12,6 +12,7 @@ import { CookieBanner, type CookieBannerText } from '@/components/layout/CookieB
 import { WhatsAppButton } from '@/components/layout/WhatsAppButton';
 import { StickyCta } from '@/components/layout/StickyCta';
 import { SITE } from '@/lib/constants/site';
+import { OG_LOCALE } from '@/lib/seo/metadata-pagina';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getWhatsAppButtonConfig, buildWhatsAppUrl } from '@/lib/whatsapp-button';
@@ -93,7 +94,10 @@ export async function generateMetadata(): Promise<Metadata> {
       description: ogDescription,
       url: SITE.url,
       siteName: SITE.fullName,
-      locale: SITE.locale,
+      // `pt_BR`, com underscore — o Open Graph exige language_TERRITORY.
+      // `SITE.locale` é `pt-BR` e serve ao <html lang>; usar o mesmo valor
+      // aqui fazia Facebook e LinkedIn ignorarem o og:locale (M23).
+      locale: OG_LOCALE,
       type: 'website',
       images: [{ url: ogImage, width: 1200, height: 630, alt: SITE.fullName }],
     },

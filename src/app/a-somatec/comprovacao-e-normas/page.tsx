@@ -1,17 +1,18 @@
 import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import Link from 'next/link';
 import { ShieldCheck, ClipboardCheck, LineChart, Leaf } from 'lucide-react';
 import { PageHero } from '@/components/layout/PageHero';
 import { CommercialCta } from '@/components/ui/CommercialCta';
 import { OFERTA_INDUSTRIAL } from '@/lib/constants/oferta-industrial';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: { absolute: 'Comprovação, normas e segurança — Somatec Blocking' },
   description:
     'Proteção comprovada por medição antes e depois, dentro das normas ABNT NBR 5410 e IEC 61643-1, alinhada à ISO 50001. 26 anos de atuação, sem nenhum acidente.',
   alternates: { canonical: '/a-somatec/comprovacao-e-normas' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 const pillars = [
   {

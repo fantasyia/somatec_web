@@ -1,14 +1,15 @@
 ﻿import type { Metadata } from 'next';
+import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import { Users } from 'lucide-react';
 import { RepresentanteForm } from '@/components/forms/RepresentanteForm';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = comOpenGraph({
   title: 'Seja um representante',
   description:
     'Cadastre-se para representar ou indicar as soluções da Somatec Blocking — proteção contra surtos e qualidade de energia para a indústria.',
   alternates: { canonical: '/representantes' },
   robots: { index: process.env.SITE_NOINDEX !== 'true', follow: true },
-};
+});
 
 export default function RepresentantesPage() {
   return (
