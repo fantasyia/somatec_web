@@ -155,7 +155,7 @@ export default async function ProtecaoResidencialPage() {
             <p className="text-base leading-relaxed text-[rgb(var(--text))] text-pretty">
               E o detalhe que ninguém conta: aquele dispositivo que o eletricista instalou no seu
               quadro (o DPS){' '}
-              <span className="font-semibold text-gold">não pega</span> as oscilações mais rápidas —
+              <span className="font-semibold text-gold-text">não pega</span> as oscilações mais rápidas —
               justamente as que queimam placa eletrônica.
             </p>
           </Reveal>

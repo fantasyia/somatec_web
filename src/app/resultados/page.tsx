@@ -73,7 +73,7 @@ export default function ResultadosPage() {
                   {c.industria && (
                     <Link
                       href={`/industrias/${c.industria}`}
-                      className="inline-flex items-center gap-1 font-sans text-sm font-semibold text-gold transition-colors hover:text-gold-soft"
+                      className="inline-flex items-center gap-1 font-sans text-sm font-semibold text-gold-text transition-colors hover:text-gold-soft"
                     >
                       Ver solução para {c.sector.toLowerCase()}
                       <ChevronRight className="h-4 w-4" strokeWidth={2} />

@@ -43,18 +43,18 @@ export default function RepresentantesPage() {
             </p>
             <ul className="space-y-2 pt-2 text-sm text-[rgb(var(--text-muted))]">
               <li className="flex gap-2">
-                <span className="text-gold mt-1">·</span>
+                <span className="text-gold-text mt-1">·</span>
                 {/* ⛔ Citava "e Banco de Capacitores". Saiu em 04/09: a Somatec
                     passou a oferecer só Master Block, e o representante não
                     pode sair vendendo o que a empresa não vende mais. */}
                 <span>Sistema Master Block: o supressor que atua até 100 kHz + o software de gestão de energia on-line.</span>
               </li>
               <li className="flex gap-2">
-                <span className="text-gold mt-1">·</span>
+                <span className="text-gold-text mt-1">·</span>
                 <span>Suporte técnico-comercial e materiais de venda.</span>
               </li>
               <li className="flex gap-2">
-                <span className="text-gold mt-1">·</span>
+                <span className="text-gold-text mt-1">·</span>
                 <span>Modelo de negócio sem risco para apresentar ao cliente.</span>
               </li>
             </ul>

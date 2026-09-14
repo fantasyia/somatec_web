@@ -29,7 +29,7 @@ export const SelectField = forwardRef<HTMLSelectElement, Props>(function SelectF
         className="block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
       >
         {label}
-        {required && <span className="text-gold ml-1">*</span>}
+        {required && <span className="text-gold-text ml-1">*</span>}
       </label>
       <div className="relative">
         <select

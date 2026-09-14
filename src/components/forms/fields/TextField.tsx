@@ -34,7 +34,7 @@ export const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
         )}
       >
         {label}
-        {required && <span className="text-gold ml-1">*</span>}
+        {required && <span className="text-gold-text ml-1">*</span>}
       </label>
       <input
         ref={ref}

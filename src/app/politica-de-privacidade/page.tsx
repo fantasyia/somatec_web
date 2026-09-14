@@ -78,18 +78,18 @@ export default function PoliticaPage() {
           <div className="space-y-3 text-sm text-[rgb(var(--text-muted))]">
             <p>
               Dúvidas ou solicitações relacionadas à privacidade?{' '}
-              <Link href="/contato" className="text-gold hover:underline underline-offset-2">
+              <Link href="/contato" className="text-gold-text underline underline-offset-2">
                 Entre em contato
               </Link>
               .
             </p>
             <p>
               Veja também nossa{' '}
-              <Link href="/cookies" className="text-gold hover:underline underline-offset-2">
+              <Link href="/cookies" className="text-gold-text underline underline-offset-2">
                 Política de Cookies
               </Link>{' '}
               e{' '}
-              <Link href="/termos-de-uso" className="text-gold hover:underline underline-offset-2">
+              <Link href="/termos-de-uso" className="text-gold-text underline underline-offset-2">
                 Termos de Uso
               </Link>
               .

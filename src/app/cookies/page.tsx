@@ -65,14 +65,14 @@ export default function CookiesPage() {
           <div className="space-y-3 text-sm text-[rgb(var(--text-muted))]">
             <p>
               Para dúvidas sobre o uso de cookies neste site, entre em{' '}
-              <Link href="/contato" className="text-gold hover:underline underline-offset-2">
+              <Link href="/contato" className="text-gold-text underline underline-offset-2">
                 contato
               </Link>{' '}
               com nossa equipe.
             </p>
             <p>
               Veja também nossa{' '}
-              <Link href="/politica-de-privacidade" className="text-gold hover:underline underline-offset-2">
+              <Link href="/politica-de-privacidade" className="text-gold-text underline underline-offset-2">
                 Política de Privacidade
               </Link>
               .

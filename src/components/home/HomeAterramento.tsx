@@ -24,7 +24,7 @@ export function HomeAterramento() {
               </p>
               <Link
                 href="/produtos"
-                className="group inline-flex items-center gap-1.5 pt-1 font-sans text-sm font-semibold text-gold transition-colors hover:text-gold-soft"
+                className="group inline-flex items-center gap-1.5 pt-1 font-sans text-sm font-semibold text-gold-text transition-colors hover:text-gold-soft"
               >
                 Ver o Master Block
                 <ChevronRight

@@ -24,7 +24,7 @@ export const TextareaField = forwardRef<HTMLTextAreaElement, Props>(function Tex
         className="block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
       >
         {label}
-        {required && <span className="text-gold ml-1">*</span>}
+        {required && <span className="text-gold-text ml-1">*</span>}
       </label>
       <textarea
         ref={ref}

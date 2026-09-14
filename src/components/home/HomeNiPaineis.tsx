@@ -121,7 +121,7 @@ export function HomeNiPaineis() {
                         ? 'mt-3 inline-flex items-center gap-1.5 rounded-btn bg-white px-4 py-2 font-sans text-sm font-semibold text-deep_navy transition-colors group-hover:bg-white/90'
                         : cta.estilo === 'contorno'
                           ? 'mt-3 inline-flex items-center gap-1.5 rounded-btn border border-white/60 px-4 py-2 font-sans text-sm font-semibold text-white transition-colors group-hover:border-white group-hover:bg-white/10'
-                          : 'mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-semibold text-gold transition-colors group-hover:text-gold-soft'
+                          : 'mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-semibold text-gold-text transition-colors group-hover:text-gold-soft'
                     }
                   >
                     {cta.label}

@@ -45,6 +45,11 @@ const TARJA_CIANO = '#D9EBF4';
 type Cores = Record<string, Record<string, string> | string>;
 const cores = (config.theme?.extend?.colors ?? {}) as Cores;
 const ciano = cores.cyan as Record<string, string> | undefined;
+const laranja = cores.gold as Record<string, string> | undefined;
+/** Chaves de `backgroundImage` — `bg-gold-gradient` mora aqui, não na paleta. */
+const imagensDeFundo = new Set(
+  Object.keys((config.theme?.extend?.backgroundImage ?? {}) as Record<string, string>),
+);
 
 describe('token de ciano para texto', () => {
   it('existe no tema (classe sem token vira cor herdada, em silêncio)', () => {
@@ -76,6 +81,37 @@ describe('token de ciano para texto', () => {
   });
 });
 
+describe('token de laranja para texto', () => {
+  it('existe no tema', () => {
+    expect(
+      laranja?.text,
+      'gold.text sumiu do tailwind.config.ts — `text-gold-text` não pinta nada',
+    ).toMatch(/^#[0-9a-fA-F]{6}$/);
+  });
+
+  it('passa os 4,5:1 nos dois fundos claros do site', () => {
+    const cor = laranja!.text;
+    expect(Number(contraste(cor, BRANCO).toFixed(2))).toBeGreaterThanOrEqual(4.5);
+    expect(Number(contraste(cor, OFF_WHITE).toFixed(2))).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('o laranja de MARCA continua sendo o da marca', () => {
+    // Ele é o acento do site: botão, ícone, número de destaque e todo texto
+    // sobre fundo escuro (sobre o navy dá 6,21:1 e passa com folga). Escurecer
+    // o DEFAULT pra "resolver contraste" repintaria o site inteiro — e o tom
+    // escurecido sobre o navy cai pra 2,51:1, ou seja, trocar tudo PIORA.
+    expect(laranja?.DEFAULT?.toUpperCase()).toBe('#F39200');
+  });
+
+  it('o botão primário continua legível sem depender do token de texto', () => {
+    // `btn-primary` é navy sobre o gradiente laranja: 4,50:1. Trocar pra branco
+    // derrubaria pra 2,35:1 — é o tipo de "simplificação" que passa em revisão.
+    const css = readFileSync(resolve(process.cwd(), 'src/app/globals.css'), 'utf8');
+    const i = css.indexOf('.btn-primary');
+    expect(css.slice(i, i + 400)).toContain('text-deep_navy');
+  });
+});
+
 function arquivos(dir: string, out: string[] = []): string[] {
   for (const nome of readdirSync(dir)) {
     const caminho = join(dir, nome);
@@ -86,14 +122,20 @@ function arquivos(dir: string, out: string[] = []): string[] {
 }
 
 describe('classes de cor usadas existem no tema', () => {
-  it('toda variante `*-cyan-<nome>` usada no código tem token', () => {
+  it('toda variante `*-cyan-<nome>` e `*-gold-<nome>` usada no código tem token', () => {
     const declarados = new Set(Object.keys(ciano ?? {}).map((k) => k.toLowerCase()));
+    const doLaranja = new Set(Object.keys(laranja ?? {}).map((k) => k.toLowerCase()));
     const orfas: string[] = [];
 
     for (const arquivo of arquivos(resolve(process.cwd(), 'src'))) {
       const fonte = readFileSync(arquivo, 'utf8');
       for (const m of fonte.matchAll(/\b(?:text|bg|border|ring|fill|stroke)-cyan-([a-z]+)\b/g)) {
         if (!declarados.has(m[1])) orfas.push(`${m[0]} (${relative(process.cwd(), arquivo)})`);
+      }
+      for (const m of fonte.matchAll(/\b(?:text|bg|border|ring|fill|stroke)-gold-([a-z]+)\b/g)) {
+        // `bg-gold-gradient` não é variante de cor: é chave de `backgroundImage`.
+        if (m[0].startsWith('bg-') && imagensDeFundo.has(`gold-${m[1]}`)) continue;
+        if (!doLaranja.has(m[1])) orfas.push(`${m[0]} (${relative(process.cwd(), arquivo)})`);
       }
     }
 

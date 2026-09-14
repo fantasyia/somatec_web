@@ -73,14 +73,14 @@ export default function TermosPage() {
           <div className="space-y-3 text-sm text-[rgb(var(--text-muted))]">
             <p>
               Dúvidas sobre estes termos?{' '}
-              <Link href="/contato" className="text-gold hover:underline underline-offset-2">
+              <Link href="/contato" className="text-gold-text underline underline-offset-2">
                 Fale conosco
               </Link>
               .
             </p>
             <p>
               Veja também nossa{' '}
-              <Link href="/politica-de-privacidade" className="text-gold hover:underline underline-offset-2">
+              <Link href="/politica-de-privacidade" className="text-gold-text underline underline-offset-2">
                 Política de Privacidade
               </Link>
               .

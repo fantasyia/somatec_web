@@ -237,7 +237,7 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
         label={
           <>
             {LGPD_PUBLIC_DEFAULT.text}{' '}
-            <Link href="/politica-de-privacidade" className="text-gold hover:underline">
+            <Link href="/politica-de-privacidade" className="text-gold-text underline underline-offset-2">
               Leia a Política de Privacidade
             </Link>
             .

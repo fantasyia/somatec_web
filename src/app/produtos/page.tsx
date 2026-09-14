@@ -188,7 +188,7 @@ export default function ProdutosPage() {
                   key={m.model}
                   className={i % 2 === 0 ? 'bg-[rgb(var(--bg))]' : 'bg-[rgb(var(--surface))]'}
                 >
-                  <th scope="row" className="px-4 py-3 font-sans font-bold text-gold whitespace-nowrap">
+                  <th scope="row" className="px-4 py-3 font-sans font-bold text-gold-text whitespace-nowrap">
                     {m.model}
                   </th>
                   <td className="px-4 py-3 font-semibold text-[rgb(var(--text))] whitespace-nowrap">{m.loadLabel}</td>

@@ -81,7 +81,7 @@ export function HomeSetores() {
                 <p className="text-sm leading-relaxed text-[rgb(var(--text-muted))]">{dor}</p>
                 <p className="text-sm leading-relaxed text-[rgb(var(--text))] flex-1">
                   {prova[0]}
-                  <span className="font-bold text-gold">{prova[1]}</span>
+                  <span className="font-bold text-gold-text">{prova[1]}</span>
                   {prova[2]}
                 </p>
                 <Link

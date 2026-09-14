@@ -37,7 +37,7 @@ export const CheckboxField = forwardRef<HTMLInputElement, Props>(function Checkb
         />
         <span className="text-sm text-[rgb(var(--text))] leading-snug">
           {label}
-          {required && <span className="text-gold ml-1">*</span>}
+          {required && <span className="text-gold-text ml-1">*</span>}
         </span>
       </label>
       {error && (

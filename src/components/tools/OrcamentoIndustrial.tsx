@@ -273,7 +273,7 @@ export function OrcamentoIndustrial({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent('calc_ind_whatsapp', { landing: landingSlug, passo })}
-              className="font-semibold text-gold underline underline-offset-2 hover:text-gold-soft"
+              className="font-semibold text-gold-text underline underline-offset-2 hover:text-gold-soft"
             >
               Fale com um representante no WhatsApp
             </a>
@@ -281,7 +281,7 @@ export function OrcamentoIndustrial({
             <Link
               href={whatsappHref}
               onClick={() => trackEvent('calc_ind_whatsapp', { landing: landingSlug, passo })}
-              className="font-semibold text-gold underline underline-offset-2 hover:text-gold-soft"
+              className="font-semibold text-gold-text underline underline-offset-2 hover:text-gold-soft"
             >
               Fale com um representante no WhatsApp
             </Link>

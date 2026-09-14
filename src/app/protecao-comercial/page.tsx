@@ -178,7 +178,7 @@ export default async function ProtecaoComercialPage() {
           <Reveal className="mx-auto mt-10 max-w-3xl">
             <p className="text-base leading-relaxed text-[rgb(var(--text))] text-pretty">
               O DPS que o eletricista instalou e o estabilizador que você já tem{' '}
-              <span className="font-semibold text-gold">não seguram</span> as oscilações mais rápidas
+              <span className="font-semibold text-gold-text">não seguram</span> as oscilações mais rápidas
               da rede — as que queimam placa e travam máquina.
             </p>
           </Reveal>
@@ -235,7 +235,7 @@ export default async function ProtecaoComercialPage() {
               rede cai, o motor continua tentando trabalhar com o que sobrou. Ele força, esquenta e
               queima, muitas vezes de madrugada, sem ninguém por perto. O Master Block identifica a
               falta e desliga o circuito antes do dano. É isso que{' '}
-              <span className="font-semibold text-gold">evita que o motor queime por falta de fase</span>.
+              <span className="font-semibold text-gold-text">evita que o motor queime por falta de fase</span>.
             </p>
           </Reveal>
           <Reveal delay={120} className="mt-8">
@@ -305,7 +305,7 @@ export default async function ProtecaoComercialPage() {
               Some o valor do estoque da câmara + o que o caixa fatura numa tarde + o orçamento de
               troca de uma placa eletrônica. Esse é o tamanho do risco que fica ligado na tomada todos
               os dias. A proteção custa{' '}
-              <span className="font-semibold text-gold">uma fração disso</span> — e é uma vez só.
+              <span className="font-semibold text-gold-text">uma fração disso</span> — e é uma vez só.
             </p>
           </Reveal>
         </section>

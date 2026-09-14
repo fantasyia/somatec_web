@@ -106,7 +106,7 @@ export default function ContatoPage() {
 
             <p className="text-sm text-[rgb(var(--text-muted))]">
               Ainda com dúvidas técnicas?{' '}
-              <Link href="/faq" className="text-gold hover:underline font-semibold">
+              <Link href="/faq" className="text-gold-text hover:underline font-semibold">
                 Veja as perguntas frequentes
               </Link>
               .

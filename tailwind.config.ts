@@ -51,6 +51,21 @@ const config: Config = {
         gold: {
           DEFAULT: '#F39200',
           soft: '#F7B24D',
+          // Variante SÓ PARA TEXTO PEQUENO sobre fundo claro (decisão do Léo,
+          // 14/09). O laranja de marca dá 2,35:1 no branco e 2,15:1 no
+          // off-white — reprova os 4,5:1 da WCAG e era o único motivo de home,
+          // /contato, /representantes e /cookies ficarem em 96-97 no
+          // Lighthouse.
+          //
+          // Escurecido até passar nos DOIS fundos claros do site: 5,83:1 no
+          // branco e 5,32:1 no off-white. Parar mais cedo não serve — o
+          // #A85F00 passa no branco (4,88) e reprova no off-white (4,46).
+          //
+          // ⛔ NÃO usar em preenchimento, borda, ícone, número de destaque nem
+          // sobre fundo escuro: ali o laranja de marca continua sendo o
+          // laranja de marca. O `btn-primary` também não muda — ele é navy
+          // sobre o gradiente laranja, que dá 4,50:1 e passa.
+          text: '#96550A',
         },
         off_white: '#F1F5F9',
         neutral: {

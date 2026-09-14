@@ -174,7 +174,7 @@ export default async function OrcamentoIndustrialPage() {
               </h2>
               <p className="mt-1 max-w-2xl text-sm text-[rgb(var(--text-muted))]">
                 Da entrada da rede até o painel de cada galpão. Cada ponto laranja é uma camada da{' '}
-                <span className="font-semibold text-gold">proteção em cascata</span> — é isso que o
+                <span className="font-semibold text-gold-text">proteção em cascata</span> — é isso que o
                 seu projeto vai mostrar.
               </p>
               <div className="mt-6">
