@@ -27,7 +27,12 @@ type Link = { href: string; desc: string };
 
 const INSTITUCIONAL: Link[] = [
   { href: '/', desc: 'Home. O problema do surto elétrico e as três frentes: indústria, comércio e residência.' },
-  { href: '/produtos', desc: 'Master Block: os 12 modelos por faixa de corrente, com Icc, especificação técnica e preço.' },
+  // ⚠️ "e preço" saiu em 14/09: `/produtos` NÃO mostra preço em lugar nenhum
+  // da página (conferido no código — nenhum componente lê `preco` de
+  // MASTER_BLOCK_MODELS). O preço aparece no checkout, que é outra rota. Num
+  // arquivo cujo leitor é uma IA, prometer um dado que a página não tem é
+  // convite pra ela inventar o número.
+  { href: '/produtos', desc: 'Master Block: os 12 modelos por faixa de corrente, com Icc e especificação técnica.' },
   { href: '/a-somatec', desc: 'Índice institucional da empresa.' },
   { href: '/a-somatec/quem-somos', desc: 'História, 26 anos de mercado e Prêmio FIESP Acelera Startup 2015.' },
   { href: '/a-somatec/tecnologia-e-fabricacao', desc: 'Como o filtro híbrido funciona e por que atua até 100 kHz, contra os 10 kHz do DPS comum. Fabricação própria.' },
@@ -39,6 +44,11 @@ const INSTITUCIONAL: Link[] = [
     desc: 'Normas atendidas (ABNT NBR 5410, IEC 61643-1) e como a proteção é comprovada por medição do software depois de instalado.',
   },
   { href: '/resultados', desc: 'Cases com números medidos em planta: supressão de VTCD, prejuízo cessado e retorno.' },
+  // O índice do blog mora AQUI, e não na seção de artigos: aquela seção só
+  // existe quando há artigo publicado, e enquanto não houvesse, `/blog` — que
+  // está no sitemap — sumia do llms.txt inteiro. Página real não depende de
+  // ter filho pra ser anunciada.
+  { href: '/blog', desc: 'Índice dos artigos.' },
   { href: '/faq', desc: 'Perguntas frequentes sobre proteção contra surto, instalação e garantia.' },
   { href: '/contato', desc: 'Canal comercial. Atendimento por WhatsApp e formulário; não há atendimento telefônico.' },
   { href: '/representantes', desc: 'Programa de representação comercial.' },
@@ -88,7 +98,8 @@ export async function GET(): Promise<Response> {
         const resumo = p.excerpt ? `${p.excerpt} · ` : '';
         return `- [${p.titulo}](${base}/blog/${p.slug}): ${resumo}texto puro: ${base}/blog/${p.slug}/markdown`;
       });
-      blog = `## Blog\n\n- [/blog](${base}/blog): Índice dos artigos.\n${linhas.join('\n')}\n`;
+      // `/blog` já é anunciado em Institucional — aqui entram só os artigos.
+      blog = `## Blog\n\n${linhas.join('\n')}\n`;
     }
   } catch {
     // Blog fora do ar não pode derrubar o índice inteiro — o resto do arquivo
