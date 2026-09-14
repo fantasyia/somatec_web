@@ -27,7 +27,10 @@ function parseSecrets(raw: string | undefined): string[] {
     .filter((s) => s.length > 0);
 }
 
-function constantTimeEquals(a: string, b: string): boolean {
+/** Comparação de segredo em tempo constante. Exportada porque não é só o
+ *  Bearer que compara segredo: o `x-pedido-teste` e o `x-revalidate-secret`
+ *  usavam `===` (B4/M7 da auditoria 13/09). */
+export function constantTimeEquals(a: string, b: string): boolean {
   // Comparar SEMPRE sobre bytes UTF-8, alinhando a checagem de comprimento com o
   // timingSafeEqual (que lança RangeError se os buffers tiverem tamanhos
   // diferentes). Comparar .length de string (code-units UTF-16) com buffers de
@@ -66,10 +69,19 @@ export function validateBearer(
   const secrets = parseSecrets(process.env[envName]);
 
   if (secrets.length === 0) {
-    if (options.requireInProduction && process.env.NODE_ENV === 'production') {
+    // ⚠️ "Produção" aqui é QUALQUER AMBIENTE IMPLANTADO, não só
+    // NODE_ENV=production (B5 da auditoria 13/09). Um preview/staging do
+    // Railway rodando com NODE_ENV diferente deixava /api/metrics,
+    // /api/cron/*, /api/revalidate e o detalhe do /api/frete ABERTOS por falta
+    // de segredo — o mesmo código, no mesmo repositório, parecendo protegido.
+    // `RAILWAY_ENVIRONMENT` existe em todo deploy da plataforma; localhost e a
+    // suíte de testes não têm.
+    const implantado =
+      process.env.NODE_ENV === 'production' || Boolean(process.env.RAILWAY_ENVIRONMENT);
+    if (options.requireInProduction && implantado) {
       return { ok: false, reason: 'missing_secret' };
     }
-    // Sem secret configurado em dev/test → aceita sem auth (caller decide).
+    // Sem secret configurado em dev/test LOCAL → aceita sem auth (caller decide).
     return { ok: true };
   }
 

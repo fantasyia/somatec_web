@@ -2,6 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { cotarFreteErp } from '@/lib/erp/frete';
 import { validateBearer } from '@/lib/auth/bearer';
+import { limitConsultaPublica } from '@/lib/ratelimit/upstash';
+import { rateLimitHeaders } from '@/lib/ratelimit/headers';
+import { getClientIp } from '@/lib/http/client-ip';
 
 // =============================================================================
 // Cálculo de frete — cotado pelo ERP (Olist/Tiny), que cota no Melhor Envio.
@@ -45,6 +48,17 @@ const freteSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Teto por IP (M6): cada cotação vira chamada ao ERP, que cota em
+  // transportadora real com timeout de 15s. Sem limite, é amplificador de
+  // custo e latência contra a conta do Tiny.
+  const limite = await limitConsultaPublica(getClientIp(req.headers));
+  if (!limite.allowed) {
+    return NextResponse.json(
+      { ok: false, motivo: 'muitas_consultas' },
+      { status: 429, headers: rateLimitHeaders(limite) },
+    );
+  }
+
   const corpoBruto = await req.json().catch(() => null);
   const parsed = freteSchema.safeParse(corpoBruto);
   if (!parsed.success) {
@@ -65,13 +79,18 @@ export async function POST(req: NextRequest) {
   // Sem isso, investigar falha de cotação em produção vira adivinhação: a
   // resposta é a MESMA ("indisponível") pra ERP fora do ar, timeout, URL
   // errada e payload recusado.
-  const { detalhe, ...semDetalhe } = r;
+  // B12: `motivo` conta o ESTADO DA CONFIGURAÇÃO (credencial ausente/inválida,
+  // produto não vinculado). Isso é diagnóstico interno, não resposta de
+  // checkout — o cliente só precisa saber que não houve cotação.
+  const { detalhe, motivo, ...semDetalhe } = r as typeof r & { motivo?: string };
   const podeVerDetalhe = validateBearer(
     req.headers.get('authorization'),
     'CRON_SECRET',
     { requireInProduction: true },
   ).ok;
-  const corpo = podeVerDetalhe && detalhe ? { ...semDetalhe, detalhe } : semDetalhe;
+  const corpo = podeVerDetalhe
+    ? { ...semDetalhe, ...(motivo ? { motivo } : {}), ...(detalhe ? { detalhe } : {}) }
+    : semDetalhe;
 
   // `indisponivel` é 502 (o ERP falhou de verdade). Credencial ausente ou
   // recusada, produto não vinculado à integração e carrinho sem item cotável
@@ -82,6 +101,6 @@ export async function POST(req: NextRequest) {
   // acusa o site de erro de servidor enquanto tudo está de pé, e o alerta de
   // ERP fora do ar perde o sentido de tanto tocar à toa.
   return NextResponse.json(corpo, {
-    status: !r.ok && r.motivo === 'indisponivel' ? 502 : 200,
+    status: !r.ok && motivo === 'indisponivel' ? 502 : 200,
   });
 }

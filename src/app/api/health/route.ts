@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
-import { publicResponseHeaders, corsHeaders } from '@/lib/http/headers';
+import { publicResponseHeaders, corsHeaders, apiVersionHeaders } from '@/lib/http/headers';
+import { validateBearer } from '@/lib/auth/bearer';
 import { getRedis, idadeDoRedisS } from '@/lib/redis';
 
 export const runtime = 'nodejs';
@@ -240,6 +241,33 @@ export async function GET(req: NextRequest) {
 
   const status = overall === 'down' ? 503 : 200;
   const origin = req.headers.get('origin');
+
+  // ── QUEM VÊ O QUÊ (M9 da auditoria 13/09) ─────────────────────────────
+  //
+  // A rota é pública, sem auth e sem rate limit, e devolvia `error.message` do
+  // Supabase e do ioredis, os NOMES das envs faltando ("faltando:
+  // SUPABASE_SERVICE_ROLE_KEY"), estatística de fila e histórico de degrades —
+  // com `Access-Control-Allow-Origin: *`. Isso é mapa de arquitetura pra quem
+  // procura, e cada hit ainda fazia 3 consultas ao banco.
+  //
+  // Agora o corpo completo só sai pra quem manda `Authorization: Bearer
+  // <CRON_SECRET>`. O público recebe o que um monitor de uptime precisa —
+  // status e horário — e mais nada. E vai com `s-maxage`, pra um curl em loop
+  // não virar carga direta no banco.
+  const detalhado = validateBearer(req.headers.get('authorization'), 'CRON_SECRET').ok;
+
+  if (!detalhado) {
+    return NextResponse.json(
+      { status: overall, timestamp: new Date().toISOString() },
+      {
+        status,
+        headers: {
+          ...apiVersionHeaders(),
+          'Cache-Control': 'public, max-age=0, s-maxage=10, stale-while-revalidate=30',
+        },
+      },
+    );
+  }
 
   return NextResponse.json(
     {

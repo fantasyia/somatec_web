@@ -83,9 +83,47 @@ async function fetchFromSupabase(): Promise<RawRow[]> {
   }
 }
 
+/** Códigos que o `NextResponse.redirect` aceita. Qualquer outro (200, 404, um
+ *  typo) faz ele LANÇAR — e a linha do banco derrubaria a rota inteira. */
+const STATUS_DE_REDIRECT = new Set([301, 302, 303, 307, 308]);
+
+/**
+ * Uma linha só entra no mapa se for um redirect INTERNO e bem formado.
+ *
+ * M18 da auditoria 13/09, duas coisas:
+ *
+ * 1. `to_path` ia direto pro `new URL(to_path, request.url)`. Um valor absoluto
+ *    (`https://evil.example/x`) ou protocolo-relativo (`//evil.example`)
+ *    resolve pra OUTRO host: open redirect. Escrever na tabela exige
+ *    `is_admin()` ou service_role, então o vetor é conta comprometida ou o
+ *    próprio CMS — mas é barato fechar, e o custo de não fechar é o domínio da
+ *    Somatec servindo de trampolim.
+ * 2. `status_code` vinha cru do banco. Um 200 ali dentro vira exceção no
+ *    `NextResponse.redirect`, ou seja, 500 naquela rota, vindo de uma linha de
+ *    dados.
+ *
+ * Linha inválida é DESCARTADA (com aviso), não corrigida em silêncio: o
+ * redirect não acontecer é visível; o redirect acontecer pro lugar errado, não.
+ */
+function linhaValida(row: RawRow): boolean {
+  const de = row.from_path ?? '';
+  const para = row.to_path ?? '';
+  if (!de.startsWith('/') || de.startsWith('//')) return false;
+  if (!para.startsWith('/') || para.startsWith('//')) return false;
+  if (!STATUS_DE_REDIRECT.has(row.status_code)) return false;
+  return true;
+}
+
 export function rowsToMap(rows: RawRow[]): RedirectMap {
   const map: RedirectMap = new Map();
   for (const row of rows) {
+    if (!linhaValida(row)) {
+      console.warn('[redirects] linha ignorada (destino externo ou status inválido)', {
+        from_path: row.from_path,
+        status_code: row.status_code,
+      });
+      continue;
+    }
     map.set(row.from_path, { to_path: row.to_path, status_code: row.status_code });
   }
   return map;

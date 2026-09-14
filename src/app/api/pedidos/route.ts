@@ -3,9 +3,10 @@ import { CONTACT } from '@/lib/constants/site';
 import { documentoValido } from '@/lib/constants/documento';
 import { z } from 'zod';
 import { criarPedido } from '@/lib/pedidos/servidor';
-import { limitFormSubmit } from '@/lib/ratelimit/upstash';
+import { limitPedido } from '@/lib/ratelimit/upstash';
 import { rateLimitHeaders } from '@/lib/ratelimit/headers';
 import { getClientIp } from '@/lib/http/client-ip';
+import { constantTimeEquals } from '@/lib/auth/bearer';
 import { verifyTurnstile } from '@/lib/turnstile/verify';
 import { checkIdempotency, storeResponse, isValidIdempotencyKey } from '@/lib/idempotency';
 import { apiVersionHeaders } from '@/lib/http/headers';
@@ -119,7 +120,9 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req.headers);
 
-  const limite = await limitFormSubmit(ip);
+  // Balde PRÓPRIO (M10): fechar pedido não pode disputar teto com quem só
+  // manda formulário — e vice-versa.
+  const limite = await limitPedido(ip);
   if (!limite.allowed) {
     trackRequest(ROUTE, 429);
     return NextResponse.json(
@@ -221,8 +224,12 @@ export async function POST(req: NextRequest) {
   // e cai no 422, igual a qualquer tentativa de comprar o que não existe.
   const segredoOperacao = process.env.PEDIDOS_STATUS_SECRET ?? '';
   const pedidoDeTeste =
-    segredoOperacao.length > 0 && req.headers.get('x-pedido-teste') === segredoOperacao;
-  if (pedidoDeTeste) log.warn('PEDIDO DE TESTE autorizado pela operacao', { email: recebido.email });
+    segredoOperacao.length > 0 &&
+    constantTimeEquals(req.headers.get('x-pedido-teste') ?? '', segredoOperacao);
+  // B6: sem e-mail no log. O stdout do Railway guarda em claro, e o filtro de
+  // PII do Sentry não alcança console. Pra ligar o registro à pessoa existe o
+  // número do pedido, logado logo abaixo.
+  if (pedidoDeTeste) log.warn('PEDIDO DE TESTE autorizado pela operacao');
 
   const preco = precificarPedido(
     recebido.itens,
@@ -247,7 +254,7 @@ export async function POST(req: NextRequest) {
     // cobrar mais do que foi anunciado; cobrar o antigo é aceitar o número do
     // cliente, que é a brecha. As duas se resolvem com a página recarregada.
     log.error('DIVERGENCIA DE PRECO no pedido', {
-      email: recebido.email,
+      // sem e-mail (B6) — o que importa aqui é o NÚMERO, não quem mandou
       afirmadoCentavos: recebido.totalCentavos,
       realCentavos: preco.totalCentavos,
       difCentavos: preco.divergenciaCentavos,

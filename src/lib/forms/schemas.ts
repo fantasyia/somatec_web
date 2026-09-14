@@ -11,8 +11,11 @@ const trimmed = (min: number, max: number, label: string) =>
 const whatsappSchema = z
   .string()
   .trim()
-  .min(10, 'WhatsApp inválido')
-  .max(20, 'WhatsApp inválido')
+  // ⚠️ O teto de 20 media o texto COM máscara (B2 da auditoria 13/09):
+  // "+55 (011) 9 9999-9999" tem 21 caracteres e 13 dígitos — número válido que
+  // o servidor recusava por causa da pontuação. O limite generoso aqui existe
+  // só pra barrar payload absurdo; quem decide é a contagem de DÍGITOS abaixo.
+  .max(40, 'WhatsApp inválido')
   .transform((v) => v.replace(/\D/g, ''))
   .refine((v) => v.length >= 10 && v.length <= 13, 'WhatsApp inválido')
   .transform((v) => {

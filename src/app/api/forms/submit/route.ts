@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { formSubmitSchema } from '@/lib/forms/schemas';
 import { verifyTurnstile } from '@/lib/turnstile/verify';
-import { limitFormSubmit } from '@/lib/ratelimit/upstash';
+import { limitFormSubmit, limitAbandono } from '@/lib/ratelimit/upstash';
 import { rateLimitHeaders } from '@/lib/ratelimit/headers';
 import { checkIdempotency, storeResponse, isValidIdempotencyKey } from '@/lib/idempotency';
 import { trackRequest } from '@/lib/metrics/registry';
@@ -99,7 +99,14 @@ export async function POST(req: NextRequest) {
   // primeiro fazia todo POST anônimo custar uma chamada ao siteverify da
   // Cloudflare, sem teto — um alvo barato de flood. O rate limit é local
   // (Redis) e corta antes de gastar a chamada externa.
-  const rl = await limitFormSubmit(ip);
+  // O lead de ABANDONO sai sozinho (pagehide), sem ninguém clicando em nada.
+  // Dividir o balde com o formulário fazia o abandono comer o teto de quem
+  // estava de fato preenchendo — numa rede corporativa, a quarta pessoa levava
+  // 429 sem ter tentado (M10 da auditoria).
+  const ehAbandono =
+    raw && typeof raw === 'object' &&
+    (raw as Record<string, unknown>).formulario === 'checkout-ni-abandono';
+  const rl = ehAbandono ? await limitAbandono(ip) : await limitFormSubmit(ip);
   if (!rl.allowed) {
     trackRequest(ROUTE, 429);
     return NextResponse.json(

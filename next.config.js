@@ -2,8 +2,9 @@
 
 // CSP enforce mode — qualquer violação BLOQUEIA o recurso e POSTa em /api/csp-report.
 // Permissões abaixo refletem fontes legítimas do projeto:
-//   - script-src: self + Turnstile + Swagger UI (jsdelivr). unsafe-inline+eval mandatórios pro Next.js dev/runtime.
-//   - style-src: self + Google Fonts (CSS) + Swagger UI (jsdelivr).
+//   - script-src: self + Turnstile. unsafe-inline+eval mandatórios pro Next.js dev/runtime.
+//     (o jsdelivr do Swagger UI fica SÓ no header de /api-docs — ver headers())
+//   - style-src: self + Google Fonts (CSS).
 //   - img-src: self + data/blob + Storage do NOSSO projeto Supabase (+ placeholders picsum/placehold só em dev).
 //   - media-src: self + nosso Supabase + Google CDN (vídeo hero placeholder).
 //   - connect-src: self + nosso Supabase REST/realtime + Turnstile + Sentry envelope (qualquer host com /api/envelope).
@@ -36,12 +37,17 @@ const PLACEHOLDER_SRC = isDev ? ' ' + PLACEHOLDER_HOSTS.map((h) => `https://${h}
 // pedido chega a sair. Google Tag Manager, GA4 e Meta Pixel abaixo.
 const GOOGLE_TAGS = 'https://www.googletagmanager.com https://www.google-analytics.com';
 const META_TAGS = 'https://connect.facebook.net';
-const scriptSrc = `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com https://*.challenges.cloudflare.com https://cdn.jsdelivr.net ${GOOGLE_TAGS} ${META_TAGS}`;
+// ⚠️ `cdn.jsdelivr.net` NÃO entra no CSP do site inteiro (B10 da auditoria
+// 13/09). Ele existe só pro Swagger UI de `/api-docs`, e o jsdelivr serve
+// QUALQUER pacote do npm ou do GitHub — com `'unsafe-inline'` já presente o
+// ganho de fechar é modesto, mas é uma origem de script a menos em 25 páginas
+// pra servir uma. A liberação vai num header próprio, só naquela rota.
+const scriptSrc = `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com https://*.challenges.cloudflare.com ${GOOGLE_TAGS} ${META_TAGS}`;
 
 const cspDirectives = [
   "default-src 'self'",
   scriptSrc,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // GA4 e Pixel medem por imagem (pixel 1x1) quando o navegador bloqueia fetch.
   `img-src 'self' data: blob: https://${SUPABASE_HOST}${PLACEHOLDER_SRC} ${GOOGLE_TAGS} https://www.facebook.com`,
   `media-src 'self' https://${SUPABASE_HOST} https://commondatastorage.googleapis.com`,
@@ -114,6 +120,19 @@ const nextConfig = {
         source,
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       })),
+      // CSP própria do Swagger UI: é a ÚNICA rota que carrega script e estilo
+      // do jsdelivr. Antes essa liberação valia pro site inteiro (B10).
+      {
+        source: '/api-docs',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: cspDirectives
+              .replace("script-src 'self'", "script-src 'self' https://cdn.jsdelivr.net")
+              .replace("style-src 'self'", "style-src 'self' https://cdn.jsdelivr.net"),
+          },
+        ],
+      },
     ];
   },
   async redirects() {

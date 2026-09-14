@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createLogger } from '@/lib/logger';
 import { incrementCounter } from '@/lib/metrics/registry';
 import { apiVersionHeaders } from '@/lib/http/headers';
+import { limitCspReport } from '@/lib/ratelimit/upstash';
+import { getClientIp } from '@/lib/http/client-ip';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,6 +35,25 @@ type CspReportL3 = Array<{
     sample?: string;
   };
 }>;
+
+/** Vocabulário FECHADO de diretivas de CSP (nível 2/3), pra o label da métrica
+ *  não ser texto livre vindo do corpo da requisição. Qualquer coisa fora
+ *  daqui vira `outra` — mantém o alerta útil e a cardinalidade finita. */
+const DIRETIVAS_CONHECIDAS = new Set([
+  'base-uri', 'child-src', 'connect-src', 'default-src', 'font-src',
+  'form-action', 'frame-ancestors', 'frame-src', 'img-src', 'manifest-src',
+  'media-src', 'object-src', 'report-to', 'report-uri', 'sandbox',
+  'script-src', 'script-src-attr', 'script-src-elem', 'style-src',
+  'style-src-attr', 'style-src-elem', 'upgrade-insecure-requests',
+  'worker-src', 'unknown',
+]);
+
+function rotuloDeDiretiva(bruto: string): string {
+  // O navegador manda "script-src-elem" ou, em alguns casos, a diretiva com o
+  // valor junto ("script-src 'self'") — só o primeiro token interessa.
+  const token = String(bruto ?? '').trim().toLowerCase().split(/[\s;]/)[0];
+  return DIRETIVAS_CONHECIDAS.has(token) ? token : 'outra';
+}
 
 function normalize(payload: unknown): {
   documentUri: string;
@@ -78,6 +99,14 @@ function truncate(v: string | undefined, max = 500): string | undefined {
 }
 
 export async function POST(request: NextRequest) {
+  // Teto por IP (M5 da auditoria): é endpoint público e sem autenticação, e o
+  // corpo alimenta um contador em memória. Sem limite, um script POSTando em
+  // loop enche o registro de métricas do worker.
+  const limiteCsp = await limitCspReport(getClientIp(request.headers));
+  if (!limiteCsp.allowed) {
+    return new NextResponse(null, { status: 429, headers: apiVersionHeaders() });
+  }
+
   let raw: unknown;
   try {
     raw = await request.json();
@@ -92,8 +121,15 @@ export async function POST(request: NextRequest) {
   }
 
   // Métrica para alerta (Grafana: rate(msm_csp_violations_total[5m]) > 0.5)
-  // Label apenas com directive (baixa cardinalidade), não blockedUri (alta cardinalidade)
-  incrementCounter('msm_csp_violations_total', { directive: parsed.directive });
+  //
+  // 🔴 O LABEL PASSA POR ALLOWLIST (M5 da auditoria 13/09). Ele vinha do CORPO
+  // da requisição, que qualquer um POSTa: 100 mil relatórios com
+  // `effective-directive` aleatório faziam o mapa de contadores crescer sem
+  // teto na memória do worker até o restart, e o /api/metrics passava a
+  // devolver megabytes. Diretiva de CSP é vocabulário FECHADO — o que não
+  // estiver nele vira `outra`, e a cardinalidade fica limitada ao tamanho
+  // desta lista.
+  incrementCounter('msm_csp_violations_total', { directive: rotuloDeDiretiva(parsed.directive) });
 
   log.warn('CSP violation', {
     documentUri: truncate(parsed.documentUri),

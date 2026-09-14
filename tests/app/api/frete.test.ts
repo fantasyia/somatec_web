@@ -83,13 +83,31 @@ describe('o detalhe do ERP não vaza pro cliente', () => {
   beforeEach(() => vi.stubEnv('CRON_SECRET', 'segredo-do-cron'));
   afterEach(() => vi.unstubAllEnvs());
 
-  it('sem o Bearer, a resposta NÃO carrega o detalhe', async () => {
+  it('sem o Bearer, a resposta não carrega detalhe NEM motivo de configuração', async () => {
     cotarMock.mockResolvedValue(FALHA);
     const corpo = await (await POST(pedido(CARRINHO))).json();
     expect(corpo.detalhe).toBeUndefined();
     // nem sobra pista da mensagem interna em outro campo
     expect(JSON.stringify(corpo)).not.toMatch(/não encontrado|olist/i);
-    // mas o motivo continua vindo — é ele que o checkout usa pra degradar
+
+    // ⚠️ MUDOU EM 14/09 (B12 da auditoria). Este teste exigia
+    // `motivo === 'produto_nao_vinculado'` aqui, com o comentário "é ele que o
+    // checkout usa pra degradar" — e isso não era verdade: o único consumidor,
+    // o CheckoutNI, lê só `ok` e `opcoes` (src/components/tools/CheckoutNI.tsx).
+    // `motivo` conta o ESTADO DA CONFIGURAÇÃO do ERP (sem credencial,
+    // credencial inválida, produto não vinculado) pra qualquer um que faça um
+    // POST — diagnóstico interno, não resposta de checkout.
+    expect(corpo.motivo).toBeUndefined();
+    // O que o cliente precisa continua: `ok: false` basta pra ele seguir com
+    // frete grátis e prazo confirmado no pedido.
+    expect(corpo.ok).toBe(false);
+  });
+
+  it('com o Bearer certo, o motivo vem junto do detalhe', async () => {
+    cotarMock.mockResolvedValue(FALHA);
+    const corpo = await (
+      await POST(pedido(CARRINHO, { authorization: 'Bearer segredo-do-cron' }))
+    ).json();
     expect(corpo.motivo).toBe('produto_nao_vinculado');
   });
 

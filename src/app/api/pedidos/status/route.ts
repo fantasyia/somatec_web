@@ -5,6 +5,7 @@ import { STATUS_PEDIDO } from '@/lib/pedidos/tipos';
 import { apiVersionHeaders } from '@/lib/http/headers';
 import { trackRequest } from '@/lib/metrics/registry';
 import { createLogger } from '@/lib/logger';
+import { constantTimeEquals } from '@/lib/auth/bearer';
 
 const log = createLogger('api-pedidos-status');
 const ROUTE = '/api/pedidos/status';

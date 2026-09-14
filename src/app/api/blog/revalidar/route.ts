@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidateTag, revalidatePath } from '@/lib/cache';
 import { TAG_BLOG } from '@/lib/blog/fonte';
 import { createLogger } from '@/lib/logger';
+import { constantTimeEquals } from '@/lib/auth/bearer';
 
 const log = createLogger('blog-revalidar');
 

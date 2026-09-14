@@ -17,8 +17,25 @@ type LimitResult = { allowed: boolean; remaining: number; reset: number; mode: '
 const SKIP: LimitResult = { allowed: true, remaining: -1, reset: 0, mode: 'skipped' };
 
 // Configuração de cada limite: pontos por janela (segundos) + prefixo da chave.
+// ⚠️ BALDES SEPARADOS POR INTENÇÃO (M10 da auditoria 13/09).
+//
+// Antes, lead, pedido e lead de abandono dividiam o mesmo balde `forms`, de 5
+// por hora por IP. Uma pessoa que avança do contato (abandono = 1 ponto) e
+// fecha o pedido (= 1) já gastava 2 dos 5 — e o ICP é indústria atrás de NAT
+// corporativo, onde a planta inteira sai por um IP só: a quarta pessoa a
+// preencher o formulário levava 429 sem ter tentado nada.
+//
+// Agora cada intenção tem o seu, com o teto proporcional ao custo de cada uma:
+// o pedido dispara ERP + e-mail + cobrança, então é o mais apertado; consulta
+// de CEP/frete é barata pro usuário mas cara pro terceiro, então tem teto
+// próprio; relatório de CSP é automático do navegador e só precisa de um teto
+// que impeça flood.
 const LIMITS = {
   forms: { points: 5, windowSec: 60 * 60, prefix: 'somatec:rl:forms' },
+  pedidos: { points: 5, windowSec: 60 * 60, prefix: 'somatec:rl:pedidos' },
+  abandono: { points: 10, windowSec: 60 * 60, prefix: 'somatec:rl:abandono' },
+  consulta: { points: 30, windowSec: 60 * 60, prefix: 'somatec:rl:consulta' },
+  cspReport: { points: 60, windowSec: 60 * 60, prefix: 'somatec:rl:csp' },
   login: { points: 10, windowSec: 15 * 60, prefix: 'somatec:rl:login' },
   loginBurst: { points: 5, windowSec: 60, prefix: 'somatec:rl:login:burst' },
   loginEmail: { points: 5, windowSec: 60 * 60, prefix: 'somatec:rl:login:email' },
@@ -89,6 +106,27 @@ async function clear(name: LimitName, id: string): Promise<void> {
 
 export async function limitFormSubmit(ip: string): Promise<LimitResult> {
   return consume('forms', ip);
+}
+
+/** Fechamento de pedido — dispara ERP, e-mail e cobrança. Balde próprio. */
+export async function limitPedido(ip: string): Promise<LimitResult> {
+  return consume('pedidos', ip);
+}
+
+/** Lead de abandono: sai sozinho (pagehide), então não pode roubar o teto de
+ *  quem está de fato preenchendo o formulário. */
+export async function limitAbandono(ip: string): Promise<LimitResult> {
+  return consume('abandono', ip);
+}
+
+/** Consulta pública que bate em terceiro (CEP no ViaCEP, frete no ERP). */
+export async function limitConsultaPublica(ip: string): Promise<LimitResult> {
+  return consume('consulta', ip);
+}
+
+/** Relatório de violação de CSP — automático do navegador. */
+export async function limitCspReport(ip: string): Promise<LimitResult> {
+  return consume('cspReport', ip);
 }
 
 export async function limitAdminLogin(ip: string): Promise<LimitResult> {

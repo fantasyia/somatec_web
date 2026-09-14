@@ -1,4 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { limitConsultaPublica } from '@/lib/ratelimit/upstash';
+import { rateLimitHeaders } from '@/lib/ratelimit/headers';
+import { getClientIp } from '@/lib/http/client-ip';
 
 // =============================================================================
 // Consulta de CEP para o checkout (proxy server-side do ViaCEP).
@@ -20,6 +23,17 @@ type ViaCep = {
 };
 
 export async function GET(req: NextRequest) {
+  // Teto por IP (M6 da auditoria): é um proxy aberto pro ViaCEP. O cache de
+  // 24h por CEP evita repetir o MESMO CEP, não uma varredura pela faixa
+  // inteira — que sairia de graça pra quem faz e cara pro serviço de terceiro.
+  const limite = await limitConsultaPublica(getClientIp(req.headers));
+  if (!limite.allowed) {
+    return NextResponse.json(
+      { ok: false, message: 'Muitas consultas. Aguarde um instante.' },
+      { status: 429, headers: rateLimitHeaders(limite) },
+    );
+  }
+
   const bruto = req.nextUrl.searchParams.get('cep') ?? '';
   const cep = bruto.replace(/\D/g, '');
 

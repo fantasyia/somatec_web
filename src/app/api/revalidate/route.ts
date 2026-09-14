@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { invalidateRedirectsCache } from '@/lib/redirects/cache';
 import { revalidatePath, revalidateTag } from '@/lib/cache';
 import { validateBearer } from '@/lib/auth/bearer';
 

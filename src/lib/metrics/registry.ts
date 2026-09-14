@@ -31,7 +31,17 @@ function labelKey(labels: Labels | undefined): string {
   if (!labels || Object.keys(labels).length === 0) return '';
   return Object.entries(labels)
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([k, v]) => `${k}="${String(v).replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`)
+    // ⚠️ Ordem IMPORTA: a barra invertida vem PRIMEIRO. Escapando a aspa antes,
+    // um valor contendo `\` saía pela metade e a linha de exposição virava
+    // texto inválido — derrubando o scrape INTEIRO do /api/metrics, não só
+    // aquela métrica (M5 da auditoria 13/09).
+    .map(
+      ([k, v]) =>
+        `${k}="${String(v)
+          .replace(/\\/g, '\\\\')
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, '\\n')}"`,
+    )
     .join(',');
 }
 
