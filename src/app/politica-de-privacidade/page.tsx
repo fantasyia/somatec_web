@@ -19,7 +19,7 @@ const sections = [
   },
   {
     title: 'Dados coletados',
-    body: 'Coletamos apenas os dados fornecidos voluntariamente por você por meio dos formulários de contato: nome, e-mail, telefone, empresa, cargo e mensagem. Não coletamos dados sensíveis conforme definição da LGPD, nem realizamos rastreamento comportamental.',
+    body: 'Coletamos o que você escreve nos formulários de contato: nome, e-mail, telefone, empresa, cargo e mensagem. E, se você autorizar no banner de cookies, dados de navegação como páginas visitadas, origem do acesso e tipo de dispositivo. Não coletamos dados sensíveis conforme definição da LGPD. Com a sua autorização, medimos audiência e usamos remarketing; sem ela, não. Os detalhes de cada ferramenta estão na Política de Cookies.',
   },
   {
     title: 'Finalidade do tratamento',
@@ -31,7 +31,7 @@ const sections = [
   },
   {
     title: 'Compartilhamento de dados',
-    body: 'Não vendemos, alugamos nem compartilhamos seus dados pessoais com terceiros para fins publicitários. Os dados podem ser compartilhados com prestadores de serviço tecnológico que nos auxiliam na operação do site, sempre sob obrigação contratual de confidencialidade.',
+    body: 'Não vendemos nem alugamos seus dados pessoais, em nenhuma hipótese. Se você aceitar os cookies de medição e anúncio, Google e Meta recebem dados da sua navegação e os tratam sob as próprias políticas, o que pode incluir armazenamento fora do Brasil. Fora isso, os dados podem ser compartilhados com prestadores de serviço tecnológico que nos auxiliam na operação do site, sempre sob obrigação contratual de confidencialidade.',
   },
   {
     title: 'Retenção de dados',
@@ -39,7 +39,7 @@ const sections = [
   },
   {
     title: 'Seus direitos',
-    body: 'Nos termos da LGPD (Lei nº 13.709/2018), você tem direito a confirmar a existência de tratamento, acessar seus dados, corrigir dados incompletos ou desatualizados, solicitar anonimização ou exclusão, revogar consentimento e obter informações sobre compartilhamentos. Para exercer seus direitos, entre em contato conosco.',
+    body: 'Nos termos da LGPD (Lei nº 13.709/2018), você tem direito a confirmar a existência de tratamento, acessar seus dados, corrigir dados incompletos ou desatualizados, solicitar anonimização ou exclusão, revogar consentimento e obter informações sobre compartilhamentos. Para revogar o consentimento de cookies, use o botão "Rever minha escolha de cookies" na Política de Cookies — a mudança vale na hora. Para os demais direitos, entre em contato conosco.',
   },
   {
     title: 'Segurança',

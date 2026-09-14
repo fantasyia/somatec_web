@@ -126,3 +126,68 @@ export function aplicarConsentimento(valor: ConsentValue): void {
     // analytics nunca pode quebrar a UI
   }
 }
+
+// =============================================================================
+// REVOGAÇÃO — o caminho de volta, que não existia (14/09/2026).
+//
+// ⚖️ `gravarConsentimento` + `aplicarConsentimento` sempre existiram, mas só o
+// `CookieBanner` os chamava, e o banner só aparece pra quem NUNCA respondeu. O
+// comentário do snippet aqui em cima já admitia: "e ele não reaparece". Na
+// prática, a primeira resposta era definitiva.
+//
+// Enquanto isso, `/politica-de-privacidade` promete por escrito o direito de
+// "revogar consentimento". A LGPD pede que retirar seja tão fácil quanto dar, e
+// o único caminho era limpar o navegador na mão.
+// =============================================================================
+
+/** Evento que reabre o banner. Quem dispara é o botão em `/cookies`. */
+export const EVENTO_REVER_CONSENTIMENTO = 'somatec:rever-consentimento';
+
+/** Pede ao banner que reapareça. NÃO apaga o registro: quem abre e fecha sem
+ *  responder continua com a escolha anterior valendo. */
+export function pedirParaRever(): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(EVENTO_REVER_CONSENTIMENTO));
+}
+
+/** Cookies de medição e anúncio gravados NO NOSSO domínio — por isso o nosso
+ *  JavaScript alcança e apaga. `_ga_*` tem sufixo variável (o ID do fluxo). */
+const COOKIES_DE_TERCEIRO = [/^_ga$/, /^_ga_/, /^_fbp$/, /^_fbc$/];
+
+/**
+ * Apaga de verdade os cookies de medição/anúncio deste navegador.
+ *
+ * ⭐ Por que não basta o `consent update`: ele para de ALIMENTAR as tags, e não
+ * apaga o que o Google e a Meta já escreveram. Sem isto, a pessoa clica em
+ * "apenas essenciais" e o identificador dela fica no navegador por até 2 anos —
+ * tecnicamente inerte, e exatamente o que ela pediu pra não ter.
+ *
+ * Apaga em todos os caminhos e domínios plausíveis porque o navegador só
+ * remove quando `path` e `domain` batem com os da gravação, e o GA grava no
+ * domínio-pai com ponto na frente.
+ */
+export function apagarCookiesDeMedicao(): void {
+  if (typeof document === 'undefined') return;
+  try {
+    const host = window.location.hostname;
+    const partes = host.split('.');
+    const dominios = new Set<string>(['', host, `.${host}`]);
+    // www.somatecblocking.com.br → também somatecblocking.com.br e .com.br-pai
+    for (let i = 1; i < partes.length - 1; i++) {
+      const pai = partes.slice(i).join('.');
+      dominios.add(pai);
+      dominios.add(`.${pai}`);
+    }
+
+    for (const bruto of document.cookie.split(';')) {
+      const nome = bruto.split('=')[0]?.trim();
+      if (!nome || !COOKIES_DE_TERCEIRO.some((re) => re.test(nome))) continue;
+      for (const dominio of dominios) {
+        const escopo = dominio ? `; domain=${dominio}` : '';
+        document.cookie = `${nome}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${escopo}`;
+      }
+    }
+  } catch {
+    // Nunca pode quebrar a UI: o Consent Mode já cortou o fluxo de dados.
+  }
+}

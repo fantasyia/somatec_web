@@ -40,6 +40,13 @@ export type ItemDeArmazenamento = {
   gravadoEm: string;
 };
 
+/** Data da última revisão do TEXTO de `/cookies`.
+ *
+ *  Fica aqui, e não digitada na página, porque a versão anterior dizia "maio de
+ *  2025" enquanto descrevia práticas de 2026 — data de revisão escrita à mão em
+ *  página jurídica é a primeira coisa que envelhece. */
+export const COOKIES_ATUALIZADO_EM = '14 de setembro de 2026';
+
 export const COOKIES_DO_SITE: readonly ItemDeArmazenamento[] = [
   {
     nome: 'sb-*-auth-token',

@@ -1,12 +1,14 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Cookie } from 'lucide-react';
 
 import {
   CONSENT_VERSAO,
+  EVENTO_REVER_CONSENTIMENTO,
+  apagarCookiesDeMedicao,
   aplicarConsentimento,
   gravarConsentimento,
   lerConsentimento,
@@ -27,6 +29,9 @@ type Props = { text?: CookieBannerText };
 
 function CookieBannerImpl({ text }: Props) {
   const [visible, setVisible] = useState(false);
+  /** Guarda quem pediu pra rever, pra devolver o foco ao fechar. */
+  const quemAbriuRef = useRef<HTMLElement | null>(null);
+  const painelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -42,12 +47,44 @@ function CookieBannerImpl({ text }: Props) {
     } catch { /* localStorage indisponível (Safari private/etc.) */ }
   }, []);
 
+  // REABERTURA PELO BOTÃO DE `/cookies` (14/09/2026).
+  //
+  // Até aqui a primeira resposta era definitiva: o banner só aparece pra quem
+  // nunca respondeu, e nada mais chamava `aplicarConsentimento`. Agora o botão
+  // "Rever minha escolha" dispara este evento.
+  //
+  // ⚠️ O registro NÃO é apagado ao abrir. Quem abre e fecha sem responder
+  // continua com a escolha anterior valendo — apagar no clique transformaria
+  // "dar uma olhada" em "revogar sem querer".
+  useEffect(() => {
+    const aoPedirRevisao = () => {
+      quemAbriuRef.current = document.activeElement as HTMLElement | null;
+      setVisible(true);
+    };
+    window.addEventListener(EVENTO_REVER_CONSENTIMENTO, aoPedirRevisao);
+    return () => window.removeEventListener(EVENTO_REVER_CONSENTIMENTO, aoPedirRevisao);
+  }, []);
+
+  // Foco entra no banner quando ele aparece — ele é `role="dialog"` e sem isto
+  // quem navega por teclado não é levado até a pergunta.
+  useEffect(() => {
+    if (!visible) return;
+    painelRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+  }, [visible]);
+
   const dismiss = (value: 'accepted' | 'rejected') => {
     gravarConsentimento(value);
     // Avisa as tags NA HORA — o `wait_for_update` do Consent Mode segura a tag
     // meio segundo esperando isto, então quem aceita é medido sem recarregar.
     aplicarConsentimento(value);
+    // ⭐ Rebaixou: apaga de verdade o que Google e Meta já tinham gravado. O
+    // `consent update` para de ALIMENTAR, mas não apaga — sem isto a pessoa
+    // pede pra não ter identificador e ele fica no navegador por até 2 anos.
+    if (value === 'rejected') apagarCookiesDeMedicao();
     setVisible(false);
+    // Devolve o foco a quem abriu (o botão de `/cookies`), não ao topo.
+    quemAbriuRef.current?.focus();
+    quemAbriuRef.current = null;
     fetch('/api/lgpd/consent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -63,6 +100,7 @@ function CookieBannerImpl({ text }: Props) {
 
   return (
     <div
+      ref={painelRef}
       role="dialog"
       aria-label="Aviso de cookies"
       aria-live="polite"
