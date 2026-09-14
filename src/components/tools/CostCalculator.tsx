@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { TextField } from '@/components/forms/fields/TextField';
@@ -74,6 +74,27 @@ export function CostCalculator() {
   }, [custoHora, horasMes, queimasAno, custoEquip]);
 
   const hasResult = calc.total > 0;
+
+  // ANÚNCIO COM ESPERA (B12 da auditoria 13/09).
+  //
+  // O bloco de resultado era `role="status" aria-live="polite"` e o número
+  // recalcula a cada TECLA. Digitar "150000" fazia o leitor de tela ler o
+  // painel inteiro seis vezes, uma por dígito, atropelando o próprio campo
+  // que a pessoa estava preenchendo. Agora o painel visível é mudo e quem
+  // fala é uma linha só para leitor de tela, 900 ms depois da última tecla —
+  // tempo de a pessoa terminar o número.
+  const [anuncio, setAnuncio] = useState('');
+  useEffect(() => {
+    if (!hasResult) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- limpa o anúncio quando não há resultado
+      setAnuncio('');
+      return;
+    }
+    const t = setTimeout(() => {
+      setAnuncio(`Prejuízo anual estimado da sua operação: ${brl(calc.total)}.`);
+    }, 900);
+    return () => clearTimeout(t);
+  }, [hasResult, calc.total]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -177,13 +198,17 @@ export function CostCalculator() {
         />
       </div>
 
+      {/* A ÚNICA região viva da calculadora — ver o comentário do `anuncio`.
+          Fica sempre montada: região viva que nasce junto com o conteúdo
+          costuma não ser anunciada, porque o leitor de tela precisa já estar
+          observando o elemento quando o texto muda. */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {anuncio}
+      </div>
+
       {/* Resultado */}
       {hasResult && (
-        <div
-          className="mt-8 rounded-card-lg bg-deep_navy texture-dark p-6 text-white md:p-8"
-          role="status"
-          aria-live="polite"
-        >
+        <div className="mt-8 rounded-card-lg bg-deep_navy texture-dark p-6 text-white md:p-8">
           <div className="text-[11px] font-sans font-bold text-white/60">
             Prejuízo anual estimado da sua operação
           </div>

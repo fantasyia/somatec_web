@@ -130,3 +130,18 @@ describe('campo repetido mantém nome acessível', () => {
     expect(orcamento).toContain('labelOculto={i > 0}');
   });
 });
+
+describe('região viva da calculadora não fala a cada tecla', () => {
+  const calc = fonte('src/components/tools/CostCalculator.tsx');
+
+  it('o painel visível deixou de ser role=status', () => {
+    // Ele recalcula a cada tecla: digitar "150000" fazia o leitor de tela ler
+    // o painel inteiro seis vezes, uma por dígito.
+    expect(calc).not.toMatch(/texture-dark[\s\S]{0,120}role="status"/);
+  });
+
+  it('quem anuncia é uma linha sr-only, com espera', () => {
+    expect(calc).toContain('role="status" aria-live="polite" className="sr-only"');
+    expect(calc).toMatch(/setTimeout\([\s\S]{0,160}setAnuncio\(/);
+  });
+});
