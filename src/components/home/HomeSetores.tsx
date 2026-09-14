@@ -86,7 +86,7 @@ export function HomeSetores() {
                 </p>
                 <Link
                   href={href}
-                  className="group inline-flex w-fit items-center gap-1 font-sans text-[13px] font-semibold text-cyan transition-colors hover:text-cyan/80"
+                  className="group inline-flex w-fit items-center gap-1 font-sans text-[13px] font-semibold text-cyan-text transition-colors hover:text-cyan/80"
                 >
                   Ver proteção pra {nome.toLowerCase()}
                   <ChevronRight

@@ -61,9 +61,10 @@ export function HomeHero({ data }: Props) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [progress, setProgress] = useState(0);
   const paused = hovered || focused;
-  const resumeFromRef = useRef(0);
+  /** Quanto do slide atual já correu, em ms. Usado SÓ pelo timer de avanço —
+   *  a barra é CSS e pausa sozinha (ver F2-M8 abaixo). */
+  const decorridoRef = useRef(0);
 
   // Slide 1 carrega a TESE — título/subtítulo/CTAs seguem editáveis pelo
   // admin (home_hero); fallback = copy oficial do despacho.
@@ -141,36 +142,29 @@ export function HomeHero({ data }: Props) {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset da barra ao trocar slide
-    setProgress(0);
-    resumeFromRef.current = 0;
+    decorridoRef.current = 0;
   }, [index]);
 
   // Auto-avanço 7s + barra de progresso (retoma do ponto pausado).
   useEffect(() => {
     if (reduceMotion || paused) return;
 
-    const startProgress = resumeFromRef.current;
-    const elapsedFromProgress = (startProgress / 100) * DURATION_MS;
-    const startTime = Date.now() - elapsedFromProgress;
-
-    let rafId = 0;
-    const tick = () => {
-      const elapsed = Date.now() - startTime;
-      const pct = Math.min(100, (elapsed / DURATION_MS) * 100);
-      setProgress(pct);
-      resumeFromRef.current = pct;
-      if (pct < 100) rafId = requestAnimationFrame(tick);
-    };
-    rafId = requestAnimationFrame(tick);
-
-    const timeRemaining = Math.max(0, DURATION_MS - elapsedFromProgress);
+    // ⚠️ F2-M8 da auditoria 13/09 — A BARRA NÃO É MAIS ESTADO DO REACT.
+    //
+    // Havia aqui um requestAnimationFrame chamando `setProgress` a cada quadro:
+    // ~60 re-renders por segundo da árvore INTEIRA do hero (3 slides, texto
+    // rico, CTAs), 8 segundos por slide, em laço, na primeira dobra da home.
+    // Agora a barra é uma animação CSS (`animation-play-state` pausa e retoma
+    // sozinha, no lugar exato), e o JS aqui só cuida de QUANDO trocar de slide.
+    const inicio = Date.now() - decorridoRef.current;
+    const timeRemaining = Math.max(0, DURATION_MS - decorridoRef.current);
     const tid = setTimeout(() => {
       setIndex((i) => (i + 1) % slides.length);
     }, timeRemaining);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      // Guarda o quanto correu pra retomar do mesmo ponto ao despausar.
+      decorridoRef.current = Math.min(DURATION_MS, Date.now() - inicio);
       clearTimeout(tid);
     };
   }, [index, paused, reduceMotion, slides.length]);
@@ -371,11 +365,23 @@ export function HomeHero({ data }: Props) {
               >
                 <span className="relative block h-px w-full overflow-hidden rounded-full bg-white/20 transition-[height] duration-200 group-hover:h-0.5">
                   <span
-                    className="absolute inset-y-0 left-0 bg-gold transition-[width]"
-                    style={{
-                      width: i < index ? '100%' : i === index ? `${progress}%` : '0%',
-                      transitionDuration: i === index ? '0ms' : '300ms',
-                    }}
+                    // `key` no índice: trocar de slide REMONTA a barra ativa,
+                    // e a animação recomeça do zero sem precisar de estado.
+                    key={i === index ? `ativa-${index}` : `inativa-${i}`}
+                    className="absolute inset-y-0 left-0 bg-gold"
+                    style={
+                      i < index
+                        ? { width: '100%' }
+                        : i === index
+                          ? reduceMotion
+                            ? { width: '100%' }
+                            : {
+                                width: 0,
+                                animation: `barraHero ${DURATION_MS}ms linear forwards`,
+                                animationPlayState: paused ? 'paused' : 'running',
+                              }
+                          : { width: '0%' }
+                    }
                     aria-hidden="true"
                   />
                 </span>

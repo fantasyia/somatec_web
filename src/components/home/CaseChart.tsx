@@ -210,7 +210,10 @@ export function CaseChart() {
         </li>
       </ul>
 
-      <p className="mt-4 text-[11px] leading-relaxed text-white/45">
+      <p // text-white/45 dava 4.05:1 sobre o navy — abaixo dos 4.5:1 pra
+        // texto normal (e este está em 11px). /65 passa e a nota de rodapé
+        // continua visivelmente secundária.
+        className="mt-4 text-[11px] leading-relaxed text-white/65">
         Representação ilustrativa do comportamento registrado por dois analisadores de energia
         (10/04–02/07/2024). Supressão de 92% dos VTCD comprovada tecnicamente; prejuízos de
         ~R$120 mil/mês com paradas cessaram após a instalação.

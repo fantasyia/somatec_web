@@ -75,6 +75,29 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const painelRef = useRef<HTMLDivElement>(null);
+  const gatilhosRef = useRef<Record<string, HTMLAnchorElement | null>>({});
+  /** Marcado pelo ArrowDown: o painel ainda vai renderizar quando a tecla
+   *  acontece, então o foco no primeiro card espera o efeito abaixo. */
+  const focarPainelRef = useRef(false);
+  /** Devolver o foco ao gatilho depois do Esc REABRIA o painel, porque focar o
+   *  gatilho é justamente o gesto que abre. Medido no navegador: Esc fechava e
+   *  o menu voltava no mesmo quadro. Esta trava vale por um evento só. */
+  const ignorarFocoRef = useRef(false);
+
+  /** Foca sem que o `onFocus` do gatilho reabra o menu. */
+  const focarSemAbrir = (el: HTMLElement | null | undefined) => {
+    if (!el) return;
+    ignorarFocoRef.current = true;
+    el.focus();
+    // O evento de foco sai SÍNCRONO no `.focus()` acima; o microtask roda
+    // depois dele, então a trava nunca sobra pro próximo foco de verdade.
+    queueMicrotask(() => {
+      ignorarFocoRef.current = false;
+    });
+  };
+  const botaoMobileRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   // HOVER-INTENT.
   //
@@ -103,6 +126,29 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
     }, hoveredMenu ? 70 : 160);
   };
 
+  // TECLADO NÃO É MOUSE: o hover-intent acima existe pra filtrar cursor de
+  // passagem, e não tem equivalente no Tab — quem chega por teclado já
+  // escolheu. Abrir com os mesmos 160ms criava uma corrida: dois Tab rápidos
+  // e o painel abria DEPOIS de o foco já ter passado adiante.
+  const abrirAgora = (href: string) => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+    if (openTimer.current) {
+      clearTimeout(openTimer.current);
+      openTimer.current = null;
+    }
+    setHoveredMenu(href);
+  };
+
+  const cancelarFechamento = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
   /** Item cujo painel está aberto agora (null = fechado). */
   const itemAberto = navVisivel.find((i) => i.href === hoveredMenu && i.children?.length) ?? null;
   /** O painel é ÚNICO e fica sempre montado, pra ter animação de saída também.
@@ -114,6 +160,14 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
     if (itemAberto) setUltimoAberto(itemAberto);
   }, [itemAberto]);
   const conteudo = itemAberto ?? ultimoAberto;
+
+  // ArrowDown no gatilho leva o foco pro primeiro card do painel — só depois
+  // que ele existe no DOM (o `setHoveredMenu` da tecla ainda não renderizou).
+  useEffect(() => {
+    if (!itemAberto || !focarPainelRef.current) return;
+    focarPainelRef.current = false;
+    painelRef.current?.querySelector<HTMLAnchorElement>('a[href]')?.focus();
+  }, [itemAberto]);
 
   /** Cancela uma abertura que ainda não aconteceu (cursor só passou reto). */
   const cancelOpen = () => {
@@ -161,6 +215,61 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
     };
   }, [mobileOpen]);
 
+  // DRAWER MOBILE COMO DIÁLOGO (B12 da auditoria 13/09).
+  //
+  // A gaveta cobria a página inteira mas não era um diálogo pra ninguém: o
+  // Tab continuava correndo pelos links ATRÁS dela (invisíveis, sob o
+  // overlay), Esc não fechava, e ao fechar o foco voltava pro começo do
+  // documento em vez do botão que abriu. Quem navega por teclado ficava
+  // clicando no escuro.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const abriuCom = document.activeElement as HTMLElement | null;
+    // Cópia local: na limpeza o `.current` já pode ter mudado (o próprio React
+    // avisa). O botão do header é o mesmo nó durante toda a vida da gaveta.
+    const gatilho = botaoMobileRef.current;
+
+    const focaveis = () =>
+      Array.from(
+        drawerRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+
+    focaveis()[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMobileOpen(false);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const itens = focaveis();
+      if (itens.length === 0) return;
+      const primeiro = itens[0];
+      const ultimo = itens[itens.length - 1];
+      const atual = document.activeElement;
+      // Ciclo fechado: do último volta pro primeiro e vice-versa. Sem isto o
+      // Tab escapa pro conteúdo debaixo do overlay.
+      if (!e.shiftKey && (atual === ultimo || !drawerRef.current?.contains(atual))) {
+        e.preventDefault();
+        primeiro.focus();
+      } else if (e.shiftKey && (atual === primeiro || !drawerRef.current?.contains(atual))) {
+        e.preventDefault();
+        ultimo.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      // Devolve o foco pro gatilho. `abriuCom` cobre o caso de a gaveta ter
+      // sido aberta de outro lugar que não o botão do header.
+      (gatilho ?? abriuCom)?.focus();
+    };
+  }, [mobileOpen]);
+
   const onHome = pathname === '/';
   // Despacho #7: na home o cabeçalho é TRANSPARENTE sobreposto ao carrossel
   // full-bleed (é o que faz ele "ocupar tudo") e vira sólido ao rolar. Menus
@@ -190,7 +299,11 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
             alt="Somatec Blocking"
             width={1576}
             height={494}
-            priority
+            // `priority` só no que está VISÍVEL agora: os dois logos levavam
+            // priority e o Next pré-carregava ambos (o escuro sai com srcset
+            // até w=3840), sendo que um está sempre `hidden`. Preload no
+            // caminho crítico pra imagem que não aparece.
+            priority={!isTransparent}
             className={cn('h-9 w-auto', isTransparent && 'hidden')}
           />
           <Image
@@ -198,7 +311,7 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
             alt="Somatec Blocking"
             width={792}
             height={248}
-            priority
+            priority={isTransparent}
             className={cn('h-9 w-auto', !isTransparent && 'hidden')}
           />
         </Link>
@@ -208,6 +321,17 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
           aria-label="Navegação principal"
           className="hidden lg:flex items-center gap-8"
           onMouseLeave={scheduleCloseMenu}
+          // O painel é IRMÃO do item que o abre (é `fixed`, largura inteira),
+          // então tabular do gatilho pro primeiro card SAI da caixa do item.
+          // Com o fechamento pendurado no blur do item, o painel fechava
+          // justamente no Tab que levava o foco pra dentro dele. Quem manda é
+          // o <nav>: só fecha quando o foco sai do conjunto todo.
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+              cancelOpen();
+              setHoveredMenu(null);
+            }
+          }}
         >
           {navVisivel.map((item) => {
             const isActive =
@@ -221,28 +345,56 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
                 className="relative"
                 onMouseEnter={() => (hasChildren ? openMenu(item.href) : scheduleCloseMenu())}
                 onMouseLeave={cancelOpen}
-                onFocus={hasChildren ? () => openMenu(item.href) : undefined}
-                onBlur={
+                onFocus={
                   hasChildren
-                    ? (e) => {
-                        // Só fecha se o foco saiu do grupo (trigger + painel),
-                        // não ao tabular entre os links do submenu.
-                        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-                          scheduleCloseMenu();
-                        }
+                    ? () => {
+                        if (ignorarFocoRef.current) return;
+                        abrirAgora(item.href);
                       }
                     : undefined
                 }
                 onKeyDown={
                   hasChildren
                     ? (e) => {
-                        if (e.key === 'Escape') setHoveredMenu(null);
+                        if (e.key === 'Escape') {
+                          cancelOpen();
+                          setHoveredMenu(null);
+                          // Esc sem devolver o foco deixa o teclado na estaca
+                          // zero: o próximo Tab recomeçaria do topo do
+                          // documento em vez de seguir o nav.
+                          focarSemAbrir(gatilhosRef.current[item.href]);
+                          return;
+                        }
+                        if (e.key === 'ArrowDown') {
+                          e.preventDefault();
+                          // Painel JÁ aberto (o foco no gatilho abriu) é o caso
+                          // normal, e nele `setHoveredMenu` com o mesmo valor
+                          // não re-renderiza — então o efeito que move o foco
+                          // nunca rodava e o ArrowDown não fazia nada. Com o
+                          // painel na tela, move na hora; só quando ele ainda
+                          // não existe é que vale esperar o efeito.
+                          if (hoveredMenu === item.href) {
+                            painelRef.current
+                              ?.querySelector<HTMLAnchorElement>('a[href]')
+                              ?.focus();
+                            return;
+                          }
+                          focarPainelRef.current = true;
+                          abrirAgora(item.href);
+                        }
                       }
                     : undefined
                 }
               >
                 <Link
                   href={item.href}
+                  ref={
+                    hasChildren
+                      ? (el) => {
+                          gatilhosRef.current[item.href] = el;
+                        }
+                      : undefined
+                  }
                   data-active={isActive}
                   aria-haspopup={hasChildren ? true : undefined}
                   aria-expanded={hasChildren ? hoveredMenu === item.href : undefined}
@@ -266,7 +418,17 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
               abertura e no fechamento, e só o MIOLO troca, com um fade curto
               de opacidade pura. */}
           <div
+            ref={painelRef}
             aria-hidden={!itemAberto}
+            // Foco entrando no painel cancela um fechamento já agendado (o
+            // mouse pode ter saído do nav enquanto o Tab entrava aqui).
+            onFocus={cancelarFechamento}
+            onKeyDown={(e) => {
+              if (e.key !== 'Escape' || !itemAberto) return;
+              cancelOpen();
+              setHoveredMenu(null);
+              focarSemAbrir(gatilhosRef.current[itemAberto.href]);
+            }}
             className={cn(
               'fixed left-0 right-0 top-20 border-t border-[rgb(var(--border))] bg-[rgb(var(--bg))]/95 backdrop-blur-md shadow-premium-light dark:shadow-premium-dark',
               'transition-[opacity,transform] duration-300 ease-premium motion-reduce:transition-none',
@@ -390,9 +552,11 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
           </a>
           {/* Mobile menu trigger */}
           <button
+            ref={botaoMobileRef}
             type="button"
             aria-label="Abrir menu"
             aria-expanded={mobileOpen}
+            aria-haspopup="dialog"
             className={cn(
               'lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border hover:border-gold transition-colors',
               isTransparent
@@ -414,7 +578,13 @@ export function Header({ slugsNi = [] }: { slugsNi?: string[] } = {}) {
             onClick={() => setMobileOpen(false)}
             aria-hidden="true"
           />
-          <div className="absolute right-0 top-0 h-full w-[88%] max-w-sm bg-[rgb(var(--bg))] border-l border-[rgb(var(--border))] shadow-premium-light dark:shadow-premium-dark overflow-y-auto">
+          <div
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu de navegação"
+            className="absolute right-0 top-0 h-full w-[88%] max-w-sm bg-[rgb(var(--bg))] border-l border-[rgb(var(--border))] shadow-premium-light dark:shadow-premium-dark overflow-y-auto"
+          >
             <div className="flex h-20 items-center justify-between px-6 border-b border-[rgb(var(--border))]">
               <Image
                 src="/logo-somatec.png"

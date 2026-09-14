@@ -246,7 +246,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {post.titulo}
           </h1>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-sans text-sm text-[rgb(var(--text-muted))]">
-            <span className="inline-flex items-center rounded-full bg-cyan/10 px-2.5 py-1 text-[11px] font-semibold text-cyan">
+            <span className="inline-flex items-center rounded-full bg-cyan/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-text">
               {post.cluster}
             </span>
             <span className="inline-flex items-center gap-1.5">
@@ -269,7 +269,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           {/* Resposta rápida (featured snippet) */}
           {content?.respostaRapida && (
             <div className="mt-6 rounded-card-lg border border-cyan/30 bg-cyan/5 p-5 md:p-6">
-              <div className="mb-1.5 font-sans text-sm font-bold text-cyan">Resposta rápida</div>
+              <div className="mb-1.5 font-sans text-sm font-bold text-cyan-text">Resposta rápida</div>
               <p className="text-[15px] leading-relaxed text-[rgb(var(--text))]">
                 {content.respostaRapida}
               </p>
@@ -382,7 +382,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               </p>
               <Link
                 href={ctaNi ? ctaNi.href : '/ferramentas/custo-de-parada'}
-                className="mt-3 inline-flex items-center gap-1 font-sans text-sm font-semibold text-cyan transition-colors hover:text-cyan/80"
+                className="mt-3 inline-flex items-center gap-1 font-sans text-sm font-semibold text-cyan-text transition-colors hover:text-cyan/80"
               >
                 {ctaNi ? ctaNi.lateralLabel : 'Calcular meu prejuízo'}
                 <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />

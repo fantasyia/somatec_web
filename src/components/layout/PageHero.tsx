@@ -22,7 +22,10 @@ export function PageHero({ title, description, breadcrumbs, children }: PageHero
           <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex flex-wrap items-center gap-2 text-xs text-white/60">
               <li>
-                <Link href="/" className="hover:text-gold transition-colors">
+                {/* `py-1 -my-1`: a área de toque cresce de 17 px para 25 px e a
+                    margem negativa devolve o espaço, então nada se move na
+                    tela. O mínimo da WCAG 2.5.8 é 24 px. */}
+                <Link href="/" className="inline-block py-1 -my-1 hover:text-gold transition-colors">
                   Início
                 </Link>
               </li>
@@ -30,7 +33,10 @@ export function PageHero({ title, description, breadcrumbs, children }: PageHero
                 <li key={`${bc.label}-${i}`} className="flex items-center gap-2">
                   <ChevronRight className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
                   {bc.href ? (
-                    <Link href={bc.href} className="hover:text-gold transition-colors">
+                    <Link
+                      href={bc.href}
+                      className="inline-block py-1 -my-1 hover:text-gold transition-colors"
+                    >
                       {bc.label}
                     </Link>
                   ) : (

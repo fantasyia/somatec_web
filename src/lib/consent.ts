@@ -23,6 +23,56 @@ export const CONSENT_KEY_LEGADO = 'msm-cookie-consent';
 
 export type ConsentValue = 'accepted' | 'rejected';
 
+/** Versão do TEXTO do banner. Mudou o texto, muda aqui — e quem respondeu a
+ *  versão anterior é perguntado de novo.
+ *
+ *  B1 da auditoria 13/09: o registro era só a string `accepted`/`rejected`, sem
+ *  versão nem data. Consequências: (1) se o texto mudasse — e ele VAI mudar,
+ *  porque a página /cookies descreve outro site —, não havia como repedir o
+ *  consentimento sem trocar a chave na mão; (2) quem respondeu no template da
+ *  MSM (outro cliente, outro texto) contava como tendo consentido AQUI. */
+export const CONSENT_VERSAO = 'v1';
+
+export type ConsentRegistro = {
+  escolha: ConsentValue;
+  versao: string;
+  em: string;
+};
+
+/** Lê o registro atual. Aceita o formato ANTIGO (string pura) pra não repetir
+ *  a pergunta a quem já respondeu a ESTA versão do texto. */
+export function lerConsentimento(): ConsentRegistro | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const cru = localStorage.getItem(CONSENT_KEY);
+    if (!cru) return null;
+    if (cru === 'accepted' || cru === 'rejected') {
+      // Formato antigo: sem versão. Vale como resposta à v1, que é o texto que
+      // estava no ar quando ele foi gravado.
+      return { escolha: cru, versao: 'v1', em: '' };
+    }
+    const r = JSON.parse(cru) as Partial<ConsentRegistro>;
+    if (r.escolha !== 'accepted' && r.escolha !== 'rejected') return null;
+    return { escolha: r.escolha, versao: r.versao ?? 'v1', em: r.em ?? '' };
+  } catch {
+    return null;
+  }
+}
+
+export function gravarConsentimento(escolha: ConsentValue): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const registro: ConsentRegistro = {
+      escolha,
+      versao: CONSENT_VERSAO,
+      em: new Date().toISOString(),
+    };
+    localStorage.setItem(CONSENT_KEY, JSON.stringify(registro));
+  } catch {
+    /* storage bloqueado — a escolha vale nesta sessão, via Consent Mode */
+  }
+}
+
 /**
  * Snippet inline que roda ANTES de qualquer tag (GTM incluso) e declara o
  * estado inicial do consentimento. Precisa ser string: vai no `<Script>` do
@@ -38,7 +88,10 @@ window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 var c = null;
 try { c = localStorage.getItem('${CONSENT_KEY}') || localStorage.getItem('${CONSENT_KEY_LEGADO}'); } catch (e) {}
-var v = c === 'accepted' ? 'granted' : 'denied';
+/* Formato antigo é a string pura; o novo é JSON com escolha+versao+em. */
+var escolha = c;
+if (c && c.charAt(0) === '{') { try { escolha = (JSON.parse(c) || {}).escolha; } catch (e) { escolha = null; } }
+var v = escolha === 'accepted' ? 'granted' : 'denied';
 gtag('consent', 'default', {
   ad_storage: v,
   ad_user_data: v,

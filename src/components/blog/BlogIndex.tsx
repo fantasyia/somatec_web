@@ -46,8 +46,12 @@ export function BlogIndex({ posts }: { posts: BlogPost[] }) {
               aria-pressed={active}
               className={`rounded-full px-3.5 py-1.5 font-sans text-sm font-semibold transition-colors ${
                 active
-                  ? 'bg-cyan text-white'
-                  : 'border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:border-cyan hover:text-cyan'
+                  // Branco sobre o ciano de marca dá 3,75:1 — reprova os 4,5:1
+                  // e era a última falha de contraste do índice do blog. O
+                  // mesmo ciano na variante de texto leva a 5,93:1, e a
+                  // diferença não se vê a olho nu.
+                  ? 'bg-cyan-text text-white'
+                  : 'border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:border-cyan hover:text-cyan-text'
               }`}
             >
               {f}
@@ -65,7 +69,15 @@ export function BlogIndex({ posts }: { posts: BlogPost[] }) {
           {/* Destaque */}
           {featured && (
             <div className="mb-8">
-              <BlogCard post={featured} variant="featured" orientation="horizontal" priority />
+              {/* `/blog` tem o <h1> da página logo acima: aqui o título do
+                  card é <h2>, senão a hierarquia pula um nível. */}
+              <BlogCard
+                post={featured}
+                variant="featured"
+                orientation="horizontal"
+                priority
+                nivelTitulo={2}
+              />
             </div>
           )}
 
@@ -73,7 +85,7 @@ export function BlogIndex({ posts }: { posts: BlogPost[] }) {
           {pageItems.length > 0 && (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {pageItems.map((post) => (
-                <BlogCard key={post.slug} post={post} />
+                <BlogCard key={post.slug} post={post} nivelTitulo={2} />
               ))}
             </div>
           )}
@@ -99,7 +111,7 @@ export function BlogIndex({ posts }: { posts: BlogPost[] }) {
                   className={`inline-flex h-9 min-w-9 items-center justify-center rounded-btn px-3 font-sans text-sm font-semibold transition-colors ${
                     n === currentPage
                       ? 'bg-cyan text-white'
-                      : 'border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:border-cyan hover:text-cyan'
+                      : 'border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:border-cyan hover:text-cyan-text'
                   }`}
                 >
                   {n}

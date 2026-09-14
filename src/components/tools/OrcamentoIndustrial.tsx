@@ -394,7 +394,12 @@ export function OrcamentoIndustrial({
                   {setores.map((s, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <TextField
-                        label={i === 0 ? 'Setor / galpão' : ''}
+                        // O rótulo VISÍVEL segue só na 1ª linha (não repete na
+                        // tela), mas da 2ª em diante ele continua existindo
+                        // para o leitor de tela, numerado — antes ia vazio e o
+                        // campo ficava sem nome acessível.
+                        label={i === 0 ? 'Setor / galpão' : `Setor / galpão ${i + 1}`}
+                        labelOculto={i > 0}
                         name={`setor-${i}`}
                         placeholder="Ex.: Galpão G02 — injeção"
                         value={s}
@@ -405,7 +410,7 @@ export function OrcamentoIndustrial({
                         <button
                           type="button"
                           onClick={() => setSetores((prev) => prev.filter((_, j) => j !== i))}
-                          aria-label="Remover setor"
+                          aria-label={`Remover setor ${i + 1}`}
                           className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-btn border border-[rgb(var(--border))] text-[rgb(var(--text-muted))] transition-colors hover:border-gold hover:text-gold ${i === 0 ? 'mt-6' : ''}`}
                         >
                           <X className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
@@ -416,7 +421,7 @@ export function OrcamentoIndustrial({
                   <button
                     type="button"
                     onClick={() => setSetores((prev) => [...prev, ''])}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan hover:text-gold"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-text hover:text-gold"
                   >
                     <Plus className="h-4 w-4" strokeWidth={2} aria-hidden="true" /> Adicionar setor
                   </button>

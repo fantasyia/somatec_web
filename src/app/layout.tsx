@@ -207,6 +207,15 @@ export default async function RootLayout({
         </Script>
       </head>
       <body className="font-sans antialiased min-h-screen flex flex-col">
+        {/* SEM JAVASCRIPT, NADA DE ANIMAÇÃO DE ENTRADA.
+            O `Reveal` nasce em `opacity-0` e só sobe pra 1 quando o
+            IntersectionObserver dispara. Sem JS esse gatilho não existe: a
+            página carrega com o conteúdo presente no HTML e invisível na
+            tela, sem nada acusando. Este bloco desfaz o estado inicial
+            exatamente no caso em que ele não tem como terminar. */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important;transition:none!important}`}</style>
+        </noscript>
         {/* Skip link for keyboard navigation */}
         <a
           href="#conteudo"

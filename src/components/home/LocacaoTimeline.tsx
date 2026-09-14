@@ -84,7 +84,7 @@ export function LocacaoTimeline() {
                 <span className="relative z-10 inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-cyan bg-[rgb(var(--bg))] text-cyan">
                   <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
                 </span>
-                <span className="mt-3 font-sans text-[13px] font-bold text-cyan">
+                <span className="mt-3 font-sans text-[13px] font-bold text-cyan-text">
                   {selo}
                 </span>
                 <span className="mt-1 max-w-[150px] font-sans text-base font-semibold leading-snug text-[rgb(var(--text))]">
@@ -118,7 +118,7 @@ export function LocacaoTimeline() {
               <span className="absolute -left-[37px] inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-cyan bg-[rgb(var(--bg))] text-cyan">
                 <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               </span>
-              <div className="font-sans text-xs font-bold text-cyan">{selo}</div>
+              <div className="font-sans text-xs font-bold text-cyan-text">{selo}</div>
               <div className="font-sans text-base font-semibold text-[rgb(var(--text))]">{label}</div>
             </li>
           ))}

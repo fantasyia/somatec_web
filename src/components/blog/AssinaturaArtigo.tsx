@@ -80,7 +80,7 @@ export function AuthorBox({ assinatura }: { assinatura?: Assinatura }) {
       className="mt-12 rounded-card-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5 md:p-6"
       aria-label="Sobre quem revisou este artigo"
     >
-      <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">
+      <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-text">
         Revisão técnica
       </p>
       <div className="flex items-start gap-4">

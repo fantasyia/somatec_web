@@ -72,7 +72,7 @@ export default function PedidoPage() {
               href={whatsappHref('Olá! Fiz um pedido no site e não estou achando o número para acompanhar.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan transition-opacity hover:opacity-80"
+              className="mt-4 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan-text transition-opacity hover:opacity-80"
             >
               <MessageCircle className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               Falar no WhatsApp

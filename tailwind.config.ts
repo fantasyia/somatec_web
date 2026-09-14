@@ -30,6 +30,21 @@ const config: Config = {
         cyan: {
           DEFAULT: '#008CC8',
           soft: '#33A6D6',
+          // Variante SÓ PARA TEXTO sobre fundo claro. O ciano institucional
+          // dá 3,76:1 no branco e 3,43:1 no off-white — reprova os 4,5:1 que
+          // a WCAG pede para texto normal, e era o que derrubava a nota de
+          // acessibilidade da home, do blog e do orçamento.
+          //
+          // O tom é o mesmo ciano escurecido até passar nos TRÊS fundos claros
+          // que o site usa, não só no branco: 5,93:1 no branco, 5,41:1 no
+          // off-white e 4,84:1 no `bg-cyan/10` das tarjas (#D9EBF4). Parar no
+          // primeiro tom que passa no branco deixava a tarja do artigo em
+          // 4,43:1 — reprovada por três centésimos, o tipo de sobra que some
+          // no primeiro ajuste de fundo.
+          //
+          // A cor de MARCA segue intacta em preenchimento, borda, ícone e
+          // texto grande, que não têm esse piso.
+          text: '#006B96',
         },
         // Acento/CTA — laranja oficial do Master Block (#F39200). Mantém a
         // chave "gold" por compatibilidade com os componentes existentes.

@@ -228,7 +228,7 @@ export default function ProdutosPage() {
         <section className="container-msm py-12 md:py-16" aria-label="Master Block IoT">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
             <Reveal className="space-y-4 lg:col-span-6">
-            <span className="inline-block rounded-btn border border-cyan/40 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-cyan">
+            <span className="inline-block rounded-btn border border-cyan/40 px-3 py-1 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-text">
               Sistema IoT
             </span>
             <h2 className="font-serif text-h2-m md:text-h2-d font-semibold text-balance">

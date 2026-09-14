@@ -40,7 +40,7 @@ export async function HomeBlogTeaser() {
       <div className="mt-8 flex justify-center md:justify-start">
         <Link
           href="/blog"
-          className="group inline-flex items-center gap-1.5 rounded-btn border border-cyan px-5 py-2.5 font-sans text-sm font-semibold text-cyan transition-colors hover:bg-cyan/10"
+          className="group inline-flex items-center gap-1.5 rounded-btn border border-cyan px-5 py-2.5 font-sans text-sm font-semibold text-cyan-text transition-colors hover:bg-cyan/10"
         >
           Ver todos os artigos
           <ChevronRight

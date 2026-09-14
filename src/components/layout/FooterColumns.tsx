@@ -43,7 +43,10 @@ export function FooterColumns({
               <li key={`${col.title}-${link.label}-${link.href}`}>
                 <Link
                   href={link.href}
-                  className="text-sm text-white/70 hover:text-gold transition-colors"
+                  // Mesmo ajuste do breadcrumb: 20 px de altura de alvo é
+                  // menos que o mínimo de 24 px da WCAG 2.5.8. O par
+                  // `py-1 / -my-1` sobe pra 28 px sem mudar o espaçamento.
+                  className="inline-block py-1 -my-1 text-sm text-white/70 hover:text-gold transition-colors"
                 >
                   {link.label}
                 </Link>

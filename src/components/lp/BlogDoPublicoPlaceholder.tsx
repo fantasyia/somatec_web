@@ -94,7 +94,7 @@ export function BlogDoPublicoPlaceholder({ publico }: { publico: PublicoNI }) {
           <div className="flex flex-1 flex-col gap-2.5 p-5">
             <div className="flex flex-wrap items-center gap-2">
               <span className="placeholder-tag">Exemplo de layout</span>
-              <span className="inline-flex items-center rounded-full bg-cyan/10 px-2.5 py-1 font-sans text-[11px] font-semibold text-cyan">
+              <span className="inline-flex items-center rounded-full bg-cyan/10 px-2.5 py-1 font-sans text-[11px] font-semibold text-cyan-text">
                 {pill}
               </span>
             </div>

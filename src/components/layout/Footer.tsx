@@ -32,7 +32,11 @@ export function Footer({ columns = FOOTER_COLUMNS, socials, slugsNi = [] }: Prop
     { label: 'LinkedIn', href: linkedin, Icon: Linkedin },
     { label: 'Instagram', href: instagram, Icon: Instagram },
     { label: 'YouTube', href: youtube, Icon: Youtube },
-  ].filter((s) => s.href && s.href.length > 0);
+    // ⚠️ Só `https:` (B11 da auditoria 13/09). O valor vem de
+    // `site_settings.socials`, no banco — um `javascript:` ali viraria link
+    // executável no rodapé de TODA página. Escrever exige is_admin/service_role,
+    // mas o custo de conferir é uma linha.
+  ].filter((s) => s.href && /^https:\/\//i.test(s.href));
 
   return (
     <footer className="relative bg-[rgb(var(--navy-end))] texture-dark text-text_light mt-10 md:mt-20">

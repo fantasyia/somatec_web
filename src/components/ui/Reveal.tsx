@@ -28,6 +28,11 @@ export function Reveal({ children, delay = 0, as: Tag = 'div', className }: Prop
   return (
     <Tag
       ref={ref}
+      // Âncora do `<noscript>` do layout raiz: sem JS o `opacity-0` abaixo
+      // NUNCA sai, e a seção inteira fica invisível para sempre. É o mesmo
+      // defeito que o CountUp tinha ao servir "0%" — conteúdo real no HTML
+      // que ninguém vê porque o estado inicial é o estado de animação.
+      data-reveal=""
       style={{ transitionDelay: `${delay}ms` }}
       className={cn(
         'transition-all duration-[600ms] ease-out will-change-[opacity,transform]',

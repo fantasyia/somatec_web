@@ -327,3 +327,20 @@ main:has(> :last-child > .band-navy:last-child) + footer,
 main:has(> :last-child > .band-navy-end:last-child) + footer {
   margin-top: 0;
 }
+
+/* Barra de progresso do carrossel da home.
+ *
+ * F2-M8 da auditoria 13/09: isto era `setProgress` num requestAnimationFrame —
+ * ~60 re-renders por segundo da árvore inteira do hero, 8s por slide, em laço,
+ * na primeira dobra. Em CSS a animação roda no compositor, e
+ * `animation-play-state: paused` congela no ponto exato (é o que dá o
+ * pausar-ao-passar-o-mouse de graça). Respeita reduced-motion pelo bloco
+ * global mais abaixo, e o componente ainda pula a animação nesse caso. */
+@keyframes barraHero {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}

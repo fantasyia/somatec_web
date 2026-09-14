@@ -71,7 +71,7 @@ export function VtcdQuiz() {
             className="flex flex-col gap-2 border-b border-[rgb(var(--border))] pb-4 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
           >
             <span className="text-sm leading-relaxed md:text-[15px]">
-              <span className="mr-2 font-sans font-bold text-cyan">{i + 1}.</span>
+              <span className="mr-2 font-sans font-bold text-cyan-text">{i + 1}.</span>
               {q}
             </span>
             <span className="flex shrink-0 gap-2" role="group" aria-label={`Resposta da pergunta ${i + 1}`}>
@@ -89,7 +89,9 @@ export function VtcdQuiz() {
                       selected
                         ? val
                           ? 'border-gold bg-gold text-white'
-                          : 'border-cyan bg-cyan text-white'
+                          // Mesmo caso do chip do blog: branco sobre o ciano
+                          // de marca fica em 3,75:1.
+                          : 'border-cyan-text bg-cyan-text text-white'
                         : 'border-[rgb(var(--border))] text-[rgb(var(--text-muted))] hover:border-gold hover:text-gold'
                     }`}
                   >

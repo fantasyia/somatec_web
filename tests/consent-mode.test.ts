@@ -29,8 +29,10 @@ describe('Consent Mode — o default', () => {
         new RegExp(`${campo}:\\s*v`),
       );
     }
-    // 'v' só vira granted quando a escolha gravada for exatamente 'accepted'.
-    expect(CONSENT_DEFAULT_SNIPPET).toMatch(/c === 'accepted' \? 'granted' : 'denied'/);
+    // 'v' só vira granted quando a ESCOLHA gravada for exatamente 'accepted'.
+    // (A variável passou a ser `escolha` quando o registro virou versionado —
+    // o snippet aceita tanto a string pura antiga quanto o JSON novo.)
+    expect(CONSENT_DEFAULT_SNIPPET).toMatch(/escolha === 'accepted' \? 'granted' : 'denied'/);
     // Essencial e segurança podem: não são rastreamento.
     expect(CONSENT_DEFAULT_SNIPPET).toMatch(/functionality_storage: 'granted'/);
     expect(CONSENT_DEFAULT_SNIPPET).toMatch(/security_storage: 'granted'/);
@@ -103,10 +105,23 @@ describe('Consent Mode — o clique', () => {
     expect(banner).toContain('aplicarConsentimento(value)');
   });
 
-  it('o banner grava na chave nova e aceita a antiga na leitura', () => {
-    expect(banner).toMatch(/setItem\(CONSENT_KEY, value\)/);
-    expect(banner).toContain('CONSENT_KEY_LEGADO');
+  it('grava registro VERSIONADO e repergunta quando a versão muda', () => {
+    // ⚠️ MUDOU EM 14/09 (B1 da auditoria). Antes o banner gravava a string
+    // pura e ACEITAVA a chave legada `msm-cookie-consent` como resposta — mas
+    // aquilo era o template de OUTRO cliente, com outro texto de banner:
+    // ninguém consentiu com o texto da Somatec ali. E sem versão no registro
+    // não havia como repedir consentimento quando o texto mudasse, o que vai
+    // acontecer (a /cookies ainda descreve outro site).
+    expect(banner).toMatch(/gravarConsentimento\(value\)/);
+    expect(banner).toMatch(/versao === CONSENT_VERSAO/);
     // ⛔ Não pode voltar a gravar na chave do outro cliente.
     expect(banner).not.toMatch(/setItem\(CONSENT_KEY_LEGADO/);
+  });
+
+  it('o registro carrega escolha, versão e data', () => {
+    const consent = ler('src/lib/consent.ts');
+    expect(consent).toMatch(/escolha:\s*ConsentValue/);
+    expect(consent).toMatch(/versao: string/);
+    expect(consent).toMatch(/em: string/);
   });
 });

@@ -16,7 +16,7 @@ const CLUSTER_ICON: Record<string, LucideIcon> = {
 
 function ClusterPill({ cluster }: { cluster: string }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-cyan/10 px-2.5 py-1 font-sans text-[11px] font-semibold text-cyan">
+    <span className="inline-flex items-center rounded-full bg-cyan/10 px-2.5 py-1 font-sans text-[11px] font-semibold text-cyan-text">
       {cluster}
     </span>
   );
@@ -44,6 +44,13 @@ type BlogCardProps = {
   orientation?: 'vertical' | 'horizontal';
   /** Prioriza o carregamento da imagem (hero acima da dobra). */
   priority?: boolean;
+  /** Nível do título do card na hierarquia da PÁGINA, não do card.
+   *
+   *  Em `/blog` a lista vem logo depois do `<h1>`, então o card fixo em `<h3>`
+   *  pulava o `<h2>` — leitor de tela navega por nível, e nível pulado soa
+   *  como seção faltando. Nas outras páginas o card mora sob um `<h2>` de
+   *  seção ("Do blog", "Leia também"), e ali `<h3>` é o nível certo. */
+  nivelTitulo?: 2 | 3;
 };
 
 export function BlogCard({
@@ -51,7 +58,9 @@ export function BlogCard({
   variant = 'default',
   orientation = 'vertical',
   priority = false,
+  nivelTitulo = 3,
 }: BlogCardProps) {
+  const Titulo = (nivelTitulo === 2 ? 'h2' : 'h3') as 'h2' | 'h3';
   const featured = variant === 'featured';
   const horizontal = orientation === 'horizontal';
 
@@ -91,7 +100,7 @@ export function BlogCard({
           <ClusterPill cluster={post.cluster} />
         </div>
 
-        <h3
+        <Titulo
           className={`font-serif font-bold leading-snug text-[rgb(var(--text))] ${
             featured ? 'text-2xl md:text-[26px]' : 'text-lg'
           }`}
@@ -102,7 +111,7 @@ export function BlogCard({
           >
             {post.titulo}
           </Link>
-        </h3>
+        </Titulo>
 
         <p
           className={`text-[rgb(var(--text-muted))] ${
@@ -125,7 +134,7 @@ export function BlogCard({
         {post.ctaInterno && (
           <Link
             href={post.ctaInterno.href}
-            className={`relative z-10 inline-flex w-fit items-center gap-1.5 rounded-btn border border-cyan font-sans font-semibold text-cyan transition-colors hover:bg-cyan/10 ${
+            className={`relative z-10 inline-flex w-fit items-center gap-1.5 rounded-btn border border-cyan font-sans font-semibold text-cyan-text transition-colors hover:bg-cyan/10 ${
               featured ? 'mt-2 px-4 py-2 text-sm' : 'mt-1.5 px-3 py-1.5 text-[13px]'
             }`}
           >

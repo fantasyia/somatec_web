@@ -94,8 +94,16 @@ export function StickyCta() {
   return (
     <div
       aria-hidden={!visible}
+      // FORA DA ORDEM DE TAB ENQUANTO ESCONDIDA (B12 da auditoria 13/09).
+      //
+      // A barra nunca desmonta: ela desliza pra fora com `translate-y-full` e
+      // fica ali, fora da tela, com o CTA e o botão de fechar ainda
+      // focáveis. Em toda página o teclado caía em dois controles invisíveis
+      // no fim do Tab — e `aria-hidden` sozinho piora, porque some do leitor
+      // de tela um elemento que ainda recebe foco.
+      inert={!visible}
       className={`fixed inset-x-0 bottom-0 z-40 transition-transform duration-300 ease-premium ${
-        visible ? 'translate-y-0' : 'translate-y-full'
+        visible ? 'translate-y-0' : 'pointer-events-none translate-y-full'
       }`}
     >
       <div className="border-t border-white/10 bg-deep_navy/95 texture-dark text-white shadow-premium-dark backdrop-blur-md">
@@ -108,12 +116,17 @@ export function StickyCta() {
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Link href={oferta.href} className="btn-primary !px-4 !py-2 text-sm">
+            <Link
+              href={oferta.href}
+              tabIndex={visible ? undefined : -1}
+              className="btn-primary !px-4 !py-2 text-sm"
+            >
               {oferta.cta}
             </Link>
             <button
               type="button"
               aria-label={oferta.fecharLabel}
+              tabIndex={visible ? undefined : -1}
               onClick={() => {
                 try {
                   sessionStorage.setItem('stc-sticky-cta-dismissed', '1');

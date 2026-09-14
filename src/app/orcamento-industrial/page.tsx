@@ -98,7 +98,7 @@ export default async function OrcamentoIndustrialPage() {
         <section className="container-msm section-y" aria-label="Como funciona a locação">
           <Reveal>
             <div className="mx-auto max-w-3xl rounded-card-lg border border-cyan/30 bg-cyan/5 p-6 md:p-8">
-              <p className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">
+              <p className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-text">
                 Locação na sua planta
               </p>
               <h2 className="mt-2 font-serif text-2xl font-semibold text-[rgb(var(--text))] md:text-[1.75rem]">

@@ -160,7 +160,7 @@ export default async function PedidoDetalhePage({
             href={whatsappHref('Olá! Não estou conseguindo localizar meu pedido pelo número no site.')}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan transition-opacity hover:opacity-80"
+            className="mt-8 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan-text transition-opacity hover:opacity-80"
           >
             <MessageCircle className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             Falar no WhatsApp
@@ -237,7 +237,7 @@ export default async function PedidoDetalhePage({
               {/* ── Rastreio ────────────────────────────────────── */}
               {pedido.rastreioCodigo && (
                 <div className="mt-2 rounded-card-lg border border-cyan/30 bg-cyan/5 p-5">
-                  <p className="flex items-center gap-2 font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">
+                  <p className="flex items-center gap-2 font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-text">
                     <Truck className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                     Rastreio
                   </p>
@@ -254,7 +254,7 @@ export default async function PedidoDetalhePage({
                       href={pedido.rastreioUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan transition-opacity hover:opacity-80"
+                      className="mt-3 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan-text transition-opacity hover:opacity-80"
                     >
                       Rastrear na transportadora →
                     </a>
@@ -350,7 +350,7 @@ export default async function PedidoDetalhePage({
                   href={whatsappHref(`Olá! Quero falar sobre o pedido ${pedido.numero}.`)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-btn border border-[rgb(var(--border))] px-4 py-3 font-sans text-sm font-semibold text-[rgb(var(--text))] transition-colors hover:border-cyan hover:text-cyan"
+                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-btn border border-[rgb(var(--border))] px-4 py-3 font-sans text-sm font-semibold text-[rgb(var(--text))] transition-colors hover:border-cyan hover:text-cyan-text"
                 >
                   <MessageCircle className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                   Falar sobre este pedido

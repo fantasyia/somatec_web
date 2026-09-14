@@ -113,3 +113,34 @@ describe('loading.tsx não envolve conteúdo indexável (A7)', () => {
     ).toEqual([]);
   });
 });
+
+// =============================================================================
+// MESMA FAMÍLIA DE DEFEITO, OUTRO MECANISMO: conteúdo que existe no HTML e
+// mesmo assim ninguém vê.
+//
+// O `Reveal` nasce em `opacity-0` e só sobe pra 1 quando o IntersectionObserver
+// dispara. Sem JavaScript esse gatilho não existe — a página carrega com o
+// texto todo presente e invisível na tela, para sempre, sem nada acusando. É o
+// mesmo estrago que o `loading.tsx` fazia por outro caminho, e o mesmo que o
+// CountUp fazia servindo "0%".
+// =============================================================================
+
+describe('conteúdo animado continua visível sem JavaScript', () => {
+  const reveal = readFileSync(
+    path.join(process.cwd(), 'src', 'components', 'ui', 'Reveal.tsx'),
+    'utf8',
+  );
+  const layout = readFileSync(path.join(process.cwd(), 'src', 'app', 'layout.tsx'), 'utf8');
+
+  it('o Reveal marca os elementos que o <noscript> precisa alcançar', () => {
+    expect(reveal).toContain('data-reveal');
+    // Se o estado inicial deixar de ser opacity-0, o noscript vira enfeite —
+    // mas aí o defeito também some. O que não pode é um sem o outro.
+    expect(reveal).toContain('opacity-0');
+  });
+
+  it('o layout raiz desfaz o estado inicial quando não há JS', () => {
+    expect(layout).toContain('<noscript>');
+    expect(layout).toMatch(/\[data-reveal\]\{opacity:1!important/);
+  });
+});

@@ -821,7 +821,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       sucessoExtra={
         numeroDoPedido ? (
           <div className="rounded-card-lg border border-cyan/30 bg-cyan/5 p-5">
-            <p className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan">
+            <p className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-text">
               Número do pedido
             </p>
             <p className="mt-1.5 font-serif text-2xl font-semibold tracking-wide text-[rgb(var(--text))]">
@@ -845,7 +845,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
             )}
             <a
               href={`/pedido/${numeroDoPedido}`}
-              className="mt-4 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan transition-opacity hover:opacity-80"
+              className="mt-4 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan-text transition-opacity hover:opacity-80"
             >
               Acompanhar meu pedido →
             </a>
@@ -976,7 +976,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                 <button
                   type="button"
                   onClick={() => setNaoSei((v) => !v)}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-cyan hover:text-gold"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-text hover:text-gold"
                 >
                   <Camera className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                   {naoSei ? 'Sei os dados do meu quadro' : 'Não sei meus dados'}

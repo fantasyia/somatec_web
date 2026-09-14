@@ -5,7 +5,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Cookie } from 'lucide-react';
 
-import { CONSENT_KEY, CONSENT_KEY_LEGADO, aplicarConsentimento } from '@/lib/consent';
+import {
+  CONSENT_VERSAO,
+  aplicarConsentimento,
+  gravarConsentimento,
+  lerConsentimento,
+} from '@/lib/consent';
 
 const DEFAULT_BODY =
   'Utilizamos cookies essenciais para o funcionamento do site e, com seu consentimento, cookies analíticos para melhorar sua experiência. Saiba mais em nossa';
@@ -25,19 +30,20 @@ function CookieBannerImpl({ text }: Props) {
 
   useEffect(() => {
     try {
-      // Aceita a chave antiga (resíduo MSM) pra não perguntar de novo a quem
-      // já respondeu; a partir daqui grava só na nova.
-      const jaRespondeu =
-        localStorage.getItem(CONSENT_KEY) ?? localStorage.getItem(CONSENT_KEY_LEGADO);
+      // Pergunta de novo quando o TEXTO mudou de versão (B1 da auditoria).
+      //
+      // ⚠️ A chave legada da MSM NÃO conta mais como resposta: era outro
+      // cliente, outro texto de banner. Quem tiver só ela é perguntado aqui,
+      // agora sob o texto da Somatec.
+      const registro = lerConsentimento();
+      const respondeuEstaVersao = registro?.versao === CONSENT_VERSAO;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- decisão de visibilidade depende de localStorage (só disponível no client após mount)
-      if (!jaRespondeu) setVisible(true);
+      if (!respondeuEstaVersao) setVisible(true);
     } catch { /* localStorage indisponível (Safari private/etc.) */ }
   }, []);
 
   const dismiss = (value: 'accepted' | 'rejected') => {
-    try {
-      localStorage.setItem(CONSENT_KEY, value);
-    } catch {}
+    gravarConsentimento(value);
     // Avisa as tags NA HORA — o `wait_for_update` do Consent Mode segura a tag
     // meio segundo esperando isto, então quem aceita é medido sem recarregar.
     aplicarConsentimento(value);

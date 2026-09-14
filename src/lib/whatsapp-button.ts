@@ -89,9 +89,13 @@ export const getWhatsAppButtonConfig = unstable_cache(
 export function buildWhatsAppUrl(config: WhatsAppButtonConfig): string | null {
   if (!config.enabled) return null;
   const numero = CONTACT.whatsappDigits;
-  const params = new URLSearchParams();
-  if (config.message) params.set('text', config.message);
-  const qs = params.toString();
+  // ⚠️ `encodeURIComponent`, NÃO `URLSearchParams` (B10 da auditoria 13/09).
+  //
+  // URLSearchParams codifica espaço como `+` (regra de formulário HTML), e
+  // parte dos clientes de WhatsApp mostra o `+` literal no meio da mensagem em
+  // vez de um espaço. O `whatsappHref` em lib/constants/site.ts já usava
+  // encodeURIComponent (`%20`): eram dois codificadores pro mesmo link.
+  const qs = config.message ? `text=${encodeURIComponent(config.message)}` : '';
   return `https://wa.me/${numero}${qs ? `?${qs}` : ''}`;
 }
 
@@ -141,9 +145,8 @@ export function buildCommercialCtaHref(
   // A base do admin segue valendo onde não há frase própria (header, /contato).
   const text = (options.mensagem?.trim() || config.message.trim()).trim();
 
-  const params = new URLSearchParams();
-  if (text) params.set('text', text);
-  const qs = params.toString();
+  // Mesmo motivo do buildWhatsAppUrl acima: espaço vira %20, não `+`.
+  const qs = text ? `text=${encodeURIComponent(text)}` : '';
   return `https://wa.me/${numero}${qs ? `?${qs}` : ''}`;
 }
 

@@ -128,7 +128,7 @@ export default async function AutorPage({ params }: { params: Promise<{ slug: st
               <p className="mt-1.5 font-sans text-[rgb(var(--text-muted))]">{autor.papel}</p>
             )}
             {autor.credencial && (
-              <p className="mt-1 font-sans text-sm font-semibold text-cyan">{autor.credencial}</p>
+              <p className="mt-1 font-sans text-sm font-semibold text-cyan-text">{autor.credencial}</p>
             )}
             {autor.bio && (
               <p className="mt-4 text-[17px] leading-[1.8] text-[rgb(var(--text))]">{autor.bio}</p>

@@ -8,10 +8,17 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
   error?: string;
   hint?: string;
   required?: boolean;
+  /** Esconde o rótulo VISUALMENTE, mantendo-o para leitor de tela.
+   *
+   *  Existe por causa de lista repetida (os setores do orçamento industrial):
+   *  repetir "Setor / galpão" em cada linha polui a tela, e a saída fácil era
+   *  mandar rótulo vazio da 2ª linha em diante — o que deixa o campo SEM NOME
+   *  ACESSÍVEL, e aí o leitor de tela anuncia só "editar texto". */
+  labelOculto?: boolean;
 };
 
 export const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
-  { label, error, hint, required, className, id, ...rest },
+  { label, error, hint, required, labelOculto, className, id, ...rest },
   ref,
 ) {
   const inputId = id ?? `f-${rest.name ?? Math.random().toString(36).slice(2, 8)}`;
@@ -21,7 +28,10 @@ export const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
     <div className="space-y-1.5">
       <label
         htmlFor={inputId}
-        className="block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]"
+        className={cn(
+          'block text-xs font-sans font-semibold text-[rgb(var(--text-muted))]',
+          labelOculto && 'sr-only',
+        )}
       >
         {label}
         {required && <span className="text-gold ml-1">*</span>}
