@@ -81,9 +81,22 @@ export async function generateMetadata({
       description: post.excerpt,
       url: `/blog/${post.slug}`,
       type: 'article',
-      images: post.heroUrl ? [`${SITE.url}${post.heroUrl}`] : [...DEFAULT_OG_IMAGES],
+      images: post.heroUrl ? [urlAbsoluta(post.heroUrl)] : [...DEFAULT_OG_IMAGES],
     },
   };
+}
+
+/** Absolutiza SÓ o que é caminho relativo.
+ *
+ *  ⚠️ M14 da auditoria 13/09: o código fazia `${SITE.url}${post.heroUrl}` sem
+ *  olhar o valor. O upload do CMS devolve a URL ABSOLUTA do Storage do
+ *  Supabase, então o hero vindo do CMS virava
+ *  `https://www.somatecblocking.com.br/https://xxx.supabase.co/...` — quebrado
+ *  no card do WhatsApp/LinkedIn e no rich result. Ninguém via na tela porque o
+ *  <Image> renderiza o valor cru. Latente até hoje só porque o acervo em
+ *  produção vem do arquivo, com caminhos relativos. */
+function urlAbsoluta(u: string): string {
+  return /^https?:\/\//i.test(u) ? u : `${SITE.url}${u}`;
 }
 
 function formatDate(iso: string): string {
@@ -148,7 +161,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       '@type': 'Article',
       headline: post.titulo,
       description: post.excerpt,
-      image: post.heroUrl ? `${SITE.url}${post.heroUrl}` : SITE.ogImage,
+      image: urlAbsoluta(post.heroUrl ?? SITE.ogImage),
       datePublished: post.publicadoEm,
       dateModified: content?.atualizadoEm ?? post.publicadoEm,
       author: autorSchema,

@@ -22,6 +22,11 @@ export type BlogPost = {
   heroUrl: string | null;
   /** Data de publicação (ISO). */
   publicadoEm: string;
+  /** Última edição real (ISO), do `updated_at` do CMS. Alimenta o
+   *  `dateModified` do Article — que até 13/09 repetia o `datePublished`,
+   *  dizendo ao Google que nenhum artigo nunca foi revisado. Ausente no acervo
+   *  em arquivo, onde não há histórico de edição. */
+  atualizadoEm?: string;
   /** Marca o post destaque (card grande). */
   destaque?: boolean;
   /** CTA interno extra (dupla conversão) — renderiza no destaque e nos cards NI. */

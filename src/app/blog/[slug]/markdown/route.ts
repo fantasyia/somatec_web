@@ -81,6 +81,14 @@ export async function GET(
     headers: {
       'content-type': 'text/markdown; charset=utf-8',
       'cache-control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400',
+      // M22 da auditoria: esta rota serve o MESMO texto do artigo em text/markdown,
+      // que o Google indexa como página. Sem isto, ao virar o NOINDEX cada artigo
+      // ganharia duas URLs com o mesmo conteúdo, uma sem canônica. O noindex tira
+      // a versão markdown do índice; o canonical aponta pro artigo HTML como a
+      // versão boa (o robots.txt também dá Disallow, mas quem chega por link
+      // externo ignora o robots e obedece o header).
+      'x-robots-tag': 'noindex, follow',
+      link: `<${SITE.url}/blog/${post.slug}>; rel="canonical"`,
     },
   });
 }

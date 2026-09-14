@@ -10,7 +10,17 @@ import { SITE } from '@/lib/constants/site';
  * deixa de herdar o grupo `*` e passa a poder rastrear /api e /login.
  * É o erro clássico de quem adiciona bot de IA no robots.
  */
-const FORA_DO_INDICE = ['/api', '/login', '/cluster-mapa.html', '/mapa-visual-fluxos.html'];
+// `/blog/*/markdown` é a versão em texto do artigo (mesmo conteúdo, pro leitor
+// de IA) — indexável se não for barrada. Fora do índice junto com o resto. O
+// `*` é curinga de robots.txt que o Googlebot honra; a rota ainda manda
+// X-Robots-Tag: noindex, que é o que vale pra quem ignora o robots.
+const FORA_DO_INDICE = [
+  '/api',
+  '/login',
+  '/blog/*/markdown',
+  '/cluster-mapa.html',
+  '/mapa-visual-fluxos.html',
+];
 
 /**
  * Robôs de IA citados na referência de GEO da Somatec, listados

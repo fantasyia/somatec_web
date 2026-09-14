@@ -12,14 +12,23 @@ export const dynamic = 'force-dynamic';
 type PathRow = { route_path: string; updated_at: string };
 type RedirectRow = { to_path: string; status_code: number; updated_at: string };
 
+/**
+ * ⚠️ `lastModified` só entra quando a data é REAL.
+ *
+ * Até 13/09 o sitemap carimbava `new Date()` em 20 das 26 URLs: toda página
+ * institucional aparecia como "modificada agora" a cada requisição. O Google
+ * trata isso como ruído e passa a IGNORAR o campo no site inteiro — inclusive
+ * nos artigos, onde a data é verdadeira e útil. Sem data é melhor que com data
+ * falsa: o campo é opcional.
+ */
 function toEntry(
   url: string,
-  updated: string,
+  updated: string | null,
   opts: { priority?: number; freq?: MetadataRoute.Sitemap[0]['changeFrequency'] } = {},
 ): MetadataRoute.Sitemap[0] {
   return {
     url,
-    lastModified: new Date(updated),
+    ...(updated ? { lastModified: new Date(updated) } : {}),
     changeFrequency: opts.freq ?? 'weekly',
     priority: opts.priority ?? 0.6,
   };
@@ -29,25 +38,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE.url;
 
   const staticEntries: MetadataRoute.Sitemap = [
-    { url: `${base}/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
-    { url: `${base}/produtos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${base}/protecao-residencial`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/protecao-comercial`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/orcamento-industrial`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/a-somatec`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/a-somatec/quem-somos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${base}/a-somatec/tecnologia-e-fabricacao`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${base}/a-somatec/comprovacao-e-normas`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${base}/ferramentas/custo-de-parada`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/resultados`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/industrias/alimenticia`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/industrias/autopecas`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/industrias/metalurgia`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/industrias/textil`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/faq`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${base}/contato`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/representantes`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${base}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${base}/`, changeFrequency: 'weekly', priority: 1 },
+    { url: `${base}/produtos`, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${base}/protecao-residencial`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/protecao-comercial`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/orcamento-industrial`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/a-somatec`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/a-somatec/quem-somos`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${base}/a-somatec/tecnologia-e-fabricacao`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${base}/a-somatec/comprovacao-e-normas`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${base}/ferramentas/custo-de-parada`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/resultados`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/industrias/alimenticia`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/industrias/autopecas`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/industrias/metalurgia`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/industrias/textil`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/faq`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${base}/contato`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/representantes`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${base}/blog`, changeFrequency: 'weekly', priority: 0.8 },
   ];
 
   // ── BLOG ─────────────────────────────────────────────────────────────
@@ -64,7 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const posts = await lerPosts();
     blogEntries = posts.map((post) =>
-      toEntry(`${base}/blog/${post.slug}`, post.publicadoEm || new Date().toISOString(), {
+      toEntry(`${base}/blog/${post.slug}`, post.atualizadoEm || post.publicadoEm || null, {
         priority: 0.7,
         freq: 'monthly',
       }),
@@ -74,7 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // ajudar.
     if (posts.length > 0) {
       autorEntries = autoresComPagina().map((a) =>
-        toEntry(`${base}/autor/${a.slug}`, new Date().toISOString(), {
+        toEntry(`${base}/autor/${a.slug}`, null, {
           priority: 0.4,
           freq: 'monthly',
         }),

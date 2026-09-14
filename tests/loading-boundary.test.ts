@@ -74,3 +74,42 @@ describe('fronteira de Suspense x 404', () => {
     expect(problemas, problemas.join('\n')).toEqual([]);
   });
 });
+
+// =============================================================================
+// A7 DA AUDITORIA — loading.tsx joga o conteúdo indexável pra dentro de
+// <div hidden>.
+//
+// O `src/app/produtos/loading.tsx` fazia a /produtos servir skeleton + rodapé
+// no HTML, com o <h1>, a tabela de modelos e o JSON-LD `Product` DENTRO de um
+// <div hidden id="S:0"> (streaming do Suspense). Googlebot resolve com JS;
+// crawler de IA sem JS via a página vazia — logo a página que MAIS importa pra
+// "o que é o Master Block". A guarda de cima só pega o par loading+notFound;
+// esta pega qualquer loading.tsx envolvendo uma página que emite conteúdo
+// primário (H1 ou JSON-LD).
+// =============================================================================
+
+function paginasComConteudoIndexavel(dir: string, comLoadingAcima: boolean, out: string[] = []): string[] {
+  const loadingAqui = existe(path.join(dir, 'loading.tsx'));
+  const cobre = comLoadingAcima || loadingAqui;
+  for (const entrada of readdirSync(dir, { withFileTypes: true })) {
+    const alvo = path.join(dir, entrada.name);
+    if (entrada.isDirectory()) {
+      paginasComConteudoIndexavel(alvo, cobre, out);
+    } else if (entrada.name === 'page.tsx' && cobre) {
+      const fonte = readFileSync(alvo, 'utf8');
+      const emiteConteudo = /application\/ld\+json/.test(fonte) || /<h1[\s>]/.test(fonte);
+      if (emiteConteudo) out.push(rel(alvo));
+    }
+  }
+  return out;
+}
+
+describe('loading.tsx não envolve conteúdo indexável (A7)', () => {
+  it('nenhuma page.tsx com H1/JSON-LD está sob um loading.tsx', () => {
+    const problemas = paginasComConteudoIndexavel(APP, false);
+    expect(
+      problemas,
+      `estas páginas servem conteúdo dentro de <div hidden> por streaming:\n${problemas.join('\n')}`,
+    ).toEqual([]);
+  });
+});

@@ -89,6 +89,9 @@ function paraBlogPost(linha: LinhaCms): BlogPost {
     tempoLeitura: tempoDeLeitura(linha.content_html),
     heroUrl: linha.hero_image_url || linha.cover_image || null,
     publicadoEm: (linha.published_at || linha.updated_at || '').slice(0, 10),
+    // `updated_at` é lido desde sempre e nunca era usado: o `dateModified` do
+    // Article saía igual ao `datePublished`. Artigo revisado parecia intocado.
+    atualizadoEm: (linha.updated_at || '').slice(0, 10) || undefined,
     destaque: Boolean(linha.is_featured),
   };
 }
@@ -183,7 +186,8 @@ export async function lerConteudo(slug: string): Promise<ArticleContent | undefi
   const html = acervo.corpos.get(slug);
   if (!html) return undefined;
   const post = acervo.posts.find((p) => p.slug === slug);
-  return htmlParaArtigo(html, { atualizadoEm: post?.publicadoEm });
+  // A data de EDIÇÃO, não a de publicação — eram a mesma coisa até 13/09.
+  return htmlParaArtigo(html, { atualizadoEm: post?.atualizadoEm ?? post?.publicadoEm });
 }
 
 /** Quem assina o artigo. Vazio quando o acervo vem do arquivo — os posts
