@@ -61,14 +61,17 @@ async function getComponents(): Promise<ComponentStatus[]> {
     description: 'Páginas e conteúdo institucional acessíveis.',
   };
 
-  // Formulários: depende de Supabase (queue de retry) + MullerBot config
-  const mullerbotConfigured = Boolean(process.env.MULLERBOT_WEBHOOK_URL && process.env.MULLERBOT_API_KEY);
+  // Formulários: depende de Supabase (fila de retry) + do webhook de leads do
+  // Betinna, que é o CRM desde a troca. O sinal antigo era MULLERBOT_* (sistema
+  // legado, cujas envs nem existem no Railway) — deixava esta linha eternamente
+  // "em manutenção". Igual ao checkBetinna do /api/health.
+  const crmConfigured = Boolean(process.env.BETINNA_LEADS_URL && process.env.BETINNA_API_KEY);
   let formsStatus: ComponentStatus['status'] = 'operational';
   let formsDesc = 'Contatos são entregues normalmente.';
   if (!supabase.ok) {
     formsStatus = 'down';
     formsDesc = 'Backend de persistência indisponível.';
-  } else if (!mullerbotConfigured) {
+  } else if (!crmConfigured) {
     formsStatus = 'degraded';
     formsDesc = 'Mensagens são aceitas mas a integração comercial está em manutenção.';
   } else if (queue && queue.oldest_pending_age_seconds !== null && queue.oldest_pending_age_seconds > 1800) {

@@ -15,7 +15,15 @@ import { SITE } from '@/lib/constants/site';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
 import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getWhatsAppButtonConfig, buildWhatsAppUrl } from '@/lib/whatsapp-button';
-import { getSeoSettings, getSocials, getCertifications } from '@/lib/data/site-settings';
+import {
+  getSeoSettings,
+  getSocials,
+  getCertifications,
+  comFallback,
+  SEO_FALLBACK,
+  SOCIALS_FALLBACK,
+  CERTIFICATIONS_FALLBACK,
+} from '@/lib/data/site-settings';
 import { AttributionTracker } from '@/components/AttributionTracker';
 
 // Texto corrido — Source Sans Pro (brandbook Somatec). Var mantém o nome
@@ -55,7 +63,10 @@ function safeUrl(url: string, fallback = 'https://www.somatecblocking.com.br') {
  * pra valer na hora: POST /api/revalidate?tag=site_settings.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = await getSeoSettings();
+  // comFallback: se o banco estiver fora, usa SITE.* só nesta requisição e não
+  // deixa o unstable_cache gravar um SEO vazio (noindex) por 1h. Ver A4 da
+  // auditoria 13/09 em site-settings.ts.
+  const seo = await comFallback(getSeoSettings, SEO_FALLBACK, 'generateMetadata:seo');
 
   const title = seo.title ?? `${SITE.fullName} — ${SITE.description}`;
   const titleTemplate = seo.title_template ?? `%s · ${SITE.fullName}`;
@@ -104,25 +115,26 @@ function hasValidSupabaseConfig() {
   return url.startsWith('https://') && url.includes('.supabase.');
 }
 
+// ⚠️ Erro de banco LANÇA (não vira fallback cacheado por 1h) — igual ao
+// loadKeys de site-settings.ts (A4 da auditoria 13/09). Só o caminho "sem env"
+// e "sem linhas" retornam fallback, que são resultados legítimos e cacheáveis.
+// O comFallback no chamador entrega o fallback quando isto lança.
 const getFooterData = unstable_cache(
   async (): Promise<FooterColumnData[]> => {
     if (!hasValidSupabaseConfig()) return FOOTER_COLUMNS;
-    try {
-      const db = getSupabaseAdminClient();
-      const [{ data: cols }, { data: lnks }] = await Promise.all([
-        db.from('footer_columns').select('id, title, display_order').eq('active', true).order('display_order'),
-        db.from('footer_links').select('label, href, column_id, display_order').eq('active', true).order('display_order'),
-      ]);
-      const columns = cols as unknown as { id: string; title: string }[] | null;
-      const links = lnks as unknown as { label: string; href: string; column_id: string }[] | null;
-      if (!columns?.length) return FOOTER_COLUMNS;
-      return columns.map((col) => ({
-        title: col.title,
-        links: (links ?? []).filter((l) => l.column_id === col.id),
-      }));
-    } catch {
-      return FOOTER_COLUMNS;
-    }
+    const db = getSupabaseAdminClient();
+    const [{ data: cols, error: colsErr }, { data: lnks, error: lnksErr }] = await Promise.all([
+      db.from('footer_columns').select('id, title, display_order').eq('active', true).order('display_order'),
+      db.from('footer_links').select('label, href, column_id, display_order').eq('active', true).order('display_order'),
+    ]);
+    if (colsErr || lnksErr) throw new Error(`footer load falhou: ${(colsErr ?? lnksErr)?.message}`);
+    const columns = cols as unknown as { id: string; title: string }[] | null;
+    const links = lnks as unknown as { label: string; href: string; column_id: string }[] | null;
+    if (!columns?.length) return FOOTER_COLUMNS;
+    return columns.map((col) => ({
+      title: col.title,
+      links: (links ?? []).filter((l) => l.column_id === col.id),
+    }));
   },
   ['footer-data'],
   { revalidate: 3600, tags: ['footer'] },
@@ -131,18 +143,15 @@ const getFooterData = unstable_cache(
 const getCookieBannerText = unstable_cache(
   async (): Promise<CookieBannerText | undefined> => {
     if (!hasValidSupabaseConfig()) return undefined;
-    try {
-      const supabase = getSupabaseAdminClient();
-      const { data } = await supabase
-        .from('site_settings')
-        .select('value')
-        .eq('key', 'cookie_banner_text')
-        .maybeSingle();
-      const row = data as unknown as { value: CookieBannerText } | null;
-      return row?.value ?? undefined;
-    } catch {
-      return undefined;
-    }
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'cookie_banner_text')
+      .maybeSingle();
+    if (error) throw new Error(`cookie_banner_text load falhou: ${error.message}`);
+    const row = data as unknown as { value: CookieBannerText } | null;
+    return row?.value ?? undefined;
   },
   ['cookie-banner-text'],
   { revalidate: 3600, tags: ['site_settings'] },
@@ -153,14 +162,16 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Cada getter cacheado é envolvido em comFallback: banco fora → fallback só
+  // nesta requisição, sem gravar o vazio no cache por 1h (A4 da auditoria).
   const [cookieBannerText, footerColumns, whatsAppConfig, socials, seo, certifications, slugsNi] =
     await Promise.all([
-      getCookieBannerText(),
-      getFooterData(),
+      comFallback(getCookieBannerText, undefined, 'layout:cookieBanner'),
+      comFallback(getFooterData, FOOTER_COLUMNS, 'layout:footer'),
       getWhatsAppButtonConfig(),
-      getSocials(),
-      getSeoSettings(),
-      getCertifications(),
+      comFallback(getSocials, SOCIALS_FALLBACK, 'layout:socials'),
+      comFallback(getSeoSettings, SEO_FALLBACK, 'layout:seo'),
+      comFallback(getCertifications, CERTIFICATIONS_FALLBACK, 'layout:certifications'),
       // O menu e o rodapé escondem ferramenta industrial nas rotas NI. Eles são
       // client components e não sabem o que o CMS publicou — quem sabe é aqui.
       lerSlugsNi(),

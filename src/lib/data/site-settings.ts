@@ -64,20 +64,59 @@ function hasValidSupabaseConfig(): boolean {
  * Retorna mapa { key → value }.
  */
 async function loadKeys<T extends string>(keys: readonly T[]): Promise<Partial<Record<T, unknown>>> {
+  // Sem env de Supabase (build estático/CI): resultado vazio LEGÍTIMO, pode ser
+  // cacheado — cai nos fallbacks hardcoded e nada indica erro porque não há.
   if (!hasValidSupabaseConfig()) return {};
+  const db = getSupabaseAdminClient();
+  const { data, error } = await db
+    .from('site_settings')
+    .select('key, value')
+    .in('key', [...keys]);
+  // 🔴 ERRO DO BANCO NÃO PODE VIRAR {} CACHEADO POR 1H. Até 13/09 o `error`
+  // era descartado: um timeout do Supabase devolvia {}, o unstable_cache
+  // guardava por 3600s, e por uma hora o site inteiro saía com robots noindex
+  // (robots_index ?? false), sem GTM (gtm_id null) e com título de fallback —
+  // sem nada acusar. Lançar aqui faz o unstable_cache NÃO guardar nada; o
+  // `comFallback` do chamador entrega o fallback só nesta requisição, e a
+  // próxima tenta o banco de novo.
+  if (error) {
+    log.error('site_settings: banco indisponível ao ler chaves', { keys }, error);
+    throw new Error(`site_settings load falhou: ${error.message}`);
+  }
+  const rows = (data as unknown as { key: string; value: unknown }[] | null) ?? [];
+  return Object.fromEntries(rows.map((r) => [r.key, r.value])) as Partial<Record<T, unknown>>;
+}
+
+/**
+ * Executa um getter cacheado e, se ele LANÇAR (banco fora), devolve o fallback
+ * só desta requisição — sem deixar o unstable_cache guardar o erro. É o que
+ * separa "banco vazio" (cacheável) de "banco fora" (transitório): o vazio
+ * retorna normal e é cacheado; o erro sobe até aqui e nunca gruda por 1h.
+ */
+export async function comFallback<T>(getter: () => Promise<T>, fallback: T, nome: string): Promise<T> {
   try {
-    const db = getSupabaseAdminClient();
-    const { data } = await db
-      .from('site_settings')
-      .select('key, value')
-      .in('key', [...keys]);
-    const rows = (data as unknown as { key: string; value: unknown }[] | null) ?? [];
-    return Object.fromEntries(rows.map((r) => [r.key, r.value])) as Partial<Record<T, unknown>>;
+    return await getter();
   } catch (err) {
-    log.warn('loadKeys failed', { keys }, err);
-    return {};
+    log.error(`${nome}: usando fallback nesta requisição (não cacheado)`, undefined, err);
+    return fallback;
   }
 }
+
+/** Fallback de SEO = tudo null → generateMetadata cai nas constantes de SITE.
+ *  ⚠️ robots_index null vira `?? false` (noindex) por UMA requisição sob erro,
+ *  nunca por 1h. Antes do go-live o site já é noindex; depois, uma requisição
+ *  isolada não indexável é infinitamente melhor que uma hora inteira fora. */
+export const SEO_FALLBACK: SeoSettings = {
+  title: null, title_template: null, description: null, og_title: null,
+  og_description: null, og_image: null, twitter_handle: null,
+  google_analytics_id: null, gtm_id: null, robots_index: null, robots_follow: null,
+};
+
+export const SOCIALS_FALLBACK: Socials = {
+  linkedin: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN ?? null,
+  instagram: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM ?? null,
+  youtube: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE ?? null,
+};
 
 const SOCIALS_KEYS = ['socials'] as const;
 const SEO_KEYS = [

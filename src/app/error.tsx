@@ -2,10 +2,11 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import * as Sentry from '@sentry/nextjs';
 import { ArrowLeft, RefreshCw, MessageCircle } from 'lucide-react';
 import { ErrorScreen, BrokenGearIllustration } from '@/components/layout/ErrorScreen';
 
-export default function GlobalError({
+export default function ErrorBoundary({
   error,
   reset,
 }: {
@@ -13,7 +14,14 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[global-error]', error);
+    // 🔴 Sem isto o erro morre no console do cliente. Error boundary do App
+    // Router não dispara window.onerror nem unhandledrejection, então o SDK do
+    // Sentry só enxerga o erro se captarmos aqui (recomendação oficial do
+    // @sentry/nextjs pra error.tsx). Até 13/09 só havia console.error: um erro
+    // de render em produção (ex.: sessionStorage bloqueado numa LP) mostrava a
+    // tela 500 pro visitante e não chegava a ninguém.
+    Sentry.captureException(error);
+    console.error('[error-boundary]', error);
   }, [error]);
 
   return (
