@@ -19,6 +19,16 @@ import { limparEvento } from '@/lib/observabilidade/sentry-limpeza';
 const dsn = process.env.SENTRY_DSN;
 
 export async function register() {
+  // AGENDADOR INTERNO — ver src/lib/agendador. Fica antes do `return` do
+  // Sentry de propósito: sem SENTRY_DSN o cron continua tendo de rodar.
+  //
+  // Só no runtime Node: `register()` também roda no Edge, e lá não há timer
+  // de longa duração nem sentido em disparar tarefa de fundo.
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const { iniciarAgendador } = await import('@/lib/agendador');
+    iniciarAgendador();
+  }
+
   if (!dsn) return;
 
   Sentry.init({

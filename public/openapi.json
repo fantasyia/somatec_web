@@ -30,78 +30,51 @@
     }
   ],
   "paths": {
-    "/api/version": {
-      "get": {
+    "/api/blog/revalidar": {
+      "post": {
         "tags": [
-          "public"
+          "internal"
         ],
-        "summary": "Info do build/runtime",
-        "description": "Retorna versão da API, Next.js, Node, commit SHA, plataforma de deploy e uptime do worker. Útil para smoke test pós-deploy.",
+        "summary": "Revalidar o blog depois de publicar no CMS",
+        "description": "Segredo SÓ no cabeçalho `x-revalidate-secret`, em tempo constante. Não há GET: revalidar muda estado, e segredo em query vaza no log e no Referer.",
+        "parameters": [
+          {
+            "name": "x-revalidate-secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "JSON com build info",
+            "description": "Revalidado"
+          },
+          "401": {
+            "description": "Não autorizado",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "api_version": {
-                      "type": "string"
-                    },
-                    "next_version": {
-                      "type": "string"
-                    },
-                    "node_version": {
-                      "type": "string"
-                    },
-                    "environment": {
-                      "type": "string"
-                    },
-                    "commit_sha": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "commit_short": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "deployment": {
-                      "type": "object",
-                      "properties": {
-                        "platform": {
-                          "type": "string",
-                          "enum": [
-                            "railway",
-                            "unknown"
-                          ]
-                        },
-                        "service_name": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "region": {
-                          "type": "string",
-                          "nullable": true
-                        }
-                      }
-                    },
-                    "worker": {
-                      "type": "object",
-                      "properties": {
-                        "started_at": {
-                          "type": "string",
-                          "format": "date-time"
-                        },
-                        "uptime_seconds": {
-                          "type": "integer"
-                        }
-                      }
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "BLOG_REVALIDATE_SECRET ausente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -109,33 +82,198 @@
         }
       }
     },
-    "/api/health": {
+    "/api/cep": {
       "get": {
         "tags": [
           "public"
         ],
-        "summary": "Health check",
-        "description": "Retorna estado de cada dependência crítica (Supabase, Redis, MullerBot, queue stats).",
+        "summary": "Consultar CEP (proxy do ViaCEP)",
+        "description": "Existe porque a CSP do site bloqueia chamada do navegador pra domínio externo. Teto por IP.",
+        "parameters": [
+          {
+            "name": "cep",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Healthy ou degraded",
+            "description": "Endereço"
+          },
+          "400": {
+            "description": "CEP inválido",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
+                  "type": "object"
                 }
               }
             }
           },
-          "503": {
-            "description": "Crítico down (env ou Supabase)",
+          "429": {
+            "description": "Muitas consultas",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
+                  "type": "object"
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/cron/health-monitor": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Health monitor cron (5min)",
+        "description": "Avalia thresholds (queue dead, supabase down/lento, cron stuck) e envia webhook para HEALTH_WEBHOOK_URL se alguma condição passar. Anti-spam via Redis: cada (alert.key, hora) é alertado 1x.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Avaliação concluída",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "checked_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "evaluations": {
+                      "type": "integer"
+                    },
+                    "alerts_fired": {
+                      "type": "array"
+                    },
+                    "alerts_suppressed": {
+                      "type": "integer"
+                    },
+                    "webhook_sent": {
+                      "type": "boolean"
+                    },
+                    "webhook_error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "CRON_SECRET inválido"
+          },
+          "500": {
+            "description": "CRON_SECRET não configurado em produção"
+          }
+        }
+      }
+    },
+    "/api/cron/process-webhook-queue": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Processa fila webhook (cron)",
+        "description": "Drena até 50 itens da fila pending/failed. Em prod, sem CRON_SECRET configurado retorna 500.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Processado"
+          },
+          "401": {
+            "description": "CRON_SECRET inválido"
+          },
+          "500": {
+            "description": "CRON_SECRET não configurado em produção"
+          }
+        }
+      }
+    },
+    "/api/cron/publicar-agendados": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Publica posts agendados (cron)",
+        "description": "Publica todo post com status scheduled cujo scheduled_at ja passou, carimbando published_at com o horario AGENDADO (nao o da rodada), e derruba o cache do blog. Disparada pelo agendador interno a cada 5 minutos. Em prod, sem CRON_SECRET configurado retorna 500.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rodada concluida; devolve quantos posts foram publicados e os slugs"
+          },
+          "401": {
+            "description": "CRON_SECRET invalido"
+          },
+          "500": {
+            "description": "CRON_SECRET nao configurado em producao, ou falha ao publicar"
+          }
+        }
+      }
+    },
+    "/api/csp-report": {
+      "post": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Receptor de violações CSP",
+        "description": "Chamado pelo browser quando uma diretiva CSP é violada. Aceita formato CSP Level 2 (application/csp-report) e Level 3 (Reporting API). Loga via log.warn e incrementa contador msm_csp_violations_total{directive}. Retorna 204 silenciosamente.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/csp-report": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "csp-report": {
+                    "type": "object",
+                    "properties": {
+                      "document-uri": {
+                        "type": "string"
+                      },
+                      "violated-directive": {
+                        "type": "string"
+                      },
+                      "effective-directive": {
+                        "type": "string"
+                      },
+                      "blocked-uri": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Violação registrada (silenciosa, conforme spec)"
+          },
+          "400": {
+            "description": "JSON inválido"
           }
         }
       }
@@ -231,6 +369,81 @@
         }
       }
     },
+    "/api/frete": {
+      "post": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Cotar frete pelo ERP",
+        "description": "Teto por IP. `motivo` e `detalhe` (estado da configuração do ERP) só saem com Bearer CRON_SECRET.",
+        "responses": {
+          "200": {
+            "description": "Cotação, ou ok:false quando não há como cotar"
+          },
+          "400": {
+            "description": "Corpo inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Muitas consultas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "ERP indisponível",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Health check",
+        "description": "Retorna estado de cada dependência crítica (Supabase, Redis, MullerBot, queue stats).",
+        "responses": {
+          "200": {
+            "description": "Healthy ou degraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Crítico down (env ou Supabase)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/lgpd/consent": {
       "post": {
         "tags": [
@@ -280,186 +493,6 @@
         }
       }
     },
-    "/api/revalidate": {
-      "get": {
-        "tags": [
-          "internal"
-        ],
-        "summary": "Revalidação on-demand de ISR",
-        "parameters": [
-          {
-            "name": "path",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path a invalidar (ex: /produtos)"
-          },
-          {
-            "name": "tag",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Tag de cache a invalidar (ex: footer)"
-          }
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Revalidado"
-          },
-          "401": {
-            "description": "REVALIDATE_SECRET inválido"
-          }
-        }
-      }
-    },
-    "/api/webhooks/mullerbot": {
-      "post": {
-        "tags": [
-          "public"
-        ],
-        "summary": "Receiver de callbacks do MullerBot",
-        "description": "Recebe callbacks inbound (lead_received, lead_responded, delivery_failed, etc). Auth via HMAC-SHA256 (header X-MSM-Signature: sha256=<hex>) sobre o body raw com MULLERBOT_SIGNING_SECRET. Idempotência via payload.idempotency_key UNIQUE. Body raw é preservado para validação (servidor não re-serializa).",
-        "parameters": [
-          {
-            "name": "X-MSM-Signature",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^sha256=[a-f0-9]{64}$"
-            },
-            "description": "HMAC-SHA256 do body raw"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "event_type",
-                  "idempotency_key"
-                ],
-                "properties": {
-                  "event_type": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 40,
-                    "description": "Ex: lead_received, lead_responded, delivery_failed, lead_completed, lead_cancelled"
-                  },
-                  "idempotency_key": {
-                    "type": "string",
-                    "minLength": 8,
-                    "maxLength": 128,
-                    "pattern": "^[A-Za-z0-9_\\-:.]+$"
-                  },
-                  "timestamp": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "data": {
-                    "type": "object",
-                    "additionalProperties": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Callback aceito (inserted) ou já visto (duplicate)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "ok": {
-                      "type": "boolean"
-                    },
-                    "mode": {
-                      "type": "string",
-                      "enum": [
-                        "inserted",
-                        "duplicate"
-                      ]
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid",
-                      "description": "Apenas quando mode=inserted"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Body JSON inválido ou validação Zod falhou"
-          },
-          "401": {
-            "description": "X-MSM-Signature inválida ou ausente"
-          },
-          "500": {
-            "description": "MULLERBOT_SIGNING_SECRET não configurado, ou erro no insert"
-          }
-        }
-      }
-    },
-    "/api/csp-report": {
-      "post": {
-        "tags": [
-          "public"
-        ],
-        "summary": "Receptor de violações CSP",
-        "description": "Chamado pelo browser quando uma diretiva CSP é violada. Aceita formato CSP Level 2 (application/csp-report) e Level 3 (Reporting API). Loga via log.warn e incrementa contador msm_csp_violations_total{directive}. Retorna 204 silenciosamente.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/csp-report": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "csp-report": {
-                    "type": "object",
-                    "properties": {
-                      "document-uri": {
-                        "type": "string"
-                      },
-                      "violated-directive": {
-                        "type": "string"
-                      },
-                      "effective-directive": {
-                        "type": "string"
-                      },
-                      "blocked-uri": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "Violação registrada (silenciosa, conforme spec)"
-          },
-          "400": {
-            "description": "JSON inválido"
-          }
-        }
-      }
-    },
     "/api/metrics": {
       "get": {
         "tags": [
@@ -486,87 +519,6 @@
           },
           "401": {
             "description": "METRICS_SECRET configurado mas Bearer token inválido"
-          }
-        }
-      }
-    },
-    "/api/cron/health-monitor": {
-      "get": {
-        "tags": [
-          "internal"
-        ],
-        "summary": "Health monitor cron (5min)",
-        "description": "Avalia thresholds (queue dead, supabase down/lento, cron stuck) e envia webhook para HEALTH_WEBHOOK_URL se alguma condição passar. Anti-spam via Redis: cada (alert.key, hora) é alertado 1x.",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Avaliação concluída",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "ok": {
-                      "type": "boolean"
-                    },
-                    "checked_at": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "evaluations": {
-                      "type": "integer"
-                    },
-                    "alerts_fired": {
-                      "type": "array"
-                    },
-                    "alerts_suppressed": {
-                      "type": "integer"
-                    },
-                    "webhook_sent": {
-                      "type": "boolean"
-                    },
-                    "webhook_error": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "CRON_SECRET inválido"
-          },
-          "500": {
-            "description": "CRON_SECRET não configurado em produção"
-          }
-        }
-      }
-    },
-    "/api/cron/process-webhook-queue": {
-      "get": {
-        "tags": [
-          "internal"
-        ],
-        "summary": "Processa fila webhook (cron)",
-        "description": "Drena até 50 itens da fila pending/failed. Em prod, sem CRON_SECRET configurado retorna 500.",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Processado"
-          },
-          "401": {
-            "description": "CRON_SECRET inválido"
-          },
-          "500": {
-            "description": "CRON_SECRET não configurado em produção"
           }
         }
       }
@@ -726,87 +678,117 @@
         }
       }
     },
-    "/api/frete": {
-      "post": {
+    "/api/revalidate": {
+      "get": {
         "tags": [
-          "public"
+          "internal"
         ],
-        "summary": "Cotar frete pelo ERP",
-        "description": "Teto por IP. `motivo` e `detalhe` (estado da configuração do ERP) só saem com Bearer CRON_SECRET.",
+        "summary": "Revalidação on-demand de ISR",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path a invalidar (ex: /produtos)"
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Tag de cache a invalidar (ex: footer)"
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Cotação, ou ok:false quando não há como cotar"
+            "description": "Revalidado"
           },
-          "400": {
-            "description": "Corpo inválido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Muitas consultas",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "ERP indisponível",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
+          "401": {
+            "description": "REVALIDATE_SECRET inválido"
           }
         }
       }
     },
-    "/api/cep": {
+    "/api/version": {
       "get": {
         "tags": [
           "public"
         ],
-        "summary": "Consultar CEP (proxy do ViaCEP)",
-        "description": "Existe porque a CSP do site bloqueia chamada do navegador pra domínio externo. Teto por IP.",
-        "parameters": [
-          {
-            "name": "cep",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "summary": "Info do build/runtime",
+        "description": "Retorna versão da API, Next.js, Node, commit SHA, plataforma de deploy e uptime do worker. Útil para smoke test pós-deploy.",
         "responses": {
           "200": {
-            "description": "Endereço"
-          },
-          "400": {
-            "description": "CEP inválido",
+            "description": "JSON com build info",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Muitas consultas",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "api_version": {
+                      "type": "string"
+                    },
+                    "next_version": {
+                      "type": "string"
+                    },
+                    "node_version": {
+                      "type": "string"
+                    },
+                    "environment": {
+                      "type": "string"
+                    },
+                    "commit_sha": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "commit_short": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "deployment": {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "railway",
+                            "unknown"
+                          ]
+                        },
+                        "service_name": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "region": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    },
+                    "worker": {
+                      "type": "object",
+                      "properties": {
+                        "started_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "uptime_seconds": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
                 }
               }
             }
@@ -838,54 +820,97 @@
         }
       }
     },
-    "/api/blog/revalidar": {
+    "/api/webhooks/mullerbot": {
       "post": {
         "tags": [
-          "internal"
+          "public"
         ],
-        "summary": "Revalidar o blog depois de publicar no CMS",
-        "description": "Segredo SÓ no cabeçalho `x-revalidate-secret`, em tempo constante. Não há GET: revalidar muda estado, e segredo em query vaza no log e no Referer.",
+        "summary": "Receiver de callbacks do MullerBot",
+        "description": "Recebe callbacks inbound (lead_received, lead_responded, delivery_failed, etc). Auth via HMAC-SHA256 (header X-MSM-Signature: sha256=<hex>) sobre o body raw com MULLERBOT_SIGNING_SECRET. Idempotência via payload.idempotency_key UNIQUE. Body raw é preservado para validação (servidor não re-serializa).",
         "parameters": [
           {
-            "name": "x-revalidate-secret",
+            "name": "X-MSM-Signature",
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "slug",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "pattern": "^sha256=[a-f0-9]{64}$"
+            },
+            "description": "HMAC-SHA256 do body raw"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "event_type",
+                  "idempotency_key"
+                ],
+                "properties": {
+                  "event_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40,
+                    "description": "Ex: lead_received, lead_responded, delivery_failed, lead_completed, lead_cancelled"
+                  },
+                  "idempotency_key": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9_\\-:.]+$"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Revalidado"
+            "description": "Callback aceito (inserted) ou já visto (duplicate)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "inserted",
+                        "duplicate"
+                      ]
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "Apenas quando mode=inserted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Body JSON inválido ou validação Zod falhou"
           },
           "401": {
-            "description": "Não autorizado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
+            "description": "X-MSM-Signature inválida ou ausente"
           },
-          "503": {
-            "description": "BLOG_REVALIDATE_SECRET ausente",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
+          "500": {
+            "description": "MULLERBOT_SIGNING_SECRET não configurado, ou erro no insert"
           }
         }
       }
