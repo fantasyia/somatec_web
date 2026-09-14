@@ -3,10 +3,9 @@
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { BlogCard } from '@/components/blog/BlogCard';
-import { BLOG_CLUSTERS, type BlogPost } from '@/lib/constants/blog';
+import { type BlogPost } from '@/lib/constants/blog';
 
 const PAGE_SIZE = 6;
-const FILTERS = ['Todos', ...BLOG_CLUSTERS] as const;
 
 /**
  * Índice do blog — filtro por cluster + paginação, tudo client-side (por
@@ -15,6 +14,21 @@ const FILTERS = ['Todos', ...BLOG_CLUSTERS] as const;
 export function BlogIndex({ posts }: { posts: BlogPost[] }) {
   const [cluster, setCluster] = useState<string>('Todos');
   const [page, setPage] = useState(1);
+
+  // OS FILTROS SAEM DOS ARTIGOS QUE EXISTEM, não de uma lista fixa.
+  //
+  // `BLOG_CLUSTERS` era escrito à mão e valia enquanto o acervo vinha do
+  // arquivo. Com o blog no CMS, o tema de cada artigo é o nome do SILO — e os
+  // dois deixaram de bater: a tarja do card dizia "Custo" enquanto o chip
+  // dizia "Custo & ROI". Resultado medido em 14/09, com os 4 primeiros artigos
+  // publicados: cinco chips filtravam pra lista vazia e dois temas existentes
+  // não tinham chip nenhum. Nada quebrava, nada avisava — só não achava.
+  const filtros = useMemo(() => {
+    const encontrados = [...new Set(posts.map((p) => p.cluster).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, 'pt-BR'),
+    );
+    return ['Todos', ...encontrados];
+  }, [posts]);
 
   const filtered = useMemo(
     () => (cluster === 'Todos' ? posts : posts.filter((p) => p.cluster === cluster)),
@@ -36,7 +50,7 @@ export function BlogIndex({ posts }: { posts: BlogPost[] }) {
     <div>
       {/* Filtro por cluster */}
       <div className="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filtrar por assunto">
-        {FILTERS.map((f) => {
+        {filtros.map((f) => {
           const active = cluster === f;
           return (
             <button
