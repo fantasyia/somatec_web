@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 
 const OPENAPI_PATH = join(process.cwd(), 'public', 'openapi.json');
 const LIGHTHOUSE_PATH = join(process.cwd(), 'lighthouserc.json');
@@ -79,5 +79,55 @@ describe('public/openapi.json', () => {
     expect(required).toContain('email');
     expect(required).toContain('whatsapp');
     expect(required).toContain('lgpd_consent');
+  });
+});
+
+// =============================================================================
+// B7 DA AUDITORIA 13/09 — O CONTRATO PUBLICADO DESCREVIA OUTRO SITE.
+//
+// O `public/openapi.json` é servido publicamente e renderizado em `/api-docs`.
+// Ele documentava `/api/admin/audit-stats`, `/api/admin/audit-trail` e
+// `/api/cron/audit-archive` — rotas que NÃO existem (o /admin saiu em 25/08) —
+// e omitia `/api/pedidos`, `/api/pedidos/status`, `/api/webhooks/asaas`,
+// `/api/frete`, `/api/cep` e `/api/blog/revalidar`, que existem e três delas
+// mexem com dinheiro.
+//
+// A guarda compara com o SISTEMA DE ARQUIVOS: rota nova sem documentação
+// reprova, e documentação de rota morta também. Lista escrita à mão é uma
+// varredura que decide de antemão o que não vai encontrar.
+// =============================================================================
+
+function rotasReais(dir: string, base = '/api', out: string[] = []): string[] {
+  for (const nome of readdirSync(dir)) {
+    const caminho = join(dir, nome);
+    if (statSync(caminho).isDirectory()) {
+      rotasReais(caminho, `${base}/${nome}`, out);
+    } else if (nome === 'route.ts') {
+      out.push(base);
+    }
+  }
+  return out;
+}
+
+describe('openapi.json bate com as rotas que existem', () => {
+  const reais = rotasReais(resolve(process.cwd(), 'src/app/api')).sort();
+  const doc = JSON.parse(readFileSync(OPENAPI_PATH, 'utf8')) as { paths?: Record<string, unknown> };
+  const documentadas = Object.keys(doc.paths ?? {}).sort();
+
+  it('a varredura acha rotas (não passa por estar vazia)', () => {
+    expect(reais.length).toBeGreaterThan(10);
+  });
+
+  it('nenhuma rota real fica sem documentação', () => {
+    const faltando = reais.filter((r) => !documentadas.includes(r));
+    expect(faltando, `sem entrada no openapi.json: ${faltando.join(', ')}`).toEqual([]);
+  });
+
+  it('nenhuma rota documentada deixou de existir', () => {
+    const fantasmas = documentadas.filter((d) => !reais.includes(d));
+    expect(
+      fantasmas,
+      `documentadas mas inexistentes no código: ${fantasmas.join(', ')}`,
+    ).toEqual([]);
   });
 });

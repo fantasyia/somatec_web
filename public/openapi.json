@@ -4,20 +4,37 @@
     "title": "MSM Alimentos — API pública",
     "version": "1.2.0",
     "description": "Endpoints públicos do site institucional MSM. Para integradores (MullerBot, monitoramento, automações). Responses incluem header `X-API-Version` (`1.2`). CORS aberto em endpoints públicos (`*`); endpoints com auth Bearer não devem ser chamados de browser sem origin allowlist explícita.",
-    "contact": { "name": "MSM Alimentos", "email": "comercial@msm.com.br" }
+    "contact": {
+      "name": "MSM Alimentos",
+      "email": "comercial@msm.com.br"
+    }
   },
   "servers": [
-    { "url": "https://site-msm-production.up.railway.app", "description": "Produção (temporário Railway)" },
-    { "url": "http://localhost:3000", "description": "Local dev" }
+    {
+      "url": "https://site-msm-production.up.railway.app",
+      "description": "Produção (temporário Railway)"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local dev"
+    }
   ],
   "tags": [
-    { "name": "public", "description": "Endpoints acessíveis sem auth" },
-    { "name": "internal", "description": "Endpoints auth via secret/admin" }
+    {
+      "name": "public",
+      "description": "Endpoints acessíveis sem auth"
+    },
+    {
+      "name": "internal",
+      "description": "Endpoints auth via secret/admin"
+    }
   ],
   "paths": {
     "/api/version": {
       "get": {
-        "tags": ["public"],
+        "tags": [
+          "public"
+        ],
         "summary": "Info do build/runtime",
         "description": "Retorna versão da API, Next.js, Node, commit SHA, plataforma de deploy e uptime do worker. Útil para smoke test pós-deploy.",
         "responses": {
@@ -28,28 +45,62 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "api_version": { "type": "string" },
-                    "next_version": { "type": "string" },
-                    "node_version": { "type": "string" },
-                    "environment": { "type": "string" },
-                    "commit_sha": { "type": "string", "nullable": true },
-                    "commit_short": { "type": "string", "nullable": true },
+                    "api_version": {
+                      "type": "string"
+                    },
+                    "next_version": {
+                      "type": "string"
+                    },
+                    "node_version": {
+                      "type": "string"
+                    },
+                    "environment": {
+                      "type": "string"
+                    },
+                    "commit_sha": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "commit_short": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "deployment": {
                       "type": "object",
                       "properties": {
-                        "platform": { "type": "string", "enum": ["railway", "unknown"] },
-                        "service_name": { "type": "string", "nullable": true },
-                        "region": { "type": "string", "nullable": true }
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "railway",
+                            "unknown"
+                          ]
+                        },
+                        "service_name": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "region": {
+                          "type": "string",
+                          "nullable": true
+                        }
                       }
                     },
                     "worker": {
                       "type": "object",
                       "properties": {
-                        "started_at": { "type": "string", "format": "date-time" },
-                        "uptime_seconds": { "type": "integer" }
+                        "started_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "uptime_seconds": {
+                          "type": "integer"
+                        }
                       }
                     },
-                    "timestamp": { "type": "string", "format": "date-time" }
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
                   }
                 }
               }
@@ -58,43 +109,11 @@
         }
       }
     },
-    "/api/admin/audit-stats": {
-      "get": {
-        "tags": ["internal"],
-        "summary": "Agregações de admin_activity_log",
-        "description": "Retorna estatísticas agregadas (top actions/tables/users + série diária) do audit log. Diferente do /audit-trail que retorna linhas brutas. Útil para dashboard.",
-        "parameters": [
-          { "name": "from", "in": "query", "schema": { "type": "string", "format": "date-time" } },
-          { "name": "to", "in": "query", "schema": { "type": "string", "format": "date-time" } },
-          { "name": "top", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10 } }
-        ],
-        "responses": {
-          "200": {
-            "description": "Agregações",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "ok": { "type": "boolean" },
-                    "total": { "type": "integer" },
-                    "by_action": { "type": "array" },
-                    "by_table": { "type": "array" },
-                    "by_user": { "type": "array" },
-                    "per_day": { "type": "array" }
-                  }
-                }
-              }
-            }
-          },
-          "400": { "description": "Query inválida" },
-          "401": { "description": "Não autenticado como admin" }
-        }
-      }
-    },
     "/api/health": {
       "get": {
-        "tags": ["public"],
+        "tags": [
+          "public"
+        ],
         "summary": "Health check",
         "description": "Retorna estado de cada dependência crítica (Supabase, Redis, MullerBot, queue stats).",
         "responses": {
@@ -102,7 +121,9 @@
             "description": "Healthy ou degraded",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
               }
             }
           },
@@ -110,7 +131,9 @@
             "description": "Crítico down (env ou Supabase)",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
               }
             }
           }
@@ -119,7 +142,9 @@
     },
     "/api/forms/submit": {
       "post": {
-        "tags": ["public"],
+        "tags": [
+          "public"
+        ],
         "summary": "Submeter formulário de contato",
         "description": "Pipeline: honeypot → Turnstile → rate limit → Zod → MullerBot. Sempre responde 200 mesmo se MullerBot falhar (entra em retry queue).",
         "parameters": [
@@ -127,7 +152,12 @@
             "name": "Idempotency-Key",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9_\\-:.]+$" },
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_\\-:.]+$"
+            },
             "description": "Chave opcional para deduplicar retries. Cache 24h."
           }
         ],
@@ -135,7 +165,9 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/FormSubmitInput" }
+              "schema": {
+                "$ref": "#/components/schemas/FormSubmitInput"
+              }
             }
           }
         },
@@ -144,37 +176,66 @@
             "description": "Sucesso (ou honeypot disparado silenciosamente)",
             "headers": {
               "X-Idempotent-Replay": {
-                "schema": { "type": "string", "enum": ["true"] },
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "true"
+                  ]
+                },
                 "description": "Presente apenas quando a resposta veio do cache de idempotency"
               }
             },
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/SuccessResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
               }
             }
           },
           "400": {
             "description": "Validação falhou (Zod, Turnstile, JSON, ou Idempotency-Key inválida)",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
             }
           },
           "429": {
             "description": "Rate limit excedido",
             "headers": {
-              "Retry-After": { "schema": { "type": "integer" }, "description": "Segundos até reset" },
-              "X-RateLimit-Remaining": { "schema": { "type": "integer" } },
-              "X-RateLimit-Reset": { "schema": { "type": "integer" }, "description": "Unix timestamp" }
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Segundos até reset"
+              },
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Unix timestamp"
+              }
             }
           },
-          "500": { "description": "Falha ao enfileirar (Supabase down)" }
+          "500": {
+            "description": "Falha ao enfileirar (Supabase down)"
+          }
         }
       }
     },
     "/api/lgpd/consent": {
       "post": {
-        "tags": ["public"],
+        "tags": [
+          "public"
+        ],
         "summary": "Registrar consentimento LGPD",
         "description": "Envia hash sha256 + version do texto LGPD ao MullerBot (fire-and-forget). Não armazena PII.",
         "parameters": [
@@ -182,7 +243,12 @@
             "name": "Idempotency-Key",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9_\\-:.]+$" }
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_\\-:.]+$"
+            }
           }
         ],
         "requestBody": {
@@ -191,79 +257,73 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["accepted"],
+                "required": [
+                  "accepted"
+                ],
                 "properties": {
-                  "accepted": { "type": "boolean", "description": "true = aceitou cookies, false = recusou" }
+                  "accepted": {
+                    "type": "boolean",
+                    "description": "true = aceitou cookies, false = recusou"
+                  }
                 }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Consentimento registrado" },
-          "400": { "description": "Body inválido" }
+          "200": {
+            "description": "Consentimento registrado"
+          },
+          "400": {
+            "description": "Body inválido"
+          }
         }
       }
     },
     "/api/revalidate": {
       "get": {
-        "tags": ["internal"],
+        "tags": [
+          "internal"
+        ],
         "summary": "Revalidação on-demand de ISR",
         "parameters": [
-          { "name": "path", "in": "query", "schema": { "type": "string" }, "description": "Path a invalidar (ex: /produtos)" },
-          { "name": "tag", "in": "query", "schema": { "type": "string" }, "description": "Tag de cache a invalidar (ex: footer)" }
+          {
+            "name": "path",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path a invalidar (ex: /produtos)"
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Tag de cache a invalidar (ex: footer)"
+          }
         ],
-        "security": [{ "BearerAuth": [] }],
-        "responses": {
-          "200": { "description": "Revalidado" },
-          "401": { "description": "REVALIDATE_SECRET inválido" }
-        }
-      }
-    },
-    "/api/admin/audit-trail": {
-      "get": {
-        "tags": ["internal"],
-        "summary": "Export filtrado de admin_activity_log",
-        "description": "Retorna registros de auditoria com filtros (date range, user, action, table). Auth via session cookie + admin_profiles (não Bearer). Suporta paginação (limit/offset, max 1000) e formatos JSON ou CSV (RFC 4180).",
-        "parameters": [
-          { "name": "from", "in": "query", "schema": { "type": "string", "format": "date-time" } },
-          { "name": "to", "in": "query", "schema": { "type": "string", "format": "date-time" } },
-          { "name": "user_email", "in": "query", "schema": { "type": "string", "format": "email" } },
-          { "name": "user_id", "in": "query", "schema": { "type": "string", "format": "uuid" } },
-          { "name": "action", "in": "query", "schema": { "type": "string", "maxLength": 40 } },
-          { "name": "table_name", "in": "query", "schema": { "type": "string", "maxLength": 40 } },
-          { "name": "record_id", "in": "query", "schema": { "type": "string", "format": "uuid" } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 100 } },
-          { "name": "offset", "in": "query", "schema": { "type": "integer", "minimum": 0, "default": 0 } },
-          { "name": "format", "in": "query", "schema": { "type": "string", "enum": ["json", "csv"], "default": "json" } }
+        "security": [
+          {
+            "BearerAuth": []
+          }
         ],
         "responses": {
           "200": {
-            "description": "Registros (JSON ou CSV)",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "ok": { "type": "boolean" },
-                    "rows": { "type": "array" },
-                    "count": { "type": "integer", "description": "Total matching antes da paginação" },
-                    "has_more": { "type": "boolean" },
-                    "query": { "type": "object" }
-                  }
-                }
-              },
-              "text/csv": { "schema": { "type": "string" } }
-            }
+            "description": "Revalidado"
           },
-          "400": { "description": "Filtros inválidos (validação Zod)" },
-          "401": { "description": "Não autenticado como admin" }
+          "401": {
+            "description": "REVALIDATE_SECRET inválido"
+          }
         }
       }
     },
     "/api/webhooks/mullerbot": {
       "post": {
-        "tags": ["public"],
+        "tags": [
+          "public"
+        ],
         "summary": "Receiver de callbacks do MullerBot",
         "description": "Recebe callbacks inbound (lead_received, lead_responded, delivery_failed, etc). Auth via HMAC-SHA256 (header X-MSM-Signature: sha256=<hex>) sobre o body raw com MULLERBOT_SIGNING_SECRET. Idempotência via payload.idempotency_key UNIQUE. Body raw é preservado para validação (servidor não re-serializa).",
         "parameters": [
@@ -271,7 +331,10 @@
             "name": "X-MSM-Signature",
             "in": "header",
             "required": true,
-            "schema": { "type": "string", "pattern": "^sha256=[a-f0-9]{64}$" },
+            "schema": {
+              "type": "string",
+              "pattern": "^sha256=[a-f0-9]{64}$"
+            },
             "description": "HMAC-SHA256 do body raw"
           }
         ],
@@ -281,12 +344,31 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["event_type", "idempotency_key"],
+                "required": [
+                  "event_type",
+                  "idempotency_key"
+                ],
                 "properties": {
-                  "event_type": { "type": "string", "minLength": 1, "maxLength": 40, "description": "Ex: lead_received, lead_responded, delivery_failed, lead_completed, lead_cancelled" },
-                  "idempotency_key": { "type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9_\\-:.]+$" },
-                  "timestamp": { "type": "string", "format": "date-time" },
-                  "data": { "type": "object", "additionalProperties": true }
+                  "event_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40,
+                    "description": "Ex: lead_received, lead_responded, delivery_failed, lead_completed, lead_cancelled"
+                  },
+                  "idempotency_key": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 128,
+                    "pattern": "^[A-Za-z0-9_\\-:.]+$"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
                 }
               }
             }
@@ -300,23 +382,43 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "ok": { "type": "boolean" },
-                    "mode": { "type": "string", "enum": ["inserted", "duplicate"] },
-                    "id": { "type": "string", "format": "uuid", "description": "Apenas quando mode=inserted" }
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "inserted",
+                        "duplicate"
+                      ]
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "Apenas quando mode=inserted"
+                    }
                   }
                 }
               }
             }
           },
-          "400": { "description": "Body JSON inválido ou validação Zod falhou" },
-          "401": { "description": "X-MSM-Signature inválida ou ausente" },
-          "500": { "description": "MULLERBOT_SIGNING_SECRET não configurado, ou erro no insert" }
+          "400": {
+            "description": "Body JSON inválido ou validação Zod falhou"
+          },
+          "401": {
+            "description": "X-MSM-Signature inválida ou ausente"
+          },
+          "500": {
+            "description": "MULLERBOT_SIGNING_SECRET não configurado, ou erro no insert"
+          }
         }
       }
     },
     "/api/csp-report": {
       "post": {
-        "tags": ["public"],
+        "tags": [
+          "public"
+        ],
         "summary": "Receptor de violações CSP",
         "description": "Chamado pelo browser quando uma diretiva CSP é violada. Aceita formato CSP Level 2 (application/csp-report) e Level 3 (Reporting API). Loga via log.warn e incrementa contador msm_csp_violations_total{directive}. Retorna 204 silenciosamente.",
         "requestBody": {
@@ -329,10 +431,18 @@
                   "csp-report": {
                     "type": "object",
                     "properties": {
-                      "document-uri": { "type": "string" },
-                      "violated-directive": { "type": "string" },
-                      "effective-directive": { "type": "string" },
-                      "blocked-uri": { "type": "string" }
+                      "document-uri": {
+                        "type": "string"
+                      },
+                      "violated-directive": {
+                        "type": "string"
+                      },
+                      "effective-directive": {
+                        "type": "string"
+                      },
+                      "blocked-uri": {
+                        "type": "string"
+                      }
                     }
                   }
                 }
@@ -341,76 +451,57 @@
           }
         },
         "responses": {
-          "204": { "description": "Violação registrada (silenciosa, conforme spec)" },
-          "400": { "description": "JSON inválido" }
+          "204": {
+            "description": "Violação registrada (silenciosa, conforme spec)"
+          },
+          "400": {
+            "description": "JSON inválido"
+          }
         }
       }
     },
     "/api/metrics": {
       "get": {
-        "tags": ["internal"],
+        "tags": [
+          "internal"
+        ],
         "summary": "Métricas Prometheus",
         "description": "Retorna métricas no formato Prometheus text exposition (version 0.0.4). Inclui gauges (queue depth, uptime, build info), counters (HTTP requests por rota/status) e histograms (operation_duration_ms). Auth opcional via METRICS_SECRET.",
-        "security": [{ "BearerAuth": [] }],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Métricas em text/plain",
             "content": {
               "text/plain": {
-                "schema": { "type": "string" },
+                "schema": {
+                  "type": "string"
+                },
                 "example": "# HELP msm_queue_pending Mensagens em pending na webhook_retry_queue.\n# TYPE msm_queue_pending gauge\nmsm_queue_pending 0\nmsm_queue_failed 1\nmsm_queue_dead 0\n"
               }
             }
           },
-          "401": { "description": "METRICS_SECRET configurado mas Bearer token inválido" }
-        }
-      }
-    },
-    "/api/cron/audit-archive": {
-      "get": {
-        "tags": ["internal"],
-        "summary": "Archive admin_activity_log antigo (daily)",
-        "description": "Apaga registros > AUDIT_RETENTION_DAYS (default 90). Batch máximo 1000 por execução para evitar timeouts. Suporta dry-run via ?dry-run=true.",
-        "security": [{ "BearerAuth": [] }],
-        "parameters": [
-          {
-            "name": "dry-run",
-            "in": "query",
-            "required": false,
-            "schema": { "type": "boolean" },
-            "description": "Se true, conta quantos seriam apagados sem deletar"
+          "401": {
+            "description": "METRICS_SECRET configurado mas Bearer token inválido"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Archive concluído",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "ok": { "type": "boolean" },
-                    "cutoff_date": { "type": "string", "format": "date-time" },
-                    "retention_days": { "type": "integer" },
-                    "deleted_count": { "type": "integer" },
-                    "remaining_count": { "type": "integer", "nullable": true },
-                    "duration_ms": { "type": "integer" }
-                  }
-                }
-              }
-            }
-          },
-          "401": { "description": "CRON_SECRET inválido" },
-          "500": { "description": "CRON_SECRET não configurado em produção" }
         }
       }
     },
     "/api/cron/health-monitor": {
       "get": {
-        "tags": ["internal"],
+        "tags": [
+          "internal"
+        ],
         "summary": "Health monitor cron (5min)",
         "description": "Avalia thresholds (queue dead, supabase down/lento, cron stuck) e envia webhook para HEALTH_WEBHOOK_URL se alguma condição passar. Anti-spam via Redis: cada (alert.key, hora) é alertado 1x.",
-        "security": [{ "BearerAuth": [] }],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Avaliação concluída",
@@ -419,33 +510,383 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "ok": { "type": "boolean" },
-                    "checked_at": { "type": "string", "format": "date-time" },
-                    "evaluations": { "type": "integer" },
-                    "alerts_fired": { "type": "array" },
-                    "alerts_suppressed": { "type": "integer" },
-                    "webhook_sent": { "type": "boolean" },
-                    "webhook_error": { "type": "string" }
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "checked_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "evaluations": {
+                      "type": "integer"
+                    },
+                    "alerts_fired": {
+                      "type": "array"
+                    },
+                    "alerts_suppressed": {
+                      "type": "integer"
+                    },
+                    "webhook_sent": {
+                      "type": "boolean"
+                    },
+                    "webhook_error": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "401": { "description": "CRON_SECRET inválido" },
-          "500": { "description": "CRON_SECRET não configurado em produção" }
+          "401": {
+            "description": "CRON_SECRET inválido"
+          },
+          "500": {
+            "description": "CRON_SECRET não configurado em produção"
+          }
         }
       }
     },
     "/api/cron/process-webhook-queue": {
       "get": {
-        "tags": ["internal"],
+        "tags": [
+          "internal"
+        ],
         "summary": "Processa fila webhook (cron)",
         "description": "Drena até 50 itens da fila pending/failed. Em prod, sem CRON_SECRET configurado retorna 500.",
-        "security": [{ "BearerAuth": [] }],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
-          "200": { "description": "Processado" },
-          "401": { "description": "CRON_SECRET inválido" },
-          "500": { "description": "CRON_SECRET não configurado em produção" }
+          "200": {
+            "description": "Processado"
+          },
+          "401": {
+            "description": "CRON_SECRET inválido"
+          },
+          "500": {
+            "description": "CRON_SECRET não configurado em produção"
+          }
+        }
+      }
+    },
+    "/api/pedidos": {
+      "post": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Registrar pedido e devolver o número",
+        "description": "Rate limit (balde próprio) → Idempotency-Key → Zod (CPF/CNPJ validado) → honeypot → Turnstile → preço recalculado no servidor → criar pedido → Betinna/ERP, e-mail, lead e cobrança. Preço e frete do CORPO valem como intenção: quem decide é o catálogo.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Deduplica retry do MESMO envio — sem ela, um retry de rede cria segundo pedido e segunda cobrança."
+          },
+          {
+            "name": "x-pedido-teste",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Segredo da operação. Libera o SKU fictício TESTE-NF (R$ 10) e só ele."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pedido criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Corpo inválido, captcha reprovado ou Idempotency-Key malformada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Divergência de preço — a página estava velha",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Corpo grande demais",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Item fora do catálogo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit por IP, ou 10 pedidos/h no mesmo e-mail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Falha ao registrar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pedidos/status": {
+      "post": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Mover o pedido na régua (ERP → site)",
+        "description": "Segredo em `x-pedidos-secret`, comparado em tempo constante aqui e reconferido por SHA-256 no banco.",
+        "parameters": [
+          {
+            "name": "x-pedidos-secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status atualizado"
+          },
+          "401": {
+            "description": "Segredo errado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Rota não configurada ou falha transitória",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/frete": {
+      "post": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Cotar frete pelo ERP",
+        "description": "Teto por IP. `motivo` e `detalhe` (estado da configuração do ERP) só saem com Bearer CRON_SECRET.",
+        "responses": {
+          "200": {
+            "description": "Cotação, ou ok:false quando não há como cotar"
+          },
+          "400": {
+            "description": "Corpo inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Muitas consultas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "ERP indisponível",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cep": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Consultar CEP (proxy do ViaCEP)",
+        "description": "Existe porque a CSP do site bloqueia chamada do navegador pra domínio externo. Teto por IP.",
+        "parameters": [
+          {
+            "name": "cep",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Endereço"
+          },
+          "400": {
+            "description": "CEP inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Muitas consultas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/webhooks/asaas": {
+      "post": {
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Confirmação de pagamento do Asaas",
+        "description": "Token comparado em tempo constante; recusa tudo sem ASAAS_WEBHOOK_TOKEN. Idempotente por cobrança+situação — CONFIRMED e RECEIVED do mesmo cartão colapsam num aviso só.",
+        "responses": {
+          "200": {
+            "description": "Evento registrado ou repetido"
+          },
+          "401": {
+            "description": "Token inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/blog/revalidar": {
+      "post": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Revalidar o blog depois de publicar no CMS",
+        "description": "Segredo SÓ no cabeçalho `x-revalidate-secret`, em tempo constante. Não há GET: revalidar muda estado, e segredo em query vaza no log e no Referer.",
+        "parameters": [
+          {
+            "name": "x-revalidate-secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "slug",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Revalidado"
+          },
+          "401": {
+            "description": "Não autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "BLOG_REVALIDATE_SECRET ausente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -461,30 +902,67 @@
     "schemas": {
       "HealthResponse": {
         "type": "object",
-        "required": ["status", "timestamp", "checks"],
+        "required": [
+          "status",
+          "timestamp",
+          "checks"
+        ],
         "properties": {
-          "status": { "type": "string", "enum": ["ok", "degraded", "down"] },
-          "total_ms": { "type": "integer" },
-          "timestamp": { "type": "string", "format": "date-time" },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded",
+              "down"
+            ]
+          },
+          "total_ms": {
+            "type": "integer"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
           "checks": {
             "type": "object",
             "properties": {
-              "env": { "$ref": "#/components/schemas/Check" },
-              "supabase": { "$ref": "#/components/schemas/Check" },
-              "redis": { "$ref": "#/components/schemas/Check" },
-              "mullerbot": { "$ref": "#/components/schemas/Check" },
-              "queue": { "$ref": "#/components/schemas/Check" },
-              "sentry": { "$ref": "#/components/schemas/Check" }
+              "env": {
+                "$ref": "#/components/schemas/Check"
+              },
+              "supabase": {
+                "$ref": "#/components/schemas/Check"
+              },
+              "redis": {
+                "$ref": "#/components/schemas/Check"
+              },
+              "mullerbot": {
+                "$ref": "#/components/schemas/Check"
+              },
+              "queue": {
+                "$ref": "#/components/schemas/Check"
+              },
+              "sentry": {
+                "$ref": "#/components/schemas/Check"
+              }
             }
           },
           "queue_stats": {
             "type": "object",
             "nullable": true,
             "properties": {
-              "pending": { "type": "integer" },
-              "failed": { "type": "integer" },
-              "dead": { "type": "integer" },
-              "oldest_pending_age_seconds": { "type": "integer", "nullable": true }
+              "pending": {
+                "type": "integer"
+              },
+              "failed": {
+                "type": "integer"
+              },
+              "dead": {
+                "type": "integer"
+              },
+              "oldest_pending_age_seconds": {
+                "type": "integer",
+                "nullable": true
+              }
             }
           }
         }
@@ -492,41 +970,136 @@
       "Check": {
         "type": "object",
         "properties": {
-          "status": { "type": "string", "enum": ["ok", "degraded", "down", "skipped"] },
-          "latency_ms": { "type": "integer" },
-          "message": { "type": "string" }
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded",
+              "down",
+              "skipped"
+            ]
+          },
+          "latency_ms": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
         }
       },
       "FormSubmitInput": {
         "type": "object",
-        "required": ["form_type", "interest_type", "name", "email", "whatsapp", "lgpd_consent"],
+        "required": [
+          "form_type",
+          "interest_type",
+          "name",
+          "email",
+          "whatsapp",
+          "lgpd_consent"
+        ],
         "properties": {
           "form_type": {
             "type": "string",
-            "enum": ["representante", "food_service", "b2b", "terceirizacao", "envase", "contato_geral"]
+            "enum": [
+              "representante",
+              "food_service",
+              "b2b",
+              "terceirizacao",
+              "envase",
+              "contato_geral"
+            ]
           },
           "interest_type": {
             "type": "string",
-            "enum": ["food_service", "b2b", "terceirizacao", "envase", "marcas_proprias", "distribuicao", "representante"]
+            "enum": [
+              "food_service",
+              "b2b",
+              "terceirizacao",
+              "envase",
+              "marcas_proprias",
+              "distribuicao",
+              "representante"
+            ]
           },
-          "name": { "type": "string", "minLength": 2, "maxLength": 120 },
-          "email": { "type": "string", "format": "email", "maxLength": 120 },
-          "whatsapp": { "type": "string", "description": "Aceita formato BR com ou sem máscara; normalizado para +55..." },
-          "lgpd_consent": { "type": "boolean", "enum": [true], "description": "Obrigatório true" },
-          "message": { "type": "string", "maxLength": 2000 },
-          "source_page": { "type": "string", "maxLength": 200, "default": "/contato" },
-          "company": { "type": "string", "maxLength": 160 },
-          "city": { "type": "string", "maxLength": 80 },
-          "state": { "type": "string", "maxLength": 2, "description": "UF (será uppercased)" },
-          "segment": { "type": "string", "maxLength": 160 },
-          "estimated_volume": { "type": "string", "maxLength": 160 },
-          "operation_type": { "type": "string", "maxLength": 160 },
-          "product_interest": { "type": "string", "maxLength": 160 },
-          "product_type": { "type": "string", "maxLength": 160 },
-          "packaging_type": { "type": "string", "maxLength": 160 },
-          "region": { "type": "string", "maxLength": 120 },
-          "experience": { "type": "string", "maxLength": 500 },
-          "captcha_token": { "type": "string", "description": "Token Cloudflare Turnstile" },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 120
+          },
+          "whatsapp": {
+            "type": "string",
+            "description": "Aceita formato BR com ou sem máscara; normalizado para +55..."
+          },
+          "lgpd_consent": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Obrigatório true"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "source_page": {
+            "type": "string",
+            "maxLength": 200,
+            "default": "/contato"
+          },
+          "company": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "state": {
+            "type": "string",
+            "maxLength": 2,
+            "description": "UF (será uppercased)"
+          },
+          "segment": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "estimated_volume": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "operation_type": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "product_interest": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "product_type": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "packaging_type": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "region": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "experience": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "captcha_token": {
+            "type": "string",
+            "description": "Token Cloudflare Turnstile"
+          },
           "website": {
             "type": "string",
             "maxLength": 0,
@@ -536,19 +1109,39 @@
       },
       "SuccessResponse": {
         "type": "object",
-        "required": ["ok"],
+        "required": [
+          "ok"
+        ],
         "properties": {
-          "ok": { "type": "boolean", "enum": [true] },
-          "message": { "type": "string" }
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
         }
       },
       "ErrorResponse": {
         "type": "object",
-        "required": ["ok"],
+        "required": [
+          "ok"
+        ],
         "properties": {
-          "ok": { "type": "boolean", "enum": [false] },
-          "message": { "type": "string" },
-          "error": { "type": "string" }
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
         }
       }
     }

@@ -13,18 +13,44 @@ import { FormStatus, type FormStatusKind } from './fields/FormStatus';
 import { BR_STATES } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
+import { validarContato, temErro } from '@/lib/forms/validar-contato';
 import { novoEventId, rastrearLead } from '@/lib/analytics/eventos';
 
 export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePage?: string }) {
   const [status, setStatus] = useState<FormStatusKind>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState('');
+  /** Erro POR CAMPO (B3 da auditoria 13/09).
+   *
+   *  Este formulário só tinha o `FormStatus` genérico no rodapé: o servidor
+   *  recusava "WhatsApp inválido" e a pessoa via uma frase solta embaixo do
+   *  botão, sem saber QUAL campo corrigir — e sem `aria-invalid`, então leitor
+   *  de tela não anunciava nada. O ContactForm já fazia assim. */
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus('submitting');
     setMessage(null);
     const fd = new FormData(e.currentTarget);
+
+    // Validação no cliente com as MESMAS regras do servidor, pro erro aparecer
+    // NO CAMPO em vez de virar uma frase genérica depois da ida e volta.
+    const erros = validarContato({
+      nome: String(fd.get('name') ?? ''),
+      email: String(fd.get('email') ?? ''),
+      whatsapp: String(fd.get('whatsapp') ?? ''),
+      // `publico` não existe neste formulário (recrutamento, não venda) —
+      // preenchido só pra satisfazer o validador compartilhado.
+      publico: 'representante',
+      lgpdAceito: fd.get('lgpd_consent') === 'on',
+    });
+    if (temErro(erros)) {
+      setErrors(erros as Record<string, string>);
+      setStatus('idle');
+      return;
+    }
+    setErrors({});
 
     // Mesmo id no navegador e no servidor — dedupe do CAPI.
     const eventId = novoEventId();
@@ -92,7 +118,7 @@ export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePa
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <TextField label="Nome completo" name="name" autoComplete="name" required maxLength={120} />
+        <TextField label="Nome completo" name="name" autoComplete="name" required maxLength={120} error={errors.nome} />
         <TextField
           label="E-mail"
           name="email"
@@ -100,6 +126,7 @@ export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePa
           autoComplete="email"
           required
           maxLength={120}
+          error={errors.email}
         />
       </div>
 
@@ -110,6 +137,7 @@ export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePa
         autoComplete="tel"
         required
         placeholder="(11) 99999-9999"
+        error={errors.whatsapp}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -153,6 +181,7 @@ export function RepresentanteForm({ sourcePage = '/representantes' }: { sourcePa
       <CheckboxField
         name="lgpd_consent"
         required
+        error={errors.lgpd_consent}
         label={
           <>
             {LGPD_PUBLIC_DEFAULT.text}{' '}

@@ -10,6 +10,7 @@ import { constantTimeEquals } from '@/lib/auth/bearer';
 import { verifyTurnstile } from '@/lib/turnstile/verify';
 import { checkIdempotency, storeResponse, isValidIdempotencyKey } from '@/lib/idempotency';
 import { apiVersionHeaders } from '@/lib/http/headers';
+import { lerJsonLimitado } from '@/lib/http/corpo-limitado';
 import { trackRequest } from '@/lib/metrics/registry';
 import { createLogger } from '@/lib/logger';
 import { enviarEmail } from '@/lib/email/enviar';
@@ -158,13 +159,17 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  let corpo: unknown;
-  try {
-    corpo = await req.json();
-  } catch {
-    trackRequest(ROUTE, 400);
-    return NextResponse.json({ ok: false, message: 'Corpo inválido.' }, { status: 400 });
+  // Teto de tamanho (B9): `endereco` é `z.record(..., z.unknown())` e vai pro
+  // jsonb e pro ERP. Sem limite, um POST de dezenas de MB era aceito e gravado.
+  const lido = await lerJsonLimitado(req);
+  if (!lido.ok) {
+    trackRequest(ROUTE, lido.motivo === 'grande_demais' ? 413 : 400);
+    return NextResponse.json(
+      { ok: false, message: lido.motivo === 'grande_demais' ? 'Corpo grande demais.' : 'Corpo inválido.' },
+      { status: lido.motivo === 'grande_demais' ? 413 : 400, headers: apiVersionHeaders() },
+    );
   }
+  const corpo: unknown = lido.valor;
 
   const parsed = schema.safeParse(corpo);
   if (!parsed.success) {

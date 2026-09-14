@@ -115,21 +115,57 @@ export type QueueRow = {
   max_attempts: number;
 };
 
+/** Quanto tempo uma linha fica "minha" depois de reivindicada. Maior que o
+ *  orçamento do job (45s) com folga: se o processo morrer no meio, a linha
+ *  volta a vencer sozinha em vez de ficar presa. */
+const LEASE_MS = 5 * 60 * 1000;
+
+/**
+ * Pega as linhas vencidas e as RESERVA antes de devolver.
+ *
+ * B8 da auditoria 13/09: só havia o SELECT. Dois ticks concorrentes (o cron
+ * agendado e um disparo manual, por exemplo) liam as MESMAS linhas e mandavam
+ * as duas — e lead não é idempotente do lado do Betinna, então virava lead
+ * duplicado. Pedido escapava por ter UNIQUE no `numeroSite`; lead, não.
+ *
+ * A reserva é um UPDATE condicional: empurra o `next_attempt_at` pra frente
+ * SÓ nas linhas que ainda estão vencidas. O Postgres avalia esse WHERE com a
+ * linha travada, então de dois ticks concorrentes só um consegue atualizar
+ * cada linha — e o `.select()` devolve exatamente as que foram reivindicadas
+ * por ESTA chamada. Quem perdeu a corrida recebe a lista sem elas.
+ */
 export async function fetchDuePending(limit: number): Promise<QueueRow[]> {
   const supabase = getSupabaseAdminClient();
-  const { data, error } = await supabase
+  const agora = new Date().toISOString();
+  const { data: candidatas, error } = await supabase
     .from('webhook_retry_queue')
-    .select('id, idempotency_key, destination, payload, attempts, max_attempts')
+    .select('id')
     .in('status', ['pending', 'failed'])
-    .lte('next_attempt_at', new Date().toISOString())
+    .lte('next_attempt_at', agora)
     .order('next_attempt_at', { ascending: true })
     .limit(limit);
   if (error) {
     log.warn('fetchDuePending error', undefined, error);
     return [];
   }
+  const ids = (candidatas ?? []).map((r) => (r as unknown as { id: string }).id);
+  if (ids.length === 0) return [];
+
+  const { data: reivindicadas, error: erroClaim } = await supabase
+    .from('webhook_retry_queue')
+    .update({ next_attempt_at: new Date(Date.now() + LEASE_MS).toISOString() })
+    .in('id', ids)
+    // ⚠️ Re-checa a condição DENTRO do update: é isto que torna a reserva
+    // atômica. Sem esta linha, o update venceria sempre e os dois ticks
+    // processariam tudo.
+    .lte('next_attempt_at', agora)
+    .select('id, idempotency_key, destination, payload, attempts, max_attempts');
+  if (erroClaim) {
+    log.warn('fetchDuePending claim error', undefined, erroClaim);
+    return [];
+  }
   // Cast: jsonb payload é validado no envio
-  return (data ?? []) as unknown as QueueRow[];
+  return (reivindicadas ?? []) as unknown as QueueRow[];
 }
 
 // ===== Painel de saúde (Fase 5) =====

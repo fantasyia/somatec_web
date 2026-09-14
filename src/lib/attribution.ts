@@ -28,7 +28,15 @@ export type Attribution = { primeiro: AttributionTouch; ultimo: AttributionTouch
 
 const COOKIE_NAME = 'stc_attrib';
 const MAX_AGE_SECONDS = 90 * 24 * 60 * 60; // 90 dias
-const MAX_LEN = 512; // cap defensivo por valor (o backend sanitiza de verdade)
+// ⚠️ B1 da auditoria 13/09 — o cookie inteiro tem que caber em 4 KB.
+//
+// Eram 512 por valor, com 9 campos × 2 toques. Em JSON + encodeURIComponent
+// (onde acento e aspas viram %XX, inflando ~3×) isso passava dos 4096 bytes
+// que o navegador aceita — e acima disso o `document.cookie = …` falha EM
+// SILÊNCIO: a atribuição simplesmente some, justamente na campanha com
+// utm_content e referrer longos, que é onde ela mais importa.
+const MAX_LEN = 128; // cap por valor
+const MAX_COOKIE_BYTES = 3 * 1024; // teto do cookie montado, com folga pros 4 KB
 
 // querystring (snake_case, padrão de mercado) → chave camelCase do contrato.
 const QUERY_KEYS: ReadonlyArray<readonly [string, keyof AttributionTouch]> = [
@@ -84,8 +92,28 @@ function readCookie(): Attribution | null {
   }
 }
 
+/** Vai cortando o que é longo até o cookie caber. A ordem reflete o que dói
+ *  menos perder: referrer e landing são contexto; utm/gclid/fbclid são a
+ *  atribuição em si e saem por último. */
+function cabeNoCookie(a: Attribution): string {
+  const campos: (keyof AttributionTouch)[] = ['referrer', 'landingPage', 'utmContent', 'utmTerm', 'utmCampaign'];
+  const copia: Attribution = JSON.parse(JSON.stringify(a)) as Attribution;
+  let valor = encodeURIComponent(JSON.stringify(copia));
+  for (const campo of campos) {
+    if (new Blob([valor]).size <= MAX_COOKIE_BYTES) break;
+    for (const toque of [copia.primeiro, copia.ultimo]) {
+      const atual = toque?.[campo];
+      if (typeof atual === 'string' && atual.length > 40) {
+        (toque as Record<string, unknown>)[campo] = atual.slice(0, 40);
+      }
+    }
+    valor = encodeURIComponent(JSON.stringify(copia));
+  }
+  return valor;
+}
+
 function writeCookie(a: Attribution): void {
-  const value = encodeURIComponent(JSON.stringify(a));
+  const value = cabeNoCookie(a);
   document.cookie =
     `${COOKIE_NAME}=${value}` +
     `; max-age=${MAX_AGE_SECONDS}` +

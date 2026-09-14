@@ -7,6 +7,7 @@ import { rateLimitHeaders } from '@/lib/ratelimit/headers';
 import { checkIdempotency, storeResponse, isValidIdempotencyKey } from '@/lib/idempotency';
 import { trackRequest } from '@/lib/metrics/registry';
 import { apiVersionHeaders } from '@/lib/http/headers';
+import { lerJsonLimitado } from '@/lib/http/corpo-limitado';
 import { getClientIp as clientIpFromHeaders } from '@/lib/http/client-ip';
 
 const ROUTE = '/api/forms/submit';
@@ -66,13 +67,15 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Parse JSON
-  let raw: unknown;
-  try {
-    raw = await req.json();
-  } catch {
-    return reject('Requisição inválida.');
+  // Parse JSON com teto de tamanho (B9).
+  const lido = await lerJsonLimitado(req);
+  if (!lido.ok) {
+    return reject(
+      lido.motivo === 'grande_demais' ? 'Requisição grande demais.' : 'Requisição inválida.',
+      lido.motivo === 'grande_demais' ? 413 : 400,
+    );
   }
+  const raw: unknown = lido.valor;
 
   // Honeypot — bots preenchem "website". Descartar silenciosamente com sucesso fake
   // (não dar pista para o bot ajustar payload). Resposta 200 + sucesso aparente.
