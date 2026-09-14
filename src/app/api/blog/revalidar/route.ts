@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidateTag, revalidatePath } from 'next/cache';
+import { revalidateTag, revalidatePath } from '@/lib/cache';
 import { TAG_BLOG } from '@/lib/blog/fonte';
 import { createLogger } from '@/lib/logger';
 
@@ -47,9 +47,14 @@ async function revalidar(req: Request) {
   const url = new URL(req.url);
   const slug = url.searchParams.get('slug');
 
-  // Next 16 exige o perfil de cache no revalidateTag; 'max' expira tudo que
-  // carrega a tag, que é o que se quer ao publicar.
-  revalidateTag(TAG_BLOG, 'max');
+  // Purga IMEDIATA, pelo wrapper de `@/lib/cache` (`{ expire: 0 }`).
+  //
+  // Estava `revalidateTag(TAG_BLOG, 'max')`, do `next/cache` direto: em Next 16
+  // o perfil 'max' é stale-while-revalidate, então a primeira visita depois de
+  // publicar ainda podia receber o conteúdo velho enquanto a revalidação
+  // rodava atrás. O `/api/revalidate` já usava o wrapper imediato — os dois
+  // caminhos de purga discordavam entre si.
+  revalidateTag(TAG_BLOG);
   revalidatePath('/blog', 'page');
   // a home mostra o teaser do blog; 'layout' pega ela e o que herda dela
   revalidatePath('/', 'layout');
