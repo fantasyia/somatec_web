@@ -175,7 +175,10 @@ export default function CookiesPage() {
             </ul>
           </div>
 
-          <div className="space-y-4">
+          {/* Âncora do link do rodapé. `scroll-mt` porque o cabeçalho é fixo
+              (h-20): sem ele o título encosta atrás do menu e a pessoa cai numa
+              seção cujo começo não vê. */}
+          <div id="preferencias" className="scroll-mt-28 space-y-4">
             <h2 className="font-serif text-h3-m font-semibold">Mudar de ideia</h2>
             <p className="leading-relaxed text-[rgb(var(--text-muted))]">
               Sua resposta não é definitiva.

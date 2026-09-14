@@ -129,6 +129,19 @@ export function Footer({ columns = FOOTER_COLUMNS, socials, slugsNi = [] }: Prop
             <Link href="/cookies" className="hover:text-gold transition-colors">
               Cookies
             </Link>
+            {/* "Preferências de cookies" e não "Rever minha escolha" porque é o
+                rótulo que a pessoa VARRE procurando num rodapé (decisão da
+                master, 14/09). Dentro da página o botão fala em primeira
+                pessoa, e a diferença é de propósito.
+
+                Leva à ÂNCORA, não abre o banner: a pessoa chega na seção, vê
+                qual é a escolha dela hoje e por que aquilo importa, e só então
+                decide. Um clique a mais e muito menos confusão — e mantém um
+                lugar só onde o consentimento se administra, que é pra onde a
+                política de privacidade já aponta. */}
+            <Link href="/cookies#preferencias" className="hover:text-gold transition-colors">
+              Preferências de cookies
+            </Link>
           </div>
         </div>
       </div>

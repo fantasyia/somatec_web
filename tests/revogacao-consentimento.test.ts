@@ -148,3 +148,38 @@ describe('/politica-de-privacidade parou de afirmar o que o site desmente', () =
     expect(pol).toContain('Rever minha escolha de cookies');
   });
 });
+
+// =============================================================================
+// ATALHO DO RODAPÉ — decisão da master (14/09).
+//
+// "Preferências de cookies" e não "Rever minha escolha" porque é o rótulo que
+// a pessoa VARRE procurando num rodapé; dentro da página o botão continua em
+// primeira pessoa, e a diferença é de propósito.
+//
+// ⚠️ O link leva à ÂNCORA, não abre o banner. A pessoa chega na seção, vê qual
+// é a escolha dela hoje e por que aquilo importa, e só então decide. Também
+// mantém UM lugar só onde o consentimento se administra — que é pra onde a
+// política de privacidade já aponta.
+// =============================================================================
+
+describe('atalho de preferências no rodapé', () => {
+  const rodape = fonte('src/components/layout/Footer.tsx');
+  const pagina = fonte('src/app/cookies/page.tsx');
+
+  it('existe, com o rótulo que se varre num rodapé', () => {
+    expect(rodape).toContain('Preferências de cookies');
+    expect(rodape).toContain('/cookies#preferencias');
+  });
+
+  it('não abre o banner direto do rodapé', () => {
+    expect(rodape).not.toContain('pedirParaRever');
+    expect(rodape).not.toContain('EVENTO_REVER_CONSENTIMENTO');
+  });
+
+  it('a âncora existe na página e não fica atrás do cabeçalho fixo', () => {
+    expect(pagina).toContain('id="preferencias"');
+    // Cabeçalho é `fixed` com h-20: sem margem de rolagem o título encosta
+    // atrás do menu e a pessoa cai numa seção cujo começo não vê.
+    expect(pagina).toMatch(/id="preferencias"[\s\S]{0,80}scroll-mt/);
+  });
+});
