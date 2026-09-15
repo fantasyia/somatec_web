@@ -75,6 +75,25 @@ export const CLUSTER_PUBLICO: Readonly<Record<string, PublicoNI>> = {
   // eles é editorial (quem especifica), não de público de LP.
   casa: 'residencial',
   'Casa (quem instala)': 'residencial',
+  //
+  // ── 2026-09-15: silo 33, `sinais-da-casa` — "Sinais da casa (o morador)" ──
+  //
+  // O PAR do `casa`, e a distinção entre os dois é QUEM BUSCA, não o tema:
+  // `casa` é o eletricista que atende a residência; este é o morador que vê o
+  // sintoma e ainda não sabe que tem um problema elétrico ("luz piscando",
+  // "disjuntor desarmando", "lâmpada queimando").
+  //
+  // Os dois são 'residencial' aqui de propósito — igual ao par
+  // `casa`/`residencial` explicado acima. A distinção é editorial, não de
+  // público de LP.
+  //
+  // ⚠️ A sobreposição entre os dois é real e foi medida pela master antes deste
+  // silo nascer: três nós do `casa` colidiam de frente com ramos deste, e o
+  // `cs06` foi reposicionado pro roteiro de diagnóstico em campo pra liberar a
+  // busca do morador. Enquadramento diferente não separa busca — o Google não
+  // ranqueia por enquadramento.
+  'sinais-da-casa': 'residencial',
+  'Sinais da casa (o morador)': 'residencial',
 
   // ⚠️ `data-center-telecom`, a outra metade do antigo `tecnologia`, é
   // INDUSTRIAL e por isso NÃO entra aqui. O mesmo vale pros outros silos novos

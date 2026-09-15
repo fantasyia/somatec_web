@@ -333,15 +333,15 @@ const CLUSTERS = [
     {id:'fr11',title:'Resolução ANEEL 1.000: quando a distribuidora paga pelo compressor queimado (e quando não paga)',f:'meio',kw:'ANEEL resolução 1000 ressarcimento compressor queimado distribuidora',lk:['p0','fr01','hp01','fr03','a01']}
   ]},
   {id:'residencial',name:'Residencial',color:'#0a7a7a',pilar:'c01',articles:[
-    {id:'c01',title:'Proteção elétrica para residências de alto padrão: o que arquitetos não especificam',f:'resid',kw:'proteção elétrica residência alto padrão casa de luxo',lk:['p0','a09','c02','c03','c04','c05','c08','c09','e06','pv01','pv02','pv03','pv04','pv05','pv06','pv07','pv08','pv09','pv10','pv11']},
+    {id:'c01',title:'Proteção elétrica para residências de alto padrão: o que arquitetos não especificam',f:'resid',kw:'proteção elétrica residência alto padrão casa de luxo',lk:['p0','a09','c02','c03','c04','c05','c08','c09','e06','pv01','pv02','pv03','pv04','pv05','pv06','pv07','pv08','pv09','pv10']},
     {id:'c02',title:'Home automation e qualidade de energia: por que sua automação residencial falha',f:'resid',kw:'home automation automação residencial falhas qualidade energia',lk:['p0','c01','a01','a09']},
     {id:'c03',title:'Proteção elétrica para home theater e equipamentos de áudio de alta fidelidade',f:'resid',kw:'proteção elétrica home theater áudio alta fidelidade',lk:['p0','c01','a01','a09']},
     {id:'c04',title:'Proteção do inversor solar residencial contra surtos: o que sua integradora não fez',f:'resid',kw:'proteção inversor solar residencial surtos VTCD',lk:['p0','c01','sol01','a09']},
     {id:'c05',title:'Adega climatizada, piscina aquecida e ar-condicionado: como proteger seus eletrodomésticos premium',f:'resid',kw:'proteção elétrica eletrodomésticos premium adega piscina ar-condicionado',lk:['p0','c01','a01','a09']},
     {id:'c08',title:'Seguro residencial e surtos elétricos: o que a apólice não cobre (e você não sabe)',f:'resid',kw:'seguro residencial surtos elétricos cobertura apólice',lk:['p0','c01','hp01','a01']},
     {id:'c09',title:'O surto que queima o home theater, a automação e o inversor solar da sua casa',f:'resid',kw:'proteção contra surtos residencial home theater automação inversor solar queima eletrônicos casa',lk:['p0','c01','c02','c03','c04']},
-    {id:'e06',title:'7 itens que todo projeto de residência de alto padrão precisa ter em proteção elétrica',f:'lista',kw:'proteção elétrica residência alto padrão itens obrigatórios',lk:['p0','c01','pv11']},
-    {id:'pv01',title:'Elevador residencial (OTIS, Schindler, Kone, Atlas): proteja a eletrônica do seu ativo mais caro contra surtos',f:'resid',kw:'elevador residencial OTIS Schindler Kone proteção elétrica surto placa',lk:['p0','c01','a01','pv11','cnd01']},
+    {id:'e06',title:'7 itens que todo projeto de residência de alto padrão precisa ter em proteção elétrica',f:'lista',kw:'proteção elétrica residência alto padrão itens obrigatórios',lk:['p0','c01']},
+    {id:'pv01',title:'Elevador residencial (OTIS, Schindler, Kone, Atlas): proteja a eletrônica do seu ativo mais caro contra surtos',f:'resid',kw:'elevador residencial OTIS Schindler Kone proteção elétrica surto placa',lk:['p0','c01','a01','cnd01']},
     {id:'pv02',title:'Ar-condicionado de alto padrão (Daikin, Carrier, Fujitsu, LG): por que a placa da condensadora queima e como proteger',f:'resid',kw:'ar-condicionado alto padrão Daikin Carrier Fujitsu placa condensadora queima proteção',lk:['p0','c01','a01','c05','hp01']},
     {id:'pv03',title:'Bomba e motor de piscina (Jacuzzi, Sodramar, Dancor, WEG): proteção elétrica contra queima por surto',f:'resid',kw:'bomba motor piscina Jacuzzi Sodramar Dancor WEG queima surto proteção elétrica',lk:['p0','c01','a01','c05','cnd01']},
     {id:'pv04',title:'Aquecedor e trocador de calor de piscina: proteja o sistema de climatização da água contra oscilação',f:'resid',kw:'aquecedor trocador calor piscina climatização água oscilação surto proteção',lk:['p0','c01','a01','pv03']},
@@ -349,12 +349,11 @@ const CLUSTERS = [
     {id:'pv06',title:'Adega climatizada e cave de vinhos: proteção elétrica para não perder a coleção por uma queda de tensão',f:'resid',kw:'adega climatizada cave vinhos proteção elétrica queda tensão surto coleção',lk:['p0','c01','a01','c05']},
     {id:'pv07',title:'Home theater e áudio de alta fidelidade (Denon, Marantz, Bowers & Wilkins): proteção contra surtos',f:'resid',kw:'home theater áudio alta fidelidade Denon Marantz proteção surto elétrico premium',lk:['p0','c01','a01','c03']},
     {id:'pv08',title:'Automação residencial de luxo (KNX, Control4, Crestron, Savant): por que a qualidade de energia derruba a casa inteligente',f:'resid',kw:'automação residencial luxo KNX Control4 Crestron qualidade energia casa inteligente',lk:['p0','c01','a01','c02']},
-    {id:'pv09',title:'Climatização central, piso térmico e cortina de ar: proteja os sistemas prediais da residência de alto padrão',f:'resid',kw:'climatização central piso térmico cortina ar residência alto padrão proteção surto',lk:['p0','c01','a01','pv11']},
-    {id:'pv10',title:'7 equipamentos de alto padrão que mais sofrem com surto — e quanto custa repor cada um',f:'lista',kw:'equipamentos alto padrão surto elétrico custo reposição lista residência luxo',lk:['p0','c01','hp01','pv01','pv05']},
-    {id:'pv11',title:'Proteção em cascata para casas de alto padrão: da entrada de energia aos equipamentos premium',f:'resid',kw:'proteção cascata casa alto padrão entrada energia equipamentos premium mansão',lk:['p0','a09','c01']}
+    {id:'pv09',title:'Climatização central, piso térmico e cortina de ar: proteja os sistemas prediais da residência de alto padrão',f:'resid',kw:'climatização central piso térmico cortina ar residência alto padrão proteção surto',lk:['p0','c01','a01']},
+    {id:'pv10',title:'7 equipamentos de alto padrão que mais sofrem com surto — e quanto custa repor cada um',f:'lista',kw:'equipamentos alto padrão surto elétrico custo reposição lista residência luxo',lk:['p0','c01','hp01','pv01','pv05']}
   ]},
   {id:'condominios',name:'Condomínios',color:'#486080',pilar:'cnd01',articles:[
-    {id:'cnd01',title:'Quanto custa queimar o quadro de elevador de um condomínio? O cálculo que o síndico não faz',f:'cond',kw:'custo queima quadro elevador condomínio síndico',lk:['p0','hp01','a33','c07','cnd02','cnd03','cnd04','cnd05','cnd06','cnd07','cnd08','cnd09','cnd10','cnd11','cnd12','cnd13','cnd14','cnd15','cnd16','cnd17','e07']},
+    {id:'cnd01',title:'Quanto custa queimar o quadro de elevador de um condomínio? O cálculo que o síndico não faz',f:'cond',kw:'custo queima quadro elevador condomínio síndico',lk:['p0','hp01','a33','c07','cnd02','cnd03','cnd04','cnd05','cnd06','cnd07','cnd08','cnd09','cnd10','cnd11','cnd12','cnd13','cnd15','cnd16','cnd17','e07']},
     {id:'a33',title:'Proteção elétrica em condomínios e shopping centers',f:'setor',kw:'proteção elétrica condomínio shopping',lk:['p0','cnd01','a01','a09']},
     {id:'c07',title:'Por que condomínios de alto padrão precisam de proteção elétrica nas áreas comuns',f:'resid',kw:'proteção elétrica condomínio alto padrão área comum',lk:['p0','cnd01','a33','a09']},
     {id:'cnd02',title:'5 equipamentos de área comum que mais sofrem com surtos elétricos — e quanto custam',f:'lista',kw:'equipamentos área comum condomínio surto elétrico custo',lk:['p0','cnd01','a01','hp01']},
@@ -369,7 +368,6 @@ const CLUSTERS = [
     {id:'cnd11',title:'Mora em apartamento? Veja como se proteger de surtos vindos da rede predial',f:'cond',kw:'apartamento surto elétrico rede predial proteção morador',lk:['p0','cnd01','a01','a09']},
     {id:'cnd12',title:'Ar-condicionado queimando no apartamento: o problema pode ser da rede do prédio',f:'cond',kw:'ar-condicionado queimando apartamento problema elétrico surto prédio',lk:['p0','cnd01','a01','hp01']},
     {id:'cnd13',title:'Smart TV, notebook e home office em apartamento: proteção contra o que vem pela tomada',f:'cond',kw:'smart TV notebook home office apartamento proteção surto tomada',lk:['p0','cnd01','a01','cnd11']},
-    {id:'cnd14',title:'Proteção em cascata para apartamentos de alto padrão: o que pedir para o arquiteto especificar',f:'cond',kw:'proteção cascata apartamento alto padrão arquiteto especificação',lk:['p0','cnd01','a09','c01']},
     {id:'cnd15',title:'Condomínio horizontal vs. vertical: diferenças na estratégia de proteção elétrica das áreas comuns',f:'cond',kw:'condomínio horizontal vertical proteção elétrica diferença área comum',lk:['p0','cnd01','a09','cnd09']},
     {id:'cnd16',title:'Como incluir proteção elétrica na convenção do condomínio e no regimento interno',f:'cond',kw:'convenção condomínio proteção elétrica regimento interno síndico',lk:['p0','cnd01','hp01','cnd09']},
     {id:'cnd17',title:'10 perguntas que o síndico deve fazer antes de contratar manutenção elétrica',f:'lista',kw:'perguntas síndico contratar manutenção elétrica condomínio checklist',lk:['p0','cnd01','a01','cnd04','a09']},
@@ -627,9 +625,23 @@ const CLUSTERS = [
     {id:'cs03',title:'O que acontece numa casa sem aterramento — e como explicar isso ao cliente',f:'topo',kw:'casa sem aterramento o que acontece riscos explicar cliente',lk:['cs00','p0']},
     {id:'cs04',title:'DPS, protetor de tomada e no-break: o que cada um resolve numa residência',f:'meio',kw:'dps para casa protetor de tomada no-break diferença residência',lk:['cs00','p0','a09']},
     {id:'cs05',title:'Chamado de "queimou tudo depois da queda de energia": como diagnosticar',f:'meio',kw:'queimou tudo depois da queda de energia diagnóstico eletricista surto',lk:['cs00','p0']},
-    {id:'cs06',title:'A luz pisca todo dia na casa do cliente: quando é da rede e quando é da instalação',f:'topo',kw:'luz pisca todo dia causa rede ou instalação eletricista',lk:['cs00','p0']},
+    {id:'cs06',title:'O cliente diz que a luz pisca: roteiro de diagnóstico em campo',f:'topo',kw:'roteiro diagnóstico luz piscando eletricista medição em campo',lk:['cs00','p0']},
     {id:'cs07',title:'O raio não precisa cair na casa para queimar o que está na tomada',f:'topo',kw:'raio queima aparelhos sem cair na casa surto pela rede',lk:['cs00','p0','a09']},
     {id:'cs08',title:'O que deveria estar no quadro e quase nunca está — checklist de entrega do eletricista',f:'lista',kw:'checklist quadro de distribuição residencial entrega eletricista DPS aterramento',lk:['cs00','p0']}
+  ]},
+  {id:'sinais-da-casa',name:'Sinais da casa (o morador)',color:'#7b1fa2',pilar:'qc00',articles:[
+    {id:'qc00',title:'Luz piscando, disjuntor desarmando, lâmpada queimando: quando o problema é a instalação e não o aparelho',f:'topo',kw:'luz piscando',lk:['p0','qc02','qc06','qc08','qc10','qc11']},
+    {id:'qc02',title:'Lâmpada de LED piscando: driver, dimmer e tensão fora da faixa',f:'topo',kw:'lâmpada LED piscando',lk:['qc00','qc03','qc04']},
+    {id:'qc03',title:'Luz de LED piscando: como resolver, por ordem de causa',f:'topo',kw:'luz de led piscando como resolver',lk:['qc00','qc02']},
+    {id:'qc04',title:'A lâmpada pisca com o interruptor desligado: corrente residual, neutro e retorno',f:'topo',kw:'lâmpada que pisca desligada',lk:['qc00','qc02']},
+    {id:'qc05',title:'A luz pisca quando o chuveiro liga: por que nenhum protetor resolve isso',f:'topo',kw:'luz piscando quando liga o chuveiro',lk:['qc00','qc07']},
+    {id:'qc06',title:'Disjuntor desarmando sozinho: o que ele está tentando dizer',f:'topo',kw:'disjuntor desarmando sozinho',lk:['qc00','qc07','qc08','qc09']},
+    {id:'qc07',title:'Disjuntor do chuveiro desarmando: resistência, dimensionamento e o que não é surto',f:'topo',kw:'disjuntor do chuveiro desarmando',lk:['qc00','qc06','qc05']},
+    {id:'qc08',title:'Disjuntor geral, do padrão ou do poste desarmando: quando o problema vem da rede',f:'topo',kw:'disjuntor geral desarmando',lk:['qc00','qc06','qc09','qc11']},
+    {id:'qc09',title:'Disjuntor esquentando, desarmando de madrugada ou que não arma mais',f:'meio',kw:'disjuntor esquentando e desarmando',lk:['qc00','qc06','qc08']},
+    {id:'qc10',title:'Lâmpada queimando toda hora no mesmo bocal: as cinco causas, em ordem',f:'topo',kw:'lâmpada led queima toda hora',lk:['qc00','qc02']},
+    {id:'qc11',title:'Queimou o aparelho: quando é o aparelho e quando é a sua rede',f:'meio',kw:'quando o aparelho queima é a rede ou o aparelho',lk:['qc00','qc08','qc12']},
+    {id:'qc12',title:'O que realmente queima eletrônico dentro de casa',f:'meio',kw:'o que queima aparelhos eletrônicos em casa',lk:['qc00','qc11']}
   ]}
 ];
 const PILAR = {id:'p0',title:'Qualidade de energia elétrica: guia completo para indústrias, comércios e residências',cluster:'Pilar Central',f:'pilar',kw:'qualidade de energia elétrica indústria comércio residências',lk:[]};
