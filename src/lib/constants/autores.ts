@@ -69,6 +69,15 @@ export const AUTORES: readonly Autor[] = [
     papel: 'Engenheiro eletricista',
     credencial: '',
     bio: '',
+    // 🔒 SEM FOTO POR VONTADE DELE — decisão do Léo em 15/09, não é pendência.
+    //
+    // Ele segue como revisor público (nome + CREA); o que ele não quer é o
+    // rosto. A tela já trata isto: sem foto, `AssinaturaArtigo` e
+    // `/autor/[slug]` desenham um ícone neutro de pessoa no círculo — não um
+    // rosto genérico. ⛔ Não "consertar" pondo foto de banco de imagem nem
+    // retrato gerado: numa página sobre risco elétrico, um rosto que não é de
+    // ninguém derruba a confiança na página inteira quando alguém percebe.
+    // Guarda em `tests/eeat-autores.test.ts`.
     foto: null,
     revisor: true,
   },

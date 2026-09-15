@@ -150,6 +150,33 @@ describe('pendência registrada — não é bug, é decisão do Léo', () => {
     }
   });
 
+  it('🔒 o Fernando continua SEM FOTO — é vontade dele, não campo por preencher', () => {
+    // Decisão do Léo em 15/09: ele fica como revisor público (nome + CREA), mas
+    // não quer o rosto no site. Sem esta guarda, o item "definir foto, mini-bio
+    // e credencial dos três" do card de go-live convida o próximo a preencher
+    // a foto junto com o resto, achando que é campo esquecido.
+    //
+    // ⛔ E, se alguém for preencher assim mesmo, o perigo não é só desrespeitar
+    // o pedido: a saída fácil é foto de banco de imagem ou retrato gerado, e
+    // numa página YMYL sobre risco elétrico um rosto que não é de ninguém
+    // derruba a confiança na página inteira quando alguém percebe.
+    const fernando = autorPorSlug('fernando-engenheiro');
+    expect(fernando?.foto, 'ele pediu pra não ter foto — ver comentário em autores.ts').toBeNull();
+  });
+
+  it('sem foto, a tela desenha ícone neutro — nunca um rosto genérico', () => {
+    // O que torna o "sem foto" aceitável é existir um fallback honesto. Se
+    // alguém trocar o ícone por uma imagem de pessoa, a ausência de foto deixa
+    // de ser ausência e passa a ser uma pessoa inventada.
+    for (const arquivo of [
+      'src/components/blog/AssinaturaArtigo.tsx',
+      'src/app/autor/[slug]/page.tsx',
+    ]) {
+      const fonte = readFileSync(resolve(process.cwd(), arquivo), 'utf-8');
+      expect(fonte, `${arquivo}: o fallback de foto sumiu`).toMatch(/foto \?[\s\S]{0,320}<User/);
+    }
+  });
+
   it('"Fernando Engenheiro" segue sem sobrenome — lembrete vivo', () => {
     // Não é teste de comportamento: é lembrete que falha quando resolverem.
     // "Revisado por Fernando Engenheiro" lê como placeholder numa página YMYL.
