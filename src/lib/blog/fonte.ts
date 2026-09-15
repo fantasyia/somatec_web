@@ -96,15 +96,42 @@ function paraBlogPost(linha: LinhaCms): BlogPost {
   };
 }
 
+/** Preview de rascunho — SÓ local, travado por duas condições.
+ *
+ * Por que existe: não havia como ver um artigo antes de publicar. O único
+ * "preview" era publicar — e publicar aqui é produção na hora, porque o site lê
+ * o mesmo Supabase do CMS. Aprovar um silo de 12 artigos no escuro (e vêm ~350)
+ * é como este projeto ganharia um erro caro e público.
+ *
+ * ⚠️ As DUAS condições são necessárias, e nenhuma basta sozinha: `NODE_ENV`
+ *    porque uma variável esquecida no Railway ligaria rascunho no ar, e a
+ *    variável porque um build local de produção não deve expor rascunho. Juntas
+ *    não há como isto acender em produção — o build fixa NODE_ENV='production'.
+ */
+const MOSTRAR_RASCUNHO =
+  process.env.BLOG_PREVIEW_RASCUNHO === '1' && process.env.NODE_ENV !== 'production';
+
+if (MOSTRAR_RASCUNHO) {
+  // Grita de propósito. Este modo faz rascunho aparecer igualzinho a publicado,
+  // e outra sessão rodando o site local podia jurar que os 12 artigos já estão
+  // no ar. O aviso é o que separa "preview" de "achei que tinha publicado".
+  console.warn(
+    '\n⚠️  BLOG_PREVIEW_RASCUNHO=1 — o blog está mostrando RASCUNHOS como se ' +
+      'estivessem publicados.\n    Isto é preview local. Nada disto está no ar. ' +
+      'Apague a variável de .env.development.local para voltar ao normal.\n',
+  );
+}
+
 async function buscarNoBanco(): Promise<LinhaCms[] | null> {
   try {
     const supabase = getSupabaseAdminClient();
-    const { data, error } = await supabase
-      .from('posts')
-      .select(CAMPOS)
-      .eq('published', true)
-      .is('deleted_at', null)
-      .order('published_at', { ascending: false });
+    let consulta = supabase.from('posts').select(CAMPOS).is('deleted_at', null);
+    if (!MOSTRAR_RASCUNHO) consulta = consulta.eq('published', true);
+    // nullsFirst: rascunho tem published_at nulo e sumiria no fim da lista.
+    const { data, error } = await consulta.order('published_at', {
+      ascending: false,
+      nullsFirst: true,
+    });
 
     if (error) {
       // log.error de propósito: erro do banco virando "sem artigo" silencioso é
@@ -119,10 +146,20 @@ async function buscarNoBanco(): Promise<LinhaCms[] | null> {
   }
 }
 
-const buscarCacheado = unstable_cache(buscarNoBanco, ['blog-posts-cms'], {
-  revalidate: SEGUNDOS_DE_CACHE,
-  tags: [TAG_BLOG],
-});
+/** No preview de rascunho o cache é DESLIGADO, não encurtado.
+ *
+ * ⚠️ Com `unstable_cache` ligado, o preview mostrava a versão anterior do post
+ *    por até 5 minutos — e eu passei um bom tempo achando que a página estava
+ *    quebrada quando ela só estava velha: o banco já tinha capa e diagrama
+ *    novos, a página servia os antigos, e nada acusava. Preview que mostra dado
+ *    velho não é preview; é a mesma classe de erro que ele existe pra evitar.
+ */
+const buscarCacheado = MOSTRAR_RASCUNHO
+  ? buscarNoBanco
+  : unstable_cache(buscarNoBanco, ['blog-posts-cms'], {
+      revalidate: SEGUNDOS_DE_CACHE,
+      tags: [TAG_BLOG],
+    });
 
 export type Acervo = {
   posts: BlogPost[];
