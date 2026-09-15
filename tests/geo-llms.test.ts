@@ -55,7 +55,9 @@ describe('robots.txt — robôs de IA', () => {
 
     for (const regra of regras) {
       const bloqueado = ([] as string[]).concat(regra.disallow ?? []);
-      for (const rota of ['/api', '/login', '/cluster-mapa.html', '/mapa-visual-fluxos.html']) {
+      // Os mapas internos saíram desta lista em 15/09 — não porque deixaram de
+      // importar, mas porque saíram de `public/`. Ver o describe abaixo.
+      for (const rota of ['/api', '/login', '/openapi.json']) {
         expect(
           bloqueado,
           `o grupo "${regra.userAgent}" não bloqueia ${rota} — ele deixou de herdar o grupo "*"`,
@@ -67,6 +69,65 @@ describe('robots.txt — robôs de IA', () => {
   it('o sitemap volta a ser anunciado quando o site abre', () => {
     process.env.SITE_NOINDEX = 'false';
     expect(robots().sitemap).toMatch(/\/sitemap\.xml$/);
+  });
+});
+
+// =============================================================================
+// MAPAS INTERNOS FORA DE `public/` — decisão do Léo, 15/09/2026.
+//
+// `cluster-mapa.html` e `mapa-visual-fluxos.html` são o plano editorial inteiro
+// (31 silos, 300+ artigos, estrutura de links). Eram servidos em `public/` e
+// barrados por `Disallow` no robots.txt — o que NÃO resolvia:
+//
+//   · `Disallow` e `noindex` se cancelam. Barrado, o Google nunca busca a
+//     página e portanto nunca lê o `X-Robots-Tag: noindex` dela; se alguém
+//     linkasse o arquivo, ele podia entrar no índice só pela URL.
+//   · robots.txt é PÚBLICO. `Disallow: /cluster-mapa.html` publica o endereço
+//     exato pra quem abrir o arquivo — e é o primeiro que se abre num site.
+//     Medido em 15/09: os dois respondiam 200 a quem tivesse o endereço.
+//
+// Bloquear É anunciar, então os três objetivos (noindex valer · robô de IA
+// fora · não anunciar) não cabiam no robots.txt ao mesmo tempo. Tirar de
+// `public/` atende os três de uma vez: não há o que indexar, ingerir nem
+// anunciar. O Léo abre os mapas pelo arquivo local — eles são HTML autocontido
+// (zero fetch, zero script externo), então `file://` basta, e atualizar o mapa
+// deixou de exigir push e deploy.
+// =============================================================================
+
+describe('mapas internos fora de public/', () => {
+  const MAPAS = ['cluster-mapa.html', 'mapa-visual-fluxos.html'];
+
+  it('nenhum mapa voltou pra public/ (seria servido de novo, sem nada acusar)', () => {
+    for (const nome of MAPAS) {
+      expect(
+        existsSync(resolve(process.cwd(), 'public', nome)),
+        `public/${nome} voltou a existir — o site passa a servir o plano editorial em ${nome}`,
+      ).toBe(false);
+    }
+  });
+
+  it('e continuam existindo em docs/mapas/ (âncora anti-falso-verde)', () => {
+    // Sem esta, apagar os dois arquivos deixaria o teste acima verde — e o
+    // `silos-publico.test.ts`, que lê o mapa do disco, é que iria quebrar.
+    for (const nome of MAPAS) {
+      expect(
+        existsSync(resolve(process.cwd(), 'docs/mapas', nome)),
+        `docs/mapas/${nome} sumiu — é a fonte que o teste de silos lê`,
+      ).toBe(true);
+    }
+  });
+
+  it('o robots não os nomeia — a entrada seria o anúncio do endereço', () => {
+    const fonte = readFileSync(resolve(process.cwd(), 'src/app/robots.ts'), 'utf-8');
+    const lista = fonte.slice(
+      fonte.indexOf('const FORA_DO_INDICE'),
+      fonte.indexOf('];', fonte.indexOf('const FORA_DO_INDICE')),
+    );
+    for (const nome of MAPAS) {
+      expect(lista, `${nome} voltou pro FORA_DO_INDICE — isso publica o caminho`).not.toContain(
+        nome,
+      );
+    }
   });
 });
 
@@ -171,7 +232,7 @@ describe('llms.txt', () => {
   });
 
   it('não expõe rota que o robots bloqueia', () => {
-    for (const rota of ['/login', '/cluster-mapa.html', '/mapa-visual-fluxos.html']) {
+    for (const rota of ['/login', '/openapi.json']) {
       expect(semComentarios).not.toContain(`'${rota}'`);
     }
   });

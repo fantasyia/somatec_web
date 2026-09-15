@@ -26,7 +26,10 @@ import {
 
 /** Lê os silos do mapa: `{id:'vtcd',name:'VTCD',...}`. */
 function silosDoMapa(): Array<{ id: string; nome: string }> {
-  const html = readFileSync(resolve(process.cwd(), 'public/cluster-mapa.html'), 'utf-8');
+  // Saiu de `public/` em 15/09 (decisão do Léo): o mapa é documento interno e
+  // estava sendo servido pelo site. Continua versionado e lido do disco — o
+  // que mudou foi só deixar de ter URL pública. Ver `tests/geo-llms.test.ts`.
+  const html = readFileSync(resolve(process.cwd(), 'docs/mapas/cluster-mapa.html'), 'utf-8');
   const out: Array<{ id: string; nome: string }> = [];
   for (const m of html.matchAll(/\{id:'([a-z0-9-]+)',name:'([^']+)'/g)) {
     out.push({ id: m[1], nome: m[2] });

@@ -111,15 +111,15 @@ const nextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
-      // Mapas internos (documento de trabalho, não conteúdo do site). Hoje eles
-      // só não são indexados porque SITE_NOINDEX bloqueia o site inteiro — no
-      // go-live essa flag cai. O X-Robots-Tag garante o noindex de forma
-      // permanente e vale pra arquivo estático, que não passa pelo metadata do
-      // Next. O cluster-mapa nem tem a meta tag no HTML.
-      ...['/cluster-mapa.html', '/mapa-visual-fluxos.html'].map((source) => ({
-        source,
-        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
-      })),
+      // Aqui havia um X-Robots-Tag: noindex pros mapas internos
+      // (`cluster-mapa.html`, `mapa-visual-fluxos.html`). Saiu em 15/09 junto
+      // com os arquivos: eles não moram mais em `public/` — foram pra
+      // `docs/mapas/`, que o Next não serve. Cabeçalho pra rota que não existe
+      // mais é só ruído que faz o próximo leitor procurar um arquivo fantasma.
+      //
+      // Motivo da mudança está inteiro em `src/app/robots.ts`: `Disallow` e
+      // `noindex` se cancelam (barrado, o Google nunca lê o cabeçalho), e o
+      // robots.txt é público — bloquear É anunciar o endereço.
       // CSP própria do Swagger UI: é a ÚNICA rota que carrega script e estilo
       // do jsdelivr. Antes essa liberação valia pro site inteiro (B10).
       {

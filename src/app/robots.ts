@@ -21,9 +21,27 @@ const FORA_DO_INDICE = [
   // B22: `/api` cobre `/api-docs` por prefixo, mas o JSON que ele carrega mora
   // em `/openapi.json` — arquivo estático, fora do prefixo, e indexável.
   '/openapi.json',
-  '/cluster-mapa.html',
-  '/mapa-visual-fluxos.html',
 ];
+
+// ⛔ NÃO acrescentar aqui os mapas internos (`cluster-mapa.html`,
+// `mapa-visual-fluxos.html`). Decisão do Léo em 15/09: eles SAÍRAM de
+// `public/` e foram pra `docs/mapas/`, que o Next não serve.
+//
+// Por que não bastava deixar o Disallow: os três objetivos não cabem no
+// robots.txt ao mesmo tempo.
+//   1. noindex funcionar no Google  → exige PERMITIR rastrear (barrado, o
+//      Google nunca lê o X-Robots-Tag e pode indexar pela URL)
+//   2. robô de IA não ingerir       → exige BLOQUEAR
+//   3. não anunciar o caminho       → exige NÃO TER ENTRADA
+// (1) e (2) se contradizem, e (3) exclui os dois — porque o robots.txt é
+// público e BLOQUEAR É ANUNCIAR: a linha `Disallow: /cluster-mapa.html`
+// entrega o endereço exato a quem abrir o arquivo, e o arquivo respondia 200
+// pra quem tivesse o endereço. Tirar do `public/` é o único desenho que
+// atende os três: não há o que indexar, ingerir nem anunciar.
+//
+// `tests/silos-publico.test.ts` lê o mapa do disco, então a guarda de silo
+// continua valendo. Ver `tests/geo-llms.test.ts` ("mapas internos fora de
+// public/"), que reprova se alguém devolver os arquivos pra lá.
 
 /**
  * Robôs de IA citados na referência de GEO da Somatec, listados
