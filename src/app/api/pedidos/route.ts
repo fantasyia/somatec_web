@@ -26,7 +26,7 @@ import {
   parcelasDisponiveis,
   type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
-import { precificarPedido } from '@/lib/pedidos/precificar';
+import { precificarPedido, SKU_TESTE } from '@/lib/pedidos/precificar';
 import { enviarEventoMeta, montarFbc } from '@/lib/meta/capi';
 import {
   clientIdDoCookieGa,
@@ -187,12 +187,50 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, numero: null }, { headers: apiVersionHeaders() });
   }
 
+  // ── PEDIDO DE TESTE DA OPERAÇÃO: as duas condições ────────────────────
+  //
+  // Calculado ANTES do Turnstile porque é ele que decide se o captcha é
+  // exigido. O uso lá embaixo (liberar o SKU na precificação) continua igual.
+  const segredoOperacao = process.env.PEDIDOS_STATUS_SECRET ?? '';
+  const pedidoDeTeste =
+    segredoOperacao.length > 0 &&
+    constantTimeEquals(req.headers.get('x-pedido-teste') ?? '', segredoOperacao);
+  // A 2ª condição: TODO item tem de ser o SKU de teste. Um corpo misto —
+  // TESTE-NF junto de um MB real — não conta como pedido de teste aqui.
+  const soSkuDeTeste =
+    parsed.data.itens.length > 0 &&
+    parsed.data.itens.every((i) => (i.modelo ?? '').trim() === SKU_TESTE);
+
   // ── TURNSTILE (A2) ─────────────────────────────────────────────────────
   // Fechar pedido exige captcha, como o formulário de contato. Fail-open só
   // em falha de INFRA da Cloudflare (não é culpa de quem compra); token
   // inválido/ausente, ou segredo ausente em produção, bloqueia (400) — senão
   // um pool de IPs geraria cobranças e e-mails da marca em série.
-  const ts = await verifyTurnstile(parsed.data.captcha_token, ip);
+  //
+  // ⚠️ EXCEÇÃO DA OPERAÇÃO (15/09) — e o motivo de ela existir.
+  //
+  // O A2 entrou em 14/09 (`907ebd2`) e fechou junto a porta do PEDIDO DE
+  // TESTE, que é disparado por script e não tem navegador pra resolver
+  // captcha. Sintoma mudo: o último teste entrou em 13/09 e ninguém tentou de
+  // novo até 15/09 — a receita documentada simplesmente parou de funcionar.
+  //
+  // A exceção exige as DUAS condições juntas, e a segunda é o que a torna
+  // segura: mesmo de posse do segredo, este caminho sem captcha só consegue
+  // produzir pedido de R$ 10 do SKU fictício. Pedido real de qualquer valor
+  // continua exigindo captcha, que é exatamente o que o A2 protege.
+  //
+  // Proporção: quem tem `PEDIDOS_STATUS_SECRET` já move QUALQUER pedido pela
+  // régua do funil (é o mesmo segredo da rota de status). Criar um pedido de
+  // R$ 10 é poder menor que esse, não maior.
+  const dispensaCaptcha = pedidoDeTeste && soSkuDeTeste;
+  if (dispensaCaptcha) {
+    // Sem e-mail no log (B6). O que interessa é que o caminho foi usado.
+    log.warn('PEDIDO DE TESTE: captcha dispensado pelo segredo da operacao');
+  }
+
+  const ts = dispensaCaptcha
+    ? ({ ok: true, mode: 'skipped', reason: 'pedido_de_teste' } as const)
+    : await verifyTurnstile(parsed.data.captcha_token, ip);
   if (!ts.ok && !ts.infraFailure) {
     trackRequest(ROUTE, 400);
     return NextResponse.json(
@@ -227,10 +265,9 @@ export async function POST(req: NextRequest) {
   // régua já é a operação, e criar pedido de teste não é poder maior que esse.
   // Sem o cabeçalho, nada muda — o SKU de teste volta a ser modelo inexistente
   // e cai no 422, igual a qualquer tentativa de comprar o que não existe.
-  const segredoOperacao = process.env.PEDIDOS_STATUS_SECRET ?? '';
-  const pedidoDeTeste =
-    segredoOperacao.length > 0 &&
-    constantTimeEquals(req.headers.get('x-pedido-teste') ?? '', segredoOperacao);
+  //
+  // `pedidoDeTeste` é calculado lá em cima, antes do Turnstile, porque é ele
+  // que decide se o captcha é exigido. Aqui só se usa o resultado.
   // B6: sem e-mail no log. O stdout do Railway guarda em claro, e o filtro de
   // PII do Sentry não alcança console. Pra ligar o registro à pessoa existe o
   // número do pedido, logado logo abaixo.
