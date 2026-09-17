@@ -13,6 +13,28 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: false,
+    // ⏱️ 30s, não os 5s padrão — e o motivo NÃO é teste lento.
+    //
+    // Uns 17 casos fazem `await import('@/...')` DENTRO do `it()`, de propósito:
+    // é assim que eles pegam o módulo depois de mexer em `process.env` ou nos
+    // mocks. O que custa ali não é o teste, é resolver o grafo de import do
+    // Next na primeira vez — e, com a suíte cheia rodando em paralelo, o
+    // `import` somado passa de 400s (medido: 48s numa rodada folgada, 406s numa
+    // disputada). Sob essa contenção o import estoura 5s sozinho.
+    //
+    // O efeito era o pior tipo: o `pre-commit` reprovava commit BOM de vez em
+    // quando, sempre nos mesmos 4 arquivos (ratelimit/upstash, leads/entregar,
+    // site-settings-erro-nao-cacheia, lgpd-consent-persistencia), e rodando
+    // esses arquivos sozinhos passavam em menos de 1s. Quem não soubesse disso
+    // ia caçar bug que não existe. Aconteceu comigo em 15/09 e com a sessão do
+    // app em 17/09.
+    //
+    // ⚠️ É PALIATIVO, e não esconde travamento: teste que trava de verdade não
+    // termina em 30s nem em 300s. O conserto de raiz é diminuir o custo de
+    // import (menos grafo do Next dentro de teste unitário) ou limitar os
+    // workers — os dois com preço próprio, e nenhum urgente.
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
     include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
     // tests/e2e sobe `next start` e depende de um build pronto — roda em
     // `npm run test:e2e` (vitest.e2e.config.ts), não aqui.
