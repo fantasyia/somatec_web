@@ -32,7 +32,8 @@ import {
 } from '@/lib/analytics/eventos';
 import { enviarLeadOrcamento, type ResultadoEnvio } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
-import { selecionarMasterBlock, formatBRL } from '@/lib/constants/masterblock';
+import { selecionarMasterBlock, formatBRL, descreverPreco } from '@/lib/constants/masterblock';
+import { PrecoDePor } from '@/components/tools/PrecoDePor';
 import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
 import {
   GATEWAY_ATIVO, FORMAS_PAGAMENTO, freteDoPedido, enderecoVazio,
@@ -444,7 +445,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       resumo:
         `[Checkout abandonado] Contexto: ${ctxAtual?.label ?? '—'}. ` +
         `Quadro de entrada: ${naoSei ? 'não sabe os dados' : `tensão ${tensao || '—'}, corrente ${corrente.trim() || '—'}`}. ` +
-        (modelo ? `Dimensionado: ${modelo.model} (${formatBRL(modelo.preco)}). ` : '') +
+        (modelo ? `Dimensionado: ${modelo.model} (${descreverPreco(modelo)}). ` : '') +
         'Preencheu o contato e não concluiu.',
       sourcePage: `/${landingSlug}`,
       // Implícito: a pessoa consentiu ao preencher, sob o aviso do passo 4.
@@ -615,7 +616,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       ? 'não sabe os dados do quadro (pediu dimensionamento pela equipe — foto/WhatsApp)'
       : `tensão ${tensao || 'não informada'}, corrente do disjuntor geral ${corrente.trim() || 'não informada'}`;
     const dimensionamento = modelo
-      ? `Dimensionado (quadro de entrada): ${modelo.model} (${modelo.loadLabel}) — ${formatBRL(modelo.preco)}.`
+      ? `Dimensionado (quadro de entrada): ${modelo.model} (${modelo.loadLabel}) — ${descreverPreco(modelo)}.`
       : '';
     const resumo =
       `[Orçamento ${setor} — compra direta] Contexto: ${ctxAtual?.label ?? '—'}. ` +
@@ -1027,9 +1028,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                             <span className="font-semibold text-white">{item.modelo.model}</span>
                             <span className="ml-2 text-white/60">{item.quadro}</span>
                           </span>
-                          <span className="shrink-0 text-sm tabular-nums text-white/80">
-                            {formatBRL(item.modelo.preco)}
-                          </span>
+                          <PrecoDePor
+                            modelo={item.modelo}
+                            className="shrink-0 text-sm tabular-nums text-white/80"
+                          />
                         </li>
                       ))}
                     </ul>
@@ -1305,7 +1307,13 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                             <span className="font-semibold">{i.modelo?.model}</span>
                             <span className="ml-2 text-[rgb(var(--text-muted))]">{i.quadro}</span>
                           </span>
-                          <span className="shrink-0 tabular-nums">{formatBRL(i.modelo?.preco ?? 0)}</span>
+                          {i.modelo && (
+                            <PrecoDePor
+                              modelo={i.modelo}
+                              className="shrink-0 tabular-nums"
+                              classNameDe="text-[rgb(var(--text-muted))]"
+                            />
+                          )}
                         </li>
                       ))}
                     <li className="flex items-baseline justify-between gap-4 py-2 text-sm">

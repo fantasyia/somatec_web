@@ -45,7 +45,36 @@ export type MasterBlockModel = {
   weight: string;
   /** Preço de VENDA em R$ (tabela 2026). É o valor que vai pro pedido e pro ERP. */
   preco: number;
+  /**
+   * Preço de referência riscado — o "de" do "de R$ 4.999 por R$ 4.350".
+   *
+   * ⚠️ `preco` CONTINUA sendo o valor cobrado. Este campo é só EXIBIÇÃO. Foi
+   * desenhado assim de propósito (17/09/2026): se o "de" morasse em `preco` e
+   * o promocional num campo novo, todo consumidor que continuasse lendo
+   * `preco` — precificar, payload do ERP, GA4 — passaria a cobrar 4.999 sem
+   * nada acusar. Com o campo novo sendo o riscado, esquecer dele custa no
+   * máximo um traço a menos na tela, nunca um valor a mais na cobrança.
+   *
+   * ⚖️ Só existe pros modelos em que a tabela do ERP sobe de verdade (decisão
+   * do Léo, card "Loja mostra de/por"). Riscar preço que nunca foi praticado é
+   * publicidade enganosa (CDC art. 37) — o valor daqui tem de ser o que está no
+   * Tiny como preço de tabela. Guarda em `tests/preco-de-por.test.tsx`.
+   */
+  precoTabela?: number;
 };
+
+/** O modelo tem preço riscado pra mostrar? (`precoTabela` acima do cobrado.) */
+export function emPromocao(m: Pick<MasterBlockModel, 'preco' | 'precoTabela'>): boolean {
+  return typeof m.precoTabela === 'number' && m.precoTabela > m.preco;
+}
+
+/** Preço em texto corrido (resumo de lead, WhatsApp): "R$ 4.350" ou
+ *  "de R$ 4.999 por R$ 4.350". O que se cobra é sempre o segundo número. */
+export function descreverPreco(m: Pick<MasterBlockModel, 'preco' | 'precoTabela'>): string {
+  return emPromocao(m)
+    ? `de ${formatBRL(m.precoTabela as number)} por ${formatBRL(m.preco)}`
+    : formatBRL(m.preco);
+}
 
 /** Formata um valor em Reais (sem centavos). */
 export function formatBRL(v: number): string {
@@ -56,9 +85,11 @@ export function formatBRL(v: number): string {
 export const MB_TENSAO = '110 V a 1100 V';
 
 export const MASTER_BLOCK_MODELS: readonly MasterBlockModel[] = [
-  { model: 'MB-01', loadLabel: '1 – 150 A', loadMax: 150, icc: '32 kA', dim: '150 × 100 × 60', weight: '1,4', preco: 4350 },
-  { model: 'MB-02', loadLabel: '150 – 250 A', loadMax: 250, icc: '40 kA', dim: '150 × 100 × 60', weight: '1,6', preco: 5675 },
-  { model: 'MB-03', loadLabel: '251 – 400 A', loadMax: 400, icc: '48 kA', dim: '200 × 100 × 70', weight: '1,8', preco: 6930 },
+  // `precoTabela` só nestes três nesta leva (Léo, 17/09/2026) — o "de" que a
+  // tela risca. `preco` segue sendo o cobrado; ver o tipo acima.
+  { model: 'MB-01', loadLabel: '1 – 150 A', loadMax: 150, icc: '32 kA', dim: '150 × 100 × 60', weight: '1,4', preco: 4350, precoTabela: 4999 },
+  { model: 'MB-02', loadLabel: '150 – 250 A', loadMax: 250, icc: '40 kA', dim: '150 × 100 × 60', weight: '1,6', preco: 5675, precoTabela: 6499 },
+  { model: 'MB-03', loadLabel: '251 – 400 A', loadMax: 400, icc: '48 kA', dim: '200 × 100 × 70', weight: '1,8', preco: 6930, precoTabela: 7999 },
   { model: 'MB-04', loadLabel: '401 – 550 A', loadMax: 550, icc: '48 kA', dim: '200 × 100 × 70', weight: '2,0', preco: 8290 },
   { model: 'MB-05', loadLabel: '551 – 650 A', loadMax: 650, icc: '56 kA', dim: '200 × 150 × 90', weight: '3,4', preco: 9220 },
   { model: 'MB-06', loadLabel: '651 – 750 A', loadMax: 750, icc: '64 kA', dim: '200 × 150 × 90', weight: '3,7', preco: 11125 },
