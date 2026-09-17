@@ -1,4 +1,5 @@
 import { SITE, CONTACT, SOCIALS, EMPRESA } from '@/lib/constants/site';
+import type { Socials } from '@/lib/data/site-settings';
 
 /**
  * Helpers para gerar Schema.org JSON-LD structured data.
@@ -11,9 +12,29 @@ function absoluteUrl(path: string): string {
   return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 
-/** Organization — informações institucionais base (usado na home). */
-export function organizationSchema() {
-  const sameAs = [SOCIALS.linkedin, SOCIALS.instagram, SOCIALS.youtube].filter(Boolean);
+/**
+ * Organization — informações institucionais base (usado na home).
+ *
+ * ⚠️ `socials` vem de FORA de propósito, e isto é a metade que faltava.
+ *
+ * Até 17/09 o `sameAs` lia `SOCIALS` (env) direto, enquanto o rodapé lia
+ * `site_settings.socials` do banco. Dois caminhos pro mesmo dado, e o do
+ * JSON-LD era o mudo: quem trocasse a rede social pelo banco — que é o jeito
+ * documentado de mudar sem deploy — arrumava o link visível do rodapé e
+ * deixava errado justamente o campo que o Google usa pra amarrar a entidade.
+ * Ninguém veria, porque a página parece certa.
+ *
+ * Foi assim que o `sameAs` passou semanas apontando pra uma página duplicada
+ * do LinkedIn (60 seguidores em vez de 250) — achado pela sessão de ADS em
+ * 17/09. É a mesma família das duas chaves do NOINDEX.
+ *
+ * O parâmetro é opcional só pra não quebrar chamador que não tenha o dado
+ * resolvido; quem renderiza a home DEVE passar o valor do banco. Guarda em
+ * `tests/sameas-vem-do-banco.test.ts`.
+ */
+export function organizationSchema(socials: Socials | null = null) {
+  const redes = socials ?? SOCIALS;
+  const sameAs = [redes.linkedin, redes.instagram, redes.youtube].filter(Boolean);
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
