@@ -100,8 +100,28 @@ export function whatsappHref(texto?: string): string {
   return `https://wa.me/${CONTACT.whatsappDigits}${qs}`;
 }
 
+/**
+ * Redes sociais oficiais — FONTE ÚNICA, no repositório. Decisão do Léo, 17/09.
+ *
+ * Por que não env e não banco: rede social da empresa muda praticamente nunca,
+ * e o que custou caro aqui não foi demorar pra trocar — foi ficar errado sem
+ * ninguém ver. Em 17/09 a sessão de ADS achou o `sameAs` apontando havia
+ * semanas pra uma página DUPLICADA do LinkedIn (60 seguidores em vez dos 250
+ * da real), o que provavelmente explica a marca não resolver num painel de
+ * conhecimento do Google.
+ *
+ * Valor em env ou em banco não está no repositório: não passa por revisão e
+ * nenhum teste consegue olhar pra ele. Aqui passa pelas duas coisas —
+ * `tests/socials-constante.test.ts` reprova subdomínio de locale
+ * (`pt.linkedin.com`, que também estava no ar) e reprova o slug da duplicata.
+ *
+ * ⛔ Não reintroduzir leitura de env nem de `site_settings` pra estes três. Dois
+ * lugares pro mesmo fato é o defeito, não a solução — o rodapé lia o banco e o
+ * JSON-LD lia a env, e por isso arrumar um deixava o outro errado em silêncio.
+ * Trocar rede social passa por commit, de propósito.
+ */
 export const SOCIALS = {
-  linkedin: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN ?? '',
-  instagram: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM ?? '',
-  youtube: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE ?? '',
+  linkedin: 'https://www.linkedin.com/company/somatecblocking',
+  instagram: 'https://www.instagram.com/somatecblocking',
+  youtube: 'https://www.youtube.com/c/somatecblocking',
 } as const;

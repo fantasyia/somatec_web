@@ -1,5 +1,4 @@
 import { SITE, CONTACT, SOCIALS, EMPRESA } from '@/lib/constants/site';
-import type { Socials } from '@/lib/data/site-settings';
 
 /**
  * Helpers para gerar Schema.org JSON-LD structured data.
@@ -32,9 +31,8 @@ function absoluteUrl(path: string): string {
  * resolvido; quem renderiza a home DEVE passar o valor do banco. Guarda em
  * `tests/sameas-vem-do-banco.test.ts`.
  */
-export function organizationSchema(socials: Socials | null = null) {
-  const redes = socials ?? SOCIALS;
-  const sameAs = [redes.linkedin, redes.instagram, redes.youtube].filter(Boolean);
+export function organizationSchema() {
+  const sameAs = [SOCIALS.linkedin, SOCIALS.instagram, SOCIALS.youtube].filter(Boolean);
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',

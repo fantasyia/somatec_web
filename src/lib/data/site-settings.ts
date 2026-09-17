@@ -18,12 +18,6 @@ const log = createLogger('site-settings-runtime');
 //   POST /api/revalidate?tag=site_settings   (Bearer REVALIDATE_SECRET)
 // =============================================================================
 
-export type Socials = {
-  linkedin: string | null;
-  instagram: string | null;
-  youtube: string | null;
-};
-
 export type SeoSettings = {
   title: string | null;
   title_template: string | null;
@@ -112,13 +106,6 @@ export const SEO_FALLBACK: SeoSettings = {
   google_analytics_id: null, gtm_id: null, robots_index: null, robots_follow: null,
 };
 
-export const SOCIALS_FALLBACK: Socials = {
-  linkedin: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN ?? null,
-  instagram: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM ?? null,
-  youtube: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE ?? null,
-};
-
-const SOCIALS_KEYS = ['socials'] as const;
 const SEO_KEYS = [
   'seo_global_title',
   'seo_global_title_template',
@@ -139,20 +126,17 @@ const SEO_KEYS = [
 // justamente porque produção já serviu valores velhos por causa disso. A linha
 // company_info no site_settings foi apagada junto (guardava "MSM Alimentos").
 
-/** Sociais — usado pelo Footer. Fallback pra env vars (constantes). */
-export const getSocials = unstable_cache(
-  async (): Promise<Socials> => {
-    const map = await loadKeys(SOCIALS_KEYS);
-    const raw = (map['socials'] as Partial<Socials> | null) ?? null;
-    return {
-      linkedin: raw?.linkedin ?? process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN ?? null,
-      instagram: raw?.instagram ?? process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM ?? null,
-      youtube: raw?.youtube ?? process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE ?? null,
-    };
-  },
-  ['site-settings:socials'],
-  { revalidate: 3600, tags: ['site_settings'] },
-);
+// ⛔ SOCIAIS NÃO MORAM MAIS AQUI (17/09/2026, decisão do Léo).
+//
+// Havia `getSocials` lendo `site_settings.socials` com fallback pra env,
+// enquanto o JSON-LD lia a env direto. Dois caminhos pro mesmo fato, e arrumar
+// um deixava o outro errado SEM SINTOMA — foi assim que o `sameAs` passou
+// semanas apontando pra uma página duplicada do LinkedIn.
+//
+// Agora a fonte é `SOCIALS` em `lib/constants/site.ts`: versionada, revisável
+// em commit e coberta por `tests/socials-constante.test.ts`. O CMS nunca
+// escreveu a chave `socials` (conferido), então nada operava este caminho.
+// Não reintroduzir.
 
 /** SEO globais — usado pelo RootLayout. Cada campo tem fallback hardcoded. */
 export const getSeoSettings = unstable_cache(

@@ -2,8 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram, Linkedin, Youtube } from 'lucide-react';
 import { FOOTER_COLUMNS } from '@/lib/constants/navigation';
-import { SITE, CONTACT, EMPRESA, SOCIALS as ENV_SOCIALS } from '@/lib/constants/site';
-import { type Socials, type Certification } from '@/lib/data/site-settings';
+import { SITE, CONTACT, EMPRESA, SOCIALS } from '@/lib/constants/site';
+import { type Certification } from '@/lib/data/site-settings';
 import { PROOFS } from '@/components/ui/ProofBadges';
 import { FooterColumns } from '@/components/layout/FooterColumns';
 
@@ -12,30 +12,25 @@ type FooterColumnData = { title: string; links: FooterLink[] };
 
 type Props = {
   columns?: FooterColumnData[];
-  /** Vem de site_settings.socials (admin). Cai pras env vars se null. */
-  socials?: Socials;
   /** Vem de site_settings.certifications (admin). Cai no fallback se vazio. */
   certifications?: Certification[];
   /** Rotas /blog/... do público não-industrial, resolvidas no servidor. */
   slugsNi?: string[];
 };
 
-export function Footer({ columns = FOOTER_COLUMNS, socials, slugsNi = [] }: Props) {
+export function Footer({ columns = FOOTER_COLUMNS, slugsNi = [] }: Props) {
   const year = new Date().getFullYear();
 
-  // Prioridade: prop (site_settings) → env var → vazio
-  const linkedin = socials?.linkedin ?? ENV_SOCIALS.linkedin ?? '';
-  const instagram = socials?.instagram ?? ENV_SOCIALS.instagram ?? '';
-  const youtube = socials?.youtube ?? ENV_SOCIALS.youtube ?? '';
-
+  // Fonte única: `SOCIALS` em lib/constants/site.ts. Até 17/09 isto vinha de
+  // `site_settings.socials` com fallback pra env, e o JSON-LD lia a env direto
+  // — dois caminhos, e arrumar um deixava o outro errado em silêncio.
   const SOCIAL_LINKS = [
-    { label: 'LinkedIn', href: linkedin, Icon: Linkedin },
-    { label: 'Instagram', href: instagram, Icon: Instagram },
-    { label: 'YouTube', href: youtube, Icon: Youtube },
-    // ⚠️ Só `https:` (B11 da auditoria 13/09). O valor vem de
-    // `site_settings.socials`, no banco — um `javascript:` ali viraria link
-    // executável no rodapé de TODA página. Escrever exige is_admin/service_role,
-    // mas o custo de conferir é uma linha.
+    { label: 'LinkedIn', href: SOCIALS.linkedin, Icon: Linkedin },
+    { label: 'Instagram', href: SOCIALS.instagram, Icon: Instagram },
+    { label: 'YouTube', href: SOCIALS.youtube, Icon: Youtube },
+    // ⚠️ Só `https:` (B11 da auditoria 13/09). A guarda fica mesmo agora que o
+    // valor é constante: é uma linha, e ela é o que impede um `javascript:`
+    // virar link executável no rodapé de TODA página se a fonte mudar de novo.
   ].filter((s) => s.href && /^https:\/\//i.test(s.href));
 
   return (

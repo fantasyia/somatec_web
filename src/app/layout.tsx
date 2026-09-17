@@ -18,11 +18,9 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getWhatsAppButtonConfig, buildWhatsAppUrl } from '@/lib/whatsapp-button';
 import {
   getSeoSettings,
-  getSocials,
   getCertifications,
   comFallback,
   SEO_FALLBACK,
-  SOCIALS_FALLBACK,
   CERTIFICATIONS_FALLBACK,
 } from '@/lib/data/site-settings';
 import { AttributionTracker } from '@/components/AttributionTracker';
@@ -168,12 +166,11 @@ export default async function RootLayout({
 }) {
   // Cada getter cacheado é envolvido em comFallback: banco fora → fallback só
   // nesta requisição, sem gravar o vazio no cache por 1h (A4 da auditoria).
-  const [cookieBannerText, footerColumns, whatsAppConfig, socials, seo, certifications, slugsNi] =
+  const [cookieBannerText, footerColumns, whatsAppConfig, seo, certifications, slugsNi] =
     await Promise.all([
       comFallback(getCookieBannerText, undefined, 'layout:cookieBanner'),
       comFallback(getFooterData, FOOTER_COLUMNS, 'layout:footer'),
       getWhatsAppButtonConfig(),
-      comFallback(getSocials, SOCIALS_FALLBACK, 'layout:socials'),
       comFallback(getSeoSettings, SEO_FALLBACK, 'layout:seo'),
       comFallback(getCertifications, CERTIFICATIONS_FALLBACK, 'layout:certifications'),
       // O menu e o rodapé escondem ferramenta industrial nas rotas NI. Eles são
@@ -229,7 +226,7 @@ export default async function RootLayout({
         <main id="conteudo" className="flex-1">
           {children}
         </main>
-        <Footer columns={footerColumns} socials={socials} certifications={certifications} slugsNi={slugsNi} />
+        <Footer columns={footerColumns} certifications={certifications} slugsNi={slugsNi} />
         <CookieBanner text={cookieBannerText} />
         {whatsAppUrl && <WhatsAppButton href={whatsAppUrl} />}
         <StickyCta />

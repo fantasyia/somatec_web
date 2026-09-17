@@ -18,7 +18,6 @@ import { BLOG_TEASER_ENABLED } from '@/lib/constants/flags';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Reveal } from '@/components/ui/Reveal';
 import { organizationSchema, faqSchema } from '@/lib/seo/structured-data';
-import { comFallback, getSocials, SOCIALS_FALLBACK } from '@/lib/data/site-settings';
 
 /**
  * A home NÃO declara `openGraph`, `twitter` nem `description` de propósito.
@@ -49,16 +48,9 @@ export const revalidate = 3600;
 export default async function HomePage() {
   // Fetch paralelo de todos os blocos.
   //
-  // `socials` entra aqui porque o `sameAs` do JSON-LD passou a sair da MESMA
-  // fonte do rodapé (`site_settings.socials`, com fallback pra env). Antes ele
-  // lia a env direto: trocar a rede social pelo banco arrumava o rodapé e
-  // deixava o `sameAs` velho, sem nada acusar — e `sameAs` é o que o Google usa
-  // pra amarrar a entidade. `comFallback` porque banco fora do ar não pode
-  // gravar vazio no cache de 1h (A4 da auditoria).
-  const [hero, indicators, socials] = await Promise.all([
+  const [hero, indicators] = await Promise.all([
     getHomeHero(),
     getIndicators(),
-    comFallback(getSocials, SOCIALS_FALLBACK, 'home:socials'),
   ]);
 
   return (
@@ -70,7 +62,7 @@ export default async function HomePage() {
           páginas declarando a mesma entidade com a mesma URL é sinal
           contraditório: o Google escolhe uma e a outra vira ruído. A home
           segue com Organization + FAQ, que são dela. */}
-      <JsonLd data={[organizationSchema(socials), faqSchema()]} />
+      <JsonLd data={[organizationSchema(), faqSchema()]} />
 
       {/* Hero e carrossel: render imediato (acima da dobra). Demais seções
           entram com fade-up ao scroll (§20.14). HomeIndicators tem stagger

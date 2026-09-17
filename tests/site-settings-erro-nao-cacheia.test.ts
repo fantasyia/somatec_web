@@ -76,10 +76,14 @@ describe('erro do banco em site_settings', () => {
   });
 
   it('sem env de Supabase NÃO lança — build estático/CI', async () => {
+    // Era `getSocials` até 17/09; as redes sociais saíram do banco e viraram
+    // constante no repo (ver lib/constants/site.ts). O que este caso protege é
+    // o `loadKeys` devolver {} sem lançar quando não há Supabase configurado —
+    // qualquer getter serve de sonda, e o de SEO é o que mais dói se quebrar.
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const { getSocials } = await import('@/lib/data/site-settings');
-    const socials = await getSocials();
-    expect(socials).toHaveProperty('linkedin');
+    const { getSeoSettings } = await import('@/lib/data/site-settings');
+    const seo = await getSeoSettings();
+    expect(seo).toHaveProperty('title');
   });
 });
 
