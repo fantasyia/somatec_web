@@ -18,11 +18,17 @@ type Props = {
   modelo: Pick<MasterBlockModel, 'preco' | 'precoTabela'>;
   /** Classe do preço cobrado (o "por"). */
   className?: string;
-  /** Classe do riscado. Default serve pro fundo escuro do carrinho. */
+  /**
+   * Classe do riscado. Default serve pro fundo escuro do carrinho
+   * (`bg-deep_navy`, #002B47) — MEDIDO, não escolhido no olho: white/45 dava
+   * 4,06:1 e reprova o mínimo de 4,5 pra texto de 12px; white/60 dá 6,11:1.
+   * É a mesma opacidade dos rótulos que já vivem nesse painel. No fundo claro
+   * do resumo, passar `text-[rgb(var(--text-muted))]` (8,7:1).
+   */
   classNameDe?: string;
 };
 
-export function PrecoDePor({ modelo, className = '', classNameDe = 'text-white/45' }: Props) {
+export function PrecoDePor({ modelo, className = '', classNameDe = 'text-white/60' }: Props) {
   if (!emPromocao(modelo)) {
     return <span className={className}>{formatBRL(modelo.preco)}</span>;
   }

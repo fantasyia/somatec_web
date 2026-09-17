@@ -117,6 +117,19 @@ describe('o que a tela mostra', () => {
   });
 });
 
+describe('contraste do riscado no painel escuro', () => {
+  it('🔴 default do riscado não pode ficar abaixo de white/60 — 4,5:1 em 12px sobre #002B47', () => {
+    // Medido em 17/09 sobre `bg-deep_navy` (#002B47), o fundo real do carrinho:
+    // white/45 = 4,06:1 (reprova) · white/60 = 6,11:1 · white/70 = 7,78:1.
+    // Quem "clarear o traço pra ficar discreto" volta a reprovar a11y sem
+    // nenhum teste de token acusar — `/45` é classe válida do Tailwind.
+    const codigo = semComentarios(fonte('src/components/tools/PrecoDePor.tsx'));
+    const m = codigo.match(/classNameDe = 'text-white\/(\d+)'/);
+    expect(m, 'default do riscado tem de ser text-white/NN').not.toBeNull();
+    expect(Number(m![1])).toBeGreaterThanOrEqual(60);
+  });
+});
+
 describe('o checkout usa o componente nos dois lugares', () => {
   const codigo = semComentarios(fonte('src/components/tools/CheckoutNI.tsx'));
 
