@@ -49,9 +49,14 @@ const PRECO_POR_MODELO = new Map<string, number>(
 /**
  * SKU de TESTE do ERP — produto fictício de R$ 10,00 ("TESTE-NF", não vender).
  *
- * Existe pra homologar a nota fiscal: a NF de teste precisa sair barata, e o
- * único produto do ERP com NCM cadastrado é este. Emitir NF de homologação num
- * pedido de R$ 4.350 seria pôr o valor cheio pra circular à toa.
+ * Existe pra homologar a nota fiscal: a NF de teste precisa sair barata, e
+ * emitir NF de homologação num pedido de R$ 4.350 seria pôr o valor cheio pra
+ * circular à toa.
+ *
+ * (Até 15/09/2026 ele era também o ÚNICO produto do ERP com NCM cadastrado —
+ * não é mais: os 12 Master Block receberam NCM 8535.29.00 e origem 0, da folha
+ * de informações fiscais do contador. A razão de existir do SKU de teste passou
+ * a ser só o valor.)
  *
  * ⚠️ **Fora do catálogo do site de propósito.** Ele não aparece em página, nem
  * no wizard, nem na tabela de modelos — só é aceito quando a requisição prova
