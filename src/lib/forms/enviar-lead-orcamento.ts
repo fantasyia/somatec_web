@@ -35,6 +35,18 @@ export type LeadOrcamento = {
    *  público (a LP define residencial/comercial; a triagem de Grupo A define
    *  industrial), então não faz sentido perguntar de novo. */
   publico?: PublicoId;
+  /**
+   * O MESMO id que o navegador usou no `generate_lead`. É o que faz a Meta
+   * entender que o disparo do Pixel e o do CAPI são um evento só.
+   *
+   * ⚠️ Opcional porque nem todo caminho daqui tem par no navegador: o
+   * `checkout-ni-abandono` sai no `pagehide`, sem evento de Pixel nenhum, e
+   * ali o servidor gerar o id é o certo. Mas quem DISPARA `rastrearLead`
+   * tem que passar o id — sem ele o servidor cai no fallback, gera outro, e
+   * a Meta conta o mesmo lead duas vezes. Foi o que aconteceu com a
+   * calculadora industrial e com o orçamento do checkout até 18/09.
+   */
+  eventId?: string;
 };
 
 export type ResultadoEnvio = { ok: true } | { ok: false; mensagem: string };
@@ -64,6 +76,7 @@ export async function enviarLeadOrcamento(d: LeadOrcamento): Promise<ResultadoEn
         website: d.honeypot ?? '',
         captcha_token: d.captchaToken,
         formulario: d.formulario,
+        ...(d.eventId ? { event_id: d.eventId } : {}),
         ...(d.publico ? { publico: d.publico } : {}),
         ...(getAtribuicao() ? { atribuicao: getAtribuicao() } : {}),
       }),

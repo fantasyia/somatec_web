@@ -25,7 +25,7 @@ import { TurnstileWidget } from '@/components/forms/fields/TurnstileWidget';
 import { FormStatus, type FormStatusKind } from '@/components/forms/fields/FormStatus';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { trackEvent } from '@/lib/analytics';
-import { rastrearLead } from '@/lib/analytics/eventos';
+import { novoEventId, rastrearLead } from '@/lib/analytics/eventos';
 import { enviarLeadOrcamento } from '@/lib/forms/enviar-lead-orcamento';
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { formatBRL } from '@/lib/constants/masterblock';
@@ -180,8 +180,14 @@ export function OrcamentoIndustrial({
       `Setores/galpões (${setoresValidos.length}): ${setoresValidos.join(', ') || '—'}. ` +
       `Painéis de distribuição: ${nPaineis}. Pontos sensíveis: ${pontosResumo}.`;
 
+    // Um id só pros DOIS disparos deste lead — o do navegador, logo abaixo, e
+    // o que o servidor manda pro CAPI. Gerado ANTES do envio de propósito: é o
+    // servidor quem dispara primeiro, então o id precisa ir junto no payload.
+    const eventId = novoEventId();
+
     const r = await enviarLeadOrcamento({
       formulario: 'orcamento-industrial',
+      eventId,
       nome: fd.get('name'),
       email: fd.get('email'),
       whatsapp: fd.get('whatsapp'),
@@ -205,7 +211,7 @@ export function OrcamentoIndustrial({
       // É lead de fato e precisa cair na MESMA conversão dos formulários —
       // senão o Google otimiza só pelos forms e ignora a calculadora, que é a
       // porta de entrada industrial (pedido da sessão de Ads, 08/09).
-      rastrearLead({ formId: 'calculadora_industrial', motor: 'industrial' });
+      rastrearLead({ formId: 'calculadora_industrial', motor: 'industrial', eventId });
     } else {
       setStatus('error');
       setMessage(r.mensagem);

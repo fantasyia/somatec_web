@@ -727,6 +727,9 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     if (!virouPedido) {
       r = await enviarLeadOrcamento({
         formulario: 'checkout-ni-orcamento',
+        // MESMO id do `rastrearLead` mais abaixo — sem ele o CAPI gera outro e
+        // a Meta conta este lead duas vezes.
+        eventId: eventIdLead,
         nome: contato.nome,
         email: contato.email,
         whatsapp: contato.whatsapp,
