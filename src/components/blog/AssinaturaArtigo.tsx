@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { User, ShieldCheck } from 'lucide-react';
+import { AvatarAutor } from '@/components/blog/AvatarAutor';
 import { autorPorNome } from '@/lib/constants/autores';
 import type { Assinatura } from '@/lib/blog/fonte';
 
@@ -84,14 +85,7 @@ export function AuthorBox({ assinatura }: { assinatura?: Assinatura }) {
         Revisão técnica
       </p>
       <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgb(var(--border))] bg-[rgb(var(--bg))]">
-          {foto ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={foto} alt={nome} className="h-full w-full object-cover" loading="lazy" />
-          ) : (
-            <User className="h-6 w-6 text-[rgb(var(--text-muted))]" strokeWidth={1.5} aria-hidden="true" />
-          )}
-        </div>
+        <AvatarAutor nome={nome} foto={foto} tamanho="md" />
         <div className="min-w-0">
           <p className="font-serif text-lg font-semibold text-[rgb(var(--text))]">
             {perfil && perfil.slug !== 'redator-somatec' ? (

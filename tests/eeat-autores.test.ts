@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { AUTORES, autorPorNome, autorPorSlug, autoresComPagina } from '@/lib/constants/autores';
+import { iniciaisDe } from '@/components/blog/AvatarAutor';
 import { pessoaSchema, autorDoArtigo, revisorDoArtigo } from '@/lib/blog/schema-autor';
 
 // =============================================================================
@@ -15,9 +16,11 @@ import { pessoaSchema, autorDoArtigo, revisorDoArtigo } from '@/lib/blog/schema-
 
 describe('perfis de autor', () => {
   it('o nome casa com o que está gravado no artigo, tolerando acento', () => {
-    expect(autorPorNome('Marcelo Harada')?.slug).toBe('marcelo-harada');
-    expect(autorPorNome('  marcelo   harada  ')?.slug).toBe('marcelo-harada');
-    expect(autorPorNome('MARCELO HARADA')?.slug).toBe('marcelo-harada');
+    // O acento é o caso que interessa: o nome vai pro banco como o editor
+    // gravou e volta pro site como texto, e "Jose" tem de achar "José".
+    expect(autorPorNome('José Fernando Nunes')?.slug).toBe('jose-fernando-nunes');
+    expect(autorPorNome('  jose   fernando   nunes  ')?.slug).toBe('jose-fernando-nunes');
+    expect(autorPorNome('JOSÉ FERNANDO NUNES')?.slug).toBe('jose-fernando-nunes');
   });
 
   it('nome desconhecido não vira perfil inventado', () => {
@@ -33,7 +36,17 @@ describe('perfis de autor', () => {
 
   it('a redação não pode aparecer como revisor: ninguém revisa a si mesmo', () => {
     expect(autorPorSlug('redator-somatec')?.revisor).toBe(false);
-    expect(AUTORES.filter((a) => a.revisor).length).toBeGreaterThanOrEqual(3);
+    expect(AUTORES.filter((a) => a.revisor).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('são estes três e mais ninguém (Léo, 18/09/2026)', () => {
+    // Lista fechada de propósito. Quem entrar aqui vira opção no seletor do
+    // CMS, e opção no seletor vira assinatura em página YMYL por um clique.
+    expect(AUTORES.map((a) => a.slug).sort()).toEqual([
+      'jose-fernando-nunes',
+      'leandro-lima',
+      'redator-somatec',
+    ]);
   });
 
   it('slug é único — dois perfis no mesmo slug quebrariam /autor/<slug>', () => {
@@ -44,21 +57,21 @@ describe('perfis de autor', () => {
 
 describe('schema Person — campo vazio não entra', () => {
   it('sem credencial, a chave hasCredential não existe', () => {
-    const p = pessoaSchema('Marcelo Harada');
+    const p = pessoaSchema('Leandro Lima');
     expect(p).not.toBeNull();
     expect(p).not.toHaveProperty('hasCredential');
-    expect(p!.name).toBe('Marcelo Harada');
+    expect(p!.name).toBe('Leandro Lima');
   });
 
   it('credencial em branco é tratada como ausente, não como string vazia', () => {
-    const p = pessoaSchema('Marcelo Harada', { credencial: '   ', papel: '' });
+    const p = pessoaSchema('Leandro Lima', { credencial: '   ', papel: '' });
     expect(p).not.toHaveProperty('hasCredential');
     // jobTitle cai no papel do perfil, que existe
-    expect(p!.jobTitle).toBe('Técnico — Somatec Blocking');
+    expect(p!.jobTitle).toBe('CEO — Somatec Blocking');
   });
 
   it('credencial do post vence a do perfil', () => {
-    const p = pessoaSchema('Marcelo Harada', { credencial: 'CREA 123456/D' });
+    const p = pessoaSchema('Leandro Lima', { credencial: 'CREA 123456/D' });
     expect(p!.hasCredential).toBe('CREA 123456/D');
   });
 
@@ -69,7 +82,7 @@ describe('schema Person — campo vazio não entra', () => {
   });
 
   it('só linka pra página de autor que existe', () => {
-    expect(pessoaSchema('Marcelo Harada')!.url).toMatch(/\/autor\/marcelo-harada$/);
+    expect(pessoaSchema('Leandro Lima')!.url).toMatch(/\/autor\/leandro-lima$/);
     expect(pessoaSchema('Redator Somatec Blocking')).not.toHaveProperty('url');
     expect(pessoaSchema('Alguém de Fora')).not.toHaveProperty('url');
   });
@@ -78,10 +91,10 @@ describe('schema Person — campo vazio não entra', () => {
 describe('assinatura do artigo', () => {
   const cheia = {
     autor: 'Redator Somatec Blocking',
-    revisor: 'Fernando Engenheiro',
+    revisor: 'José Fernando Nunes',
     revisadoEm: '2026-07-27',
     especialista: {
-      nome: 'Fernando Engenheiro',
+      nome: 'José Fernando Nunes',
       papel: 'Engenheiro eletricista',
       bio: null,
       credencial: null,
@@ -110,7 +123,6 @@ describe('assinatura do artigo', () => {
   it('o especialista do post vence o campo revisor', () => {
     const r = revisorDoArtigo({
       ...cheia,
-      revisor: 'Marcelo Harada',
       especialista: { nome: 'Leandro Lima', papel: null, bio: null, credencial: 'CEO' },
     });
     expect(r!.name).toBe('Leandro Lima');
@@ -134,6 +146,18 @@ describe('espelho dos perfis entre os dois repos', () => {
     }
     for (const autor of AUTORES) {
       expect(fonteCms, `"${autor.nome}" não existe no CMS`).toContain(`name: "${autor.nome}"`);
+    }
+
+    // E o caminho de volta, que é o que dói na prática: nome que existe no CMS
+    // e não existe aqui vira opção no seletor do editor, alguém escolhe, o
+    // artigo grava esse nome — e o site não acha o perfil, então o author box
+    // some calado. Foi por isso que o Marcelo Harada teve de sair dos DOIS.
+    const nomesCms = [...fonteCms.matchAll(/^\s*name: "([^"]*)"/gm)]
+      .map((m) => m[1])
+      .filter(Boolean);
+    expect(nomesCms.length, 'não achei nome nenhum no CMS — o formato mudou?').toBeGreaterThan(0);
+    for (const nome of nomesCms) {
+      expect(autorPorNome(nome), `"${nome}" está no CMS e não tem perfil no site`).toBeDefined();
     }
   });
 });
@@ -160,31 +184,60 @@ describe('pendência registrada — não é bug, é decisão do Léo', () => {
     // o pedido: a saída fácil é foto de banco de imagem ou retrato gerado, e
     // numa página YMYL sobre risco elétrico um rosto que não é de ninguém
     // derruba a confiança na página inteira quando alguém percebe.
-    const fernando = autorPorSlug('fernando-engenheiro');
+    const fernando = autorPorSlug('jose-fernando-nunes');
     expect(fernando?.foto, 'ele pediu pra não ter foto — ver comentário em autores.ts').toBeNull();
   });
 
-  it('sem foto, a tela desenha ícone neutro — nunca um rosto genérico', () => {
-    // O que torna o "sem foto" aceitável é existir um fallback honesto. Se
-    // alguém trocar o ícone por uma imagem de pessoa, a ausência de foto deixa
-    // de ser ausência e passa a ser uma pessoa inventada.
+  it('sem foto, o avatar é MONOGRAMA — o caminho sem foto não tem imagem nenhuma', () => {
+    // O que torna o "sem foto" aceitável é o fallback não fingir ser um rosto.
+    // Iniciais identificam sem inventar ninguém; uma <img> aqui transformaria
+    // a ausência de foto numa pessoa que não existe.
+    const fonte = readFileSync(
+      resolve(process.cwd(), 'src/components/blog/AvatarAutor.tsx'),
+      'utf-8',
+    );
+    // sem os comentários: o próprio cabeçalho do arquivo fala em <img>, e
+    // contar a menção junto com o código faria a guarda cair sozinha.
+    const codigo = fonte.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    expect(codigo.match(/<img/g) ?? [], 'AvatarAutor ganhou uma segunda <img>').toHaveLength(1);
+    expect(codigo, 'a <img> saiu de dentro do ramo `foto ?`').toMatch(/foto \?[\s\S]{0,200}<img/);
+    const semFoto = codigo.slice(codigo.indexOf(': iniciais ?'));
+    expect(semFoto, 'o caminho sem foto ganhou imagem').not.toMatch(/<img|background-image|url\(/);
+  });
+
+  it('as duas telas passam pelo AvatarAutor — ninguém desenha o círculo por fora', () => {
+    // Se alguém voltar a montar o avatar à mão numa das telas, a guarda acima
+    // continua verde e a tela escapa dela. Daí este teste existir.
     for (const arquivo of [
       'src/components/blog/AssinaturaArtigo.tsx',
       'src/app/autor/[slug]/page.tsx',
     ]) {
       const fonte = readFileSync(resolve(process.cwd(), arquivo), 'utf-8');
-      expect(fonte, `${arquivo}: o fallback de foto sumiu`).toMatch(/foto \?[\s\S]{0,320}<User/);
+      expect(fonte, `${arquivo}: não usa AvatarAutor`).toContain('<AvatarAutor');
+      expect(fonte, `${arquivo}: voltou a desenhar foto de pessoa por fora`).not.toMatch(
+        /<img[^>]*alt=\{(autor\.)?nome\}/,
+      );
     }
   });
 
-  it('"Fernando Engenheiro" segue sem sobrenome — lembrete vivo', () => {
-    // Não é teste de comportamento: é lembrete que falha quando resolverem.
-    // "Revisado por Fernando Engenheiro" lê como placeholder numa página YMYL.
-    const fernando = autorPorSlug('fernando-engenheiro');
-    expect(fernando).toBeDefined();
-    if (fernando!.nome !== 'Fernando Engenheiro') {
-      // resolvido: agora exige credencial junto, senão o nome novo não ajuda
-      expect(fernando!.credencial, 'nome corrigido mas sem CREA').not.toBe('');
-    }
+  it('o monograma sai do nome e ignora partícula', () => {
+    expect(iniciaisDe('José Fernando Nunes')).toBe('JN');
+    expect(iniciaisDe('Leandro Lima')).toBe('LL');
+    expect(iniciaisDe('Maria de Souza')).toBe('MS');
+    expect(iniciaisDe('Prince')).toBe('P');
+    // sem nome não há monograma: aí a tela cai no ícone neutro
+    expect(iniciaisDe('')).toBe('');
+    expect(iniciaisDe(null)).toBe('');
+  });
+
+  it('o revisor engenheiro tem nome completo E registro — os dois juntos', () => {
+    // Substitui o lembrete do placeholder "Fernando Engenheiro", resolvido em
+    // 18/09/2026. Nome próprio sem CREA não sustenta página YMYL de risco
+    // elétrico, e CREA sem nome não identifica ninguém.
+    const eng = autorPorSlug('jose-fernando-nunes');
+    expect(eng, 'o slug do engenheiro mudou sem atualizar este teste').toBeDefined();
+    expect(eng!.nome).toBe('José Fernando Nunes');
+    expect(eng!.credencial).toMatch(/^CREA-SP \d{10}$/);
+    expect(eng!.revisor).toBe(true);
   });
 });

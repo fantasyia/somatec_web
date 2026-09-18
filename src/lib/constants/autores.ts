@@ -51,32 +51,32 @@ export const AUTORES: readonly Autor[] = [
     foto: null,
     revisor: true,
   },
+  // 🚫 Marcelo Harada saiu desta lista em 18/09/2026, a pedido do Léo. Quem
+  // assina é o Leandro (CEO), o José Fernando Nunes (engenheiro) e a redação —
+  // mais ninguém. Não era perfil incompleto por esquecimento: ele não assina.
+  // Saiu sem rastro: nenhum dos 378 posts (nem os apagados) tinha o nome dele
+  // em author_name, reviewed_by, expert_name ou no corpo — conferido no banco
+  // antes de remover, não deduzido.
   {
-    slug: 'marcelo-harada',
-    nome: 'Marcelo Harada',
-    papel: 'Técnico — Somatec Blocking',
-    credencial: '',
-    bio: '',
-    foto: null,
-    revisor: true,
-  },
-  {
-    // ⚠️ Nome incompleto — pendência aberta com o Léo. "Revisado por Fernando
-    // Engenheiro" lê como placeholder numa página YMYL, e o que dá peso em
-    // conteúdo elétrico é o CREA. Falta sobrenome + registro.
-    slug: 'fernando-engenheiro',
-    nome: 'Fernando Engenheiro',
+    // Nome e CREA informados pelo Léo em 18/09/2026. Antes era o placeholder
+    // "Fernando Engenheiro", que lia como campo por preencher numa página YMYL.
+    // O que dá peso em conteúdo elétrico é o registro, e agora ele está aqui.
+    slug: 'jose-fernando-nunes',
+    nome: 'José Fernando Nunes',
     papel: 'Engenheiro eletricista',
-    credencial: '',
+    credencial: 'CREA-SP 5060776733',
+    // 🔲 Bio vazia de propósito: não temos uma linha verdadeira sobre ele além
+    //    do registro, e frase de enfeite em YMYL vale menos que ausência.
     bio: '',
-    // 🔒 SEM FOTO POR VONTADE DELE — decisão do Léo em 15/09, não é pendência.
+    // 🔒 SEM FOTO POR VONTADE DELE — decisão do Léo em 15/09, reafirmada em
+    // 18/09, não é pendência.
     //
     // Ele segue como revisor público (nome + CREA); o que ele não quer é o
-    // rosto. A tela já trata isto: sem foto, `AssinaturaArtigo` e
-    // `/autor/[slug]` desenham um ícone neutro de pessoa no círculo — não um
-    // rosto genérico. ⛔ Não "consertar" pondo foto de banco de imagem nem
-    // retrato gerado: numa página sobre risco elétrico, um rosto que não é de
-    // ninguém derruba a confiança na página inteira quando alguém percebe.
+    // rosto. A tela trata isto: sem foto, `AvatarAutor` desenha o MONOGRAMA
+    // (JN) no círculo — identificação, não retrato. ⛔ Não "consertar" pondo
+    // foto de banco de imagem nem retrato gerado: numa página sobre risco
+    // elétrico, um rosto que não é de ninguém derruba a confiança na página
+    // inteira quando alguém percebe.
     // Guarda em `tests/eeat-autores.test.ts`.
     foto: null,
     revisor: true,

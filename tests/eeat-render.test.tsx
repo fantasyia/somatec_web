@@ -8,7 +8,7 @@ import type { Assinatura } from '@/lib/blog/fonte';
 
 const base: Assinatura = {
   autor: 'Redator Somatec Blocking',
-  revisor: 'Marcelo Harada',
+  revisor: 'Leandro Lima',
   revisadoEm: '2026-07-27',
   especialista: null,
 };
@@ -19,7 +19,7 @@ describe('byline', () => {
     expect(html).toContain('Escrito por');
     expect(html).toContain('Redator Somatec Blocking');
     expect(html).toContain('Revisado por');
-    expect(html).toContain('Marcelo Harada');
+    expect(html).toContain('Leandro Lima');
   });
 
   it('revisor igual ao autor não repete o nome', () => {
@@ -36,7 +36,7 @@ describe('byline', () => {
 
   it('linka o revisor pra página dele, o redator genérico não', () => {
     const html = renderToStaticMarkup(<BylineArtigo assinatura={base} />);
-    expect(html).toContain('/autor/marcelo-harada');
+    expect(html).toContain('/autor/leandro-lima');
     expect(html).not.toContain('/autor/redator-somatec');
   });
 });
@@ -52,8 +52,8 @@ describe('author box', () => {
   it('bio e credencial vazias NÃO viram linha em branco nem placeholder', () => {
     const html = renderToStaticMarkup(<AuthorBox assinatura={base} />);
     expect(html).toContain('Revisão técnica');
-    expect(html).toContain('Marcelo Harada');
-    expect(html).toContain('Técnico — Somatec Blocking'); // papel vem do perfil
+    expect(html).toContain('Leandro Lima');
+    expect(html).toContain('CEO — Somatec Blocking'); // papel vem do perfil
     // nada de "em breve", "a definir" ou parágrafo vazio
     expect(html).not.toMatch(/em breve|a definir|<p[^>]*><\/p>/i);
   });
@@ -63,17 +63,21 @@ describe('author box', () => {
       <AuthorBox
         assinatura={{
           ...base,
+          // Pessoa FICTÍCIA de propósito, com CREA fictício: é o teste de que o
+          // campo do post vence o perfil. Não pôr aqui o nome nem o registro de
+          // quem revisa de verdade — dado de fixture vira dado de produção por
+          // copiar e colar, e credencial errada em YMYL é o pior dos mundos.
           especialista: {
-            nome: 'Fernando Engenheiro',
-            papel: 'Engenheiro eletricista',
+            nome: 'Engenheira de Exemplo',
+            papel: 'Engenheira eletricista',
             bio: 'Atua com qualidade de energia há 12 anos.',
-            credencial: 'CREA 5060123456/D',
+            credencial: 'CREA-XX 0000000000',
           },
         }}
       />,
     );
-    expect(html).toContain('CREA 5060123456/D');
+    expect(html).toContain('CREA-XX 0000000000');
     expect(html).toContain('Atua com qualidade de energia');
-    expect(html).toContain('Engenheiro eletricista');
+    expect(html).toContain('Engenheira eletricista');
   });
 });

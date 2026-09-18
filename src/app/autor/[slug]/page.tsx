@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight, User } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { AvatarAutor } from '@/components/blog/AvatarAutor';
 import { BlogCard } from '@/components/blog/BlogCard';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SITE, DEFAULT_OG_IMAGES } from '@/lib/constants/site';
@@ -112,14 +113,7 @@ export default async function AutorPage({ params }: { params: Promise<{ slug: st
         </nav>
 
         <div className="flex max-w-3xl flex-col gap-5 md:flex-row md:items-start md:gap-6">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgb(var(--border))] bg-[rgb(var(--surface))]">
-            {autor.foto ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={autor.foto} alt={autor.nome} className="h-full w-full object-cover" />
-            ) : (
-              <User className="h-9 w-9 text-[rgb(var(--text-muted))]" strokeWidth={1.5} aria-hidden="true" />
-            )}
-          </div>
+          <AvatarAutor nome={autor.nome} foto={autor.foto} tamanho="lg" />
           <div className="min-w-0">
             <h1 className="font-serif text-h2-m md:text-h2-d font-semibold leading-tight">
               {autor.nome}
