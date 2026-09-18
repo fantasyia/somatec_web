@@ -1,6 +1,7 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
 import { createLogger } from '@/lib/logger';
+import { getRedis } from '@/lib/redis';
 
 const log = createLogger('meta-capi');
 
@@ -88,6 +89,70 @@ export function montarFbc(fbclid: string | null | undefined, capturadoEm?: strin
 /** Configurado = as duas variáveis presentes. Uma só não serve pra nada. */
 export function capiConfigurado(): boolean {
   return Boolean(process.env.META_PIXEL_ID && process.env.META_CAPI_TOKEN);
+}
+
+// -----------------------------------------------------------------------------
+// IDENTIDADE DE ANÚNCIO GUARDADA ATÉ O DINHEIRO ENTRAR
+//
+// O `Purchase` nasce no webhook do Asaas, e webhook não tem navegador: nada de
+// cookie, nada de `fbclid`. Sem `fbp`/`fbc` a Meta ainda recebe a venda, mas
+// não consegue ligá-la ao CLIQUE no anúncio — e aí a campanha que gerou a
+// compra não recebe o crédito. O relatório fica certo no total e errado em
+// tudo que importa pra decidir onde investir.
+//
+// Então o pedido guarda os dois na criação, quando os cookies existem, e o
+// webhook lê depois. Mesmo desenho do `client_id` do GA4, em chave separada:
+// são identidades de plataformas diferentes e expiram por motivos diferentes.
+//
+// 🔒 Só cookie de anúncio aqui — nenhum dado pessoal. E-mail e telefone o
+// webhook lê do pedido no banco, onde já vivem, e saem daqui como hash.
+// -----------------------------------------------------------------------------
+
+/** 30 dias: o Asaas reentrega evento muito depois, e boleto vence em 3 dias. */
+const TTL_IDENTIDADE_SEGUNDOS = 30 * 24 * 60 * 60;
+
+const chaveIdentidade = (numeroPedido: string) => `somatec:meta:id:${numeroPedido}`;
+
+export type IdentidadeMeta = { fbp: string | null; fbc: string | null };
+
+/** Guarda quem clicou, pra quando o pagamento confirmar. Nunca lança. */
+export async function guardarIdentidadeMeta(
+  numeroPedido: string,
+  identidade: IdentidadeMeta,
+): Promise<void> {
+  // Sem nenhum dos dois não há o que guardar — e gravar `{null,null}` faria o
+  // webhook achar que consultou e não achou, em vez de saber que nunca houve.
+  if (!identidade.fbp && !identidade.fbc) return;
+  const redis = getRedis();
+  if (!redis) return;
+  try {
+    await redis.set(
+      chaveIdentidade(numeroPedido),
+      JSON.stringify(identidade),
+      'EX',
+      TTL_IDENTIDADE_SEGUNDOS,
+    );
+  } catch (err) {
+    // O pior caso é o `Purchase` sair sem atribuição. Não pode derrubar pedido.
+    log.warn('nao guardei a identidade Meta do pedido', {
+      pedido: numeroPedido,
+      erro: String(err).slice(0, 200),
+    });
+  }
+}
+
+export async function lerIdentidadeMeta(numeroPedido: string): Promise<IdentidadeMeta> {
+  const vazio: IdentidadeMeta = { fbp: null, fbc: null };
+  const redis = getRedis();
+  if (!redis) return vazio;
+  try {
+    const cru = await redis.get(chaveIdentidade(numeroPedido));
+    if (!cru) return vazio;
+    const d = JSON.parse(cru) as Partial<IdentidadeMeta>;
+    return { fbp: d.fbp ?? null, fbc: d.fbc ?? null };
+  } catch {
+    return vazio;
+  }
 }
 
 /**

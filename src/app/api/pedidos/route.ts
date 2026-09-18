@@ -27,7 +27,7 @@ import {
   type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
 import { precificarPedido, SKU_TESTE } from '@/lib/pedidos/precificar';
-import { enviarEventoMeta, montarFbc } from '@/lib/meta/capi';
+import { enviarEventoMeta, guardarIdentidadeMeta, montarFbc } from '@/lib/meta/capi';
 import {
   clientIdDoCookieGa,
   cookieDeSessaoGa4,
@@ -363,6 +363,14 @@ export async function POST(req: NextRequest) {
     sessionId: sessionIdDoCookieGa(
       req.cookies.get(cookieDeSessaoGa4(process.env.GA4_MEASUREMENT_ID ?? ''))?.value,
     ),
+  });
+
+  // Mesma janela, mesma razão, outra plataforma: o `Purchase` da Meta sai no
+  // webhook do Asaas, e lá não existe cookie. Sem o `fbp`/`fbc` guardados
+  // aqui, a venda chega na Meta sem dizer QUAL anúncio a gerou.
+  await guardarIdentidadeMeta(r.numero, {
+    fbp: req.cookies.get('_fbp')?.value ?? null,
+    fbc: montarFbc(fbclidDaRequisicao(req)),
   });
 
   // ── O pedido sobe pro Betinna, e de lá pro ERP ─────────────────────────

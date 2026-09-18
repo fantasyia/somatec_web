@@ -11,6 +11,7 @@ import {
 } from '@/lib/email/pagamento-confirmado';
 import { consultarPedido, contatoDoPedido } from '@/lib/pedidos/servidor';
 import { enviarPurchaseGa4, type ItemGa4 } from '@/lib/analytics/ga4-servidor';
+import { capiConfigurado, enviarEventoMeta, lerIdentidadeMeta } from '@/lib/meta/capi';
 import { CONTACT } from '@/lib/constants/site';
 
 const log = createLogger('pagamento-registro');
@@ -163,6 +164,18 @@ export async function registrarEventoPagamento(params: {
     await avisarGa4(params).catch((err) => {
       log.warn('purchase do GA4 nao saiu', { pedido: params.numeroPedido, erro: String(err) });
     });
+
+    // E o `Purchase` da Meta, pelo mesmo motivo e no mesmo lugar: é aqui que
+    // se sabe que o dinheiro entrou.
+    //
+    // ⛔ Este é o ÚNICO ponto do código que pode emitir `Purchase`. O
+    // `pedido_registrado` que o navegador e o `/api/pedidos` disparam é "o
+    // cliente mandou o pedido" — marcar aquilo como compra ensina a Meta a
+    // caçar quem registra e não paga, e esse viés não se apaga depois de
+    // corrigido. Mesma regra do cabeçalho de `@/lib/analytics/eventos`.
+    await avisarMeta(params).catch((err) => {
+      log.warn('Purchase da Meta nao saiu', { pedido: params.numeroPedido, erro: String(err) });
+    });
   }
 
   return 'registrado';
@@ -224,6 +237,70 @@ async function avisarGa4(params: {
   }
 
   await enviarPurchaseGa4({ numeroPedido: params.numeroPedido, valorCentavos, items });
+}
+
+/**
+ * Manda o `Purchase` pra Meta — a venda que o Pixel não tem como ver.
+ *
+ * O Pixel só existe enquanto a pessoa está no site, e aqui ela não está: o
+ * checkout do Asaas é hospedado, o PIX confirma minutos depois em outro app, e
+ * o boleto pode confirmar dias depois. **Não existe par no navegador pra este
+ * evento** — e é por isso que ele não tem gêmeo pra deduplicar, ao contrário do
+ * `Lead` e do `pedido_registrado`.
+ *
+ * O que protege contra contar duas vezes, então, é o `event_id` ser DERIVADO DO
+ * NÚMERO DO PEDIDO em vez de sorteado. A Meta deduplica por esse id numa janela
+ * de 48h: se um dia alguém reprocessar o webhook à mão, ou a idempotência do
+ * Redis falhar por Redis fora do ar, o segundo envio cai em cima do primeiro em
+ * vez de inventar uma segunda venda. Id sorteado não teria essa rede.
+ */
+async function avisarMeta(params: {
+  numeroPedido: string;
+  valorCentavos: number;
+  parcelamento?: { id: string; totalCentavos: number; parcelas: number } | null;
+}): Promise<void> {
+  if (!capiConfigurado()) return;
+
+  const pedido = await consultarPedido(params.numeroPedido);
+  if (!pedido) {
+    // Mesma regra do GA4: sem pedido não há total nem itens, e mandar
+    // `Purchase` seria inventar uma venda — aqui ainda pior, porque a Meta
+    // aprende com ela e passa a caçar mais gente parecida com ninguém.
+    log.info('sem pedido pra montar o Purchase da Meta', { pedido: params.numeroPedido });
+    return;
+  }
+
+  // O TOTAL do pedido, não o valor do evento — parcelado, o Asaas manda um
+  // evento por parcela. Mesma conta do `avisarGa4`, de propósito: os dois
+  // relatórios têm que mostrar o mesmo número pra mesma venda.
+  const valorCentavos =
+    pedido.totalCentavos || params.parcelamento?.totalCentavos || params.valorCentavos;
+
+  // E-mail e telefone vêm do BANCO, não do webhook: o Asaas manda o que tem
+  // dele, e quem casa com o Facebook é o contato que a pessoa digitou aqui.
+  const contato = await contatoDoPedido(params.numeroPedido);
+  const identidade = await lerIdentidadeMeta(params.numeroPedido);
+
+  await enviarEventoMeta({
+    nome: 'Purchase',
+    eventId: `purchase-${params.numeroPedido}`,
+    usuario: {
+      email: contato?.email ?? null,
+      telefone: contato?.whatsapp ?? null,
+      // Guardados na criação do pedido, quando ainda havia navegador.
+      fbp: identidade.fbp,
+      fbc: identidade.fbc,
+    },
+    dados: {
+      currency: 'BRL',
+      value: valorCentavos / 100,
+      order_id: params.numeroPedido,
+      // Mesmos ids do `pedido_registrado` e do GA4 — divergir aqui quebraria o
+      // catálogo em dois e sumiria a visão de QUAL modelo vende.
+      content_ids: pedido.itens.map((i) => i.modelo ?? i.descricao),
+      content_type: 'product',
+    },
+  });
 }
 
 /**
