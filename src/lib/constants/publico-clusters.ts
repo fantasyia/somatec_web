@@ -92,7 +92,16 @@ export const CLUSTER_PUBLICO: Readonly<Record<string, PublicoNI>> = {
   // `cs06` foi reposicionado pro roteiro de diagnóstico em campo pra liberar a
   // busca do morador. Enquadramento diferente não separa busca — o Google não
   // ranqueia por enquadramento.
+  // ⚠️ AS DUAS GRAFIAS, e a de cima é a que importa. O site NÃO passa o slug
+  // aqui: `fonte.ts` monta `cluster: linha.silos?.name`, ou seja, o NOME do
+  // silo no banco. E o banco chama este silo de "Sinais da casa", enquanto o
+  // cluster-mapa (de onde este arquivo foi escrito) chama de "Sinais da casa
+  // (o morador)". Com só a segunda linha, os 12 artigos deste silo — o único
+  // silo escrito do blog novo — eram tratados como INDUSTRIAIS e sumiam das
+  // duas LPs, sem erro nenhum. Medido em 18/09 chamando a função com o nome
+  // exato do banco.
   'sinais-da-casa': 'residencial',
+  'Sinais da casa': 'residencial',
   'Sinais da casa (o morador)': 'residencial',
 
   // ⚠️ `data-center-telecom`, a outra metade do antigo `tecnologia`, é

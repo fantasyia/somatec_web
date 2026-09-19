@@ -58,6 +58,39 @@ describe('silos do cluster-mapa × publico-clusters.ts', () => {
     ).toEqual([]);
   });
 
+  it('🔴 o silo NI resolve pelo NOME, que é o que roda de verdade', () => {
+    // ⚠️ O teste acima olha o SLUG (`s.id in CLUSTER_PUBLICO`) — e o slug NÃO é
+    // o que chega aqui em produção. `fonte.ts` monta `cluster: silos.name`, o
+    // nome de exibição. Ou seja: aquela guarda está verde sobre uma chave que o
+    // site não usa. Esta fecha esse buraco.
+    //
+    // ⛔ MAS ELA NÃO PEGA TUDO, e é importante saber o que ela NÃO cobre: os
+    // nomes daqui saem do cluster-mapa, e o nome que roda sai do BANCO. Se os
+    // dois divergirem, este teste continua verde. Foi o que aconteceu com
+    // `sinais-da-casa` em 18/09: mapa diz "Sinais da casa (o morador)" (mapeado,
+    // teste verde) e o banco diz "Sinais da casa" (não estava mapeado) — os 12
+    // artigos viravam industriais e sumiam das duas LPs, calados.
+    //
+    // A deriva mapa × banco só dá pra medir onde o banco é alcançável: está no
+    // `_confere-silo-publico.py` da sessão de blog, no checklist de publicação.
+    const niPeloSlug = silos.filter((s) => s.id in CLUSTER_PUBLICO);
+    expect(niPeloSlug.length, 'nenhum silo NI no mapa? a leitura quebrou').toBeGreaterThan(3);
+
+    const soPeloSlug = niPeloSlug.filter((s) => publicoDoCluster(s.nome) === null);
+    expect(
+      soPeloSlug.map((s) => `${s.id} → nome "${s.nome}" não está em CLUSTER_PUBLICO`),
+      'silo NI que resolve pelo slug mas NÃO pelo nome: em produção ele é industrial',
+    ).toEqual([]);
+
+    // e os dois lados têm de concordar, senão o artigo muda de LP conforme a
+    // porta por onde entrou
+    for (const s of niPeloSlug) {
+      expect(publicoDoCluster(s.nome), `${s.id}: slug e nome discordam`).toBe(
+        publicoDoCluster(s.id),
+      );
+    }
+  });
+
   it('nenhum silo está dos DOIS lados', () => {
     const ambiguos = silos.filter(
       (s) => s.id in CLUSTER_PUBLICO && CLUSTER_INDUSTRIAL.includes(s.id),
