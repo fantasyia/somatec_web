@@ -618,7 +618,9 @@ const CLUSTERS = [
     {id:'pf04',title:'Serralheria e esquadrias de alumínio: solda inverter e policorte queimando por oscilação elétrica',f:'setor',kw:'serralheria esquadrias alumínio solda inverter policorte queima oscilação elétrica',lk:['p0','pf06','met01','a01','hp01']},
     {id:'pf05',title:'Marmoraria e beneficiamento de pedra: CNC, politriz e ponte rolante — proteção elétrica',f:'setor',kw:'marmoraria beneficiamento pedra CNC politriz ponte rolante proteção elétrica surto',lk:['p0','pf06','a01','hp01']}
   ]},
-  {id:'casa',name:'Casa (quem instala)',color:'#8d6e63',pilar:'cs00',articles:[
+    // casa: o LEITOR e o ELETRICISTA/INSTALADOR, mas o publico da LP e `residencial` -- e
+  // instalacao residencial que ele atende. Mesma razao do silo acima: o publico sai do nome.
+{id:'casa',name:'Instalação e aterramento',color:'#8d6e63',pilar:'cs00',articles:[
     {id:'cs00',title:'Para que serve o DPS no quadro residencial — e o que ele não resolve',f:'topo',kw:'para que serve o DPS quadro residencial o que o DPS não resolve',lk:['p0','cs01','cs02','cs03','cs04','cs05','cs06','cs07','cs08','par00']},
     {id:'cs01',title:'Aterramento residencial: como verificar se a instalação do cliente tem, e o que fazer se não tiver',f:'topo',kw:'aterramento residencial como verificar instalação sem aterramento o que fazer',lk:['cs00','p0','a09']},
     {id:'cs02',title:'Aterrar o chuveiro: o erro de instalação que o eletricista herda da obra',f:'topo',kw:'aterrar chuveiro aterramento chuveiro elétrico erro instalação',lk:['cs00','p0']},
@@ -629,7 +631,9 @@ const CLUSTERS = [
     {id:'cs07',title:'O raio não precisa cair na casa para queimar o que está na tomada',f:'topo',kw:'raio queima aparelhos sem cair na casa surto pela rede',lk:['cs00','p0','a09']},
     {id:'cs08',title:'O que deveria estar no quadro e quase nunca está — checklist de entrega do eletricista',f:'lista',kw:'checklist quadro de distribuição residencial entrega eletricista DPS aterramento',lk:['cs00','p0']}
   ]},
-  {id:'sinais-da-casa',name:'Sinais da casa (o morador)',color:'#7b1fa2',pilar:'qc00',articles:[
+    // sinais-da-casa: o LEITOR e o MORADOR (sintoma), nao o instalador. O nome nao carrega mais
+  // o publico porque `silos.name` e renderizado pro leitor (breadcrumb, JSON-LD, pill do card).
+{id:'sinais-da-casa',name:'Sinais da casa',color:'#7b1fa2',pilar:'qc00',articles:[
     {id:'qc00',title:'Luz piscando, disjuntor desarmando, lâmpada queimando: quando o problema é a instalação e não o aparelho',f:'topo',kw:'luz piscando',lk:['p0','qc02','qc06','qc08','qc10','qc11']},
     {id:'qc02',title:'Lâmpada LED piscando: driver, dimmer e tensão fora da faixa',f:'topo',kw:'lâmpada LED piscando',lk:['qc00','qc03','qc04']},
     {id:'qc03',title:'Luz de LED piscando: como resolver, por ordem de causa',f:'topo',kw:'luz de led piscando como resolver',lk:['qc00','qc02']},

@@ -74,7 +74,8 @@ export const CLUSTER_PUBLICO: Readonly<Record<string, PublicoNI>> = {
   // ARQUITETO. Os dois são 'residencial' aqui de propósito — a distinção entre
   // eles é editorial (quem especifica), não de público de LP.
   casa: 'residencial',
-  'Casa (quem instala)': 'residencial',
+  'Instalação e aterramento': 'residencial', // nome vigente no cluster-mapa desde 19/09
+  'Casa (quem instala)': 'residencial', // grafia antiga, mantida como rede
   //
   // ── 2026-09-15: silo 33, `sinais-da-casa` — "Sinais da casa (o morador)" ──
   //
@@ -100,6 +101,12 @@ export const CLUSTER_PUBLICO: Readonly<Record<string, PublicoNI>> = {
   // silo escrito do blog novo — eram tratados como INDUSTRIAIS e sumiam das
   // duas LPs, sem erro nenhum. Medido em 18/09 chamando a função com o nome
   // exato do banco.
+  // ✅ 19/09: o canonico passou a ser o do BANCO. A master renomeou o silo no
+  // cluster-mapa de "Sinais da casa (o morador)" para "Sinais da casa", porque
+  // `silos.name` e RENDERIZADO pro leitor (breadcrumb, JSON-LD de BreadcrumbList e
+  // pill do card) — o publico do silo era taxonomia interna vazando pra pagina.
+  // As tres linhas ficam: as duas primeiras sao o caminho vivo, a terceira e rede
+  // pra qualquer copia velha do mapa que ainda esteja por ai.
   'sinais-da-casa': 'residencial',
   'Sinais da casa': 'residencial',
   'Sinais da casa (o morador)': 'residencial',
