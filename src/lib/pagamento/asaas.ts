@@ -204,6 +204,52 @@ export async function criarCobranca(params: {
   return { id: cobranca.id, url: cobranca.invoiceUrl, status: cobranca.status };
 }
 
+export type PixQrCode = {
+  /** PNG em base64, SEM o prefixo `data:` — quem monta o `src` é a tela. */
+  imagemBase64: string;
+  /** O copia-e-cola. No desktop é o caminho principal, não um extra: ninguém
+   *  escaneia a própria tela com o celular apoiado na mesa. */
+  codigo: string;
+  /** ISO, ou `null` quando o Asaas não informa. */
+  expiraEm: string | null;
+};
+
+/**
+ * QR Code do PIX da cobrança.
+ *
+ * Vem de um endpoint SEPARADO do de criar a cobrança — `/payments/{id}/pixQrCode`
+ * —, então mostrar o QR na própria página custa uma chamada a mais. É o preço de
+ * não mandar o cliente pra fora no meio da compra.
+ *
+ * ⚠️ **Nunca lança, e devolver `null` é um desfecho previsto.** A cobrança já
+ * existe quando esta função roda; se o QR falhar e isso derrubasse a resposta, o
+ * cliente ficaria com um pedido cobrado e nenhuma forma de pagar. Com `null`, a
+ * tela cai no link hospedado do Asaas, que é exatamente o comportamento de antes.
+ */
+export async function buscarPixQrCode(cobrancaId: string): Promise<PixQrCode | null> {
+  try {
+    const r = await chamar<{
+      encodedImage?: string;
+      payload?: string;
+      expirationDate?: string;
+    }>(`/payments/${encodeURIComponent(cobrancaId)}/pixQrCode`);
+    // Os dois juntos ou nada: QR sem copia-e-cola deixa o desktop sem caminho,
+    // e código sem imagem deixa o celular sem o caminho natural.
+    if (!r.encodedImage || !r.payload) {
+      log.warn('pix sem QR utilizavel', { cobranca: cobrancaId });
+      return null;
+    }
+    return {
+      imagemBase64: r.encodedImage,
+      codigo: r.payload,
+      expiraEm: r.expirationDate ?? null,
+    };
+  } catch (err) {
+    log.warn('QR do pix nao veio', { cobranca: cobrancaId, erro: String(err).slice(0, 200) });
+    return null;
+  }
+}
+
 /**
  * Total de uma venda PARCELADA, a partir do id do parcelamento.
  *

@@ -20,9 +20,10 @@ import { assuntoPedido, htmlPedido, textoPedido } from '@/lib/email/pedido-confi
 import { buildMullerBotPayload } from '@/lib/mullerbot/payload';
 import { getLgpdConsentText } from '@/lib/lgpd';
 import { entregarLead } from '@/lib/leads/entregar';
-import { asaasConfigurado, criarCobranca } from '@/lib/pagamento/asaas';
+import { asaasConfigurado, buscarPixQrCode, criarCobranca, type PixQrCode } from '@/lib/pagamento/asaas';
 import {
   FORMA_NO_GATEWAY,
+  formaPagamentoDe,
   parcelasDisponiveis,
   type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
@@ -460,14 +461,21 @@ export async function POST(req: NextRequest) {
   // gateway existir. Fechar isso é recalcular o total a partir do catálogo no
   // servidor, e é trabalho à parte: não inventei aqui pra não dar a impressão
   // de que já está protegido.
-  const pagamentoUrl = await criarCobrancaDoPedido(dados, r.numero);
+  const cobrancaDoPedido = await criarCobrancaDoPedido(dados, r.numero);
+  const pagamentoUrl = cobrancaDoPedido.url;
 
   trackRequest(ROUTE, 201);
   // `leadEnviado` diz ao checkout que ele NÃO precisa mandar o lead de novo.
   // Sem isso, os dois mandariam e o CRM receberia em duplicidade.
   // `pagamentoUrl` ausente = checkout mostra o caminho de sempre (equipe
   // finaliza). Presente = o navegador redireciona pra página de pagamento.
-  const corpoOk = JSON.stringify({ ok: true, numero: r.numero, leadEnviado, pagamentoUrl });
+  const corpoOk = JSON.stringify({
+    ok: true,
+    numero: r.numero,
+    leadEnviado,
+    pagamentoUrl,
+    pix: cobrancaDoPedido.pix,
+  });
   // Guarda a resposta do pedido CRIADO sob a chave: um retry do mesmo envio
   // replica isto em vez de criar outro pedido e outra cobrança (M4).
   if (idempotencyKey) {
@@ -615,14 +623,15 @@ async function criarCobrancaDoPedido(
     freteCentavos: number;
   },
   numero: string,
-): Promise<string | null> {
-  if (!asaasConfigurado()) return null;
+): Promise<{ url: string | null; pix: PixQrCode | null }> {
+  const SEM_COBRANCA = { url: null, pix: null };
+  if (!asaasConfigurado()) return SEM_COBRANCA;
   const doc = (dados.documento ?? '').replace(/\D/g, '');
   if (!doc) {
     // O Asaas exige CPF/CNPJ pra criar cliente. O checkout já valida dígito,
     // então cair aqui é sinal de chamada fora da tela — não de cliente ruim.
     log.warn('pedido sem documento — cobranca nao criada', { numero });
-    return null;
+    return SEM_COBRANCA;
   }
   try {
     // `totalCentavos` JÁ vem do `precificarPedido` com o frete somado — somar de
@@ -631,9 +640,13 @@ async function criarCobrancaDoPedido(
     const total = Math.round(dados.totalCentavos);
     if (total <= 0) {
       log.warn('pedido sem valor faturavel — cobranca nao criada', { numero });
-      return null;
+      return SEM_COBRANCA;
     }
-    const escolhida = (dados.formaPagamento ?? '').toLowerCase().includes('cart') ? 'cartao' : 'pix';
+    // Mesma leitura que o desconto usa (`formaPagamentoDe`), pra as duas não
+    // divergirem: antes aqui era `includes('cart')`, e "PIX " com espaço já
+    // contava como PIX na cobrança e NÃO contava pro desconto. O `?? 'pix'`
+    // preserva o padrão de antes pra rótulo desconhecido.
+    const escolhida: FormaPagamentoId = formaPagamentoDe(dados.formaPagamento) ?? 'pix';
     // O TETO DAS PARCELAS É DO SERVIDOR, mesma regra do preço: o corpo diz o que
     // a pessoa escolheu, não o que é permitido. `parcelasDisponiveis` já cuida
     // do piso por parcela, e PIX nunca parcela.
@@ -654,9 +667,15 @@ async function criarCobrancaDoPedido(
         cep: (dados.endereco as { cep?: string } | null)?.cep ?? null,
       },
     });
-    return cobranca.url;
+    // QR do PIX pra pagar SEM SAIR DO SITE. Custa uma chamada a mais e só
+    // acontece no PIX — no cartão o caminho segue sendo a página do Asaas, de
+    // propósito: o número do cartão não pode ser digitado aqui dentro.
+    //
+    // Falhar aqui não derruba nada: `pix: null` e a tela cai no link.
+    const pix = escolhida === 'pix' ? await buscarPixQrCode(cobranca.id) : null;
+    return { url: cobranca.url, pix };
   } catch (err) {
     log.error('cobranca nao criada', { numero }, err);
-    return null;
+    return SEM_COBRANCA;
   }
 }

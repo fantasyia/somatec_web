@@ -34,6 +34,7 @@ import { enviarLeadOrcamento, type ResultadoEnvio } from '@/lib/forms/enviar-lea
 import { WizardShell } from '@/components/tools/wizard/WizardShell';
 import { selecionarMasterBlock, formatBRL, descreverPreco } from '@/lib/constants/masterblock';
 import { PrecoDePor } from '@/components/tools/PrecoDePor';
+import { PixQrCode } from '@/components/tools/PixQrCode';
 import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
 import {
   GATEWAY_ATIVO, FORMAS_PAGAMENTO, freteDoPedido, enderecoVazio,
@@ -336,6 +337,12 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [numeroDoPedido, setNumeroPedido] = useState<string | null>(null);
   /** Página de pagamento do gateway. Só existe quando a cobrança foi criada. */
   const [urlPagamento, setUrlPagamento] = useState<string | null>(null);
+  /** QR do PIX, quando o gateway devolve. `null` = cai no link, como antes. */
+  const [pixQr, setPixQr] = useState<{
+    imagemBase64: string;
+    codigo: string;
+    expiraEm: string | null;
+  } | null>(null);
   const [captchaToken, setCaptchaToken] = useState('');
   // Captcha PRÓPRIO do passo de contato: o token do passo 5 é de outra
   // submissão (uso único), e reaproveitar faria uma das duas ser recusada.
@@ -659,6 +666,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     const eventIdLead = novoEventId();
     let numeroPedido: string | null = null;
     let pagamentoUrl: string | null = null;
+    let pixDaResposta: { imagemBase64: string; codigo: string; expiraEm: string | null } | null = null;
     // Desfecho REAL do registro do pedido (A1 da auditoria 13/09). Até então a
     // tela dizia "Pedido registrado!" sempre que o formulário estava completo,
     // mesmo com o servidor recusando (409/422/500) — reproduzido no navegador.
@@ -710,11 +718,13 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
           numero?: string | null;
           leadEnviado?: boolean;
           pagamentoUrl?: string | null;
+          pix?: { imagemBase64: string; codigo: string; expiraEm: string | null } | null;
           message?: string;
         };
         if (resp.ok && j?.ok && j.numero) {
           numeroPedido = j.numero;
           if (j.pagamentoUrl) pagamentoUrl = j.pagamentoUrl;
+          if (j.pix) pixDaResposta = j.pix;
         } else if (resp.status === 409) {
           // Preço/condição mudou entre montar e confirmar. É acionável: a
           // pessoa precisa recarregar e revisar — mostramos a mensagem do
@@ -776,6 +786,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       setStatus('error');
       setNumeroPedido(null);
       setUrlPagamento(null);
+      setPixQr(null);
       setMessage(pedidoRecusadoMsg);
       trackEvent('checkout_pedido_recusado', { setor, landing: landingSlug });
       return;
@@ -785,6 +796,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       setStatus('success');
       setNumeroPedido(numeroPedido);
       setUrlPagamento(pagamentoUrl);
+      setPixQr(pixDaResposta);
       // F2-M1: concluiu — marca o abandono como já resolvido pra esta pessoa,
       // senão o pagehide manda um lead "não concluiu" pra quem concluiu.
       abandonoEnviadoRef.current = `${contato.email.trim().toLowerCase()}|${contato.whatsapp.replace(/\D/g, '')}`;
@@ -861,12 +873,26 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                 cartão não passa pelo nosso servidor. O número do pedido fica
                 NESTA tela de propósito: quem abandona o pagamento e volta
                 depois ainda tem como se achar. */}
+            {pixQr && (
+              <PixQrCode
+                imagemBase64={pixQr.imagemBase64}
+                codigo={pixQr.codigo}
+                expiraEm={pixQr.expiraEm}
+              />
+            )}
             {urlPagamento && (
+              // Com o QR na tela este link vira SAÍDA SECUNDÁRIA — continua
+              // existindo pra quem prefere a página do gateway, e é o caminho
+              // ÚNICO no cartão e sempre que o QR não vier.
               <a
                 href={urlPagamento}
-                className="btn-primary mt-5 inline-flex w-full justify-center sm:w-auto"
+                className={
+                  pixQr
+                    ? 'mt-4 inline-flex items-center gap-2 font-sans text-sm font-semibold text-cyan-text transition-opacity hover:opacity-80'
+                    : 'btn-primary mt-5 inline-flex w-full justify-center sm:w-auto'
+                }
               >
-                Pagar agora
+                {pixQr ? 'Prefiro pagar na página do banco →' : 'Pagar agora'}
               </a>
             )}
             <a
