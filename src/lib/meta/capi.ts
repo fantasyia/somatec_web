@@ -1,5 +1,4 @@
 import 'server-only';
-import { createHash } from 'node:crypto';
 import { createLogger } from '@/lib/logger';
 import { getRedis } from '@/lib/redis';
 
@@ -14,21 +13,39 @@ const log = createLogger('meta-capi');
 // dois é o `event_id`: chegando o mesmo valor pelos dois caminhos, a Meta
 // entende que é um evento só. Sem ele, cada conversão contaria em dobro.
 //
-// ⚠️ INERTE SEM CREDENCIAL. Faltando `META_PIXEL_ID` ou `META_CAPI_TOKEN`, nada
-// é enviado e nada quebra — é o estado de hoje, esperando o token da sessão de
-// Ads. Ligar depois é preencher duas variáveis no Railway, sem deploy de código.
+// ⚠️ INERTE SEM CREDENCIAL: faltando `META_PIXEL_ID` ou `META_CAPI_TOKEN`, nada
+// é enviado e nada quebra. 🔴 Mas NÃO está mais inerte — as duas variáveis
+// entraram no Railway em 23/09/2026 (deploy 16:15 UTC, no mesmo commit: mudança
+// de variável redeploya sozinha). Este arquivo ESTÁ enviando em produção.
 //
-// 🔒 O que sai daqui é HASH, nunca dado pessoal em claro. E o hash é feito no
-// SERVIDOR de propósito: hash no navegador não protege nada, porque o valor cru
-// está na mesma página, ao lado.
+// 🔒 NADA QUE A PESSOA DIGITOU sai daqui (a partir de 23/09/2026). O que vai é
+// identificador de ANÚNCIO — `fbc` (do clique) e `fbp` (cookie do Pixel) — mais
+// IP e user-agent da requisição. E-mail e telefone saíam com hash até 23/09;
+// a decisão e o motivo estão no comentário do `UsuarioCapi`, abaixo.
 // =============================================================================
 
 const VERSAO_API = 'v21.0';
 const TIMEOUT_MS = 4000;
 
+// ⛔ E-MAIL E TELEFONE SAÍRAM DAQUI EM 23/09/2026 — decisão do Léo, e os campos
+// foram removidos do TIPO de propósito, não só das chamadas.
+//
+// O que acontecia: o CAPI roda no servidor, servidor não passa pelo banner de
+// cookies, e ele mandava hash de e-mail e telefone à Meta mesmo de quem clicou
+// "Apenas essenciais". Os dois documentos do site diziam outra coisa — a
+// Política de Privacidade condiciona ao aceite e fala em "dados da sua
+// navegação", e o aviso do formulário consente com "contato comercial".
+//
+// A escolha foi alinhar o CÓDIGO ao que os documentos já dizem, em vez de
+// reescrever os documentos. Custo real e aceito: a taxa de casamento cai em
+// quem trocou de aparelho ou limpou cookie. O que NÃO se perde é a conversão —
+// ela continua chegando e continua atribuída à campanha pelo `fbc`/`fbp`.
+//
+// Por que fora do tipo: enquanto `email` existisse em `UsuarioCapi`, bastava
+// alguém passar o campo de novo e nada acusaria — o payload aceitaria calado. Sem
+// o campo, o TypeScript recusa antes de rodar. Guarda estrutural é mais forte que
+// teste, porque não depende de ninguém ter escrito o teste certo.
 export type UsuarioCapi = {
-  email?: string | null;
-  telefone?: string | null;
   /** Deriva do `fbclid` — é o que liga a conversão ao CLIQUE no anúncio. */
   fbc?: string | null;
   /** Cookie `_fbp`, escrito pelo próprio Pixel. */
@@ -51,30 +68,14 @@ export type ResultadoCapi =
   | { enviado: true }
   | { enviado: false; motivo: 'sem-config' | 'erro'; detalhe?: string };
 
-/** SHA-256 do valor normalizado. Vazio devolve undefined — a Meta recusa hash de "". */
-function hash(valor: string | null | undefined, normalizar: (v: string) => string) {
-  if (!valor) return undefined;
-  const limpo = normalizar(valor);
-  if (!limpo) return undefined;
-  return createHash('sha256').update(limpo).digest('hex');
-}
-
-/** minúsculo e sem espaço nas pontas — a regra da Meta pra e-mail. */
-const normEmail = (v: string) => v.trim().toLowerCase();
-
-/**
- * Só dígitos, com DDI. A Meta espera E.164 sem o `+`, e um número brasileiro
- * digitado como "(11) 99999-0000" vira 11999990000 — sem o 55, a Meta trata
- * como outro país e o match não acontece.
- */
-function normTelefone(v: string): string {
-  const digitos = v.replace(/\D/g, '');
-  if (!digitos) return '';
-  if (digitos.startsWith('55')) return digitos;
-  // 10 (fixo) ou 11 (celular) dígitos = número nacional sem DDI.
-  if (digitos.length === 10 || digitos.length === 11) return `55${digitos}`;
-  return digitos;
-}
+// ⛔ O `hash()`, o `normEmail` e o `normTelefone` foram REMOVIDOS junto com os
+// campos, em 23/09. Existiam só pra e-mail e telefone, e deixá-los aqui sem uso
+// seria um convite: o próximo que quisesse "melhorar a atribuição" encontraria a
+// ferramenta pronta e a reconectaria sem passar por decisão nenhuma.
+//
+// Se algum dia a decisão mudar, o caminho é reescrever com os documentos na mão
+// — não desenterrar função órfã. `tests/capi-sem-dado-pessoal.test.ts` reprova o
+// retorno delas.
 
 /**
  * Monta o `fbc` no formato que a Meta exige: `fb.1.<timestamp_ms>.<fbclid>`.
@@ -104,8 +105,8 @@ export function capiConfigurado(): boolean {
 // webhook lê depois. Mesmo desenho do `client_id` do GA4, em chave separada:
 // são identidades de plataformas diferentes e expiram por motivos diferentes.
 //
-// 🔒 Só cookie de anúncio aqui — nenhum dado pessoal. E-mail e telefone o
-// webhook lê do pedido no banco, onde já vivem, e saem daqui como hash.
+// 🔒 Só cookie de anúncio aqui — nenhum dado pessoal, e desde 23/09 nenhum
+// dado pessoal sai do CAPI em forma nenhuma, nem com hash.
 // -----------------------------------------------------------------------------
 
 /** 30 dias: o Asaas reentrega evento muito depois, e boleto vence em 3 dias. */
@@ -165,9 +166,8 @@ export async function enviarEventoMeta(evento: EventoCapi): Promise<ResultadoCap
   if (!pixelId || !token) return { enviado: false, motivo: 'sem-config' };
 
   const u = evento.usuario;
+  // Só identificador de ANÚNCIO e dado de requisição. Nada que a pessoa digitou.
   const user_data: Record<string, unknown> = {
-    em: hash(u.email, normEmail),
-    ph: hash(u.telefone, normTelefone),
     fbc: u.fbc ?? undefined,
     fbp: u.fbp ?? undefined,
     client_ip_address: u.ip ?? undefined,

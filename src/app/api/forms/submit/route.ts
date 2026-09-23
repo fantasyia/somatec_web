@@ -203,8 +203,8 @@ export async function POST(req: NextRequest) {
     eventId: parsed.data.event_id ?? randomUUID(),
     urlOrigem: req.headers.get('referer'),
     usuario: {
-      email: parsed.data.email || null,
-      telefone: parsed.data.whatsapp || null,
+      // ⛔ Sem e-mail e sem telefone desde 23/09: o CAPI roda no servidor e não
+      // passa pelo banner. Só identificador de anúncio. Ver `UsuarioCapi`.
       // O fbclid já estava guardado no cookie de atribuição desde a chegada.
       fbc: montarFbc(
         parsed.data.atribuicao?.ultimo?.fbclid ?? parsed.data.atribuicao?.primeiro?.fbclid ?? null,

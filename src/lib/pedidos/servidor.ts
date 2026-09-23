@@ -259,9 +259,6 @@ export type ContatoDoPedido = {
    */
   email: string | null;
   primeiroNome: string | null;
-  /** Telefone do pedido. Serve ao `Purchase` da Meta, que casa por hash de
-   *  e-mail E de telefone — dois campos casam mais gente que um. */
-  whatsapp: string | null;
   /** Quando o pedido nasceu — é o que decide se o aviso de pagamento sai. */
   criadoEm: string;
   formaPagamento: string | null;
@@ -290,7 +287,7 @@ export async function contatoDoPedido(numeroBruto: string): Promise<ContatoDoPed
     const supabase = getSupabaseAdminClient();
     const { data, error } = await supabase
       .from('pedidos')
-      .select('email, nome, whatsapp, criado_em, forma_pagamento')
+      .select('email, nome, criado_em, forma_pagamento')
       .eq('numero', numero)
       .maybeSingle();
 
@@ -302,7 +299,6 @@ export async function contatoDoPedido(numeroBruto: string): Promise<ContatoDoPed
       | {
           email: string | null;
           nome: string | null;
-          whatsapp: string | null;
           criado_em: string;
           forma_pagamento: string | null;
         }
@@ -314,7 +310,6 @@ export async function contatoDoPedido(numeroBruto: string): Promise<ContatoDoPed
     return {
       email: linha.email || null,
       primeiroNome: String(linha.nome || '').trim().split(/\s+/)[0] || null,
-      whatsapp: linha.whatsapp || null,
       criadoEm: linha.criado_em,
       formaPagamento: linha.forma_pagamento,
     };

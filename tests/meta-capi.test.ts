@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { capiConfigurado, enviarEventoMeta, montarFbc } from '@/lib/meta/capi';
 
 // =============================================================================
@@ -12,7 +13,6 @@ import { capiConfigurado, enviarEventoMeta, montarFbc } from '@/lib/meta/capi';
 //      MESMA conversão ser contada duas vezes e infla o relatório sem avisar.
 // =============================================================================
 
-const sha = (v: string) => createHash('sha256').update(v).digest('hex');
 
 const ORIGINAL = { ...process.env };
 let fetchMock: ReturnType<typeof vi.fn>;
@@ -38,8 +38,8 @@ function corpoEnviado() {
 }
 
 const usuarioBase = {
-  email: '  Leo.Beltran@Exemplo.com.BR ',
-  telefone: '(11) 99999-0000',
+  fbc: 'fb.1.1700000000.AbCd',
+  fbp: 'fb.1.1700000000.987',
   ip: '200.1.2.3',
   userAgent: 'Mozilla/5.0',
 };
@@ -65,36 +65,50 @@ describe('sem credencial, o CAPI é inerte', () => {
   });
 });
 
-describe('🔒 nada de dado pessoal em claro', () => {
+describe('🔒 NADA que a pessoa digitou sai daqui', () => {
   beforeEach(ligarCredenciais);
 
-  it('e-mail e telefone saem em SHA-256, nunca legíveis', async () => {
+  // Até 23/09 este bloco provava que e-mail e telefone saíam com HASH. Agora
+  // prova que eles não saem de forma nenhuma — decisão do Léo, porque o CAPI
+  // roda no servidor e o servidor não passa pelo banner de cookies: quem clicava
+  // "Apenas essenciais" tinha os dados enviados do mesmo jeito, e os documentos
+  // do site diziam o contrário.
+  //
+  // Os campos foram tirados do TIPO, então o TypeScript é a primeira guarda.
+  // Estes testes são a segunda, pro caso de alguém devolver o campo ao tipo.
+
+  it('🔴 o corpo enviado não tem chave de dado pessoal', async () => {
     await enviarEventoMeta({ nome: 'Lead', eventId: 'e1', usuario: usuarioBase });
-    const corpo = JSON.stringify(corpoEnviado());
-    expect(corpo).not.toContain('Leo.Beltran');
-    expect(corpo).not.toContain('99999-0000');
-    expect(corpo).not.toContain('11999990000');
+    const ud = corpoEnviado().user_data as Record<string, unknown>;
+    // `em` e `ph` são os nomes da Meta pra e-mail e telefone.
+    for (const chave of ['em', 'ph', 'fn', 'ln', 'ct', 'st', 'zp', 'db', 'ge']) {
+      expect(ud[chave], `user_data.${chave} não pode existir`).toBeUndefined();
+    }
   });
 
-  it('o e-mail é normalizado antes do hash (minúsculo, sem espaço)', async () => {
+  it('só identificador de anúncio e dado de requisição atravessam', async () => {
     await enviarEventoMeta({ nome: 'Lead', eventId: 'e1', usuario: usuarioBase });
-    expect(corpoEnviado().user_data.em).toBe(sha('leo.beltran@exemplo.com.br'));
+    expect(Object.keys(corpoEnviado().user_data).sort()).toEqual(
+      ['client_ip_address', 'client_user_agent', 'fbc', 'fbp'].sort(),
+    );
   });
 
-  it('o telefone ganha o DDI 55 — sem ele a Meta lê como outro país e o match morre', async () => {
-    await enviarEventoMeta({ nome: 'Lead', eventId: 'e1', usuario: usuarioBase });
-    expect(corpoEnviado().user_data.ph).toBe(sha('5511999990000'));
+  it('🔴 o módulo não tem mais como fazer hash — a ferramenta foi removida', () => {
+    // Função de hash órfã é convite: quem quisesse "melhorar a atribuição"
+    // encontraria pronta e reconectaria sem passar por decisão nenhuma.
+    // Tira linha de comentário sem precisar de escape de nova linha — o
+    // comentário do próprio arquivo cita `createHash` ao explicar a remoção.
+    const codigo = readFileSync(resolve(process.cwd(), 'src/lib/meta/capi.ts'), 'utf-8').replace(
+      /^\s*\/\/.*$/gm,
+      '',
+    );
+    expect(codigo).not.toContain('createHash');
+    expect(codigo).not.toMatch(/normEmail|normTelefone/);
   });
 
-  it('não inventa hash de campo vazio', async () => {
-    await enviarEventoMeta({
-      nome: 'Lead',
-      eventId: 'e1',
-      usuario: { email: '', telefone: null },
-    });
-    const ud = corpoEnviado().user_data;
-    expect(ud.em).toBeUndefined();
-    expect(ud.ph).toBeUndefined();
+  it('o fbc sobrevive — é ele que dá o crédito à campanha', async () => {
+    await enviarEventoMeta({ nome: 'Lead', eventId: 'e1', usuario: usuarioBase });
+    expect(corpoEnviado().user_data.fbc).toBe('fb.1.1700000000.AbCd');
   });
 });
 

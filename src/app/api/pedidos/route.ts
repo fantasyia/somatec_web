@@ -402,8 +402,7 @@ export async function POST(req: NextRequest) {
     eventId: recebido.event_id ?? randomUUID(),
     urlOrigem: req.headers.get('referer'),
     usuario: {
-      email: dados.email,
-      telefone: dados.whatsapp,
+      // ⛔ Sem e-mail e sem telefone desde 23/09 — ver `UsuarioCapi`.
       fbc: montarFbc(fbclidDaRequisicao(req)),
       fbp: req.cookies.get('_fbp')?.value ?? null,
       ip: getClientIp(req.headers),

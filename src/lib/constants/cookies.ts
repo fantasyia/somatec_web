@@ -207,10 +207,11 @@ export const DADOS_ENVIADOS_A_TERCEIROS: readonly DadoEnviado[] = [
     ligadoEm: 'Gerenciador de Eventos da Meta — correspondência avançada automática (23/09/2026)',
   },
   {
-    dado: 'E-mail e telefone do pedido',
+    dado: 'Identificador do clique no anúncio e do navegador (fbc, fbp), com IP e navegador usado',
     destino: 'meta',
-    forma: 'Hash SHA-256 feito no NOSSO servidor, nunca em texto aberto.',
-    quando: 'Quando um pedido é registrado e quando um pagamento é confirmado.',
+    forma:
+      'Os mesmos códigos que já ficam nos cookies de anúncio, reenviados pelo nosso servidor para a conversão não se perder quando o navegador bloqueia o rastreador.',
+    quando: 'Quando um formulário é enviado, um pedido é registrado ou um pagamento é confirmado.',
     exigeConsentimento: false,
     ligadoEm: 'src/lib/meta/capi.ts',
   },

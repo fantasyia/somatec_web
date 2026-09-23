@@ -41,14 +41,23 @@ describe('a lista de envios existe e é honesta', () => {
     //
     // Então o que se proíbe é a AFIRMAÇÃO: a palavra sem negação antes dela.
     const texto = JSON.stringify(DADOS_ENVIADOS_A_TERCEIROS).toLowerCase();
-    const termos = /(anonimizad\w*|anônim\w*|anonim\w*|identifica)/g;
-    for (const m of texto.matchAll(termos)) {
+
+    // "anônimo"/"anonimizado" só passam se vierem negados.
+    for (const m of texto.matchAll(/(anonimizad\w*|an[ôo]nim\w*)/g)) {
       const antes = texto.slice(Math.max(0, m.index - 18), m.index);
       expect(
         /n[ãa]o\s+(é\s+|s[ãa]o\s+|torna\s+)?$|nunca\s+$/.test(antes),
         `"${m[0]}" aparece sem negação — hash não é anonimato, e esta página pede consentimento`,
       ).toBe(true);
     }
+
+    // ⚠️ "não identifica você" é a afirmação falsa, então aqui a regra é o
+    // INVERSO: proibida sempre. E não dá pra banir "identifica" solto — a
+    // segunda versão desta guarda fez isso e reprovou a palavra
+    // "identificador", que é o nome neutro do que de fato sai (`fbc`/`fbp`).
+    // Duas palavras parecidas, regras opostas: é por isso que elas estão
+    // separadas em vez de numa lista só.
+    expect(texto).not.toMatch(/n[ãa]o\s+(o\s+)?identifica/);
   });
 
   it('todo envio diz em que FORMA sai e em que MOMENTO', () => {

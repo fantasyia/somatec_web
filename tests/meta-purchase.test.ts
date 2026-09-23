@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 // =============================================================================
 // O `Purchase` DA META — a venda que o Pixel não tem como ver.
@@ -67,7 +68,6 @@ const NUMERO = 'SB2608K7M2QX';
 const EMAIL = 'Marina.Torres@Exemplo.com.BR';
 const WHATSAPP = '(11) 98888-7777';
 
-const sha = (v: string) => createHash('sha256').update(v).digest('hex');
 
 const pedido = (extra: Record<string, unknown> = {}) => ({
   numero: NUMERO,
@@ -225,22 +225,41 @@ describe('🔴 o valor é a VENDA, não a parcela', () => {
 });
 
 describe('🔒 dado pessoal', () => {
-  it('🔴 e-mail e telefone saem em HASH, nunca em claro', async () => {
+  // Até 23/09 este bloco provava que o e-mail e o telefone do pedido saíam com
+  // HASH. Agora prova que NÃO SAEM — nem com hash. O CAPI roda no servidor, e
+  // servidor não passa pelo banner de cookies: quem recusava tinha os dados
+  // enviados do mesmo jeito, e os documentos do site diziam o contrário. Decisão
+  // do Léo: alinhar o código ao que os documentos já dizem.
+
+  it('🔴 nem em claro, nem em hash — o dado do cliente não sai', async () => {
     await registrarEventoPagamento(evento());
     const corpo = JSON.stringify(chamadasMeta()[0][1]);
     expect(corpo).not.toContain('Marina.Torres');
     expect(corpo).not.toContain('marina.torres');
     expect(corpo).not.toContain('98888');
+    // E o hash também não: `em`/`ph` são os nomes da Meta pros dois campos.
+    const ud = eventoEnviado().user_data as Record<string, unknown>;
+    expect(ud.em).toBeUndefined();
+    expect(ud.ph).toBeUndefined();
   });
 
-  it('o e-mail é normalizado antes do hash — minúsculo e sem espaço', async () => {
-    await registrarEventoPagamento(evento());
-    expect(eventoEnviado().user_data.em).toBe(sha('marina.torres@exemplo.com.br'));
-  });
-
-  it('o telefone ganha o DDI 55 — sem ele a Meta procura noutro país', async () => {
-    await registrarEventoPagamento(evento());
-    expect(eventoEnviado().user_data.ph).toBe(sha('5511988887777'));
+  it('🔴 o caminho do Purchase não busca contato no banco', () => {
+    // ⚠️ Não dá pra afirmar isso pelo mock: `contatoDoPedido` continua sendo
+    // chamado no MESMO webhook, pelo e-mail de pagamento confirmado. O que
+    // precisa estar limpo é a função do Meta — enquanto ela consultasse o
+    // contato, o dado ficava a uma linha de voltar ao payload.
+    const src = readFileSync(resolve(process.cwd(), 'src/lib/pagamento/registro.ts'), 'utf-8');
+    const corpo = src.slice(src.indexOf('async function avisarMeta'));
+    // ⚠️ Cortar no primeiro `}` de coluna zero NÃO funciona: a assinatura
+    // (`async function avisarMeta(params: {` … `}): Promise<void> {`) tem um
+    // desses, e o corte pegava 166 caracteres. Quem achou foi a asserção de
+    // tamanho abaixo — ela existe pra isso, e ficou.
+    const proxima = corpo.slice(1).search(/\n(async )?function /);
+    const soAFuncao = proxima > 0 ? corpo.slice(0, proxima) : corpo;
+    expect(soAFuncao.length, 'o corte da função falhou — a guarda testaria nada').toBeGreaterThan(
+      600,
+    );
+    expect(soAFuncao).not.toContain('contatoDoPedido');
   });
 
   it('pedido sem contato ainda manda a venda — receita não espera match', async () => {

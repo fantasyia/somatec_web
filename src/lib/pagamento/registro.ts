@@ -276,17 +276,18 @@ async function avisarMeta(params: {
   const valorCentavos =
     pedido.totalCentavos || params.parcelamento?.totalCentavos || params.valorCentavos;
 
-  // E-mail e telefone vêm do BANCO, não do webhook: o Asaas manda o que tem
-  // dele, e quem casa com o Facebook é o contato que a pessoa digitou aqui.
-  const contato = await contatoDoPedido(params.numeroPedido);
+  // ⛔ Nenhuma consulta de contato aqui, de propósito (23/09). Enquanto esta
+  // função lesse o e-mail e o telefone do banco, o dado ficava a uma linha de
+  // voltar ao payload — e voltaria sem ninguém decidir de novo. Quem casa a
+  // venda com a campanha é o identificador de anúncio, guardado na criação do
+  // pedido, quando ainda havia navegador.
   const identidade = await lerIdentidadeMeta(params.numeroPedido);
 
   await enviarEventoMeta({
     nome: 'Purchase',
     eventId: `purchase-${params.numeroPedido}`,
     usuario: {
-      email: contato?.email ?? null,
-      telefone: contato?.whatsapp ?? null,
+      // ⛔ Sem e-mail e sem telefone desde 23/09 — ver `UsuarioCapi`.
       // Guardados na criação do pedido, quando ainda havia navegador.
       fbp: identidade.fbp,
       fbc: identidade.fbc,
