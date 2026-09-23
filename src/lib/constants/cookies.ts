@@ -158,3 +158,65 @@ export const COOKIES_COM_CONSENTIMENTO = COOKIES_DO_SITE.filter((c) => c.exigeCo
 export const CHAVES_PROPRIAS = COOKIES_DO_SITE.filter((c) => c.origem === 'somatec').map(
   (c) => c.nome,
 );
+
+// =============================================================================
+// O QUE SAI — e por que a tabela de cima não cobre isto (23/09/2026).
+//
+// Tudo acima responde "o que fica GUARDADO no navegador". Existe uma segunda
+// categoria, que a página tratava como se não existisse: dado que **sai** sem
+// nunca ter sido gravado em chave nenhuma.
+//
+// 🔴 A guarda de `tests/cookies-inventario.test.ts` NÃO pega isso, e não é
+// defeito dela: ela varre o código atrás de chave de armazenamento. Aqui não há
+// chave — há envio. Cobrir um e achar que cobriu os dois é o jeito de a página
+// voltar a ficar desatualizada dizendo a verdade.
+//
+// ⚠️ E o pior: isto foi ligado num PAINEL (Gerenciador de Eventos da Meta), não
+// em commit. Nada no repositório sabe que aconteceu, `git log` não mostra, e
+// nenhum teste poderia inferir. Por isso a lista abaixo é declarada À MÃO, e
+// mexer em configuração de pixel no painel **obriga** a atualizá-la.
+//
+// ⛔ NUNCA descrever isto como "anonimizado" ou "não identifica você". O hash é
+// exatamente o que permite a Meta reconhecer a pessoa — é pseudonimização, não
+// anonimização, e dizer o contrário na página que PEDE consentimento seria
+// falso. `tests/dados-enviados.test.ts` reprova esses termos.
+// =============================================================================
+
+export type DadoEnviado = {
+  /** O que sai, em linguagem de gente. */
+  dado: string;
+  destino: 'google' | 'meta';
+  /** Em que forma sai — hash não é anonimato, e o texto tem de dizer isso. */
+  forma: string;
+  /** Em que momento sai. */
+  quando: string;
+  /** `true` = só sai depois do aceite no banner. */
+  exigeConsentimento: boolean;
+  /** Onde o interruptor VIVE. Painel aqui é aviso: não há commit que registre. */
+  ligadoEm: string;
+};
+
+export const DADOS_ENVIADOS_A_TERCEIROS: readonly DadoEnviado[] = [
+  {
+    dado: 'E-mail e telefone digitados em formulário do site',
+    destino: 'meta',
+    forma:
+      'Codificados (hash) no próprio navegador antes de sair. Codificado não é anônimo: é justamente o que permite a Meta reconhecer quem já conhece.',
+    quando: 'Quando você preenche e envia um formulário, junto do evento de conversão.',
+    exigeConsentimento: true,
+    ligadoEm: 'Gerenciador de Eventos da Meta — correspondência avançada automática (23/09/2026)',
+  },
+  {
+    dado: 'E-mail e telefone do pedido',
+    destino: 'meta',
+    forma: 'Hash SHA-256 feito no NOSSO servidor, nunca em texto aberto.',
+    quando: 'Quando um pedido é registrado e quando um pagamento é confirmado.',
+    exigeConsentimento: false,
+    ligadoEm: 'src/lib/meta/capi.ts',
+  },
+];
+
+/** Só o que depende do aceite — tem de bater com o que o Consent Mode libera. */
+export const ENVIOS_COM_CONSENTIMENTO = DADOS_ENVIADOS_A_TERCEIROS.filter(
+  (d) => d.exigeConsentimento,
+);

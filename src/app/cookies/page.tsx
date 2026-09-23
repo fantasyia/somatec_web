@@ -3,7 +3,7 @@ import { comOpenGraph } from '@/lib/seo/metadata-pagina';
 import Link from 'next/link';
 import { PageHero } from '@/components/layout/PageHero';
 import { RevisarConsentimento } from '@/components/layout/RevisarConsentimento';
-import { COOKIES_DO_SITE, COOKIES_ATUALIZADO_EM } from '@/lib/constants/cookies';
+import { COOKIES_DO_SITE, COOKIES_ATUALIZADO_EM, DADOS_ENVIADOS_A_TERCEIROS } from '@/lib/constants/cookies';
 import { CONTACT } from '@/lib/constants/site';
 
 // =============================================================================
@@ -173,6 +173,55 @@ export default function CookiesPage() {
                 funcional, e não marketing.
               </li>
             </ul>
+          </div>
+
+          {/* ═══ O QUE SAI (23/09/2026) ═══
+              A página cobria só o que FICA guardado. Faltava a segunda
+              categoria: dado que sai sem nunca ter sido gravado em chave
+              nenhuma — e a guarda de inventário é cega pra ela, porque varre
+              chave de armazenamento e aqui não existe chave.
+              A tabela é gerada de `DADOS_ENVIADOS_A_TERCEIROS`, igual à de
+              cima, pelo mesmo motivo: texto escrito à mão envelhece.
+              📝 O TEXTO desta seção é rascunho de dev e está com a sessão de
+              copy (`/plano-somatec`) e com o Léo pra revisão — o fato é meu, a
+              redação não. Ver `tests/dados-enviados.test.ts`. */}
+          <div className="space-y-4">
+            <h2 className="font-serif text-h3-m font-semibold">O que sai do seu navegador</h2>
+            <p className="leading-relaxed text-[rgb(var(--text-muted))]">
+              Além do que fica guardado, há dado que é <strong className="text-[rgb(var(--text))]">enviado</strong>{' '}
+              e não fica gravado em lugar nenhum do seu navegador. Codificar não é tornar anônimo:
+              o código serve justamente para a plataforma reconhecer quem ela já conhece.
+            </p>
+            <div className="overflow-x-auto rounded-card border border-[rgb(var(--border))]">
+              <table className="w-full min-w-[42rem] text-left text-sm">
+                <thead className="bg-[rgb(var(--surface))]">
+                  <tr>
+                    <th scope="col" className="px-4 py-3 font-sans font-semibold">O que</th>
+                    <th scope="col" className="px-4 py-3 font-sans font-semibold">Para quem</th>
+                    <th scope="col" className="px-4 py-3 font-sans font-semibold">Em que forma</th>
+                    <th scope="col" className="px-4 py-3 font-sans font-semibold">Quando</th>
+                    <th scope="col" className="px-4 py-3 font-sans font-semibold">
+                      Precisa da sua autorização
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {DADOS_ENVIADOS_A_TERCEIROS.map((d) => (
+                    <tr key={d.dado} className="border-t border-[rgb(var(--border))] align-top">
+                      <td className="px-4 py-3 text-[rgb(var(--text))]">{d.dado}</td>
+                      <td className="px-4 py-3 text-[rgb(var(--text-muted))]">
+                        {d.destino === 'meta' ? 'Meta' : 'Google'}
+                      </td>
+                      <td className="px-4 py-3 text-[rgb(var(--text-muted))]">{d.forma}</td>
+                      <td className="px-4 py-3 text-[rgb(var(--text-muted))]">{d.quando}</td>
+                      <td className="px-4 py-3 text-[rgb(var(--text-muted))]">
+                        {d.exigeConsentimento ? 'Sim' : 'Não — ver abaixo'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Âncora do link do rodapé. `scroll-mt` porque o cabeçalho é fixo
