@@ -39,15 +39,31 @@ export const CONTACT = {
   /** Como o número aparece na tela. */
   whatsappDisplay: '+55 11 91764-4757',
   email: 'comercial@somatecblocking.com.br',
+  // 📍 ENDEREÇO — corrigido em 23/09/2026. Era `145` e CEP `04304-000`, e os
+  // dois estavam errados pelo MESMO motivo: quem escreveu leu o COMPLEMENTO do
+  // cadastro como se fosse o logradouro. Na Receita (CNPJ 16.774.052/0001-55) o
+  // registro é `Logradouro: Avenida Fagundes Filho, 141` e
+  // `Complemento: Sala Esc 72 Edif N 145` — o 145 é o número do EDIFÍCIO.
+  // Confirmado pelo Léo: nº 141, complemento Conjunto 72.
+  //
+  // O CEP não precisou de confirmação, tem prova pública: na faixa dos Correios
+  // `04304-000` é "até 710 — lado PAR" e `04304-010` é "até 721 — lado ÍMPAR".
+  // 141 é ímpar, logo 04304-010. E como 145 também é ímpar, o `04304-000`
+  // nunca serviu pra nenhuma das duas versões — o erro não era só o número.
+  //
+  // ⚠️ Isto NÃO é só rodapé: alimenta o JSON-LD (`Organization`), o /llms.txt,
+  // o e-mail transacional e a identificação legal do checkout (Decreto
+  // 7.962/2013). Divergir do registro público é ruído de entidade — a mesma
+  // classe de problema do `sameAs` apontando pra perfil duplicado.
   address:
-    'Edifício Austin Office Center — Av. Fagundes Filho, 145, Conj. 72 — Vila Monte Alegre, São Paulo - SP, 04304-000',
+    'Edifício Austin Office Center — Av. Fagundes Filho, 141, Conjunto 72 — Vila Monte Alegre, São Paulo - SP, 04304-010',
   /** Partes do endereço pro JSON-LD (schema.org PostalAddress). */
   endereco: {
-    logradouro: 'Av. Fagundes Filho, 145, Conj. 72 — Edifício Austin Office Center',
+    logradouro: 'Av. Fagundes Filho, 141, Conjunto 72 — Edifício Austin Office Center',
     bairro: 'Vila Monte Alegre',
     cidade: 'São Paulo',
     uf: 'SP',
-    cep: '04304-000',
+    cep: '04304-010',
   },
 } as const;
 

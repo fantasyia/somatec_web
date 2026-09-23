@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { htmlPedido } from '@/lib/email/pedido-confirmado';
 import { htmlPagamento } from '@/lib/email/pagamento-confirmado';
 import { assuntoInterno, htmlInterno, textoInterno } from '@/lib/email/pagamento-interno';
+import { CONTACT } from '@/lib/constants/site';
 
 // =============================================================================
 // O PADRÃO, travado para TODO e-mail do site.
@@ -80,7 +81,10 @@ describe.each(EMAILS)('padrão do e-mail — %s', (_nome, html) => {
     // público é UM só: comercial@. O somatec@ não é canal e já vazou pra rodapé.
     expect(html).toContain('16.774.052/0001-55');
     expect(html).toContain('Somatecblocking UF Eletroeletrônicos LTDA');
-    expect(html).toContain('Av. Fagundes Filho, 145');
+    // Lê a constante em vez de repetir o endereço à mão: escrito aqui, este
+    // teste envelhece junto com a mudança e vira o que reprova o conserto
+    // certo — foi o que aconteceu na correção do nº 145 → 141 em 23/09.
+    expect(html).toContain(CONTACT.address);
     expect(html).toContain('comercial@somatecblocking.com.br');
     expect(html).not.toContain('somatec@somatecblocking.com.br');
   });

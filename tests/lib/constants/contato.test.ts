@@ -30,11 +30,33 @@ describe('canal de contato', () => {
   });
 
   it('o endereço é o de São Paulo, com CEP', () => {
-    expect(CONTACT.address).toContain('Av. Fagundes Filho, 145');
-    expect(CONTACT.address).toContain('04304-000');
+    expect(CONTACT.address).toContain('Av. Fagundes Filho, 141');
+    expect(CONTACT.address).toContain('04304-010');
     expect(CONTACT.endereco.cidade).toBe('São Paulo');
     // O endereço velho (Dracena) não pode voltar por engano.
     expect(CONTACT.address).not.toMatch(/Dracena|Rua XV de Novembro/i);
+  });
+
+  it('🔴 o 145 é o número do EDIFÍCIO, não da rua — não pode voltar como logradouro', () => {
+    // O erro de origem (corrigido em 23/09) foi ler o complemento do cadastro
+    // da Receita — "Sala Esc 72 Edif N 145" — como se fosse o logradouro. Quem
+    // reconferir num documento antigo vai reencontrar o 145 e "consertar" de
+    // volta, porque ele EXISTE: só não é o número da rua.
+    expect(CONTACT.address).not.toMatch(/Fagundes Filho,\s*145/);
+    expect(CONTACT.endereco.logradouro).not.toMatch(/Fagundes Filho,\s*145/);
+  });
+
+  it('🔴 o CEP é o do lado ÍMPAR — 04304-000 é o lado par e nunca serviu aqui', () => {
+    // Prova pública, não opinião: na faixa dos Correios para a Av. Fagundes
+    // Filho, `04304-000` cobre "até 710 — lado PAR" e `04304-010` cobre "até
+    // 721 — lado ÍMPAR". O número é 141, ímpar. E 145 também é ímpar, então o
+    // CEP par estava errado antes e depois da troca de número — são dois
+    // defeitos com a mesma origem, e consertar só um deixaria o outro de pé.
+    expect(CONTACT.endereco.cep).toBe('04304-010');
+    expect(JSON.stringify(CONTACT)).not.toContain('04304-000');
+    // O número do logradouro tem de ser ímpar pra casar com a faixa do CEP.
+    const numero = Number(CONTACT.endereco.logradouro.match(/,\s*(\d+)/)?.[1]);
+    expect(numero % 2, `nº ${numero} é par e o CEP é de lado ímpar`).toBe(1);
   });
 });
 
