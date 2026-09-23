@@ -1,5 +1,5 @@
 import { MASTER_BLOCK_MODELS } from '@/lib/constants/masterblock';
-import { freteDoPedido } from '@/lib/constants/pagamento';
+import { comDescontoPix, freteDoPedido, temDescontoPix } from '@/lib/constants/pagamento';
 
 // =============================================================================
 // Preço do pedido — resolvido no SERVIDOR.
@@ -95,7 +95,21 @@ export function precificarPedido(
   afirmadoPeloCliente?: { totalCentavos?: number; freteCentavos?: number },
   /** Libera o SKU de teste. Só a rota decide, e só com o segredo da operação. */
   permitirTeste = false,
+  /**
+   * Forma de pagamento escolhida — só o PIX ganha os 6% (`comDescontoPix`).
+   *
+   * ⚠️ OPCIONAL de propósito: omitir = preço cheio, que é o comportamento de
+   * antes de 23/09. Quem não passar nada continua funcionando igual, e o
+   * caminho seguro do erro é cobrar o valor inteiro.
+   */
+  formaPagamento?: string | null,
 ): ResultadoPreco {
+  // O desconto entra AQUI, e não em cada consumidor, porque daqui ele alcança
+  // sozinho os quatro lugares que precisam concordar: a cobrança no Asaas, o
+  // registro do pedido, o payload do ERP (que lê `precoCentavos` item a item) e
+  // o `value` que vai pro GA4 e pra Meta. Aplicado em qualquer outro ponto, um
+  // desses quatro ficaria pra trás — e o que falha é sempre o que ninguém olha.
+  const descontoPix = temDescontoPix(formaPagamento);
   const precificados: ItemPrecificado[] = [];
 
   for (const item of itens) {
@@ -116,7 +130,13 @@ export function precificarPedido(
         detalhe: `O modelo ${modelo} não existe no catálogo.`,
       };
     }
-    precificados.push({ descricao: item.descricao, modelo, quantidade, precoCentavos: preco });
+    // Por unidade, nunca sobre o total — ver a nota em `constants/pagamento`.
+    precificados.push({
+      descricao: item.descricao,
+      modelo,
+      quantidade,
+      precoCentavos: descontoPix ? comDescontoPix(preco) : preco,
+    });
   }
 
   const itensCentavos = precificados.reduce((s, i) => s + i.precoCentavos * i.quantidade, 0);

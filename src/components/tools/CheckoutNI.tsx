@@ -37,7 +37,8 @@ import { PrecoDePor } from '@/components/tools/PrecoDePor';
 import { OfertaCheckout } from '@/components/tools/OfertaCheckout';
 import {
   GATEWAY_ATIVO, FORMAS_PAGAMENTO, freteDoPedido, enderecoVazio,
-  parcelasDisponiveis, valorDaParcela, formatParcelaBRL,
+  parcelasDisponiveis, valorDaParcela, formatParcelaBRL, formatBRLCentavos,
+  comDescontoPix, DESCONTO_PIX_PERCENTUAL,
   enderecoCompleto, enderecoEmUmaLinha,
   type Endereco, type FormaPagamentoId,
 } from '@/lib/constants/pagamento';
@@ -483,8 +484,26 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const totalPassos = temPreco ? PASSOS_BASE + 1 : PASSOS_BASE;
   const frete = freteDoPedido();
   const totalPedido = totalCarrinho + (Number.isFinite(frete.valor) ? frete.valor : 0);
-  const totalCentavosPedido = Math.round(totalPedido * 100);
-  const opcoesParcelas = parcelasDisponiveis(totalCentavosPedido);
+  /** O que o pedido vale sem desconto — é o preço do CARTÃO e a base da parcela. */
+  const totalCentavosCheio = Math.round(totalPedido * 100);
+
+  // 6% do PIX (23/09). Calculado ITEM A ITEM e em CENTAVOS, igual ao servidor:
+  // é o que garante que a tela, a cobrança e a nota fechem no mesmo número.
+  // Aplicar 6% sobre o total em reais daria diferença de centavo em alguns
+  // modelos, e o servidor RECUSA o pedido por divergência de preço — o cliente
+  // veria "não conseguimos confirmar o preço" sem nada de errado ter acontecido.
+  const descontoPixCentavos = itensCarrinho.reduce((s, i) => {
+    const cheio = Math.round(i.modelo.preco * 100);
+    return s + (cheio - comDescontoPix(cheio));
+  }, 0);
+  const descontoAplicado = pagamento === 'pix' ? descontoPixCentavos : 0;
+  /** O que o cliente PAGA — é este que vai no payload, na cobrança e na medição. */
+  const totalCentavosPedido = totalCentavosCheio - descontoAplicado;
+
+  // Parcela é coisa de CARTÃO, então a base é o total cheio. Usar o total já
+  // descontado aqui faria o parcelamento herdar um desconto que não existe no
+  // cartão, e a soma das parcelas não bateria com a cobrança.
+  const opcoesParcelas = parcelasDisponiveis(totalCentavosCheio);
   // Preso ao que o total permite: tirar um item do carrinho pode derrubar o teto
   // de parcelas, e a escolha antiga viraria uma promessa que o servidor recusa.
   const parcelasEscolhidas = Math.min(parcelas, opcoesParcelas[opcoesParcelas.length - 1]);
@@ -624,7 +643,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       (enderecoCompleto(endereco)
         ? ` ENTREGA: ${enderecoEmUmaLinha(endereco)}. Frete: ${frete.valor === 0 ? 'grátis (promoção)' : formatBRL(frete.valor)}. ` +
           `Pagamento escolhido: ${FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? '—'}. ` +
-          `Total do pedido: ${formatBRL(totalPedido)}.`
+          `Total do pedido: ${formatBRLCentavos(totalCentavosPedido)}.`
         : '');
     const resumoLimpo = resumo.replace(/\s+/g, ' ').trim();
 
@@ -672,7 +691,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
               quantidade: 1,
               precoCentavos: Math.round((i.modelo?.preco ?? 0) * 100),
             })),
-            totalCentavos: Math.round(totalPedido * 100),
+            totalCentavos: totalCentavosPedido,
             freteCentavos: Math.round((Number.isFinite(frete.valor) ? frete.valor : 0) * 100),
             formaPagamento: FORMAS_PAGAMENTO.find((f) => f.id === pagamento)?.label ?? pagamento,
             parcelas: pagamento === 'cartao' ? parcelasEscolhidas : 1,
@@ -779,7 +798,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       trackEvent(numeroPedido ? 'checkout_pedido' : 'calc_lead', {
         setor,
         landing: landingSlug,
-        ...(numeroPedido ? { total: totalPedido, pagamento, pedido: numeroPedido } : {}),
+        ...(numeroPedido ? { total: totalCentavosPedido / 100, pagamento, pedido: numeroPedido } : {}),
       });
       // ⛔ `pedido_registrado`, NUNCA `purchase`: com GATEWAY_ATIVO=false o
       // checkout não cobra. `purchase` aqui ensinaria Google e Meta a caçar
@@ -789,7 +808,10 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
       if (numeroPedido && modelo) {
         rastrearPedidoRegistrado({
           transactionId: numeroPedido,
-          value: totalPedido,
+          // O valor COBRADO, com o desconto do PIX. Mandar o cheio faria o
+          // relatório de receita divergir do que entrou no caixa, e o servidor
+          // já manda o descontado no `purchase` — os dois têm que bater.
+          value: totalCentavosPedido / 100,
           items: [
             {
               item_id: modelo.model,
@@ -1325,11 +1347,26 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                         {frete.valor === 0 ? 'Grátis' : formatBRL(frete.valor)}
                       </span>
                     </li>
+                    {/* Só aparece com PIX escolhido. Sem esta linha o total cai
+                        sozinho quando a pessoa troca a forma de pagamento, e
+                        número que muda sem explicação lê como erro do site. */}
+                    {descontoAplicado > 0 && (
+                      <li className="flex items-baseline justify-between gap-4 py-2 text-sm">
+                        <span className="text-[rgb(var(--text))]">
+                          Desconto PIX ({DESCONTO_PIX_PERCENTUAL}%)
+                        </span>
+                        <span className="shrink-0 font-semibold text-gold">
+                          &minus; {formatBRLCentavos(descontoAplicado)}
+                        </span>
+                      </li>
+                    )}
                   </ul>
                   <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 border-t border-[rgb(var(--border))] pt-4">
                     <span className="text-sm text-[rgb(var(--text-muted))]">Total</span>
                     <span className="font-serif text-3xl font-bold text-[rgb(var(--text))]">
-                      {formatBRL(totalPedido)}
+                      {descontoAplicado > 0
+                        ? formatBRLCentavos(totalCentavosPedido)
+                        : formatBRL(totalPedido)}
                     </span>
                   </div>
                   <p className="mt-2 text-xs text-[rgb(var(--text-muted))]">
@@ -1387,7 +1424,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                           <option key={n} value={n}>
                             {n === 1
                               ? `À vista — ${formatBRL(totalPedido)}`
-                              : `${n}x de ${formatParcelaBRL(valorDaParcela(totalCentavosPedido, n))} sem juros`}
+                              : `${n}x de ${formatParcelaBRL(valorDaParcela(totalCentavosCheio, n))} sem juros`}
                           </option>
                         ))}
                       </select>

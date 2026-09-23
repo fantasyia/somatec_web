@@ -277,6 +277,10 @@ export async function POST(req: NextRequest) {
     recebido.itens,
     { totalCentavos: recebido.totalCentavos, freteCentavos: recebido.freteCentavos },
     pedidoDeTeste,
+    // Os 6% do PIX. O servidor reaplica a regra em vez de confiar no total que
+    // o navegador mandou — se a tela e a regra discordarem, o pedido é RECUSADO
+    // por divergência, que é o modo de falhar certo: ninguém paga escondido.
+    recebido.formaPagamento,
   );
   if (!preco.ok) {
     log.warn('pedido recusado na precificacao', { motivo: preco.motivo, detalhe: preco.detalhe });
