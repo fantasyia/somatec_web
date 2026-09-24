@@ -13,10 +13,17 @@ const log = createLogger('meta-capi');
 // dois é o `event_id`: chegando o mesmo valor pelos dois caminhos, a Meta
 // entende que é um evento só. Sem ele, cada conversão contaria em dobro.
 //
-// ⚠️ INERTE SEM CREDENCIAL: faltando `META_PIXEL_ID` ou `META_CAPI_TOKEN`, nada
-// é enviado e nada quebra. 🔴 Mas NÃO está mais inerte — as duas variáveis
-// entraram no Railway em 23/09/2026 (deploy 16:15 UTC, no mesmo commit: mudança
-// de variável redeploya sozinha). Este arquivo ESTÁ enviando em produção.
+// ⚠️ INERTE SEM CREDENCIAL: faltando `META_PIXEL_ID` ou `META_CAPI_TOKEN` — ou
+// com qualquer uma das duas VAZIA —, nada é enviado e nada quebra. Nesse caso o
+// processo escreve UM aviso (`avisarSemConfig`, abaixo) dizendo qual falta.
+//
+// ⛔ ESTE COMENTÁRIO NÃO DIZ SE ESTÁ LIGADO EM PRODUÇÃO, e não deve dizer. Até
+// 24/09 ele afirmava "Este arquivo ESTÁ enviando em produção" — e estava errado:
+// o `META_CAPI_TOKEN` existia no Railway mas VAZIO, e o no-op era calado. A
+// frase foi escrita a partir de um redeploy sem mudança de código, que prova que
+// ALGUMA variável mudou, não que ela tem valor. Estado de produção não mora em
+// comentário: ele envelhece e mente. Pra saber, olhe o log (o aviso de falta de
+// config) ou o Gerenciador de Eventos (integração "Navegador e servidor").
 //
 // 🔒 NADA QUE A PESSOA DIGITOU sai daqui (a partir de 23/09/2026). O que vai é
 // identificador de ANÚNCIO — `fbc` (do clique) e `fbp` (cookie do Pixel) — mais
@@ -89,7 +96,9 @@ export function montarFbc(fbclid: string | null | undefined, capturadoEm?: strin
 
 /** Configurado = as duas variáveis presentes. Uma só não serve pra nada. */
 export function capiConfigurado(): boolean {
-  return Boolean(process.env.META_PIXEL_ID && process.env.META_CAPI_TOKEN);
+  // Mesma régua do `enviarEventoMeta`: as duas decidem "ligado" do mesmo jeito,
+  // senão uma diria que está configurado enquanto a outra fica calada.
+  return configurada(process.env.META_PIXEL_ID) && configurada(process.env.META_CAPI_TOKEN);
 }
 
 // -----------------------------------------------------------------------------
@@ -160,10 +169,58 @@ export async function lerIdentidadeMeta(numeroPedido: string): Promise<Identidad
  * Envia um evento pro CAPI. **Nunca lança** — analytics não pode derrubar o
  * lead nem o pedido. O caller aguarda mas ignora o resultado.
  */
+/** `true` só com valor de verdade — ausente, vazia e só-espaço contam como falta.
+ *  É type guard pra o TypeScript saber que, depois dele, o valor é string. */
+function configurada(valor: string | undefined): valor is string {
+  return estadoDa(valor) === 'ok';
+}
+
+/** Uma vez por processo — ver `avisarSemConfig`. */
+let avisouSemConfig = false;
+
+/** Como uma variável está, sem NUNCA revelar o valor. */
+function estadoDa(valor: string | undefined): 'ausente' | 'vazia' | 'ok' {
+  if (valor === undefined) return 'ausente';
+  if (valor.trim() === '') return 'vazia';
+  return 'ok';
+}
+
+/**
+ * Avisa, UMA vez por processo, que a CAPI está desligada por falta de config.
+ *
+ * Existe porque o no-op era calado. Até 24/09 o `META_CAPI_TOKEN` estava no
+ * Railway como string VAZIA, a primeira linha de `enviarEventoMeta` devolvia
+ * `sem-config` sem escrever nada, e o log só aparecia quando a Meta recusava ou
+ * a rede caía. Resultado: "desligado" produzia o MESMO silêncio que "funcionando"
+ * — e foi lido como sucesso por mais de uma sessão.
+ *
+ * Uma vez por processo, e não a cada evento: o aviso é pra quem lê o log, e
+ * repetido a cada lead ele vira ruído que ninguém lê mais.
+ *
+ * Distingue AUSENTE de VAZIA porque é a diferença que importou: a variável
+ * existia no painel, então quem olhava via o nome e achava que estava pronta.
+ */
+function avisarSemConfig(pixelId: string | undefined, token: string | undefined): void {
+  if (avisouSemConfig) return;
+  avisouSemConfig = true;
+  log.warn('CAPI DESLIGADA — faltando configuração, nenhum evento vai pro servidor da Meta', {
+    META_PIXEL_ID: estadoDa(pixelId),
+    META_CAPI_TOKEN: estadoDa(token),
+  });
+}
+
+/** Só pra teste: zera o "já avisei". Não usar em código de produção. */
+export function _reiniciarAvisoSemConfigParaTeste(): void {
+  avisouSemConfig = false;
+}
+
 export async function enviarEventoMeta(evento: EventoCapi): Promise<ResultadoCapi> {
   const pixelId = process.env.META_PIXEL_ID;
   const token = process.env.META_CAPI_TOKEN;
-  if (!pixelId || !token) return { enviado: false, motivo: 'sem-config' };
+  if (!configurada(pixelId) || !configurada(token)) {
+    avisarSemConfig(pixelId, token);
+    return { enviado: false, motivo: 'sem-config' };
+  }
 
   const u = evento.usuario;
   // Só identificador de ANÚNCIO e dado de requisição. Nada que a pessoa digitou.
