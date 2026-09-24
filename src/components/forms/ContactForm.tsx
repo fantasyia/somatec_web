@@ -12,7 +12,7 @@ import { FormStatus, type FormStatusKind } from './fields/FormStatus';
 import { INTEREST_TYPE_OPTIONS } from '@/lib/constants/form-options';
 import { LGPD_PUBLIC_DEFAULT } from '@/lib/lgpd-public';
 import { getAtribuicao } from '@/lib/attribution';
-import { novoEventId, rastrearLead, type Motor } from '@/lib/analytics/eventos';
+import { motorDoContato, novoEventId, rastrearLead } from '@/lib/analytics/eventos';
 import { PublicoSetorFields } from './fields/PublicoSetorFields';
 import { rotuloSetor, type PublicoId } from '@/lib/constants/setores';
 import { validarContato, temErro } from '@/lib/forms/validar-contato';
@@ -113,12 +113,15 @@ export function ContactForm({ variant, sourcePage = '/contato', defaultInterestT
       const data = (await res.json()) as { ok: boolean; message: string };
 
       if (res.ok && data.ok) {
-        // ⚠️ `representante` NÃO é motor de venda — é recrutamento, com funil e
-        // campanha próprios. Cair como `industrial` misturaria candidato a rep
-        // com cliente industrial no mesmo público de anúncio.
-        const motor: Motor =
-          payload.interest_type === 'representante' ? 'representante' : 'industrial';
-        rastrearLead({ formId: 'contato', motor, eventId });
+        // O motor sai do que a pessoa ESCOLHEU (`publico`), não de um padrão.
+        // Até 23/09 tudo que não fosse representante virava `industrial`, e
+        // loja e casa chegavam à medição como indústria. A regra e o porquê
+        // estão em `motorDoContato`.
+        rastrearLead({
+          formId: 'contato',
+          motor: motorDoContato(payload.interest_type as string | undefined, publico),
+          eventId,
+        });
         setStatus('success');
         setMessage(data.message);
         (e.target as HTMLFormElement).reset();

@@ -43,6 +43,35 @@ import { getAtribuicao } from '@/lib/attribution';
  */
 export type Motor = 'industrial' | 'nao_industrial' | 'representante' | 'indefinido';
 
+/**
+ * Motor de venda a partir do que a pessoa ESCOLHEU no formulário de contato.
+ *
+ * `/contato` é o único formulário em que o motor não é fixo por construção — a
+ * pessoa responde "Você está buscando proteção para" (`publico`). Até 23/09 essa
+ * resposta era jogada fora: tudo que não fosse representante virava
+ * `industrial`, inclusive comércio e residência, que são justamente o motor
+ * NÃO-industrial. Todo lead de loja e de casa chegava ao GA4 e à Meta rotulado
+ * como indústria, contaminando a dimensão que separa os dois negócios do site.
+ *
+ * Mora aqui, e não dentro do componente, pra ser testável sem montar o
+ * formulário: foi exatamente por o teste existente chamar `rastrearLead` com o
+ * motor já pronto que o erro passou — o emissor estava coberto, quem ESCOLHE o
+ * motor não estava.
+ *
+ * ⚠️ Estrita de propósito: só os dois valores conhecidos de não-industrial viram
+ * `nao_industrial`. Valor desconhecido cai em `indefinido`, não em palpite —
+ * pelo mesmo motivo do comentário do `Motor` acima.
+ */
+export function motorDoContato(
+  interesse: string | null | undefined,
+  publico: string | null | undefined,
+): Motor {
+  if (interesse === 'representante') return 'representante';
+  if (publico === 'industria') return 'industrial';
+  if (publico === 'comercio' || publico === 'residencia') return 'nao_industrial';
+  return 'indefinido';
+}
+
 /** De onde veio o lead. Fecha com a taxonomia da sessão de Ads. */
 export type FormId =
   | 'contato'
