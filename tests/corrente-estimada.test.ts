@@ -4,92 +4,119 @@ import { resolve } from 'node:path';
 import { lerSemente, passoDaSemente } from '@/components/tools/CheckoutNI';
 
 // =============================================================================
-// O AVISO DE CORRENTE ESTIMADA TEM DE ESTAR ONDE A PESSOA DECIDE.
+// SEM A CORRENTE REAL DO CLIENTE NÃO TEM VENDA — decisão do Léo, 24/09/2026.
 //
-// O bot (fluxo C1) às vezes não consegue o número do disjuntor e ESTIMA. Nesse
-// caso ele manda `origem=estimativa` no link, e a tela avisa pra conferir.
+//   "sem a informação correta do cliente infelizmente não dá pra seguir."
 //
-// O aviso existia só no `hint` do campo de corrente, que é do PASSO 2. Mas
-// `passoDaSemente` manda o link COMPLETO direto pro passo 3 — então, justamente
-// nos links que carregam a estimativa, o aviso nunca era visto. Em produção o
-// link abria no "Passo 3 de 4" mostrando MB-01 · R$ 3.150 sem uma palavra
-// sobre o número ser chute.
+// É a corrente do disjuntor geral que escolhe o modelo do Master Block. Modelo
+// escolhido por número chutado pode ser MENOR que o necessário — e aí o que se
+// vende não protege.
 //
-// ⚠️ Não é cosmética. A regra do prompt é estimar PARA CIMA, porque indicar um
-// modelo menor que o necessário é vender algo que não protege. O aviso é o
-// controle que segura esse caso.
+// Até 24/09 este arquivo protegia o contrário: um AVISO de "corrente estimada".
+// O bot, quando não conseguia o número, estimava e mandava `origem=estimativa`
+// no link; o número preenchia o campo, o wizard pulava direto pro passo 3 e
+// mostrava "MB-01 · R$ 3.150" — a um clique do checkout —, com um aviso pedindo
+// pra conferir. Aviso não impede compra. Agora o número estimado nem entra.
+//
+// Os TRÊS caminhos que poderiam levar à compra sem corrente real, e o que
+// fecha cada um:
+//   1. `origem=estimativa` no link    → a corrente é descartada (este arquivo)
+//   2. `quadros=...` (estimar pela lista de equipamentos) → não é lido desde
+//      03/09, e continua não sendo
+//   3. "não sei" no passo da corrente → sem corrente não há modelo, sem modelo
+//      não existe o passo de checkout: vira pedido de dimensionamento
 // =============================================================================
 
-const FONTE = readFileSync(
-  resolve(process.cwd(), 'src/components/tools/CheckoutNI.tsx'),
-  'utf-8',
-);
+const FONTE = readFileSync(resolve(process.cwd(), 'src/components/tools/CheckoutNI.tsx'), 'utf-8');
 
-/** Sem comentários: a explicação do conserto cita as próprias coisas que as
- *  guardas procuram. Linha primeiro, bloco depois — mesma ordem (e mesmo
- *  motivo) registrada em copy-guards.test.ts. */
+/** Sem comentários: a explicação do conserto cita o que as guardas procuram. */
 const CODIGO = FONTE.replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
   .split('\n')
   .filter((l) => !l.trim().startsWith('//'))
   .join('\n')
   .replace(/\/\*[\s\S]*?\*\//g, '');
 
-describe('o link do bot com estimativa pula o passo 2', () => {
-  it('link completo com origem=estimativa abre no passo 3', () => {
-    // É esta a condição que torna o aviso do passo 2 inalcançável. Se um dia
-    // `passoDaSemente` passar a devolver 2 aqui, o problema muda de natureza
-    // e este teste avisa.
-    const s = lerSemente('?contexto=casa&corrente=50&tensao=127V&origem=estimativa', 'residencial');
-    expect(s.origem).toBe('estimativa');
-    expect(passoDaSemente(s)).toBe(3);
+const LINK_ESTIMADO = '?contexto=casa&corrente=50&tensao=127V&origem=estimativa';
+
+describe('🔴 caminho 1 — corrente estimada no link não entra', () => {
+  it('a corrente do link com origem=estimativa é DESCARTADA', () => {
+    expect(lerSemente(LINK_ESTIMADO, 'residencial').corrente).toBe('');
   });
 
-  it('a origem sobrevive à leitura do link (âncora)', () => {
-    expect(lerSemente('?origem=estimativa').origem).toBe('estimativa');
-    expect(lerSemente('?origem=disjuntor').origem).toBe('disjuntor');
-    expect(lerSemente('?origem=chute').origem).toBeNull();
+  it('🔴 e o wizard para no passo da corrente, não pula pro contato', () => {
+    // Antes abria no passo 3, com modelo e preço de um número chutado. É esta
+    // a regressão que importa: se voltar a devolver 3, o chute volta a ficar
+    // a um clique da compra.
+    const s = lerSemente(LINK_ESTIMADO, 'residencial');
+    expect(passoDaSemente(s)).toBe(2);
+  });
+
+  it('o resto do link continua valendo — contexto e tensão entram', () => {
+    // Descarta só o número chutado. O link já disparado no WhatsApp segue
+    // abrindo e aproveitando o que era dado real.
+    const s = lerSemente(LINK_ESTIMADO, 'residencial');
+    expect(s.contexto).toBe('casa');
+    expect(s.tensao).toBe('127V');
+  });
+
+  it('estimativa não é mais uma origem reconhecida', () => {
+    expect(lerSemente(LINK_ESTIMADO, 'residencial').origem).toBeNull();
+  });
+
+  it('⛔ a corrente REAL continua entrando — o conserto não pode quebrar o caminho bom', () => {
+    const disjuntor = lerSemente('?contexto=casa&corrente=50&tensao=127V&origem=disjuntor', 'residencial');
+    expect(disjuntor.corrente).toBe('50');
+    expect(passoDaSemente(disjuntor)).toBe(3);
+    const conta = lerSemente('?contexto=casa&corrente=63&tensao=220V&origem=conta', 'residencial');
+    expect(conta.corrente).toBe('63');
+    // Sem `origem` nenhuma também entra — é o link mais antigo, e ele não
+    // declarava estimativa.
+    expect(lerSemente('?contexto=casa&corrente=40&tensao=127V', 'residencial').corrente).toBe('40');
+  });
+
+  it('não importa a caixa: ESTIMATIVA e Estimativa também são descartadas', () => {
+    for (const o of ['ESTIMATIVA', 'Estimativa', 'estimativa']) {
+      expect(lerSemente(`?corrente=50&origem=${o}`).corrente, o).toBe('');
+    }
   });
 });
 
-describe('o aviso aparece no passo do RESULTADO', () => {
-  it('existe um bloco condicionado a origem estimada fora do campo de corrente', () => {
-    // O `hint` do TextField já usava `origemUrl === 'estimativa'`. Exigir duas
-    // ocorrências garante que existe uma SEGUNDA superfície — senão o teste
-    // passaria com o estado antigo, em que só o hint existia.
-    const ocorrencias = CODIGO.match(/origemUrl === 'estimativa'/g) ?? [];
-    expect(ocorrencias.length, 'o aviso continua existindo em um lugar só').toBeGreaterThanOrEqual(2);
+describe('caminho 2 — estimar pela lista de equipamentos', () => {
+  it('`quadros` segue sem ser lido', () => {
+    // O bot parou de mandar em 03/09. Links velhos ainda carregam o
+    // parâmetro, e ele não pode virar corrente por nenhum caminho.
+    const s = lerSemente('?contexto=casa&tensao=127V&quadros=cozinha:40,oficina:63', 'residencial');
+    expect(s.corrente).toBe('');
+    expect(CODIGO).not.toMatch(/q\.get\(['"]quadros['"]\)/);
+  });
+});
+
+describe('caminho 3 — "não sei" não chega ao checkout', () => {
+  it('sem corrente não há modelo', () => {
+    expect(CODIGO).toMatch(/const modelo = !naoSei && amp > 0 \? selecionarMasterBlock\(amp\) : null/);
   });
 
-  it('o aviso está DENTRO do passo 3, não do passo 2', () => {
-    const ini = CODIGO.indexOf('{passo === 3 && (');
-    const fim = CODIGO.indexOf('{passo === 4 && (');
-    expect(ini, 'não achei o passo 3').toBeGreaterThan(-1);
-    expect(fim, 'não achei o passo 4').toBeGreaterThan(ini);
-    expect(CODIGO.slice(ini, fim)).toMatch(/origemUrl === 'estimativa'/);
+  it('sem modelo não existe o passo de checkout', () => {
+    expect(CODIGO).toMatch(/const temPreco = modelo != null/);
+    expect(CODIGO).toMatch(/const totalPassos = temPreco \? PASSOS_BASE \+ 1 : PASSOS_BASE/);
+  });
+});
+
+describe('o aviso de estimativa saiu junto', () => {
+  it('🔴 não sobrou tela nenhuma falando de corrente estimada', () => {
+    // Aviso de "confira a estimativa" pressupõe que o número chutado chegou
+    // até aqui — e ele não chega mais. Deixar o aviso seria prometer um
+    // controle sobre algo que não existe.
+    expect(CODIGO).not.toMatch(/origemUrl/);
+    expect(CODIGO).not.toMatch(/como estimativa/);
+    expect(CODIGO).not.toMatch(/Confira a corrente antes de fechar/);
   });
 
-  it('diz pra conferir no disjuntor', () => {
-    const ini = CODIGO.indexOf('{passo === 3 && (');
-    const bloco = CODIGO.slice(ini, CODIGO.indexOf('{passo === 4 && ('));
-    expect(bloco).toMatch(/disjuntor/i);
-    expect(bloco).toMatch(/estimativa/i);
-  });
-
-  it('oferece o caminho de volta pro campo — não só texto', () => {
-    // Mandar conferir sem dar como voltar transfere o trabalho pra pessoa
-    // achar o passo sozinha, e ela está a um clique de fechar a compra.
-    const ini = CODIGO.indexOf('{passo === 3 && (');
-    const bloco = CODIGO.slice(ini, CODIGO.indexOf('{passo === 4 && ('));
-    expect(bloco).toMatch(/irPara\(2\)/);
-  });
-
-  it('⛔ não aparece quando a corrente NÃO é estimativa', () => {
-    // A condição tem de continuar presa a `origemUrl`; um aviso que aparece
-    // sempre vira ruído e some da percepção justo quando importa.
-    const ini = CODIGO.indexOf('{passo === 3 && (');
-    const bloco = CODIGO.slice(ini, CODIGO.indexOf('{passo === 4 && ('));
-    const i = bloco.indexOf("origemUrl === 'estimativa'");
-    expect(bloco.slice(i, i + 120)).toMatch(/naoSei|corrente !== ''/);
+  it('quem não sabe a corrente continua tendo saída — o "não sei" e a foto do quadro', () => {
+    // A orientação já existia no passo da corrente. É ela que atende quem
+    // chega pelo link com o campo vazio.
+    expect(CODIGO).toMatch(/Não sei meus dados/);
+    expect(CODIGO).toMatch(/foto do seu quadro/);
   });
 
   it('a varredura está lendo o arquivo certo (âncora anti-falso-verde)', () => {

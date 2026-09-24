@@ -4,7 +4,6 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEven
 import Link from 'next/link';
 import {
   ChevronRight,
-  ChevronLeft,
   Loader2,
   Home,
   Building2,
@@ -15,7 +14,6 @@ import {
   HardHat,
   BadgeCheck,
   MessageCircle,
-  AlertTriangle,
   Wrench as Chave,
 } from 'lucide-react';
 import { TextField } from '@/components/forms/fields/TextField';
@@ -119,10 +117,15 @@ const CONTEXTOS: Record<Setor, Contexto[]> = {
 const TENSOES = ['127V', '220V', '380V', '440V', 'Não sei'] as const;
 const PASSOS_BASE = 3; // +1 (checkout) quando há preço pra fechar
 
-/** De onde veio a corrente que a IA do WhatsApp (fluxo C1) apurou. Só
- *  'estimativa' muda alguma coisa na tela: número chutado merece conferência
- *  antes de virar pedido. */
-type OrigemCorrente = 'disjuntor' | 'conta' | 'estimativa';
+/** De onde veio a corrente que a IA do WhatsApp (fluxo C1) apurou.
+ *
+ *  ⛔ `estimativa` NÃO é mais origem válida (Léo, 24/09/2026: *"sem a informação
+ *  correta do cliente infelizmente não dá pra seguir"*). Não se fecha venda de
+ *  Master Block sem a corrente REAL do quadro — é ela que escolhe o modelo, e
+ *  modelo errado é vender algo que não protege. Link com `origem=estimativa`
+ *  ainda chega (os que já foram disparados no WhatsApp seguem vivos), mas a
+ *  corrente dele é DESCARTADA em `lerSemente`. */
+type OrigemCorrente = 'disjuntor' | 'conta';
 
 export type Semente = {
   corrente: string;
@@ -172,14 +175,22 @@ function correnteValida(bruto: string): string {
 export function lerSemente(busca: string, setor?: Setor): Semente {
   const q = new URLSearchParams(busca);
 
-  const corrente = correnteValida(q.get('corrente') ?? '');
+  const o = (q.get('origem') ?? '').toLowerCase();
+
+  // ⛔ Corrente ESTIMADA não entra (24/09). O link continua abrindo — só que com o
+  // campo da corrente VAZIO, e aí `passoDaSemente` para no passo dela em vez de
+  // pular pro contato. Antes, o número chutado preenchia o campo, o wizard ia
+  // direto pro passo 3 e mostrava "MB-01 · R$ 3.150" como se fosse o modelo da
+  // pessoa — a um clique do checkout. Agora ela precisa informar a real, ou
+  // tocar em "não sei" (que vira pedido de dimensionamento pela equipe, sem
+  // passo de checkout nenhum).
+  const corrente = o === 'estimativa' ? '' : correnteValida(q.get('corrente') ?? '');
 
   const bruta = (q.get('tensao') ?? '').trim().toUpperCase().replace(/\s|VOLTS?$/g, '');
   const alvo = bruta.endsWith('V') ? bruta : `${bruta}V`;
   const tensao = (TENSOES as readonly string[]).includes(alvo) ? alvo : '';
 
-  const o = (q.get('origem') ?? '').toLowerCase();
-  const origem = o === 'disjuntor' || o === 'conta' || o === 'estimativa' ? o : null;
+  const origem = o === 'disjuntor' || o === 'conta' ? o : null;
 
   // Contexto só vale se existir NESTA LP: 'casa' não existe na comercial nem
   // 'câmara fria' na residencial.
@@ -310,7 +321,6 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
   const [corrente, setCorrente] = useState('');
   const [naoSei, setNaoSei] = useState(false);
   /** Sinaliza que os campos vieram do link do WhatsApp — muda só a microcópia. */
-  const [origemUrl, setOrigemUrl] = useState<OrigemCorrente | null>(null);
   const [veioDeLink, setVeioDeLink] = useState(false);
 
   // Contato vira estado (não FormData): o passo 3 desmonta ao ir pro checkout.
@@ -369,7 +379,6 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
     if (s.contexto) setContexto(s.contexto);
     if (s.corrente) setCorrente(s.corrente);
     if (s.tensao) setTensao(s.tensao);
-    setOrigemUrl(s.origem);
     setVeioDeLink(true);
     // Abre no primeiro passo que a semente NÃO preencheu, pra pessoa não
     // refazer no site o que acabou de responder no WhatsApp. Nunca passa do 3:
@@ -1015,9 +1024,7 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                       onChange={(e) => setCorrente(soDigitos(e.target.value))}
                       hint={
                         veioDeLink && corrente !== ''
-                          ? origemUrl === 'estimativa'
-                            ? 'Veio da nossa conversa como estimativa — confirme no disjuntor antes de fechar.'
-                            : 'Já preenchemos com o número da nossa conversa. Dá pra corrigir.'
+                          ? 'Já preenchemos com o número da nossa conversa. Dá pra corrigir.'
                           : 'Só números — a corrente do disjuntor geral, em ampères.'
                       }
                       error={corrente !== '' && amp === 0 ? 'Informe a corrente em ampères.' : undefined}
@@ -1109,41 +1116,12 @@ export function CheckoutNI({ setor, landingSlug, whatsappHref, whatsappExternal 
                   </div>
                 )}
 
-                {/* ── Corrente ESTIMADA: o aviso tem de estar AQUI ────────────
-                    O aviso vivia só no `hint` do campo de corrente, que é do
-                    passo 2. Mas `passoDaSemente` manda o link completo do bot
-                    direto pro passo 3 — então, justamente nos links que
-                    CARREGAM a estimativa, o aviso nunca era visto.
-
-                    Não é cosmética: a regra do prompt do bot é estimar PARA
-                    CIMA, porque indicar modelo menor que o necessário é vender
-                    algo que não protege. Este é o último ponto antes de a
-                    pessoa decidir, então é aqui que a conferência tem de ser
-                    oferecida — com caminho de volta pro campo, não só com um
-                    texto. */}
-                {origemUrl === 'estimativa' && !naoSei && corrente !== '' && (
-                  <div className="flex items-start gap-3 rounded-card border border-gold/50 bg-gold/[0.10] p-4">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-gold" strokeWidth={2} aria-hidden="true" />
-                    <div>
-                      <p className="font-sans text-sm font-semibold text-[rgb(var(--text))]">
-                        Confira a corrente antes de fechar
-                      </p>
-                      <p className="mt-1 text-sm leading-relaxed text-[rgb(var(--text-muted))]">
-                        Os {corrente} A vieram da nossa conversa como estimativa — confirme no
-                        disjuntor antes de fechar. É esse número que escolhe o modelo.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => irPara(2)}
-                        className="mt-2 inline-flex items-center gap-1 font-sans text-sm font-semibold text-gold transition-colors hover:text-gold-soft"
-                      >
-                        <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-                        Conferir a corrente
-                      </button>
-                    </div>
-                  </div>
-                )}
-
+                {/* ⛔ O aviso de "corrente ESTIMADA" que morava aqui saiu em 24/09.
+                    Ele existia porque o link do bot com estimativa pulava direto
+                    pra este passo mostrando modelo e preço de um número chutado.
+                    Agora a corrente estimada é descartada em `lerSemente`: esse
+                    link para no passo 2 com o campo vazio, e não há mais número
+                    chutado chegando aqui pra ser avisado. */}
                 <div>
                   <h3 className="font-serif text-xl font-semibold text-[rgb(var(--text))]">
                     {temPreco ? 'Falta só um passo pra fechar.' : 'Falta só um passo pro seu orçamento.'}

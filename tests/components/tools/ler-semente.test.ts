@@ -11,7 +11,8 @@ import { lerSemente, passoDaSemente } from '@/components/tools/CheckoutNI';
 //  - o valor da URL é SUGESTÃO, nunca trava;
 //  - corrente inválida ou ausente → wizard abre EM BRANCO, sem erro na cara de
 //    quem só clicou num link;
-//  - `origem=estimativa` merece aviso de conferir antes de fechar.
+//  - `origem=estimativa` DESCARTA a corrente (24/09 — sem a corrente real não
+//    tem venda). Detalhe e guardas em `tests/corrente-estimada.test.ts`.
 // =============================================================================
 
 describe('lerSemente — caminho feliz', () => {
@@ -32,7 +33,9 @@ describe('lerSemente — caminho feliz', () => {
   });
 
   it('lê a origem quando o C1 informa', () => {
-    expect(lerSemente('?origem=estimativa').origem).toBe('estimativa');
+    // `estimativa` deixou de ser origem válida em 24/09 — a corrente dela é
+    // descartada. Ver `tests/corrente-estimada.test.ts`.
+    expect(lerSemente('?origem=estimativa').origem).toBeNull();
     expect(lerSemente('?origem=disjuntor').origem).toBe('disjuntor');
     expect(lerSemente('?origem=conta').origem).toBe('conta');
   });
