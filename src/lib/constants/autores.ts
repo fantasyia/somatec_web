@@ -32,6 +32,15 @@ export type Autor = {
   revisor: boolean;
 };
 
+// Ano em que o Leandro ENTROU na empresa (Léo, 25/09/2026) — não é quando virou
+// sócio nem diretor, e a sucessão não vai pro site. A bio diz "há mais de N anos",
+// calculado, pra nunca envelhecer. Nunca escrever o ano colado ao nome da
+// empresa: a Somatec é de 1999, e isso seria lido — por gente e por IA — como
+// data de fundação (guarda em tests/ano-de-fundacao.test.ts).
+const LEANDRO_ENTROU = 2011;
+/** "Mais de N": o −1 garante que é verdade o ano inteiro, mesmo em janeiro. */
+const anosDeLeandro = new Date().getFullYear() - LEANDRO_ENTROU - 1;
+
 export const AUTORES: readonly Autor[] = [
   {
     slug: 'redator-somatec',
@@ -50,12 +59,8 @@ export const AUTORES: readonly Autor[] = [
     papel: 'Sócio-diretor — Somatec Blocking',
     credencial: '',
     bio:
-      // O ano fica preso à PESSOA ("tornou-se ... em 2011"), nunca à empresa: a
-      // Somatec é de 1999, e o ano dele colado ao nome da empresa seria lido —
-      // por gente e por IA — como data de fundação. Guardado por
-      // tests/ano-de-fundacao.test.ts.
-      'Em 2011, Leandro de Albuquerque Pereira Lima tornou-se sócio-proprietário e ' +
-      'gestor da Somatec Blocking, empresa fundada em 1999. ' +
+      'Leandro de Albuquerque Pereira Lima é sócio-diretor da Somatec Blocking. ' +
+      `Está na empresa há mais de ${anosDeLeandro} anos. ` +
       'Formado em Direito, atua nas áreas comercial e jurídica, ' +
       'na venda e na elaboração de contratos de projetos de eficiência energética.',
     foto: null,
