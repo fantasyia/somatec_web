@@ -67,7 +67,7 @@ describe('schema Person — campo vazio não entra', () => {
     const p = pessoaSchema('Leandro Lima', { credencial: '   ', papel: '' });
     expect(p).not.toHaveProperty('hasCredential');
     // jobTitle cai no papel do perfil, que existe
-    expect(p!.jobTitle).toBe('CEO — Somatec Blocking');
+    expect(p!.jobTitle).toBe('Sócio-diretor — Somatec Blocking');
   });
 
   it('credencial do post vence a do perfil', () => {
@@ -95,7 +95,7 @@ describe('assinatura do artigo', () => {
     revisadoEm: '2026-07-27',
     especialista: {
       nome: 'José Fernando Nunes',
-      papel: 'Engenheiro eletricista',
+      papel: 'Engenheiro de manutenção',
       bio: null,
       credencial: null,
     },

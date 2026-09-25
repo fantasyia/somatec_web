@@ -49,11 +49,12 @@ describe('author box', () => {
     expect(html).toBe('');
   });
 
-  it('bio e credencial vazias NÃO viram linha em branco nem placeholder', () => {
+  it('papel e bio vêm do perfil; campo vazio NÃO vira linha em branco nem placeholder', () => {
     const html = renderToStaticMarkup(<AuthorBox assinatura={base} />);
     expect(html).toContain('Revisão técnica');
     expect(html).toContain('Leandro Lima');
-    expect(html).toContain('CEO — Somatec Blocking'); // papel vem do perfil
+    expect(html).toContain('Sócio-diretor — Somatec Blocking'); // papel vem do perfil
+    expect(html).toContain('Em 2011'); // bio vem do perfil
     // nada de "em breve", "a definir" ou parágrafo vazio
     expect(html).not.toMatch(/em breve|a definir|<p[^>]*><\/p>/i);
   });

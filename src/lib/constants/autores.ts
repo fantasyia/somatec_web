@@ -6,10 +6,10 @@
 // empresa: artigo técnico assinado só por "Somatec Blocking" vale menos que o
 // mesmo artigo revisado por um engenheiro com registro.
 //
-// ⚠️ FOTO, BIO E CREDENCIAL ESTÃO VAZIAS DE PROPÓSITO.
+// ⚠️ SÓ ENTRA O QUE O LÉO INFORMOU — campo sem dado fica VAZIO.
 // Em página YMYL, credencial inventada é PIOR que credencial ausente — é
 // exatamente o que o algoritmo pune. O author box entende campo vazio e
-// simplesmente não renderiza a linha. Preencher é decisão do Léo.
+// simplesmente não renderiza a linha. Bios e cargos vieram do Léo em 25/09/2026.
 //
 // ⚠️ Esta lista espelha `lib/site/collaborators.ts` do CMS. São dois repos, e
 // não há como um importar do outro: quem mudar um tem de mudar o outro. O
@@ -44,15 +44,25 @@ export const AUTORES: readonly Autor[] = [
   },
   {
     slug: 'leandro-lima',
+    // `nome` fica curto: é a chave que casa com `reviewed_by` no CMS. O nome
+    // completo vai na bio.
     nome: 'Leandro Lima',
-    papel: 'CEO — Somatec Blocking',
+    papel: 'Sócio-diretor — Somatec Blocking',
     credencial: '',
-    bio: '',
+    bio:
+      // O ano fica preso à PESSOA ("tornou-se ... em 2011"), nunca à empresa: a
+      // Somatec é de 1999, e o ano dele colado ao nome da empresa seria lido —
+      // por gente e por IA — como data de fundação. Guardado por
+      // tests/ano-de-fundacao.test.ts.
+      'Em 2011, Leandro de Albuquerque Pereira Lima tornou-se sócio-proprietário e ' +
+      'gestor da Somatec Blocking, empresa fundada em 1999. ' +
+      'Formado em Direito, atua nas áreas comercial e jurídica, ' +
+      'na venda e na elaboração de contratos de projetos de eficiência energética.',
     foto: null,
     revisor: true,
   },
   // 🚫 Marcelo Harada saiu desta lista em 18/09/2026, a pedido do Léo. Quem
-  // assina é o Leandro (CEO), o José Fernando Nunes (engenheiro) e a redação —
+  // assina é o Leandro (sócio-diretor), o José Fernando Nunes (engenheiro) e a redação —
   // mais ninguém. Não era perfil incompleto por esquecimento: ele não assina.
   // Saiu sem rastro: nenhum dos 378 posts (nem os apagados) tinha o nome dele
   // em author_name, reviewed_by, expert_name ou no corpo — conferido no banco
@@ -63,11 +73,13 @@ export const AUTORES: readonly Autor[] = [
     // O que dá peso em conteúdo elétrico é o registro, e agora ele está aqui.
     slug: 'jose-fernando-nunes',
     nome: 'José Fernando Nunes',
-    papel: 'Engenheiro eletricista',
+    // Cargo e bio informados pelo Léo em 25/09/2026. Antes estava "engenheiro
+    // eletricista", que foi dedução nossa, não dado dele.
+    papel: 'Engenheiro de manutenção',
     credencial: 'CREA-SP 5060776733',
-    // 🔲 Bio vazia de propósito: não temos uma linha verdadeira sobre ele além
-    //    do registro, e frase de enfeite em YMYL vale menos que ausência.
-    bio: '',
+    bio:
+      'Engenheiro de manutenção especializado em eficiência energética e em gestão ' +
+      'de manutenção de sistemas de alta criticidade.',
     // 🔒 SEM FOTO POR VONTADE DELE — decisão do Léo em 15/09, reafirmada em
     // 18/09, não é pendência.
     //
