@@ -80,7 +80,23 @@ export default function robots(): MetadataRoute.Robots {
   // `seo_robots_index` em `site_settings` (Supabase), com default false.
   // Virar só esta variável abre o robots.txt e mantém a meta noindex.
   if (process.env.SITE_NOINDEX === 'true') {
-    return { rules: [{ userAgent: '*', disallow: '/' }] };
+    return {
+      rules: [
+        { userAgent: '*', disallow: '/' },
+        // Única exceção do pré-lançamento: o robô da Meta precisa LER a
+        // política de privacidade e os termos pra aceitar o app "Somatec Ads"
+        // (ligação do Betinna com DMs do Instagram/Messenger). Com o `Disallow: /`
+        // geral a Meta recusa o link — "Data deletion instructions URL should
+        // represent a valid URL" (25/09). O grupo é nominal, então só vale pro
+        // `facebookexternalhit`; Googlebot, AdsBot e robôs de IA seguem barrados.
+        // No go-live o grupo `*` abre tudo e esta exceção deixa de importar.
+        {
+          userAgent: 'facebookexternalhit',
+          allow: ['/politica-de-privacidade', '/termos-de-uso'],
+          disallow: '/',
+        },
+      ],
+    };
   }
 
   return {

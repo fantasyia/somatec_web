@@ -30,9 +30,14 @@ describe('robots.txt — robôs de IA', () => {
     process.env.SITE_NOINDEX = 'true';
     const r = robots();
     const regras = Array.isArray(r.rules) ? r.rules : [r.rules];
-    expect(regras).toHaveLength(1);
+    expect(regras).toHaveLength(2);
     expect(regras[0].userAgent).toBe('*');
     expect(regras[0].disallow).toBe('/');
+    // Única exceção: o robô da Meta lê SÓ privacidade e termos (validação do
+    // app Somatec Ads). Nenhum robô de IA nem do Google ganha grupo próprio.
+    expect(regras[1].userAgent).toBe('facebookexternalhit');
+    expect(regras[1].allow).toEqual(['/politica-de-privacidade', '/termos-de-uso']);
+    expect(regras[1].disallow).toBe('/');
     // Nada de sitemap enquanto está fechado.
     expect(r.sitemap).toBeUndefined();
   });
