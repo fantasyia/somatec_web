@@ -54,7 +54,7 @@ describe('author box', () => {
     expect(html).toContain('Revisão técnica');
     expect(html).toContain('Leandro Lima');
     expect(html).toContain('Sócio-diretor — Somatec Blocking'); // papel vem do perfil
-    expect(html).toMatch(/Está na empresa há mais de \d+ anos/); // bio vem do perfil
+    expect(html).toMatch(/há mais de \d+ anos e hoje é sócio-diretor/); // bio vem do perfil
     // nada de "em breve", "a definir" ou parágrafo vazio
     expect(html).not.toMatch(/em breve|a definir|<p[^>]*><\/p>/i);
   });
