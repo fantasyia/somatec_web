@@ -59,10 +59,10 @@ export const AUTORES: readonly Autor[] = [
     papel: 'Sócio-diretor — Somatec Blocking',
     credencial: '',
     bio:
-      `Leandro de Albuquerque Pereira Lima está na Somatec Blocking há mais de ${anosDeLeandro} ` +
-      'anos e hoje é sócio-diretor da empresa. Formado em Direito, cuida das frentes ' +
-      'comercial e jurídica: negocia e elabora os contratos dos projetos de eficiência ' +
-      'energética.',
+      'Leandro de Albuquerque Pereira Lima é sócio-diretor da Somatec Blocking, a ' +
+      `empresa por trás do Master Block, onde está há mais de ${anosDeLeandro} anos. ` +
+      'Formado em Direito, cuida da parte comercial e jurídica de uma empresa que não ' +
+      'se limita a prometer: mede, prova e cumpre o que oferece a cada cliente.',
     foto: null,
     revisor: true,
   },
