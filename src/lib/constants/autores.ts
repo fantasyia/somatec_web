@@ -83,12 +83,12 @@ export const AUTORES: readonly Autor[] = [
     papel: 'Engenheiro de manutenção',
     credencial: 'CREA-SP 5060776733',
     // "Sistemas que não podem parar" = o "alta criticidade" do Léo, em palavra de
-    // leitor não industrial. Mesma pegada da bio do Leandro (25/09).
+    // leitor não industrial. Longa experiência em grandes indústrias: Léo, 26/09.
     bio:
       'José Fernando Nunes é engenheiro de manutenção, especializado em eficiência ' +
-      'energética e em sistemas que não podem parar. Na Somatec Blocking, revisa os ' +
-      'artigos técnicos do blog: o que você lê aqui sobre surto, instalação e proteção ' +
-      'passa pelo crivo de um engenheiro com registro no CREA.',
+      'energética e em sistemas que não podem parar. Com longa experiência em grandes ' +
+      'indústrias, conhece na prática o que acontece com um equipamento quando a ' +
+      'energia falha, e o que fazer para que isso não se repita.',
     // 🔒 SEM FOTO POR VONTADE DELE — decisão do Léo em 15/09, reafirmada em
     // 18/09, não é pendência.
     //
