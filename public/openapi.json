@@ -493,36 +493,6 @@
         }
       }
     },
-    "/api/metrics": {
-      "get": {
-        "tags": [
-          "internal"
-        ],
-        "summary": "Métricas Prometheus",
-        "description": "Retorna métricas no formato Prometheus text exposition (version 0.0.4). Inclui gauges (queue depth, uptime, build info), counters (HTTP requests por rota/status) e histograms (operation_duration_ms). Auth opcional via METRICS_SECRET.",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Métricas em text/plain",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "# HELP msm_queue_pending Mensagens em pending na webhook_retry_queue.\n# TYPE msm_queue_pending gauge\nmsm_queue_pending 0\nmsm_queue_failed 1\nmsm_queue_dead 0\n"
-              }
-            }
-          },
-          "401": {
-            "description": "METRICS_SECRET configurado mas Bearer token inválido"
-          }
-        }
-      }
-    },
     "/api/pedidos": {
       "post": {
         "tags": [

@@ -110,14 +110,6 @@ ALERT_SUPABASE_LATENCY_WARN_MS=3000
 
 Dedup: cada `(alert.key, hora-do-dia)` dispara no máximo 1x via Redis. Sem Redis, alerta dispara em cada execução.
 
-Opcional para proteger o endpoint Prometheus:
-
-```
-METRICS_SECRET=<random>
-```
-
-Quando setado, `/api/metrics` exige `Authorization: Bearer $METRICS_SECRET`. Configure no Prometheus scrape config (`bearer_token`). Sem secret, endpoint é público (acceptable se sua plataforma já filtra acesso).
-
 Opcional para assinar requests ao MullerBot (HMAC-SHA256):
 
 ```
@@ -228,7 +220,6 @@ Também é possível colar o conteúdo em [editor.swagger.io](https://editor.swa
 |---|---|
 | `/api/health` | Health check (env + Supabase + Redis + queue stats). 200 ok/degraded, 503 down |
 | `/api/version` | Build info: commit SHA, versões Next/Node, uptime do worker |
-| `/api/metrics` | Métricas Prometheus (queue depth, uptime, HTTP requests, operation latencies, alerts). Auth opcional via `METRICS_SECRET` |
 | `/api/csp-report` | Receptor de violações CSP (level 2 + 3). Loga + incrementa `msm_csp_violations_total{directive}` |
 | `/api/webhooks/mullerbot` | Receiver de callbacks inbound do MullerBot (auth HMAC, idempotente). Persiste em `mullerbot_callbacks` |
 | `/api/cron/health-monitor` | Avalia thresholds e dispara webhook se algo passa (auth `CRON_SECRET`, dedup Redis) |
@@ -338,7 +329,7 @@ Se Upstash não estiver configurado, vira no-op (sem validação de duplicação
 
 ### Rotação de secrets (zero-downtime)
 
-Endpoints internos (`/api/revalidate`, `/api/cron/*`, `/api/metrics`) usam `validateBearer()` que aceita **CSV de tokens** no env var. Permite rotação sem downtime:
+Endpoints internos (`/api/revalidate`, `/api/cron/*`) usam `validateBearer()` que aceita **CSV de tokens** no env var. Permite rotação sem downtime:
 
 ```
 # Estado normal:
@@ -351,7 +342,7 @@ CRON_SECRET=token-novo,token-atual
 CRON_SECRET=token-novo
 ```
 
-Ambos os tokens são aceitos enquanto o CSV contém os dois. Comparação em tempo constante (`crypto.timingSafeEqual`). Mesma lógica vale para `REVALIDATE_SECRET` e `METRICS_SECRET`.
+Ambos os tokens são aceitos enquanto o CSV contém os dois. Comparação em tempo constante (`crypto.timingSafeEqual`). Mesma lógica vale para `REVALIDATE_SECRET`.
 
 ### Slow query monitoring
 
