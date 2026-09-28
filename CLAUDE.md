@@ -1,5 +1,11 @@
 # somatec_web — instruções do projeto
 
+> 🏷️ **Cliente: Somatec Blocking.** Este repositório é da Somatec; as regras
+> gerais dela (ordem do pedido no ERP, Drive do marketing@, domínio e NOINDEX do
+> site) vêm do arquivo importado abaixo. Material de outro cliente não entra aqui.
+
+@~/.claude/github/leo-Skills-master/clients/somatec/REGRAS-GERAIS-SOMATEC.md
+
 Site da **Somatec Blocking**. Produto: **Master Block** (supressor de surtos / qualidade de energia).
 
 > **Por que este arquivo existe.** O bootstrap desta sessão mora em outro repo
