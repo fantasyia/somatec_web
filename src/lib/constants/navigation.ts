@@ -74,7 +74,7 @@ export const HEADER_NAV: NavItem[] = [
       {
         label: 'Perguntas frequentes',
         href: '/faq',
-        description: 'Respostas técnicas sobre Master Block, VTCD e o modelo sem risco.',
+        description: 'Respostas técnicas sobre o Master Block, VTCD e instalação.',
       },
     ],
   },
