@@ -23,7 +23,7 @@
 // retroativo; e as calculadoras não perguntam setor, então uma família mandada
 // pelo site nasceria vazia justo nos leads mais quentes.
 //
-// Lista canônica: clients/somatec/reports/prospeccao/icp-setores.md
+// Lista canônica: C:/Users/TechD/Clientes/SOMATEC-BLOCKING/reports/prospeccao/icp-setores.md
 // =============================================================================
 
 export type PublicoId = 'industria' | 'comercio' | 'residencia';

@@ -79,7 +79,7 @@ export const EMPRESA = {
   cnpj: '16.774.052/0001-55',
   /** Razão social · CNPJ, como vai no rodapé e no checkout. */
   linha: 'Somatecblocking UF Eletroeletrônicos LTDA · CNPJ 16.774.052/0001-55',
-  /** Ano de fundação. FONTE: `clients/somatec/brand/kit-perfis-digitais.md`
+  /** Ano de fundação. FONTE: `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/brand/kit-perfis-digitais.md`
    *  ("Fundação | 1999 · 26 anos").
    *
    *  ⚠️ Estava digitado solto em 6 arquivos, e por isso o MENU dizia 1998

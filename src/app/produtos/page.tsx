@@ -272,7 +272,7 @@ export default function ProdutosPage() {
                 desempenho do Master Block; o que aparece é leitura de rede de
                 um caso hipotético.
 
-                Origem editável: `leo-Skills-master/clients/somatec/reports/
+                Origem editável: `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/reports/
                 site/masterblock-iot-tela/`. */}
             <Reveal className="lg:col-span-6">
               <figure className="space-y-2">

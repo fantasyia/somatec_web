@@ -12,7 +12,7 @@ import { CONTACT, EMPRESA, SITE } from '@/lib/constants/site';
 // diferentes da mesma empresa na mesma compra.
 //
 // Padrão canônico em:
-//   leo-Skills-master/clients/somatec/reports/email/layout-transacional/
+//   C:/Users/TechD/Clientes/SOMATEC-BLOCKING/reports/email/layout-transacional/
 //   (template-fluxo.CANONICO.html + README.md)
 //
 // AS QUATRO DECISÕES ABAIXO NÃO SÃO ESTÉTICA. Cada uma corrige um jeito

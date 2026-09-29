@@ -13,7 +13,7 @@
 //
 // ⚠️ 2026-08-05 — os clusters foram consolidados de 42 para 24 e os ids
 // deixaram de ser códigos (c14, c38…) e viraram SLUGS. Este arquivo foi
-// atualizado conforme `leo-Skills-master/clients/somatec/reports/site/lp-ni-spec.md`.
+// atualizado conforme `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/reports/site/lp-ni-spec.md`.
 // Os códigos velhos não existem mais em lugar nenhum e saíram daqui.
 // =============================================================================
 

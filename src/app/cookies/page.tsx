@@ -16,7 +16,7 @@ import { CONTACT } from '@/lib/constants/site';
 //
 // Ninguém mentiu: a página foi escrita uma vez e o código andou sozinho depois.
 //
-// Copy da sessão master (`clients/somatec/reports/site/copy-cookies.md`,
+// Copy da sessão master (`C:/Users/TechD/Clientes/SOMATEC-BLOCKING/reports/site/copy-cookies.md`,
 // 14/09/2026). A TABELA é gerada de `COOKIES_DO_SITE` de propósito — repetir o
 // inventário em prosa é exatamente como esta página envelheceu da primeira vez.
 //

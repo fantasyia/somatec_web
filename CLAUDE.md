@@ -4,12 +4,12 @@
 > gerais dela (ordem do pedido no ERP, Drive do marketing@, domínio e NOINDEX do
 > site) vêm do arquivo importado abaixo. Material de outro cliente não entra aqui.
 
-@~/.claude/github/leo-Skills-master/clients/somatec/REGRAS-GERAIS-SOMATEC.md
+@~/Clientes/SOMATEC-BLOCKING/REGRAS-GERAIS-SOMATEC.md
 
 Site da **Somatec Blocking**. Produto: **Master Block** (supressor de surtos / qualidade de energia).
 
 > **Por que este arquivo existe.** O bootstrap desta sessão mora em outro repo
-> (`leo-Skills-master/_sessions/criacao-site-somatec/CONTEXT.md`) e **uma sessão aberta direto aqui
+> (`C:/Users/TechD/Clientes/SOMATEC-BLOCKING/sessoes/criacao-site-somatec/CONTEXT.md`) e **uma sessão aberta direto aqui
 > não o lê**. Em 07/09 isso custou uma frase da oferta extinta publicada no `/llms.txt`. O que não
 > pode se perder está aqui, onde o Claude sempre passa.
 
@@ -53,7 +53,7 @@ escorregão mais fácil daqui.
 - `src/lib/constants/oferta-industrial.ts` — o texto que está no ar. Mudou a oferta, muda **aqui**;
   as páginas puxam dele.
 - `tests/oferta-industrial.test.ts` — reprova o build se o vocabulário morto voltar.
-- `leo-Skills-master/clients/somatec/brand/base-conhecimento-produto-mb.md` — o modelo completo, com
+- `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/brand/base-conhecimento-produto-mb.md` — o modelo completo, com
   a data de cada mudança.
 
 ⛔ **`playbook-vendas.md` é material INTERNO de vendas.** Não copiar frase dele pro site.
@@ -140,7 +140,7 @@ sessão dedicada pra isso. Duas peças, e confundir desfaz a decisão do Léo:
 | **rotina diária** | tarefa agendada, 03:00 | lê as últimas 24h dos 3 projetos, separa ruído de problema, acha a causa raiz e **PROPÕE**. ⛔ Não conserta. |
 | **sessão `/sentry`** | aberta pelo Léo | **executa o conserto**, depois que ele leu a proposta e disse "pode consertar" |
 
-Bootstrap: `leo-Skills-master/_sessions/triagem-sentry/CONTEXT.md`.
+Bootstrap: `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/sessoes/triagem-sentry/CONTEXT.md`.
 
 Achou erro de produção no meio de outra tarefa? Consertar a raiz continua sendo o certo (ver a
 regra global) — o que **não** se faz é abrir investigação diária por conta própria, nem consertar

@@ -10,7 +10,7 @@ import { CONTACT } from '@/lib/constants/site';
 // Estes testes não são sobre gosto. Cada um trava um jeito conhecido de o
 // e-mail chegar quebrado na caixa do cliente — e todos já aconteceram de
 // verdade. O padrão canônico vive em:
-//   leo-Skills-master/clients/somatec/reports/email/layout-transacional/
+//   C:/Users/TechD/Clientes/SOMATEC-BLOCKING/reports/email/layout-transacional/
 //
 // Rodam sobre os DOIS e-mails do site: se alguém criar um terceiro sem passar
 // pelo `layout.ts`, o jeito de descobrir é acrescentar ele aqui.

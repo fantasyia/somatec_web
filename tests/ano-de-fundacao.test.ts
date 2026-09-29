@@ -11,7 +11,7 @@ import { EMPRESA, anosDeAtuacao } from '@/lib/constants/site';
 // porque cada arquivo estava internamente coerente — só o conjunto é que
 // mentia, e o `foundingDate` vai pro Google e pras buscas de IA.
 //
-// Fonte da verdade: `clients/somatec/brand/kit-perfis-digitais.md`, da master.
+// Fonte da verdade: `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/brand/kit-perfis-digitais.md`, da master.
 // =============================================================================
 
 const RAIZ = resolve(process.cwd(), 'src');

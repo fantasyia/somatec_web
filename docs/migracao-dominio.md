@@ -288,9 +288,9 @@ O link de acompanhamento do pedido (`/pedido/<numero>`) sai do site por e-mail e
 
 O host aparece em arquivos versionados do `leo-Skills-master`:
 
-- `clients/somatec/reports/blog/_conexoes-pendentes.md`
-- `_sessions/criacao-blog-somatec/CONTEXT.md` ← **o CONTEXT da sessão**, então toda sessão de blog nova nasce com o host velho
-- `_sessions/criacao-blog-somatec/CONTEXT.pre-autonomia.bak.md` (backup — decidir se atualiza)
+- `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/reports/blog/_conexoes-pendentes.md`
+- `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/sessoes/criacao-blog-somatec/CONTEXT.md` ← **o CONTEXT da sessão**, então toda sessão de blog nova nasce com o host velho
+- `C:/Users/TechD/Clientes/SOMATEC-BLOCKING/sessoes/criacao-blog-somatec/CONTEXT.pre-autonomia.bak.md` (backup — decidir se atualiza)
 
 ⚠️ **A canônica dos artigos.** O CMS grava a canônica dos posts. Se ela guarda URL absoluta com o host do Railway, todo artigo publicado carrega o domínio velho. Conferir no MWP/Supabase antes de trocar.
 
