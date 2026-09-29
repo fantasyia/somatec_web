@@ -12,7 +12,10 @@ import type { SendOutcome } from '@/lib/mullerbot/client';
 // com o ERP direto: o refresh token do Tiny dura 1 dia e não tem por que viver
 // na borda, em dois lugares, expirando em dobro.
 //
-// POST {BETINNA_PEDIDOS_URL} com header `x-api-key` — a MESMA chave dos leads.
+// POST {BETINNA_PEDIDOS_URL} com header `x-api-key` = BETINNA_PEDIDOS_API_KEY
+// (chave `bpk_`, só de pedidos — separada da de leads em 29/09/2026: a de leads,
+// se vazar, não cria pedido no ERP). Sem ela, cai na BETINNA_API_KEY: o Betinna
+// aceita a de leads pra pedido só enquanto a empresa não gerou a de pedidos.
 // **Idempotente por `numeroSite`**: reenvio devolve o pedido que já existe, em
 // vez de duplicar. É o que torna a fila de retry segura.
 // =============================================================================
@@ -186,7 +189,7 @@ function urlPedidos(): string | undefined {
 
 export async function enviarPedidoBetinna(pedido: PedidoBetinna): Promise<SendOutcome> {
   const url = urlPedidos();
-  const apiKey = process.env.BETINNA_API_KEY;
+  const apiKey = process.env.BETINNA_PEDIDOS_API_KEY || process.env.BETINNA_API_KEY;
   if (!url || !apiKey) return { result: 'not_configured' };
 
   return withTiming('betinna:pedido', async () => {
